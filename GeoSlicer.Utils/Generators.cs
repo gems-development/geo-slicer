@@ -20,6 +20,7 @@ public static class Generators
         {
             gf = Gf;
         }
+
         if (pointCount % 4 != 0)
         {
             throw new ArgumentException("Количество точек должно быть кратно 4м");

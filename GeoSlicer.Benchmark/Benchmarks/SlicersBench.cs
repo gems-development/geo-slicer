@@ -1,7 +1,7 @@
 ﻿using BenchmarkDotNet.Attributes;
+using NetTopologySuite.Geometries;
 using GeoSlicer.Slicers;
 using GeoSlicer.Utils;
-using NetTopologySuite.Geometries;
 
 namespace GeoSlicer.Benchmark.Benchmarks;
 

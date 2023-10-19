@@ -5,12 +5,12 @@ namespace GeoSlicer.Slicers;
 public class RadialConvexSlicer : ISlicer
 {
     private readonly GeometryFactory _gf;
-    
+
     public RadialConvexSlicer()
     {
         _gf = NetTopologySuite.NtsGeometryServices.Instance.CreateGeometryFactory(4326);
     }
-    
+
     public LinearRing[] Slice(LinearRing ring, int maxDotCount)
     {
         Coordinate[] coordinates = ring.Coordinates;
@@ -21,7 +21,7 @@ public class RadialConvexSlicer : ISlicer
         Coordinate[] newRingCoordinates;
         Coordinate first = coordinates[0];
         Coordinate last = coordinates[1];
-        
+
         for (int i = 0; i < ringsCount - 1; i++)
         {
             newRingCoordinates = new Coordinate[maxDotCount + 1];
