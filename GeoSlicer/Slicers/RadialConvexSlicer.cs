@@ -6,9 +6,9 @@ public class RadialConvexSlicer : ISlicer
 {
     private readonly GeometryFactory _gf;
 
-    public RadialConvexSlicer()
+    public RadialConvexSlicer(GeometryFactory? gf = null)
     {
-        _gf = NetTopologySuite.NtsGeometryServices.Instance.CreateGeometryFactory(4326);
+        _gf = gf ?? NetTopologySuite.NtsGeometryServices.Instance.CreateGeometryFactory(4326);
     }
 
     public LinearRing[] Slice(LinearRing ring, int maxDotCount)
