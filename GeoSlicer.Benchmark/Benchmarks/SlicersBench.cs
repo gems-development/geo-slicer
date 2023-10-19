@@ -5,6 +5,7 @@ using NetTopologySuite.Geometries;
 
 namespace GeoSlicer.Benchmark.Benchmarks;
 
+[MemoryDiagnoser(false)]
 public class SlicersBench
 {
     private static readonly GeometryFactory Gf =
