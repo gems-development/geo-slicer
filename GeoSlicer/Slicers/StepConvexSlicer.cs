@@ -40,7 +40,7 @@ public class StepConvexSlicer : ISlicer
 
             if (right - left <= maxDotCount - 2)
                 break;
-            
+
             newRingCoordinates = new Coordinate[maxDotCount + 1];
             newRingCoordinates[0] = coordinates[right];
             for (int j = 1; j < maxDotCount - 1; j++)
@@ -69,6 +69,5 @@ public class StepConvexSlicer : ISlicer
         }
 
         return result;
-
     }
 }
