@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeoSlicer", "GeoSlicer\GeoS
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeoSlicer.Benchmark", "GeoSlicer.Benchmark\GeoSlicer.Benchmark.csproj", "{1B5194E6-2858-4AAF-9AA2-A055BD0F8468}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeoSlicer.Utils", "GeoSlicer.Utils\GeoSlicer.Utils.csproj", "{056E4DDA-2430-47AB-94F1-5ECA4772BECD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{1B5194E6-2858-4AAF-9AA2-A055BD0F8468}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1B5194E6-2858-4AAF-9AA2-A055BD0F8468}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1B5194E6-2858-4AAF-9AA2-A055BD0F8468}.Release|Any CPU.Build.0 = Release|Any CPU
+		{056E4DDA-2430-47AB-94F1-5ECA4772BECD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{056E4DDA-2430-47AB-94F1-5ECA4772BECD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{056E4DDA-2430-47AB-94F1-5ECA4772BECD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{056E4DDA-2430-47AB-94F1-5ECA4772BECD}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
