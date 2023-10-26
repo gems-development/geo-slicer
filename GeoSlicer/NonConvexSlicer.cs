@@ -83,7 +83,7 @@ public class NonConvexSlicer
 
     private bool HasIntersection(CoordinateZM[] ring, CoordinateZM coordCurrent, CoordinateZM coordNext)
     {
-        if (coordCurrent.Equals2D(coordNext)) return true;
+        if (coordCurrent.Equals2D(coordNext)) return false;
         for (var i = 0; i < ring.Length; i++)
         {
             while (double.IsNaN(ring[i].M)) i++;
@@ -166,20 +166,20 @@ public class NonConvexSlicer
  
                 for(var i = (int)coordM.M; i != (int)coordB.M; i = (i + 1) % (ring.Count - 1))
                 {
-                    listFirst.Add(ring[i]);
+                    listFirst.Add(new Coordinate(ring[i].X, ring[i].Y));
                 }
-                listFirst.Add(coordB);
-                listFirst.Add(coordM);
+                listFirst.Add(new Coordinate(coordB.X, coordB.Y));
+                listFirst.Add(new Coordinate(coordM.X, coordM.Y));
                 var ringFirst = new LinearRing(listFirst.ToArray());
  
                 var listSecond = new List<Coordinate>();
  
                 for (var i = (int)coordB.M; i != (int)coordM.M; i = (i + 1) % (ring.Count - 1))
                 {
-                    listSecond.Add(ring[i]);
+                    listSecond.Add(new Coordinate(ring[i].X, ring[i].Y));
                 }
-                listSecond.Add(coordM);
-                listSecond.Add(coordB);
+                listSecond.Add(new Coordinate(coordM.X, coordM.Y));
+                listSecond.Add(new Coordinate(coordB.X, coordB.Y));
                 var ringSecond = new LinearRing(listSecond.ToArray());
  
                 listTwoRingsWithoutSpecialPoints.Add(ringFirst);
@@ -225,7 +225,6 @@ public class NonConvexSlicer
 
         switch (listSpecialPoints.Count)
         {
-            //Если список особых точек пуст, то возвращаем исходный LinearRing
             case 0:
                 return new List<LinearRing> { ring };
             case 1:
@@ -254,11 +253,6 @@ public class NonConvexSlicer
                 endSpecialPointIndex = listSpecialPoints.Count;
                 coordCurrent = listSpecialPoints[beginSpecialPointIndex];
                 coordPrev = coordCurrent;
-
-                /*coordPrev =
-                    listSpecialPoints[
-                        (currentSpecialPointIndex - 1 + endSpecialPointIndex - 1 - 2 * beginSpecialPointIndex) %
-                        (endSpecialPointIndex - 1 - beginSpecialPointIndex) + beginSpecialPointIndex];*/
             }
 
             var coordNext = listSpecialPoints[
@@ -269,14 +263,6 @@ public class NonConvexSlicer
             wasIntersectionInIteration = false;
             if (HasIntersection(ringCoords, coordCurrent, coordNext))
             {
-                /*
-                 * Проблема с индексацией: nextIndex идёт по элементам исходного LinearRing, а не по элементам, которые входят в текущую итерацию
-                 * можно хранить такую структуру:
-                 * P - previous: int, индекс элемента, из которого мы можем попасть в текущий
-                 * C - current: int, индекс элемента в исходном массиве
-                 * N - next: int, индекс элемента, в который можем перейти из текущего
-                 * 
-                 */
                 var nextIndex = (int)coordNext.M - 1;
                 while (HasIntersection(ringCoords, coordCurrent, ringCoords[nextIndex]))
                 {
@@ -332,7 +318,7 @@ public class NonConvexSlicer
             {
                 var currentLinearRingCoords = new List<Coordinate>();
                 for (var j = (int)coordCurrent.M;
-                     j <= (int)coordNext.M + ((int)coordNext.M < (int)coordCurrent.M ? ringCoords.Length : 0);
+                     j <= (int)coordNext.M + ((int)coordNext.M <= (int)coordCurrent.M ? ringCoords.Length : 0);
                      j++)
                 {
                     //Если не входим в текущее кольцо, то пропускаем
@@ -343,11 +329,10 @@ public class NonConvexSlicer
                     currentLinearRingCoords.Add(new Coordinate(ringCoords[j % ringCoords.Length].X, ringCoords[j % ringCoords.Length].Y));
                 }
 
-                currentLinearRingCoords.Add(currentLinearRingCoords[0]);
+                if (endSpecialPointIndex - beginSpecialPointIndex != 1) currentLinearRingCoords.Add(currentLinearRingCoords[0]);
                 var currentLinearRing = new LinearRing(currentLinearRingCoords.ToArray());
                 var convexLists = SliceFigureWithOneSpecialPoint(currentLinearRing);
                 listLinearRing = listLinearRing.Union(convexLists).ToList();
-                //listLinearRing.Add(currentLinearRing);
             }
 
             coordPrev = coordCurrent;
