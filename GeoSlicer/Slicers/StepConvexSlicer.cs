@@ -6,9 +6,9 @@ public class StepConvexSlicer : ISlicer
 {
     private readonly GeometryFactory _gf;
 
-    public StepConvexSlicer()
+    public StepConvexSlicer(GeometryFactory? gf = null)
     {
-        _gf = NetTopologySuite.NtsGeometryServices.Instance.CreateGeometryFactory(4326);
+        _gf = gf ?? NetTopologySuite.NtsGeometryServices.Instance.CreateGeometryFactory(4326);
     }
 
     public LinearRing[] Slice(LinearRing ring, int maxDotCount)
