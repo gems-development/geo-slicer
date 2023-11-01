@@ -10,4 +10,10 @@
       <PackageReference Include="NetTopologySuite.IO.GeoJSON" Version="4.0.0" />
     </ItemGroup>
 
+
+    <ItemGroup>
+      <ProjectReference Include="..\GeoSlicer.GeoJsonFileService\GeoSlicer.GeoJsonFileService.csproj" />
+      <ProjectReference Include="..\GeoSlicer.Utils\GeoSlicer.Utils.csproj" />
+    </ItemGroup>
+
 </Project>
