@@ -82,7 +82,7 @@ public class NonConvexSlicer
         return IsIntersectionOfSegments(coordCurrent, coordNext, ring[index].ToCoordinate(),
             coordCurrent);
     }
-    private LinearRing IgnoreInnerPointsOfSegment(LinearRing ring)
+    public LinearRing IgnoreInnerPointsOfSegment(LinearRing ring)
     {
         var array = new Coordinate[ring.Count - 1];
         var j = 0;
@@ -219,7 +219,7 @@ public class NonConvexSlicer
                 }
                 listFirst.Add(coordB);
                 listFirst.Add(coordM);
-                var ringFirst = new LinearRing(listFirst.ToArray());
+                var ringFirst = IgnoreInnerPointsOfSegment(new LinearRing(listFirst.ToArray()));
 
                 var listSecond = new List<Coordinate>();
 
@@ -229,7 +229,7 @@ public class NonConvexSlicer
                 }
                 listSecond.Add(coordM);
                 listSecond.Add(coordB);
-                var ringSecond = new LinearRing(listSecond.ToArray());
+                var ringSecond = IgnoreInnerPointsOfSegment(new LinearRing(listSecond.ToArray()));
 
                 listRingsWithoutSpecialPoints.Add(ringFirst);
                 listRingsWithoutSpecialPoints.Add(ringSecond);
