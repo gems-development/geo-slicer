@@ -8,10 +8,81 @@ namespace GeoSlicer.Tests;
 public class NonConvexSlicerTest
 {
     [Fact]
+    public void OneSpecialPoint_OptimalSlice()
+    {
+        var gf = NetTopologySuite.NtsGeometryServices.Instance.CreateGeometryFactory(4326);
+        Coordinate[] coordinates =
+        {
+            new(3, 1), new(1, 7), new(3, 5), new(5, 7), new(3, 1)
+        };
+        var lnr = gf.CreateLinearRing(coordinates);
+        NonConvexSlicer.NonConvexSlicer slicer = new NonConvexSlicer.NonConvexSlicer(true);
+        var geometries = slicer.SliceFigureWithOneSpecialPoint(lnr);
+        Assert.Equal(2, geometries.Count);
+        Assert.Equal(new[]
+        {
+            new Coordinate(3, 1), new Coordinate(1, 7), new Coordinate(3, 5), new Coordinate(3, 1)
+        }, geometries[0].Coordinates);
+        Assert.Equal(new[]
+        {
+            new Coordinate(3, 5), new Coordinate(5, 7), new Coordinate(3, 1), new Coordinate(3, 5)
+        }, geometries[1].Coordinates);
+    }
+
+    [Fact]
+    public void OneSpecialPoint_MultiplePointsInSegment_OptimalSlice()
+    {
+        var gf = NetTopologySuite.NtsGeometryServices.Instance.CreateGeometryFactory(4326);
+        Coordinate[] coordinates =
+        {
+            new(3, 1), new(2, 4), new(1, 7), new(2, 6), new(3, 5), new(4, 6), new(5, 7), new(4, 4), new(3, 1)
+        };
+        var lnr = gf.CreateLinearRing(coordinates);
+        NonConvexSlicer.NonConvexSlicer slicer = new NonConvexSlicer.NonConvexSlicer(true);
+        var geometries = slicer.SliceFigureWithOneSpecialPoint(lnr);
+        Assert.Equal(2, geometries.Count);
+        Assert.Equal(new[]
+        {
+            new Coordinate(3, 1),new Coordinate(2, 4),  new Coordinate(1, 7), new Coordinate(2, 6), new Coordinate(3, 5), new Coordinate(3, 1)
+        }, geometries[0].Coordinates);
+        Assert.Equal(new[]
+        {
+            new Coordinate(3, 5), new Coordinate(4, 6), new Coordinate(5, 7), new Coordinate(4, 4), new Coordinate(3, 1), new Coordinate(3, 5), 
+        }, geometries[1].Coordinates);
+    }
+
+    [Fact]
+    public void OneSpecialPoint_NonOptimalSlice()
+    {
+        var gf = NetTopologySuite.NtsGeometryServices.Instance.CreateGeometryFactory(4326);
+        Coordinate[] coordinates =
+        {
+            new(1, 1), new(1, 14), new(7, 14), new(2, 9), new(10, 1), new(1, 1)
+        };
+        var lnr = gf.CreateLinearRing(coordinates);
+        NonConvexSlicer.NonConvexSlicer slicer = new NonConvexSlicer.NonConvexSlicer(true);
+    }
+
+    [Fact]
+    public void OneSpecialPoint_MultiplePointsInSegment_NonOptimalSlice()
+    {
+        var gf = NetTopologySuite.NtsGeometryServices.Instance.CreateGeometryFactory(4326);
+        Coordinate[] coordinates =
+        {
+            new(1, 1), new(1, 14), new(2, 14), new(4, 14), new(7, 14), new(2, 9), new(3, 8), new(4, 7), new(5, 6),
+            new(6, 5), new(7, 4), new(8, 3), new(9, 2), new(10, 1), new(9, 1), new(8, 1), new(7, 1), new(6, 1),
+            new(5, 1), new(4, 1), new(3, 1), new(2, 1), new(1, 1)
+        };
+        var lnr = gf.CreateLinearRing(coordinates);
+        NonConvexSlicer.NonConvexSlicer slicer = new NonConvexSlicer.NonConvexSlicer(true);
+    }
+
+    [Fact]
     public void IntersectionOfSegmentsTest()
     {
         //Одинаковые отрезки не пересекаются
-        Assert.False(NonConvexSlicer.NonConvexSlicer.IsIntersectionOfSegments(new Coordinate(0, 0), new Coordinate(2, 2),
+        Assert.False(NonConvexSlicer.NonConvexSlicer.IsIntersectionOfSegments(new Coordinate(0, 0),
+            new Coordinate(2, 2),
             new Coordinate(0, 0),
             new Coordinate(2, 2)));
         //Частично совпадающие отрезки пересекаются
@@ -23,11 +94,13 @@ public class NonConvexSlicerTest
             new Coordinate(0, 2),
             new Coordinate(2, 0)));
         //Отрезки с общеё граничной точкой не пересекаются
-        Assert.False(NonConvexSlicer.NonConvexSlicer.IsIntersectionOfSegments(new Coordinate(0, 0), new Coordinate(2, 2),
+        Assert.False(NonConvexSlicer.NonConvexSlicer.IsIntersectionOfSegments(new Coordinate(0, 0),
+            new Coordinate(2, 2),
             new Coordinate(2, 2),
             new Coordinate(0, 4)));
         //Не имеющие общих точек отрезки не пересекаются
-        Assert.False(NonConvexSlicer.NonConvexSlicer.IsIntersectionOfSegments(new Coordinate(0, 0), new Coordinate(0, 2),
+        Assert.False(NonConvexSlicer.NonConvexSlicer.IsIntersectionOfSegments(new Coordinate(0, 0),
+            new Coordinate(0, 2),
             new Coordinate(2, 2),
             new Coordinate(4, 2)));
         //Скрещенные отрезки пересекаются
