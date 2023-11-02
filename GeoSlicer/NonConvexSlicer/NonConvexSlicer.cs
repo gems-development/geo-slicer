@@ -127,10 +127,11 @@ public class NonConvexSlicer
         int count = 0;
         while (count < ring.Count - 1 - 2)
         {
-            Coordinate[] array = new Coordinate[3];
+            Coordinate[] array = new Coordinate[4];
             array[0] = ring.Coordinates[pozSpetialPoint];
             array[1] = ring.Coordinates[(i + ring.Count - 1) % (ring.Count - 1)];
             array[2] = ring.Coordinates[(i + 1 + ring.Count - 1) % (ring.Count - 1)];
+            array[3] = ring.Coordinates[pozSpetialPoint];
 
             listResult.Add(new LinearRing(array));
             count++;
@@ -153,7 +154,7 @@ public class NonConvexSlicer
         }
 
         var pozSpecialPoint = (int)listSpecialPoints[0].M;
-        var pozMiddlePoint = (ring.Count - 1) / 2;
+        var pozMiddlePoint = (pozSpecialPoint + ring.Count - 1) / 2;
 
         var coordA = new CoordinateM(
                 ring.Coordinates[(pozSpecialPoint - 1 + ring.Count - 1) % (ring.Count - 1)].X,
@@ -181,6 +182,11 @@ public class NonConvexSlicer
                 ring.Coordinates[(pozMiddlePoint + ring.Count - 1) % (ring.Count - 1)].X,
                 ring.Coordinates[(pozMiddlePoint + ring.Count - 1) % (ring.Count - 1)].Y,
                 (pozMiddlePoint + ring.Count - 1) % (ring.Count - 1));
+
+            if (coordM.Equals2D(coordC) || coordM.Equals2D(coordA))
+            {
+                return SimpleSlice(IgnoreInnerPointsOfSegment(ring), pozSpecialPoint);
+            }
 
             if (!(IsIntersectionOfSegments(coordB, coordA, coordB, coordM) ||
                   IsIntersectionOfSegments(coordB, coordC, coordB, coordM)) &&
