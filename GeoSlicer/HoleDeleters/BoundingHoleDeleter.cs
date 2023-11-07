@@ -34,7 +34,7 @@ public class BoundingHoleDeleter
     private (LinkedListNode<BoundingRing> boundRing, LinkedNode<Coordinate> _start)? _nearAHGSegmentintersect;
 
 
-    public BoundingHoleDeleter()
+    private BoundingHoleDeleter()
     {
         _listA = new LinkedList<(LinkedListNode<BoundingRing>, List<PartitioningZones>)>();
         _listB = new LinkedList<(LinkedListNode<BoundingRing>, List<PartitioningZones>)>();
@@ -134,19 +134,11 @@ public class BoundingHoleDeleter
                     
                     Coordinate oldPointMin = thisRing.Value.PointMin;
                     Coordinate oldPointMax = thisRing.Value.PointMax;
-                    bool connectABC = false;
-                    bool connectCDE = false;
-                    bool connectEFG = false;
-                    bool connectAHG = false;
-                    connectABC = ConnectABC(thisRing, listOfHoles);
-                    if (oldPointMin.Equals(thisRing.Value.PointMin))
-                        connectCDE = ConnectCDE(thisRing, listOfHoles);
-                    if (oldPointMin.Equals(thisRing.Value.PointMin))
-                        connectEFG = ConnectEFG(thisRing, listOfHoles);
-                    if (oldPointMax.Equals(thisRing.Value.PointMax))
-                        connectAHG = ConnectAHG(thisRing, listOfHoles);
-                    if (!(connectABC || connectCDE || connectEFG || connectAHG)){}
+                    if (!ConnectNoIntersectRectan(thisRing, listOfHoles))
+                    {
                         //BruteforceConnect(thisRing);
+                    }
+
                     if (thisRing.Value.PointMin.Equals(pointMinShell) && thisRing.Value.PointMax.Equals(pointMaxShell))
                     {
                         var buff = thisRing.Value;
@@ -180,86 +172,346 @@ public class BoundingHoleDeleter
         throw new AggregateException();
     }
 
-    private bool ConnectABC(LinkedListNode<BoundingRing> thisRing, LinkedList<BoundingRing> listOfHoles)
+    private bool ConnectNoIntersectRectan(LinkedListNode<BoundingRing> thisRing, LinkedList<BoundingRing> listOfHoles)
     {
+        bool flagAbcCanConnect = true;
+        bool flagCdeCanConnect = true;
+        bool flagEfgCanConnect = true;
+        bool flagAhgCanConnect = true;
+        Coordinate? firstCoordLineConnectNearAbc = null;
+        Coordinate? secondCoordLineConnectNearAbc = null;
+        Coordinate? firstCoordLineConnectNearCde = null;
+        Coordinate? secondCoordLineConnectNearCde = null;
+        Coordinate? firstCoordLineConnectNearEfg = null;
+        Coordinate? secondCoordLineConnectNearEfg = null;
+        Coordinate? firstCoordLineConnectNearAhg = null;
+        Coordinate? secondCoordLineConnectNearAhg = null;
+
         if (_nearABC is null)
-            return false;
-        bool flagA = false;
-        bool flagB = false;
-        bool flagC = false;
-        Coordinate a = thisRing.Value.PointUpNode.Elem;
-        Coordinate b = _nearABC!.Value.boundRing.Value.PointDownNode.Elem;
-        foreach (var zone in _nearABC!.Value.zones)
+            flagAbcCanConnect = false;
+        else
         {
-            if (!flagA && zone == PartitioningZones.A)
-                flagA = true;
-            else if (!flagB && zone == PartitioningZones.B)
-                flagB = true;
-            else flagC = true;
+            bool flagA = false;
+            bool flagB = false;
+            bool flagC = false;
+            firstCoordLineConnectNearAbc = thisRing.Value.PointUpNode.Elem;
+            secondCoordLineConnectNearAbc = _nearABC!.Value.boundRing.Value.PointDownNode.Elem;
+            foreach (var zone in _nearABC!.Value.zones)
+            {
+                if (!flagA && zone == PartitioningZones.A)
+                    flagA = true;
+                else if (!flagB && zone == PartitioningZones.B)
+                    flagB = true;
+                else flagC = true;
+            }
+
+            if (flagC)
+            {
+                foreach (var frame in _listC)
+                {
+                    if (!frame.zones.Contains(PartitioningZones.B)
+                        && frame.boundRing.Value.PointMin.Y < thisRing.Value.PointMax.Y
+                        && hasIntersectsFrame(frame.boundRing.Value, firstCoordLineConnectNearAbc,
+                            secondCoordLineConnectNearAbc) &&
+                        !ReferenceEquals(frame.boundRing.Value, _nearABC.Value.boundRing.Value))
+                    {
+                        _nearABCintersect = frame;
+                        flagAbcCanConnect = false;
+                    }
+                }
+            }
+
+            if (flagA && flagAbcCanConnect)
+            {
+                foreach (var frame in _listA)
+                {
+                    if (!frame.zones.Contains(PartitioningZones.B)
+                        && frame.boundRing.Value.PointMin.Y < thisRing.Value.PointMax.Y
+                        && hasIntersectsFrame(frame.boundRing.Value, firstCoordLineConnectNearAbc,
+                            secondCoordLineConnectNearAbc) &&
+                        !ReferenceEquals(frame.boundRing.Value, _nearABC.Value.boundRing.Value))
+                    {
+                        _nearABCintersect = frame;
+                        flagAbcCanConnect = false;
+                    }
+                }
+
+            }
         }
 
-        if (flagC)
+
+        if (_nearCDE is null)
+            flagCdeCanConnect = false;
+        else
         {
-            foreach (var frame in _listC)
+            bool flagC = false;
+            bool flagD = false;
+            bool flagE = false;
+            firstCoordLineConnectNearCde = thisRing.Value.PointLeftNode.Elem;
+            secondCoordLineConnectNearCde = _nearCDE!.Value.boundRing.Value.PointRightNode.Elem;
+
+            foreach (var zone in _nearCDE!.Value.zones)
             {
-                if (!frame.zones.Contains(PartitioningZones.B)
-                    && frame.boundRing.Value.PointMin.Y < thisRing.Value.PointMax.Y
-                    && hasIntersectsFrame(frame.boundRing.Value, a, b) &&
-                    !ReferenceEquals(frame.boundRing.Value, _nearABC.Value.boundRing.Value))
+                if (!flagC && zone == PartitioningZones.C)
+                    flagC = true;
+                else if (!flagD && zone == PartitioningZones.D)
+                    flagD = true;
+                else flagE = true;
+            }
+
+            if (flagC)
+            {
+                foreach (var frame in _listC)
                 {
-                    _nearABCintersect = frame;
-                    return false;
+                    if (!frame.zones.Contains(PartitioningZones.D)
+                        && frame.boundRing.Value.PointMax.X > thisRing.Value.PointMin.X
+                        && hasIntersectsFrame(frame.boundRing.Value, firstCoordLineConnectNearCde,
+                            secondCoordLineConnectNearCde) &&
+                        !ReferenceEquals(frame.boundRing.Value, _nearCDE.Value.boundRing.Value))
+                    {
+                        _nearCDEintersect = frame;
+                        flagCdeCanConnect = false;
+                    }
+                }
+
+            }
+
+            if (flagE && flagCdeCanConnect)
+            {
+                foreach (var frame in _listE)
+                {
+                    if (!frame.zones.Contains(PartitioningZones.D)
+                        && frame.boundRing.Value.PointMax.X > thisRing.Value.PointMin.X
+                        && hasIntersectsFrame(frame.boundRing.Value, firstCoordLineConnectNearCde,
+                            secondCoordLineConnectNearCde) &&
+                        !ReferenceEquals(frame.boundRing.Value, _nearCDE.Value.boundRing.Value))
+                    {
+                        _nearCDEintersect = frame;
+                        flagCdeCanConnect = false;
+                    }
+                }
+
+            }
+        }
+
+
+
+        if (_nearEFG is null)
+            flagEfgCanConnect = false;
+        else
+        {
+            bool flagE = false;
+            bool flagF = false;
+            bool flagG = false;
+            firstCoordLineConnectNearEfg = thisRing.Value.PointDownNode.Elem;
+            secondCoordLineConnectNearEfg = _nearEFG!.Value.boundRing.Value.PointUpNode.Elem;
+            foreach (var zone in _nearEFG!.Value.zones)
+            {
+                if (!flagE && zone == PartitioningZones.E)
+                    flagE = true;
+                else if (!flagF && zone == PartitioningZones.F)
+                    flagF = true;
+                else flagG = true;
+            }
+
+            if (flagE)
+            {
+                foreach (var frame in _listE)
+                {
+                    if (!frame.zones.Contains(PartitioningZones.F)
+                        && frame.boundRing.Value.PointMax.Y > thisRing.Value.PointMin.Y
+                        && hasIntersectsFrame(frame.boundRing.Value, firstCoordLineConnectNearEfg,
+                            secondCoordLineConnectNearEfg) &&
+                        !ReferenceEquals(frame.boundRing.Value, _nearEFG.Value.boundRing.Value))
+                    {
+                        _nearEFGintersect = frame;
+                        flagEfgCanConnect = false;
+                    }
+                }
+            }
+
+            if (flagG && flagEfgCanConnect)
+            {
+                foreach (var frame in _listG)
+                {
+                    if (!frame.zones.Contains(PartitioningZones.F)
+                        && frame.boundRing.Value.PointMax.Y > thisRing.Value.PointMin.Y
+                        && hasIntersectsFrame(frame.boundRing.Value, firstCoordLineConnectNearEfg,
+                            secondCoordLineConnectNearEfg) &&
+                        !ReferenceEquals(frame.boundRing.Value, _nearEFG.Value.boundRing.Value))
+                    {
+                        _nearEFGintersect = frame;
+                        flagEfgCanConnect = false;
+                    }
                 }
             }
         }
 
-        if (flagA)
+
+
+        if (_nearAHG is null)
+            flagAhgCanConnect = false;
+        else
         {
-            foreach (var frame in _listA)
+            bool flagA = false;
+            bool flagH = false;
+            bool flagG = false;
+            firstCoordLineConnectNearAhg = thisRing.Value.PointRightNode.Elem;
+            secondCoordLineConnectNearAhg = _nearAHG!.Value.boundRing.Value.PointLeftNode.Elem;
+            ;
+            foreach (var zone in _nearAHG!.Value.zones)
             {
-                if (!frame.zones.Contains(PartitioningZones.B)
-                    && frame.boundRing.Value.PointMin.Y < thisRing.Value.PointMax.Y
-                    && hasIntersectsFrame(frame.boundRing.Value, a, b) &&
-                    !ReferenceEquals(frame.boundRing.Value, _nearABC.Value.boundRing.Value))
+                if (!flagA && zone == PartitioningZones.A)
+                    flagA = true;
+                else if (!flagH && zone == PartitioningZones.H)
+                    flagH = true;
+                else flagG = true;
+            }
+
+            if (flagA)
+            {
+                foreach (var frame in _listA)
                 {
-                    _nearABCintersect = frame;
-                    return false;
+                    if (!frame.zones.Contains(PartitioningZones.H)
+                        && frame.boundRing.Value.PointMin.X < thisRing.Value.PointMax.X
+                        && hasIntersectsFrame(frame.boundRing.Value, firstCoordLineConnectNearAhg,
+                            secondCoordLineConnectNearAhg) &&
+                        !ReferenceEquals(frame.boundRing.Value, _nearAHG.Value.boundRing.Value))
+                    {
+                        _nearAHGintersect = frame;
+                        flagAhgCanConnect = false;
+                    }
                 }
             }
 
+            if (flagG && flagAhgCanConnect)
+            {
+                foreach (var frame in _listG)
+                {
+                    if (!frame.zones.Contains(PartitioningZones.H)
+                        && frame.boundRing.Value.PointMin.X < thisRing.Value.PointMax.X
+                        && hasIntersectsFrame(frame.boundRing.Value, firstCoordLineConnectNearAhg,
+                            secondCoordLineConnectNearAhg) &&
+                        !ReferenceEquals(frame.boundRing.Value, _nearAHG.Value.boundRing.Value))
+                    {
+                        _nearAHGintersect = frame;
+                        flagAhgCanConnect = false;
+                    }
+                }
+            }
         }
+        
 
-        //возможно улучшение
+        var shell = _framesContainThis.First!.Value;
+        _framesContainThis.Remove(_framesContainThis.First);
+        _framesContainThis.AddLast(shell);
         foreach (var frameWhoContainThis in _framesContainThis)
         {
             var start = frameWhoContainThis.Value.PointUpNode;
             var buffer = start;
             do
             {
-                if (
-                    buffer.Elem.Y > thisRing.Value.PointMax.Y
-                    || Math.Abs(buffer.Elem.Y - thisRing.Value.PointMax.Y) < 1e-9
-                    || buffer.Next.Elem.Y > thisRing.Value.PointMax.Y
-                    || Math.Abs(buffer.Next.Elem.Y - thisRing.Value.PointMax.Y) < 1e-9)
+                if (flagAbcCanConnect &&
+                    (buffer.Elem.Y > thisRing.Value.PointMax.Y
+                     || Math.Abs(buffer.Elem.Y - thisRing.Value.PointMax.Y) < 1e-9
+                     || buffer.Next.Elem.Y > thisRing.Value.PointMax.Y
+                     || Math.Abs(buffer.Next.Elem.Y - thisRing.Value.PointMax.Y) < 1e-9))
                 {
-                    if (hasIntersectedSegments(a, b,buffer.Elem, buffer.Next.Elem))
+                    if (hasIntersectedSegments(firstCoordLineConnectNearAbc!, secondCoordLineConnectNearAbc!, buffer.Elem,
+                            buffer.Next.Elem))
                     {
                         _nearABCSegmentintersect = (frameWhoContainThis, buffer);
-                        return false;
-                        
+                        flagAbcCanConnect = false;
+
+                    }
+                }
+
+                if (flagCdeCanConnect &&
+                    (buffer.Elem.X < thisRing.Value.PointMin.X
+                     || Math.Abs(buffer.Elem.X - thisRing.Value.PointMin.X) < 1e-9
+                     || buffer.Next.Elem.X < thisRing.Value.PointMin.X
+                     || Math.Abs(buffer.Next.Elem.X - thisRing.Value.PointMin.X) < 1e-9))
+                {
+                    if (hasIntersectedSegments(firstCoordLineConnectNearCde!, secondCoordLineConnectNearCde!, buffer.Elem,
+                            buffer.Next.Elem))
+                    {
+                        _nearCDESegmentintersect = (frameWhoContainThis, buffer);
+                        flagCdeCanConnect = false;
+                    }
+                }
+
+                if (flagEfgCanConnect &&
+                    (buffer.Elem.Y < thisRing.Value.PointMin.Y
+                     || Math.Abs(buffer.Elem.Y - thisRing.Value.PointMin.Y) < 1e-9
+                     || buffer.Next.Elem.Y < thisRing.Value.PointMin.Y
+                     || Math.Abs(buffer.Next.Elem.Y - thisRing.Value.PointMin.Y) < 1e-9))
+                {
+                    if (hasIntersectedSegments(firstCoordLineConnectNearEfg!, secondCoordLineConnectNearEfg!, buffer.Elem,
+                            buffer.Next.Elem))
+                    {
+                        _nearEFGSegmentintersect = (frameWhoContainThis, buffer);
+                        flagEfgCanConnect = false;
+                    }
+                }
+
+                if (flagAhgCanConnect &&
+                    (buffer.Elem.X > thisRing.Value.PointMax.X
+                     || Math.Abs(buffer.Elem.X - thisRing.Value.PointMax.X) < 1e-9
+                     || buffer.Next.Elem.X > thisRing.Value.PointMax.X
+                     || Math.Abs(buffer.Next.Elem.X - thisRing.Value.PointMax.X) < 1e-9))
+                {
+                    if (hasIntersectedSegments(firstCoordLineConnectNearAhg!, secondCoordLineConnectNearAhg!, buffer.Elem,
+                            buffer.Next.Elem))
+                    {
+                        _nearAHGSegmentintersect = (frameWhoContainThis, buffer);
+                        flagAhgCanConnect = false;
                     }
                 }
 
                 buffer = buffer.Next;
-            } while (!ReferenceEquals(buffer, start));
+            } while (!ReferenceEquals(buffer, start)
+                     && (flagAbcCanConnect || flagCdeCanConnect || flagEfgCanConnect || flagAhgCanConnect));
         }
 
-        thisRing.Value = BoundRingService.ConnectBoundRings(thisRing.Value,
-            _nearABC.Value.boundRing.Value,
-            thisRing.Value.PointUpNode,
-            _nearABC.Value.boundRing.Value.PointDownNode);
-        listOfHoles.Remove(_nearABC.Value.boundRing);
-        return true;
+        Coordinate oldPointMin = thisRing.Value.PointMin;
+        Coordinate oldPointMax = thisRing.Value.PointMax;
+        if (flagAbcCanConnect)
+        {
+            thisRing.Value = BoundRingService.ConnectBoundRings(thisRing.Value,
+                _nearABC!.Value.boundRing.Value,
+                thisRing.Value.PointUpNode,
+                _nearABC.Value.boundRing.Value.PointDownNode);
+            listOfHoles.Remove(_nearABC.Value.boundRing);
+        }
+
+        if (flagCdeCanConnect && oldPointMin.Equals(thisRing.Value.PointMin))
+        {
+            thisRing.Value = BoundRingService.ConnectBoundRings(thisRing.Value,
+                _nearCDE!.Value.boundRing.Value,
+                thisRing.Value.PointLeftNode,
+                _nearCDE.Value.boundRing.Value.PointRightNode);
+            listOfHoles.Remove(_nearCDE.Value.boundRing);
+        }
+
+        if (flagEfgCanConnect && oldPointMin.Equals(thisRing.Value.PointMin))
+        {
+            thisRing.Value = BoundRingService.ConnectBoundRings(thisRing.Value,
+                _nearEFG!.Value.boundRing.Value,
+                thisRing.Value.PointDownNode,
+                _nearEFG.Value.boundRing.Value.PointUpNode);
+            listOfHoles.Remove(_nearEFG.Value.boundRing);
+        }
+
+        if (flagAhgCanConnect && oldPointMax.Equals(thisRing.Value.PointMax))
+        {
+            thisRing.Value = BoundRingService.ConnectBoundRings(thisRing.Value,
+                _nearAHG!.Value.boundRing.Value,
+                thisRing.Value.PointRightNode,
+                _nearAHG.Value.boundRing.Value.PointLeftNode);
+            listOfHoles.Remove(_nearAHG.Value.boundRing);
+        }
+
+        return flagAbcCanConnect || flagCdeCanConnect || flagEfgCanConnect || flagAhgCanConnect;
     }
 
     private bool hasIntersectsFragment((
@@ -303,252 +555,7 @@ public class BoundingHoleDeleter
     {
         return new LineSegment(a1, b1).Intersection(new LineSegment(a2, b2)) is not null;
     }
-
-    private bool ConnectCDE(LinkedListNode<BoundingRing> thisRing, LinkedList<BoundingRing> listOfHoles)
-    {
-        if (_nearCDE is null)
-            return false;
-        bool flagC = false;
-        bool flagD = false;
-        bool flagE = false;
-
-        Coordinate a = thisRing.Value.PointLeftNode.Elem;
-        Coordinate b = _nearCDE!.Value.boundRing.Value.PointRightNode.Elem;
-        foreach (var zone in _nearCDE!.Value.zones)
-        {
-            if (!flagC && zone == PartitioningZones.C)
-                flagC = true;
-            else if (!flagD && zone == PartitioningZones.D)
-                flagD = true;
-            else flagE = true;
-        }
-
-        if (flagC)
-        {
-            foreach (var frame in _listC)
-            {
-                if (!frame.zones.Contains(PartitioningZones.D)
-                    && frame.boundRing.Value.PointMax.X > thisRing.Value.PointMin.X
-                    && hasIntersectsFrame(frame.boundRing.Value, a, b) &&
-                    !ReferenceEquals(frame.boundRing.Value, _nearCDE.Value.boundRing.Value))
-                {
-                    _nearCDEintersect = frame;
-                    return false;
-                }
-            }
-
-        }
-
-        if (flagE)
-        {
-            foreach (var frame in _listE)
-            {
-                if (!frame.zones.Contains(PartitioningZones.D)
-                    && frame.boundRing.Value.PointMax.X > thisRing.Value.PointMin.X
-                    && hasIntersectsFrame(frame.boundRing.Value, a, b) &&
-                    !ReferenceEquals(frame.boundRing.Value, _nearCDE.Value.boundRing.Value))
-                {
-                    _nearCDEintersect = frame;
-                    return false;
-                }
-            }
-
-        }
-
-        //возможно улучшение
-        foreach (var frameWhoContainThis in _framesContainThis)
-        {
-            var start = frameWhoContainThis.Value.PointLeftNode;
-            var buffer = start;
-            do
-            {
-                if (
-                    buffer.Elem.X < thisRing.Value.PointMin.X
-                    || Math.Abs(buffer.Elem.X - thisRing.Value.PointMin.X) < 1e-9
-                    || buffer.Next.Elem.X < thisRing.Value.PointMin.X
-                    || Math.Abs(buffer.Next.Elem.X - thisRing.Value.PointMin.X) < 1e-9)
-                {
-                    if (hasIntersectedSegments(a, b,buffer.Elem, buffer.Next.Elem))
-                    {
-                        _nearCDESegmentintersect = (frameWhoContainThis, buffer);
-                        return false;
-                    }
-                }
-
-                buffer = buffer.Next;
-            } while (!ReferenceEquals(buffer, start));
-        }
-
-        thisRing.Value = BoundRingService.ConnectBoundRings(thisRing.Value,
-            _nearCDE.Value.boundRing.Value,
-            thisRing.Value.PointLeftNode,
-            _nearCDE.Value.boundRing.Value.PointRightNode);
-        listOfHoles.Remove(_nearCDE.Value.boundRing);
-        return true;
-    }
-
-    private bool ConnectEFG(LinkedListNode<BoundingRing> thisRing, LinkedList<BoundingRing> listOfHoles)
-    {
-        if (_nearEFG is null)
-            return false;
-        bool flagE = false;
-        bool flagF = false;
-        bool flagG = false;
-        Coordinate a = thisRing.Value.PointDownNode.Elem;
-        Coordinate b = _nearEFG!.Value.boundRing.Value.PointUpNode.Elem;
-        foreach (var zone in _nearEFG!.Value.zones)
-        {
-            if (!flagE && zone == PartitioningZones.E)
-                flagE = true;
-            else if (!flagF && zone == PartitioningZones.F)
-                flagF = true;
-            else flagG = true;
-        }
-
-        if (flagE)
-        {
-            foreach (var frame in _listE)
-            {
-                if (!frame.zones.Contains(PartitioningZones.F)
-                    && frame.boundRing.Value.PointMax.Y > thisRing.Value.PointMin.Y
-                    && hasIntersectsFrame(frame.boundRing.Value, a, b) &&
-                    !ReferenceEquals(frame.boundRing.Value, _nearEFG.Value.boundRing.Value))
-                {
-                    _nearEFGintersect = frame;
-                    return false;
-                }
-            }
-        }
-
-        if (flagG)
-        {
-            foreach (var frame in _listG)
-            {
-                if (!frame.zones.Contains(PartitioningZones.F)
-                    && frame.boundRing.Value.PointMax.Y > thisRing.Value.PointMin.Y
-                    && hasIntersectsFrame(frame.boundRing.Value, a, b) &&
-                    !ReferenceEquals(frame.boundRing.Value, _nearEFG.Value.boundRing.Value))
-                {
-                    _nearEFGintersect = frame;
-                    return false;
-                }
-            }
-        }
-
-        //возможно улучшение
-        foreach (var frameWhoContainThis in _framesContainThis)
-        {
-            var start = frameWhoContainThis.Value.PointDownNode;
-            var buffer = start;
-            do
-            {
-                if (
-                    buffer.Elem.Y < thisRing.Value.PointMin.Y
-                    || Math.Abs(buffer.Elem.Y - thisRing.Value.PointMin.Y) < 1e-9
-                    || buffer.Next.Elem.Y < thisRing.Value.PointMin.Y
-                    || Math.Abs(buffer.Next.Elem.Y - thisRing.Value.PointMin.Y) < 1e-9)
-                {
-                    if (hasIntersectedSegments(a, b,buffer.Elem, buffer.Next.Elem))
-                    {
-                        _nearEFGSegmentintersect = (frameWhoContainThis, buffer);
-                        return false;
-                    }
-                }
-
-                buffer = buffer.Next;
-            } while (!ReferenceEquals(buffer, start));
-        }
-
-        thisRing.Value = BoundRingService.ConnectBoundRings(thisRing.Value,
-            _nearEFG.Value.boundRing.Value,
-            thisRing.Value.PointDownNode,
-            _nearEFG.Value.boundRing.Value.PointUpNode);
-        listOfHoles.Remove(_nearEFG.Value.boundRing);
-        return true;
-    }
-
-    private bool ConnectAHG(LinkedListNode<BoundingRing> thisRing, LinkedList<BoundingRing> listOfHoles)
-    {
-        if (_nearAHG is null)
-            return false;
-        bool flagA = false;
-        bool flagH = false;
-        bool flagG = false;
-        int i = 0;
-        GeoJsonFileService.GeoJsonFileService.WriteGeometryToFile(BoundRingService.BoundRingsToPolygon(new LinkedList<BoundingRing>(new []{_nearAHG.Value.boundRing.Value})), "C:\\Users\\Данил\\Downloads\\holes\\hole" + i + ".geojson");
-        Coordinate a = thisRing.Value.PointRightNode.Elem;
-        Coordinate b = _nearAHG!.Value.boundRing.Value.PointLeftNode.Elem;
-        foreach (var zone in _nearAHG!.Value.zones)
-        {
-            if (!flagA && zone == PartitioningZones.A)
-                flagA = true;
-            else if (!flagH && zone == PartitioningZones.H)
-                flagH = true;
-            else flagG = true;
-        }
-
-        if (flagA)
-        {
-            foreach (var frame in _listA)
-            {
-                if (!frame.zones.Contains(PartitioningZones.H)
-                    && frame.boundRing.Value.PointMin.X < thisRing.Value.PointMax.X
-                    && hasIntersectsFrame(frame.boundRing.Value, a, b) &&
-                    !ReferenceEquals(frame.boundRing.Value, _nearAHG.Value.boundRing.Value))
-                {
-                    _nearAHGintersect = frame;
-                    return false;
-                }
-            }
-        }
-
-        if (flagG)
-        {
-            foreach (var frame in _listG)
-            {
-                if (!frame.zones.Contains(PartitioningZones.H)
-                    && frame.boundRing.Value.PointMin.X < thisRing.Value.PointMax.X
-                    && hasIntersectsFrame(frame.boundRing.Value, a, b) &&
-                    !ReferenceEquals(frame.boundRing.Value, _nearAHG.Value.boundRing.Value))
-                {
-                    _nearAHGintersect = frame;
-                    return false;
-                }
-            }
-        }
-
-        //возможно улучшение
-        foreach (var frameWhoContainThis in _framesContainThis)
-        {
-            var start = frameWhoContainThis.Value.PointRightNode;
-            var buffer = start;
-            do
-            {
-                if (
-                    buffer.Elem.X > thisRing.Value.PointMax.X
-                    || Math.Abs(buffer.Elem.X - thisRing.Value.PointMax.X) < 1e-9
-                    || buffer.Next.Elem.X > thisRing.Value.PointMax.X
-                    || Math.Abs(buffer.Next.Elem.X - thisRing.Value.PointMax.X) < 1e-9)
-                {
-                    if (hasIntersectedSegments(a, b,buffer.Elem, buffer.Next.Elem))
-                    {
-                        _nearAHGSegmentintersect = (frameWhoContainThis, buffer);
-                        return false;
-                    }
-                }
-
-                buffer = buffer.Next;
-            } while (!ReferenceEquals(buffer, start));
-        }
-
-        thisRing.Value = BoundRingService.ConnectBoundRings(thisRing.Value,
-            _nearAHG.Value.boundRing.Value,
-            thisRing.Value.PointRightNode,
-            _nearAHG.Value.boundRing.Value.PointLeftNode);
-        listOfHoles.Remove(_nearAHG.Value.boundRing);
-        return true;
-    }
-
+    
     private bool ConnectContainsRingsInThis(LinkedListNode<BoundingRing> thisRing)
     {
         throw new AggregateException();
