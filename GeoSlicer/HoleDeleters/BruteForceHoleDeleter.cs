@@ -89,7 +89,7 @@ public class BruteForceHoleDeleter
                     if (isIntersect)
                         continue;
                     unconnectedHolesNumbers.Remove(innerRingNumberNode);
-                    allLines.AddLast(new LineSegment(outerCoordinate, innerCoordinates[j]));
+                    allLines.AddFirst(new LineSegment(outerCoordinate, innerCoordinates[j]));
                     list.AddLast((i + startCoordNum % (coordinates.Length - 1), innerRingNumberNode.Value, j));
                     break;
                 }
