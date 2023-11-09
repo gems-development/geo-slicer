@@ -1,7 +1,7 @@
 ﻿using NetTopologySuite;
 using NetTopologySuite.Algorithm;
 using NetTopologySuite.Geometries;
-
+using static GeoSlicer.NonConvexSlicer.SegmentService;
 
 namespace GeoSlicer.NonConvexSlicer;
 
@@ -21,7 +21,7 @@ public class NonConvexSlicer
         var list = new List<CoordinateM>();
         for (var i = 0; i < ring.Coordinates.Length - 1; ++i)
         {
-            if (SegmentService.VectorProduct(
+            if (VectorProduct(
                     new Coordinate(
                         ring.Coordinates[i].X -
                         ring.Coordinates[(i - 1 + ring.Coordinates.Length - 1) % (ring.Coordinates.Length - 1)].X,
@@ -37,7 +37,6 @@ public class NonConvexSlicer
 
         return list;
     }
-
 
     private List<LinearRing> SimpleSlice(LinearRing ring, int pozSpecialPoint)
     {
@@ -63,7 +62,7 @@ public class NonConvexSlicer
 
     public List<LinearRing> SliceFigureWithOneSpecialPoint(LinearRing ring)
     {
-        var newRing = SegmentService.IgnoreInnerPointsOfSegment(ring);
+        var newRing = IgnoreInnerPointsOfSegment(ring);
         var listRingsWithoutSpecialPoints = new List<LinearRing>(2);
 
         var listSpecialPoints = GetSpecialPoints(newRing);
@@ -109,9 +108,9 @@ public class NonConvexSlicer
                 return SimpleSlice(newRing, pozSpecialPoint);
             }
 
-            if (!(SegmentService.IsIntersectionOfSegments(coordB, coordA, coordB, coordM) ||
-                  SegmentService.IsIntersectionOfSegments(coordB, coordC, coordB, coordM)) &&
-                SegmentService.VectorProduct(
+            if (!(IsIntersectionOfSegments(coordB, coordA, coordB, coordM) ||
+                  IsIntersectionOfSegments(coordB, coordC, coordB, coordM)) &&
+                VectorProduct(
                     new Coordinate(
                         coordB.X - coordA.X,
                         coordB.Y - coordA.Y),
@@ -119,7 +118,7 @@ public class NonConvexSlicer
                         coordM.X - coordB.X,
                         coordM.Y - coordB.Y)
                 ) > 0 != _clockwise &&
-                SegmentService.VectorProduct(
+                VectorProduct(
                     new Coordinate(
                         coordB.X - coordM.X,
                         coordB.Y - coordM.Y),
@@ -139,7 +138,7 @@ public class NonConvexSlicer
                 }
                 listFirst.Add(coordB);
                 listFirst.Add(coordM);
-                var ringFirst = SegmentService.IgnoreInnerPointsOfSegment(new LinearRing(listFirst.ToArray()));
+                var ringFirst = IgnoreInnerPointsOfSegment(new LinearRing(listFirst.ToArray()));
 
                 var listSecond = new List<Coordinate>();
 
@@ -149,7 +148,7 @@ public class NonConvexSlicer
                 }
                 listSecond.Add(coordM);
                 listSecond.Add(coordB);
-                var ringSecond = SegmentService.IgnoreInnerPointsOfSegment(new LinearRing(listSecond.ToArray()));
+                var ringSecond = IgnoreInnerPointsOfSegment(new LinearRing(listSecond.ToArray()));
 
                 listRingsWithoutSpecialPoints.Add(ringFirst);
                 listRingsWithoutSpecialPoints.Add(ringSecond);
@@ -211,13 +210,13 @@ public class NonConvexSlicer
         var endSpecialPointIndex = 0;
         //Индексы точек, с которыми мы соединили начальную точку: beforeFirstIndex -> firstPoint -> afterFirstIndex
         var afterFirstIndex = 0;
-
+        var beforeFirstIndex = 0;
         bool wasIntersectionInIteration;
 
 
         for (int i = 0, currentSpecialPointIndex = 0;
-                currentSpecialPointIndex < listSpecialPoints.Count;
-                i = (i + 1) % ringCoords.Length, currentSpecialPointIndex += wasIntersectionInIteration ? 0 : 1)
+             currentSpecialPointIndex < listSpecialPoints.Count;
+             i = (i + 1) % ringCoords.Length, currentSpecialPointIndex += wasIntersectionInIteration ? 0 : 1)
         {
             if (currentSpecialPointIndex == endSpecialPointIndex && endSpecialPointIndex != listSpecialPoints.Count)
             {
@@ -244,10 +243,10 @@ public class NonConvexSlicer
 
 
             wasIntersectionInIteration = false;
-            if (SegmentService.HasIntersection(ringCoords, coordCurrent.ToCoordinateM(), coordNext.ToCoordinateM()))
+            if (HasIntersection(ringCoords, coordCurrent.ToCoordinateM(), coordNext.ToCoordinateM()))
             {
                 var nextIndex = coordNext.P;
-                while (SegmentService.HasIntersection(ringCoords, coordCurrent.ToCoordinateM(), ringCoords[nextIndex].ToCoordinateM()))
+                while (HasIntersection(ringCoords, coordCurrent.ToCoordinateM(), ringCoords[nextIndex].ToCoordinateM()))
                 {
                     nextIndex = ringCoords[nextIndex].P;
                 }
@@ -264,16 +263,20 @@ public class NonConvexSlicer
 
             if (coordNext.C == (int)listSpecialPoints[beginSpecialPointIndex].M)
             {
-                var beforeFirstIndex = coordCurrent.C;
-                //Добавляем начальную точку, если она особая в получившемся кольце
-                if (SegmentService.VectorProduct(
+                beforeFirstIndex = coordCurrent.C;
+                //Добавляем начальную точку, если она особая в получившемся кольце и не является единственной в нём
+                //При этом кольцо не двуугольник
+                if (coordNext.C != afterFirstIndex &&
+                    coordNext.C != beforeFirstIndex &&
+                    afterFirstIndex != beforeFirstIndex &&
+                    VectorProduct(
                         new Coordinate(
                             ringCoords[coordNext.C].X - ringCoords[beforeFirstIndex].X,
                             ringCoords[coordNext.C].Y - ringCoords[beforeFirstIndex].Y),
                         new Coordinate(
                             ringCoords[afterFirstIndex].X - ringCoords[coordNext.C].X,
                             ringCoords[afterFirstIndex].Y - ringCoords[coordNext.C].Y)
-                    ) > 0 == _clockwise)
+                    ) >= 0 == _clockwise)
                 {
                     listSpecialPoints.Add(coordNext.ToCoordinateM());
                 }
@@ -282,15 +285,17 @@ public class NonConvexSlicer
             if (currentSpecialPointIndex >= beginSpecialPointIndex + 1 &&
                 currentSpecialPointIndex <= endSpecialPointIndex - 1)
             {
-                //Если особая точка будет особой в получившемся кольце, то добавляем с конец списка особых точек
-                if (SegmentService.VectorProduct(
+                //Если особая точка будет особой в получившемся кольце, то добавляем с конец списка особых точек.
+                //При этом кольцо не двуугольник
+                if (afterFirstIndex != beforeFirstIndex &&
+                    VectorProduct(
                         new Coordinate(
                             ringCoords[coordCurrent.C].X - ringCoords[coordPrev.C].X,
                             ringCoords[coordCurrent.C].Y - ringCoords[coordPrev.C].Y),
                         new Coordinate(
                             ringCoords[coordNext.C].X - ringCoords[coordCurrent.C].X,
                             ringCoords[coordNext.C].Y - ringCoords[coordCurrent.C].Y)
-                    ) > 0 == _clockwise)
+                    ) >= 0 == _clockwise)
                 {
                     listSpecialPoints.Add(coordCurrent.ToCoordinateM());
                 }
