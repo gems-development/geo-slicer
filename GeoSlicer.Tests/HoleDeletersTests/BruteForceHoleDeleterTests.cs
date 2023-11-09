@@ -6,7 +6,7 @@ namespace GeoSlicer.Tests.HoleDeletersTests;
 public class BruteForceHoleDeleterTests
 {
     [Theory]
-    [InlineData("HoleDeletersTests/TestData/sample.geojson")]
+    [InlineData("GeoSlicer.Tests/HoleDeletersTests/TestData/sample.geojson")]
     private void SavesAllPoints(string fileName)
     {
         Polygon polygon = GeoJsonFileService.GeoJsonFileService.ReadGeometryFromFile<Polygon>(fileName);
