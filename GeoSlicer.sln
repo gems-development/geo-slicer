@@ -8,6 +8,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeoSlicer.GeoJsonFileServic
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeoSlicer.Utils", "GeoSlicer.Utils\GeoSlicer.Utils.csproj", "{056E4DDA-2430-47AB-94F1-5ECA4772BECD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeoJson.ConsoleRunner", "GeoJson.ConsoleRunner\GeoJson.ConsoleRunner.csproj", "{8E12E648-19F5-443F-8D41-00990E73CE93}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{056E4DDA-2430-47AB-94F1-5ECA4772BECD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{056E4DDA-2430-47AB-94F1-5ECA4772BECD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{056E4DDA-2430-47AB-94F1-5ECA4772BECD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8E12E648-19F5-443F-8D41-00990E73CE93}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8E12E648-19F5-443F-8D41-00990E73CE93}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8E12E648-19F5-443F-8D41-00990E73CE93}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8E12E648-19F5-443F-8D41-00990E73CE93}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

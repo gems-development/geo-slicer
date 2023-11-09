@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net6.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\GeoSlicer.Benchmark\GeoSlicer.Benchmark.csproj" />
+      <ProjectReference Include="..\GeoSlicer.GeoJsonFileService\GeoSlicer.GeoJsonFileService.csproj" />
+      <ProjectReference Include="..\GeoSlicer.Utils\GeoSlicer.Utils.csproj" />
+      <ProjectReference Include="..\GeoSlicer\GeoSlicer.csproj" />
+    </ItemGroup>
+
+</Project>
