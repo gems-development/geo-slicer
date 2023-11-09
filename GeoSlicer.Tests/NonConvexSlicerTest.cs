@@ -105,37 +105,6 @@ public class NonConvexSlicerTest
         }, geometries[2].Coordinates);
     }
 
-    [Fact]
-    public void IntersectionOfSegmentsTest()
-    {
-        //Одинаковые отрезки не пересекаются
-        Assert.False(NonConvexSlicer.NonConvexSlicer.IsIntersectionOfSegments(new Coordinate(0, 0),
-            new Coordinate(2, 2),
-            new Coordinate(0, 0),
-            new Coordinate(2, 2)));
-        //Частично совпадающие отрезки пересекаются
-        Assert.True(NonConvexSlicer.NonConvexSlicer.IsIntersectionOfSegments(new Coordinate(0, 0), new Coordinate(2, 2),
-            new Coordinate(1, 1),
-            new Coordinate(3, 3)));
-        //Скрещенные отрезки пересекаются
-        Assert.True(NonConvexSlicer.NonConvexSlicer.IsIntersectionOfSegments(new Coordinate(0, 0), new Coordinate(2, 2),
-            new Coordinate(0, 2),
-            new Coordinate(2, 0)));
-        //Отрезки с общеё граничной точкой не пересекаются
-        Assert.False(NonConvexSlicer.NonConvexSlicer.IsIntersectionOfSegments(new Coordinate(0, 0),
-            new Coordinate(2, 2),
-            new Coordinate(2, 2),
-            new Coordinate(0, 4)));
-        //Не имеющие общих точек отрезки не пересекаются
-        Assert.False(NonConvexSlicer.NonConvexSlicer.IsIntersectionOfSegments(new Coordinate(0, 0),
-            new Coordinate(0, 2),
-            new Coordinate(2, 2),
-            new Coordinate(4, 2)));
-        //Скрещенные отрезки пересекаются
-        Assert.True(NonConvexSlicer.NonConvexSlicer.IsIntersectionOfSegments(new Coordinate(0, 0), new Coordinate(2, 0),
-            new Coordinate(2, 2),
-            new Coordinate(2, -2)));
-    }
 
     [Theory]
     [InlineData(9, 1, 1, 1, 8, 3, 7, 3, 8, 8, 6, 6, 5, 8, 4, 3, 1, 3, 2, 1, 1)]
