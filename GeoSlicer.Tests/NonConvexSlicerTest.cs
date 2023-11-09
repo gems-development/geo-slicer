@@ -187,7 +187,7 @@ public class NonConvexSlicerTest
         var gf = NetTopologySuite.NtsGeometryServices.Instance.CreateGeometryFactory(4326);
         Coordinate[] coordinates =
         {
-            new(1, 1), new(1, 14), new(3, 14), new(1, 16), new(9, 16), 
+            new(1, 1), new(1, 14), new(3, 14), new(1, 16), new(9, 16),
             new(6, 14), new(7, 13), new(9, 13), new(10, 15), new(13, 10),
             new(10,12), new(5,9), new(9,6), new(10,7), new(11,4), new(10,5),
             new(7,4), new(8,3), new(10,4), new(10,3), new(3,1), new(3,3), new(1,1)
@@ -393,5 +393,45 @@ public class NonConvexSlicerTest
             new Coordinate(9, 5), new Coordinate(12, 5), new Coordinate(10, 4), new Coordinate(4, 4),
             new Coordinate(9, 5)
         }, geometries[7].Coordinates);
+    }
+
+    [Fact]
+    public void ZeroTunnel()
+    {//вернул ту же самую фигуру
+        var gf = NetTopologySuite.NtsGeometryServices.Instance.CreateGeometryFactory(4326);
+        Coordinate[] coordinates =
+        {
+            new(2, 1), new(2, 4), new(4, 4), new(4, 1), new(3, 1), new(3, 3), new(3, 1), new(2, 1)
+        };
+        var lnr = gf.CreateLinearRing(coordinates);
+        NonConvexSlicer.NonConvexSlicer slicer = new NonConvexSlicer.NonConvexSlicer(true);
+        var geometries = slicer.Slice(lnr);
+
+        Assert.Equal(1, geometries.Count);
+        Assert.Equal(new[]
+        {
+            new Coordinate(2, 1), new Coordinate(2, 4), new Coordinate(4, 4), new Coordinate(4, 1), 
+            new Coordinate(3, 1), new Coordinate(3, 3), new Coordinate(3, 1), new Coordinate(2, 1)
+        }, geometries[0].Coordinates);
+    }
+
+    [Fact]
+    public void FindProblemInZeroTunnel()
+    {//вернул ту же самую фигуру
+        var gf = NetTopologySuite.NtsGeometryServices.Instance.CreateGeometryFactory(4326);
+        Coordinate[] coordinates =
+        {
+            new(2, 1), new(2, 4), new(5, 4), new(5, 1), new(4, 1), new(4, 3), new(3, 3), new(3, 1), new(2, 1)
+        };
+        var lnr = gf.CreateLinearRing(coordinates);
+        NonConvexSlicer.NonConvexSlicer slicer = new NonConvexSlicer.NonConvexSlicer(true);
+        var geometries = slicer.Slice(lnr);
+
+        Assert.Equal(1, geometries.Count);
+        Assert.Equal(new[]
+        {
+            new Coordinate(3, 3), new Coordinate(3, 1), new Coordinate(2, 1), new Coordinate(2, 4), 
+            new Coordinate(5, 4), new Coordinate(5, 1), new Coordinate(4, 1), new Coordinate(4, 3), new Coordinate(3, 3)
+        }, geometries[0].Coordinates);
     }
 }
