@@ -42,7 +42,7 @@ public class NonConvexSlicer
                         ring.Coordinates[(i - 1 + ring.Coordinates.Length - 1) % (ring.Coordinates.Length - 1)].Y),
                     new Coordinate(ring.Coordinates[(i + 1) % (ring.Coordinates.Length - 1)].X - ring.Coordinates[i].X,
                         ring.Coordinates[(i + 1) % (ring.Coordinates.Length - 1)].Y - ring.Coordinates[i].Y)
-                ) > 0 == _clockwise)
+                ) >= 0 == _clockwise)
             {
                 list.Add(new CoordinateM(ring.Coordinates[i].X, ring.Coordinates[i].Y, i));
             }
