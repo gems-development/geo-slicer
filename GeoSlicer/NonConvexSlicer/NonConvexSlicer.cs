@@ -2,6 +2,7 @@
 using NetTopologySuite.Algorithm;
 using NetTopologySuite.Geometries;
 
+
 namespace GeoSlicer.NonConvexSlicer;
 
 public class NonConvexSlicer
@@ -15,26 +16,12 @@ public class NonConvexSlicer
         _clockwise = clockwise;
     }
 
-    private double VectorProduct(Coordinate firstVec,
-        Coordinate secondVec,
-        double epsilon = 1e-9)
-    {
-        var product = firstVec.X * secondVec.Y - secondVec.X * firstVec.Y;
-
-        if (Math.Abs(product) < epsilon)
-        {
-            return 0;
-        }
-
-        return product;
-    }
-
     public List<CoordinateM> GetSpecialPoints(LinearRing ring)
     {
         var list = new List<CoordinateM>();
         for (var i = 0; i < ring.Coordinates.Length - 1; ++i)
         {
-            if (VectorProduct(
+            if (SegmentService.VectorProduct(
                     new Coordinate(
                         ring.Coordinates[i].X -
                         ring.Coordinates[(i - 1 + ring.Coordinates.Length - 1) % (ring.Coordinates.Length - 1)].X,
@@ -51,73 +38,6 @@ public class NonConvexSlicer
         return list;
     }
 
-    public static bool IsIntersectionOfSegments(Coordinate firstSegmentPointA,
-        Coordinate firstSegmentPointB,
-        Coordinate secondSegmentPointC,
-        Coordinate secondSegmentPointD)
-    {
-        LineIntersector lineIntersector = new RobustLineIntersector();
-        lineIntersector.ComputeIntersection(firstSegmentPointA, firstSegmentPointB, secondSegmentPointC,
-            secondSegmentPointD);
-        return lineIntersector.IsInteriorIntersection();
-    }
-
-    private bool HasIntersection(CoordinatePCN[] ring, Coordinate coordCurrent, Coordinate coordNext)
-    {
-        if (coordCurrent.Equals2D(coordNext)) return false;
-        var index = (int)coordCurrent.M;
-        while (ring[index].NL != (int)coordCurrent.M)
-        {
-            var firstCoord = ring[index];
-            var secondCoord = ring[firstCoord.NL];
-            if (IsIntersectionOfSegments(coordCurrent, coordNext, firstCoord.ToCoordinate(),
-                    secondCoord.ToCoordinate()))
-            {
-                return true;
-            }
-
-            index = secondCoord.C;
-        }
-
-        return IsIntersectionOfSegments(coordCurrent, coordNext, ring[index].ToCoordinate(),
-            coordCurrent);
-    }
-    public LinearRing IgnoreInnerPointsOfSegment(LinearRing ring)
-    {
-        var array = new Coordinate[ring.Count - 1];
-        var j = 0;
-        if (!IsIntersectionOfSegments(
-                ring.Coordinates[ring.Count - 2],
-                ring.Coordinates[1],
-                ring.Coordinates[0],
-                ring.Coordinates[1])
-            )
-        {
-            array[j] = ring.Coordinates[0];
-            j++;
-        }
-        for (var i = 1; i < ring.Count - 1; i++)
-        {
-            if (!IsIntersectionOfSegments(
-                ring.Coordinates[i - 1],
-                ring.Coordinates[i + 1],
-                ring.Coordinates[i],
-                ring.Coordinates[i + 1]))
-            {
-                array[j] = ring.Coordinates[i];
-                j++;
-            }
-        }
-
-        var res = new Coordinate[j + 1];
-        for (var i = 0; i < j; i++)
-        {
-            res[i] = array[i];
-        }
-        res[j] = res[0];
-
-        return new LinearRing(res);
-    }
 
     private List<LinearRing> SimpleSlice(LinearRing ring, int pozSpecialPoint)
     {
@@ -143,7 +63,7 @@ public class NonConvexSlicer
 
     public List<LinearRing> SliceFigureWithOneSpecialPoint(LinearRing ring)
     {
-        var newRing = IgnoreInnerPointsOfSegment(ring);
+        var newRing = SegmentService.IgnoreInnerPointsOfSegment(ring);
         var listRingsWithoutSpecialPoints = new List<LinearRing>(2);
 
         var listSpecialPoints = GetSpecialPoints(newRing);
@@ -189,9 +109,9 @@ public class NonConvexSlicer
                 return SimpleSlice(newRing, pozSpecialPoint);
             }
 
-            if (!(IsIntersectionOfSegments(coordB, coordA, coordB, coordM) ||
-                  IsIntersectionOfSegments(coordB, coordC, coordB, coordM)) &&
-                VectorProduct(
+            if (!(SegmentService.IsIntersectionOfSegments(coordB, coordA, coordB, coordM) ||
+                  SegmentService.IsIntersectionOfSegments(coordB, coordC, coordB, coordM)) &&
+                SegmentService.VectorProduct(
                     new Coordinate(
                         coordB.X - coordA.X,
                         coordB.Y - coordA.Y),
@@ -199,7 +119,7 @@ public class NonConvexSlicer
                         coordM.X - coordB.X,
                         coordM.Y - coordB.Y)
                 ) > 0 != _clockwise &&
-                VectorProduct(
+                SegmentService.VectorProduct(
                     new Coordinate(
                         coordB.X - coordM.X,
                         coordB.Y - coordM.Y),
@@ -219,7 +139,7 @@ public class NonConvexSlicer
                 }
                 listFirst.Add(coordB);
                 listFirst.Add(coordM);
-                var ringFirst = IgnoreInnerPointsOfSegment(new LinearRing(listFirst.ToArray()));
+                var ringFirst = SegmentService.IgnoreInnerPointsOfSegment(new LinearRing(listFirst.ToArray()));
 
                 var listSecond = new List<Coordinate>();
 
@@ -229,7 +149,7 @@ public class NonConvexSlicer
                 }
                 listSecond.Add(coordM);
                 listSecond.Add(coordB);
-                var ringSecond = IgnoreInnerPointsOfSegment(new LinearRing(listSecond.ToArray()));
+                var ringSecond = SegmentService.IgnoreInnerPointsOfSegment(new LinearRing(listSecond.ToArray()));
 
                 listRingsWithoutSpecialPoints.Add(ringFirst);
                 listRingsWithoutSpecialPoints.Add(ringSecond);
@@ -296,8 +216,8 @@ public class NonConvexSlicer
 
 
         for (int i = 0, currentSpecialPointIndex = 0;
-             currentSpecialPointIndex < listSpecialPoints.Count;
-             i = (i + 1) % ringCoords.Length, currentSpecialPointIndex += wasIntersectionInIteration ? 0 : 1)
+                currentSpecialPointIndex < listSpecialPoints.Count;
+                i = (i + 1) % ringCoords.Length, currentSpecialPointIndex += wasIntersectionInIteration ? 0 : 1)
         {
             if (currentSpecialPointIndex == endSpecialPointIndex && endSpecialPointIndex != listSpecialPoints.Count)
             {
@@ -324,10 +244,10 @@ public class NonConvexSlicer
 
 
             wasIntersectionInIteration = false;
-            if (HasIntersection(ringCoords, coordCurrent.ToCoordinateM(), coordNext.ToCoordinateM()))
+            if (SegmentService.HasIntersection(ringCoords, coordCurrent.ToCoordinateM(), coordNext.ToCoordinateM()))
             {
                 var nextIndex = coordNext.P;
-                while (HasIntersection(ringCoords, coordCurrent.ToCoordinateM(), ringCoords[nextIndex].ToCoordinateM()))
+                while (SegmentService.HasIntersection(ringCoords, coordCurrent.ToCoordinateM(), ringCoords[nextIndex].ToCoordinateM()))
                 {
                     nextIndex = ringCoords[nextIndex].P;
                 }
@@ -346,7 +266,7 @@ public class NonConvexSlicer
             {
                 var beforeFirstIndex = coordCurrent.C;
                 //Добавляем начальную точку, если она особая в получившемся кольце
-                if (VectorProduct(
+                if (SegmentService.VectorProduct(
                         new Coordinate(
                             ringCoords[coordNext.C].X - ringCoords[beforeFirstIndex].X,
                             ringCoords[coordNext.C].Y - ringCoords[beforeFirstIndex].Y),
@@ -363,7 +283,7 @@ public class NonConvexSlicer
                 currentSpecialPointIndex <= endSpecialPointIndex - 1)
             {
                 //Если особая точка будет особой в получившемся кольце, то добавляем с конец списка особых точек
-                if (VectorProduct(
+                if (SegmentService.VectorProduct(
                         new Coordinate(
                             ringCoords[coordCurrent.C].X - ringCoords[coordPrev.C].X,
                             ringCoords[coordCurrent.C].Y - ringCoords[coordPrev.C].Y),
