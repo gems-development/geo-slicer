@@ -291,7 +291,7 @@ public class NonConvexSlicer
         var endSpecialPointIndex = 0;
         //Индексы точек, с которыми мы соединили начальную точку: beforeFirstIndex -> firstPoint -> afterFirstIndex
         var afterFirstIndex = 0;
-
+        var beforeFirstIndex = 0;
         bool wasIntersectionInIteration;
 
 
@@ -344,16 +344,20 @@ public class NonConvexSlicer
 
             if (coordNext.C == (int)listSpecialPoints[beginSpecialPointIndex].M)
             {
-                var beforeFirstIndex = coordCurrent.C;
-                //Добавляем начальную точку, если она особая в получившемся кольце
-                if (VectorProduct(
+                beforeFirstIndex = coordCurrent.C;
+                //Добавляем начальную точку, если она особая в получившемся кольце и не является единственной в нём
+                //При этом кольцо не двуугольник
+                if (coordNext.C != afterFirstIndex &&
+                    coordNext.C != beforeFirstIndex &&
+                    afterFirstIndex != beforeFirstIndex &&
+                    VectorProduct(
                         new Coordinate(
                             ringCoords[coordNext.C].X - ringCoords[beforeFirstIndex].X,
                             ringCoords[coordNext.C].Y - ringCoords[beforeFirstIndex].Y),
                         new Coordinate(
                             ringCoords[afterFirstIndex].X - ringCoords[coordNext.C].X,
                             ringCoords[afterFirstIndex].Y - ringCoords[coordNext.C].Y)
-                    ) > 0 == _clockwise)
+                    ) >= 0 == _clockwise)
                 {
                     listSpecialPoints.Add(coordNext.ToCoordinateM());
                 }
@@ -362,15 +366,17 @@ public class NonConvexSlicer
             if (currentSpecialPointIndex >= beginSpecialPointIndex + 1 &&
                 currentSpecialPointIndex <= endSpecialPointIndex - 1)
             {
-                //Если особая точка будет особой в получившемся кольце, то добавляем с конец списка особых точек
-                if (VectorProduct(
+                //Если особая точка будет особой в получившемся кольце, то добавляем с конец списка особых точек.
+                //При этом кольцо не двуугольник
+                if (afterFirstIndex != beforeFirstIndex &&
+                    VectorProduct(
                         new Coordinate(
                             ringCoords[coordCurrent.C].X - ringCoords[coordPrev.C].X,
                             ringCoords[coordCurrent.C].Y - ringCoords[coordPrev.C].Y),
                         new Coordinate(
                             ringCoords[coordNext.C].X - ringCoords[coordCurrent.C].X,
                             ringCoords[coordNext.C].Y - ringCoords[coordCurrent.C].Y)
-                    ) > 0 == _clockwise)
+                    ) >= 0 == _clockwise)
                 {
                     listSpecialPoints.Add(coordCurrent.ToCoordinateM());
                 }
