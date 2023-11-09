@@ -12,7 +12,11 @@ public static class GeoJsonFileService
     private static readonly GeoJsonReader Reader =
         new GeoJsonReader();
 
-    public static void WriteGeometryToFile<T>(T geometry, String path, bool flagOfGlobalPath = false) where T : class
+    private static readonly string RootName = "geo-slicer";
+    
+    private static string? _fullRootName = null;
+
+    public static void WriteGeometryToFile<T>(T geometry, string path, bool flagOfGlobalPath = false) where T : class
     {
         if (!flagOfGlobalPath)
             path = GetGlobalPath(path);
@@ -21,7 +25,7 @@ public static class GeoJsonFileService
         File.WriteAllText(path, geoJson);
     }
 
-    public static T ReadGeometryFromFile<T>(String path, bool flagOfGlobalPath = false) where T : class
+    public static T ReadGeometryFromFile<T>(string path, bool flagOfGlobalPath = false) where T : class
     {
         if (!flagOfGlobalPath)
             path = GetGlobalPath(path);
@@ -32,10 +36,25 @@ public static class GeoJsonFileService
         return geometry;
     }
 
-    private static String GetGlobalPath(String path)
+    private static string GetGlobalPath(string path)
     {
-        string workingDirectory = Directory.GetCurrentDirectory();
-        var root = Directory.GetParent(workingDirectory)?.Parent?.Parent?.FullName;
-        return Path.Combine(root!, path);
+        string root = GetRoot();
+        return Path.Combine(root, path);
+    }
+
+    public static string GetRoot()
+    {
+        if (_fullRootName is null)
+        {
+            DirectoryInfo directoryInfo = new DirectoryInfo(Directory.GetCurrentDirectory())!;
+            while (directoryInfo!.Name != RootName)
+            {
+                directoryInfo = directoryInfo.Parent!;
+            }
+
+            _fullRootName = directoryInfo.FullName;
+        }
+
+        return _fullRootName;
     }
 }
