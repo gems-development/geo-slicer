@@ -2,10 +2,10 @@
 
 namespace GeoSlicer.NonConvexSlicer;
 
-public class CoordinatePCN
+public class CoordinatePCN : Coordinate
 {
-    public double X { get; }
-    public double Y { get; }
+    public new double X { get; }
+    public new double Y { get; }
     public int P { get; set; }
     public int C { get; set; }
     public int N { get; set; }

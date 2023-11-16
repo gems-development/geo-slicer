@@ -1,4 +1,5 @@
 ﻿using NetTopologySuite.Geometries;
+using GeoSlicer.NonConvexSlicer.Helpers;
 
 namespace GeoSlicer.Tests;
 
@@ -12,7 +13,7 @@ public class TraverseDirectionTests
 
         LinearRing ring = new LinearRing(coordinates);
 
-        Assert.True(NonConvexSlicer.TraverseDirection.IsClockwiseBypass(ring));
+        Assert.True(TraverseDirection.IsClockwiseBypass(ring));
     }
 
     [Fact]
@@ -23,7 +24,7 @@ public class TraverseDirectionTests
 
         LinearRing ring = new LinearRing(coordinates);
 
-        Assert.True(NonConvexSlicer.TraverseDirection.IsClockwiseBypass(ring));
+        Assert.True(TraverseDirection.IsClockwiseBypass(ring));
     }
 
     [Fact]
@@ -34,7 +35,7 @@ public class TraverseDirectionTests
 
         LinearRing ring = new LinearRing(coordinates);
 
-        Assert.True(NonConvexSlicer.TraverseDirection.IsClockwiseBypass(ring));
+        Assert.True(TraverseDirection.IsClockwiseBypass(ring));
     }
 
     [Fact]
@@ -45,7 +46,7 @@ public class TraverseDirectionTests
 
         LinearRing ring = new LinearRing(coordinates);
 
-        Assert.False(NonConvexSlicer.TraverseDirection.IsClockwiseBypass(ring));
+        Assert.False(TraverseDirection.IsClockwiseBypass(ring));
     }
 
     [Fact]
@@ -57,7 +58,7 @@ public class TraverseDirectionTests
 
         LinearRing ring = new LinearRing(coordinates);
 
-        Assert.True(NonConvexSlicer.TraverseDirection.IsClockwiseBypass(ring));
+        Assert.True(TraverseDirection.IsClockwiseBypass(ring));
     }
 
     [Fact]
@@ -69,7 +70,7 @@ public class TraverseDirectionTests
 
         LinearRing ring = new LinearRing(coordinates);
 
-        Assert.False(NonConvexSlicer.TraverseDirection.IsClockwiseBypass(ring));
+        Assert.False(TraverseDirection.IsClockwiseBypass(ring));
     }
 
     [Fact]
@@ -87,7 +88,7 @@ public class TraverseDirectionTests
 
         LinearRing expectedRing = new LinearRing(expectedCoordinates);
 
-        NonConvexSlicer.TraverseDirection.ChangeDirection(ring);
+        TraverseDirection.ChangeDirection(ring);
 
         Assert.Equal(expectedRing, ring);
     }
@@ -107,7 +108,7 @@ public class TraverseDirectionTests
 
         LinearRing expectedRing = new LinearRing(expectedCoordinates);
 
-        NonConvexSlicer.TraverseDirection.ChangeDirection(ring);
+        TraverseDirection.ChangeDirection(ring);
 
         Assert.Equal(expectedRing, ring);
     }

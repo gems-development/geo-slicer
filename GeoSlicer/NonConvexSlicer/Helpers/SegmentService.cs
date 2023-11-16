@@ -1,7 +1,7 @@
 ﻿using NetTopologySuite.Algorithm;
 using NetTopologySuite.Geometries;
 
-namespace GeoSlicer.NonConvexSlicer;
+namespace GeoSlicer.NonConvexSlicer.Helpers;
 public static class SegmentService
 {
     public static double VectorProduct

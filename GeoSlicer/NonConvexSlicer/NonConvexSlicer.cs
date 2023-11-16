@@ -1,6 +1,6 @@
 ﻿using NetTopologySuite;
 using NetTopologySuite.Geometries;
-using static GeoSlicer.NonConvexSlicer.SegmentService;
+using static GeoSlicer.NonConvexSlicer.Helpers.SegmentService;
 
 namespace GeoSlicer.NonConvexSlicer;
 
@@ -15,9 +15,9 @@ public class NonConvexSlicer
         _clockwise = clockwise;
     }
 
-    public List<CoordinateM> GetSpecialPoints(LinearRing ring)
+    public List<CoordinatePCN> GetSpecialPoints(LinearRing ring)
     {
-        var list = new List<CoordinateM>();
+        var list = new List<CoordinatePCN>();
         for (var i = 0; i < ring.Coordinates.Length - 1; ++i)
         {
             if (VectorProduct(
@@ -30,7 +30,7 @@ public class NonConvexSlicer
                         ring.Coordinates[(i + 1) % (ring.Coordinates.Length - 1)].Y - ring.Coordinates[i].Y)
                 ) >= 0 == _clockwise)
             {
-                list.Add(new CoordinateM(ring.Coordinates[i].X, ring.Coordinates[i].Y, i));
+                list.Add(new CoordinatePCN(ring.Coordinates[i].X, ring.Coordinates[i].Y, c:i));
             }
         }
 
@@ -59,6 +59,126 @@ public class NonConvexSlicer
         return listResult;
     }
 
+
+    public List<LinearRing> SliceFigureWithMinNumberOfSpecialPoints(LinearRing ring)
+    {
+        var newRing = IgnoreInnerPointsOfSegment(ring);
+        var listRingsWithoutSpecialPoints = new List<LinearRing>();
+
+        var listSpecialPoints = GetSpecialPoints(newRing);
+
+        if (!listSpecialPoints.Any())
+        {
+            listRingsWithoutSpecialPoints.Add(newRing);
+            return listRingsWithoutSpecialPoints;
+        }
+
+        CoordinatePCN firstSpecialPoint = listSpecialPoints[0];
+
+        var coordA = new CoordinatePCN(
+                newRing.Coordinates[(firstSpecialPoint.C - 1 + newRing.Count - 1) % (newRing.Count - 1)].X,
+                newRing.Coordinates[(firstSpecialPoint.C - 1 + newRing.Count - 1) % (newRing.Count - 1)].Y,
+                c:(firstSpecialPoint.C - 1 + newRing.Count - 1) % (newRing.Count - 1));
+
+        var coordB = new CoordinatePCN(
+                newRing.Coordinates[(firstSpecialPoint.C + newRing.Count - 1) % (newRing.Count - 1)].X,
+                newRing.Coordinates[(firstSpecialPoint.C + newRing.Count - 1) % (newRing.Count - 1)].Y,
+                c:(firstSpecialPoint.C + newRing.Count - 1) % (newRing.Count - 1));
+
+        var coordC = new CoordinatePCN(
+                newRing.Coordinates[(firstSpecialPoint.C + 1 + newRing.Count - 1) % (newRing.Count - 1)].X,
+                newRing.Coordinates[(firstSpecialPoint.C + 1 + newRing.Count - 1) % (newRing.Count - 1)].Y,
+                c:(firstSpecialPoint.C + 1 + newRing.Count - 1) % (newRing.Count - 1));
+
+        var pozMiddlePoint = (firstSpecialPoint.C + 2 + newRing.Count - 1) % (newRing.Count - 1);
+
+        var flag = true;
+        var k = 0;
+
+        while (flag)
+        {
+            var coordM = new CoordinatePCN(
+                newRing.Coordinates[(firstSpecialPoint.C + 2 + newRing.Count - 1) % (newRing.Count - 1)].X,
+                newRing.Coordinates[(firstSpecialPoint.C + 2 + newRing.Count - 1) % (newRing.Count - 1)].Y,
+                c: (pozMiddlePoint + newRing.Count - 1) % (newRing.Count - 1));
+
+            if (coordM.Equals2D(coordC) || coordM.Equals2D(coordA))
+            {
+                return SimpleSlice(newRing, firstSpecialPoint.C);
+            }
+
+            if (!(IsIntersectionOfSegments(coordB, coordA, coordB, coordM) ||
+                  IsIntersectionOfSegments(coordB, coordC, coordB, coordM)) &&
+                VectorProduct(
+                    new Coordinate(
+                        coordB.X - coordA.X,
+                        coordB.Y - coordA.Y),
+                    new Coordinate(
+                        coordM.X - coordB.X,
+                        coordM.Y - coordB.Y)
+                ) > 0 != _clockwise &&
+                VectorProduct(
+                    new Coordinate(
+                        coordB.X - coordM.X,
+                        coordB.Y - coordM.Y),
+                    new Coordinate(
+                        coordC.X - coordB.X,
+                        coordC.Y - coordB.Y)
+                ) > 0 != _clockwise
+               )
+            {
+                //MiddlePoint не является особой точкой в новом кольце
+                //и не лежит на одной прямой со старой особой точкой и предыдущей для старой особой
+                var listFirst = new List<Coordinate>();
+
+                for (var i = coordB.C; i != coordM.C; i = (i + 1) % (newRing.Count - 1))
+                {
+                    listFirst.Add(newRing[i]);
+                }
+
+                listFirst.Add(coordM);
+                listFirst.Add(coordB);
+                
+                var listSecond = new List<Coordinate>();
+
+                for (var i = coordM.C; i != coordB.C; i = (i + 1) % (newRing.Count - 1))
+                {
+                    listSecond.Add(newRing[i]);
+                }
+
+                listSecond.Add(coordB);
+                listSecond.Add(coordM);
+
+
+                var ringFirst = IgnoreInnerPointsOfSegment(new LinearRing(listFirst.ToArray()));                
+                var ringSecond = IgnoreInnerPointsOfSegment(new LinearRing(listSecond.ToArray()));
+
+                listRingsWithoutSpecialPoints.Add(ringFirst);
+
+                flag = false;
+
+                var listRec = SliceFigureWithMinNumberOfSpecialPoints(ringSecond);
+
+                foreach (var item in listRec)
+                {
+                    listRingsWithoutSpecialPoints.Add(item);
+                }
+            }
+            else
+            {
+                pozMiddlePoint = (pozMiddlePoint + 1 + newRing.Count - 1) % (newRing.Count - 1);
+
+                k++;
+
+                if (k == newRing.Count - 1)
+                {
+                    return SimpleSlice(newRing, firstSpecialPoint.C);
+                }
+            }
+        }
+        return listRingsWithoutSpecialPoints;
+    }
+    /*
     public List<LinearRing> SliceFigureWithOneSpecialPoint(LinearRing ring)
     {
         var newRing = IgnoreInnerPointsOfSegment(ring);
@@ -179,7 +299,7 @@ public class NonConvexSlicer
         }
 
         return listRingsWithoutSpecialPoints;
-    }
+    }*/
 
     public List<LinearRing> Slice(LinearRing ring)
     {
