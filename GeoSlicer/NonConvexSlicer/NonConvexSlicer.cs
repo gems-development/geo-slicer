@@ -98,8 +98,8 @@ public class NonConvexSlicer
         while (flag)
         {
             var coordM = new CoordinatePCN(
-                newRing.Coordinates[(firstSpecialPoint.C + 2 + newRing.Count - 1) % (newRing.Count - 1)].X,
-                newRing.Coordinates[(firstSpecialPoint.C + 2 + newRing.Count - 1) % (newRing.Count - 1)].Y,
+                newRing.Coordinates[(pozMiddlePoint + 2 + newRing.Count - 1) % (newRing.Count - 1)].X,
+                newRing.Coordinates[(pozMiddlePoint + 2 + newRing.Count - 1) % (newRing.Count - 1)].Y,
                 c: (pozMiddlePoint + newRing.Count - 1) % (newRing.Count - 1));
 
             if (coordM.Equals2D(coordC) || coordM.Equals2D(coordA))
@@ -321,7 +321,7 @@ public class NonConvexSlicer
             case 0:
                 return new List<LinearRing> { ring };
             case 1:
-                return SliceFigureWithOneSpecialPoint(ring);
+                return SliceFigureWithMinNumberOfSpecialPoints(ring);
         }
 
         //coordCurrent, coordNext - координаты текущей и следующей точки, которые мы хотим соединить
@@ -405,7 +405,8 @@ public class NonConvexSlicer
                             ringCoords[afterFirstIndex].Y - ringCoords[coordNext.C].Y)
                     ) >= 0 == _clockwise)
                 {
-                    listSpecialPoints.Add(coordNext.ToCoordinateM());
+                    //coordNext.ToCoordinateM
+                    listSpecialPoints.Add(coordNext);
                 }
             }
 
@@ -423,8 +424,8 @@ public class NonConvexSlicer
                             ringCoords[coordNext.C].X - ringCoords[coordCurrent.C].X,
                             ringCoords[coordNext.C].Y - ringCoords[coordCurrent.C].Y)
                     ) >= 0 == _clockwise)
-                {
-                    listSpecialPoints.Add(coordCurrent.ToCoordinateM());
+                {//coordNext.ToCoordinateM
+                    listSpecialPoints.Add(coordCurrent);
                 }
             }
 
@@ -445,7 +446,7 @@ public class NonConvexSlicer
                     : ringCoords[coordNext.C].ToCoordinate());
                 currentLinearRingCoords.Add(currentLinearRingCoords[0]);
                 var currentLinearRing = _gf.CreateLinearRing(currentLinearRingCoords.ToArray());
-                var convexLists = SliceFigureWithOneSpecialPoint(currentLinearRing);
+                var convexLists = SliceFigureWithMinNumberOfSpecialPoints(currentLinearRing);
                 listLinearRing = listLinearRing.Union(convexLists).ToList();
             }
 
