@@ -17,7 +17,7 @@ public class NonConvexSlicerTest
         };
         var lnr = gf.CreateLinearRing(coordinates);
         var slicer = new NonConvexSlicer.NonConvexSlicer(true);
-        var geometries = slicer.SliceFigureWithOneSpecialPoint(lnr);
+        var geometries = slicer.SliceFigureWithMinNumberOfSpecialPoints(lnr);
         Assert.Equal(2, geometries.Count);
         Assert.Equal(new[]
         {
@@ -39,7 +39,7 @@ public class NonConvexSlicerTest
         };
         var lnr = gf.CreateLinearRing(coordinates);
         var slicer = new NonConvexSlicer.NonConvexSlicer(true);
-        var geometries = slicer.SliceFigureWithOneSpecialPoint(lnr);
+        var geometries = slicer.SliceFigureWithMinNumberOfSpecialPoints(lnr);
         Assert.Equal(2, geometries.Count);
         Assert.Equal(new[]
         {
@@ -61,7 +61,7 @@ public class NonConvexSlicerTest
         };
         var lnr = gf.CreateLinearRing(coordinates);
         var slicer = new NonConvexSlicer.NonConvexSlicer(true);
-        var geometries = slicer.SliceFigureWithOneSpecialPoint(lnr);
+        var geometries = slicer.SliceFigureWithMinNumberOfSpecialPoints(lnr);
         Assert.Equal(3, geometries.Count);
         Assert.Equal(new[]
         {
@@ -89,7 +89,7 @@ public class NonConvexSlicerTest
         };
         var lnr = gf.CreateLinearRing(coordinates);
         var slicer = new NonConvexSlicer.NonConvexSlicer(true);
-        var geometries = slicer.SliceFigureWithOneSpecialPoint(lnr);
+        var geometries = slicer.SliceFigureWithMinNumberOfSpecialPoints(lnr);
         Assert.Equal(3, geometries.Count);
         Assert.Equal(new[]
         {
@@ -397,41 +397,6 @@ public class NonConvexSlicerTest
             new Coordinate(3, 3), new Coordinate(4, 1), new Coordinate(3, 1), new Coordinate(3, 3)
         }, geometries[4].Coordinates);
     }
-    
-    [Fact]
-    public void ZeroTunnel_Type_U()
-    {
-        var gf = NetTopologySuite.NtsGeometryServices.Instance.CreateGeometryFactory(4326);
-        Coordinate[] coordinates =
-        {
-            new(2, 1), new(2, 4), new(4, 4), new(4, 1), new(3, 1), new(3, 3), new(3, 3), new(3, 1), new(2, 1)
-        };
-        var lnr = gf.CreateLinearRing(coordinates);
-        var slicer = new NonConvexSlicer.NonConvexSlicer(true);
-        var geometries = slicer.Slice(lnr);
-
-        Assert.Equal(5, geometries.Count);
-        Assert.Equal(new[]
-        {
-            new Coordinate(3, 3), new Coordinate(3, 1), new Coordinate(2, 1), new Coordinate(3, 3)
-        }, geometries[0].Coordinates);
-        Assert.Equal(new[]
-        {
-            new Coordinate(3, 3), new Coordinate(2, 1), new Coordinate(2, 4), new Coordinate(3, 3)
-        }, geometries[1].Coordinates);
-        Assert.Equal(new[]
-        {
-            new Coordinate(3, 3), new Coordinate(2, 4), new Coordinate(4, 4), new Coordinate(3, 3)
-        }, geometries[2].Coordinates);
-        Assert.Equal(new[]
-        {
-            new Coordinate(3, 3), new Coordinate(4, 4), new Coordinate(4, 1), new Coordinate(3, 3)
-        }, geometries[3].Coordinates);
-        Assert.Equal(new[]
-        {
-            new Coordinate(3, 3), new Coordinate(4, 1), new Coordinate(3, 1), new Coordinate(3, 3)
-        }, geometries[4].Coordinates);
-    }
 
     [Fact]
     public void TwoSpecialPointsInRow()
@@ -462,5 +427,184 @@ public class NonConvexSlicerTest
         {
             new Coordinate(5, 4), new Coordinate(5, 1), new Coordinate(4, 1), new Coordinate(4, 3), new Coordinate(5, 4)
         }, geometries[3].Coordinates);
+    }
+
+    [Fact]
+    public void ZeroTunnels_AfterHoleDeleter_OneHole()
+    {
+        var gf = NetTopologySuite.NtsGeometryServices.Instance.CreateGeometryFactory(4326);
+        Coordinate[] coordinates =
+        {
+            new(3, 2), new(1, 10), new(6, 14), new(18, 12), new(15, 1), new(7, 1), new(7, 4), new(10, 5), new(10, 7),
+            new(8, 8), new(5, 6), new(7, 4), new(7, 1), new(3, 2)
+        };
+        var lnr = gf.CreateLinearRing(coordinates);
+        var slicer = new NonConvexSlicer.NonConvexSlicer(true);
+        var geometries = slicer.Slice(lnr);
+
+        Assert.Equal(8, geometries.Count);
+        Assert.Equal(new[]
+        {
+            new Coordinate(5, 6), new Coordinate(7, 4), new Coordinate(7, 1), new Coordinate(3, 2), new Coordinate(5, 6)
+        }, geometries[0].Coordinates);
+        Assert.Equal(new[]
+        {
+            new Coordinate(5, 6), new Coordinate(3, 2), new Coordinate(1, 10), new Coordinate(6, 14), new Coordinate(5, 6)
+        }, geometries[1].Coordinates);
+        Assert.Equal(new[]
+        {
+            new Coordinate(6, 14), new Coordinate(18, 12), new Coordinate(15, 1), new Coordinate(6, 14)
+        }, geometries[2].Coordinates);
+        Assert.Equal(new[]
+        {
+            new Coordinate(15, 1), new Coordinate(7, 1), new Coordinate(7, 4), new Coordinate(10, 5), new Coordinate(15, 1)
+        }, geometries[3].Coordinates);
+        Assert.Equal(new[]
+        {
+            new Coordinate(8, 8), new Coordinate(5, 6), new Coordinate(6, 14), new Coordinate(8, 8)
+        }, geometries[4].Coordinates);
+        Assert.Equal(new[]
+        {
+            new Coordinate(10, 7), new Coordinate(6, 14), new Coordinate(15, 1), new Coordinate(10, 7)
+        }, geometries[5].Coordinates);
+        Assert.Equal(new[]
+        {
+            new Coordinate(10, 7), new Coordinate(15, 1), new Coordinate(10, 5), new Coordinate(10, 7)
+        }, geometries[6].Coordinates);
+        Assert.Equal(new[]
+        {
+            new Coordinate(10, 7), new Coordinate(8, 8), new Coordinate(6, 14), new Coordinate(10, 7)
+        }, geometries[7].Coordinates);
+    }
+
+    [Fact]
+    public void ZeroTunnels_AfterHoleDeleter_TwoHoles()
+    {
+        var gf = NetTopologySuite.NtsGeometryServices.Instance.CreateGeometryFactory(4326);
+        Coordinate[] coordinates =
+        {
+            new(3, 2), new(1, 10), new(6, 14), new(17, 12), new(14, 11), new(12, 12), new(14, 9),
+            new(14, 11), new(17, 12), new(15, 1), new(7, 1), new(7, 4), new(10, 5), new(10, 7),
+            new(8, 8), new(5, 6), new(7, 4), new(7, 1), new(3, 2)
+        };
+        var lnr = gf.CreateLinearRing(coordinates);
+        var slicer = new NonConvexSlicer.NonConvexSlicer(true);
+        var geometries = slicer.Slice(lnr);
+
+        Assert.Equal(10, geometries.Count);
+        Assert.Equal(new[]
+        {
+            new Coordinate(14, 9), new Coordinate(14, 11), new Coordinate(18, 12), new Coordinate(15, 11), new Coordinate(14, 9)
+        }, geometries[0].Coordinates);
+        Assert.Equal(new[]
+        {
+            new Coordinate(10, 5), new Coordinate(14, 9), new Coordinate(15, 11), new Coordinate(7, 1), new Coordinate(10, 5)
+        }, geometries[1].Coordinates);
+        Assert.Equal(new[]
+        {
+            new Coordinate(10, 5), new Coordinate(7, 1), new Coordinate(7, 4), new Coordinate(10, 5)
+        }, geometries[2].Coordinates);
+        Assert.Equal(new[]
+        {
+            new Coordinate(5, 6), new Coordinate(7, 4), new Coordinate(7, 1), new Coordinate(3, 2),
+            new Coordinate(1, 10), new Coordinate(5, 6)
+        }, geometries[3].Coordinates);
+        Assert.Equal(new[]
+        {
+            new Coordinate(12, 12), new Coordinate(5, 6), new Coordinate(1, 10), new Coordinate(6, 14), new Coordinate(12, 12)
+        }, geometries[4].Coordinates);
+        Assert.Equal(new[]
+        {
+            new Coordinate(12, 12), new Coordinate(6, 14), new Coordinate(18, 12), new Coordinate(14, 11), new Coordinate(12, 12)
+        }, geometries[5].Coordinates);
+        Assert.Equal(new[]
+        {
+            new Coordinate(8, 8), new Coordinate(5, 6), new Coordinate(12, 12), new Coordinate(8, 8)
+        }, geometries[6].Coordinates);
+        Assert.Equal(new[]
+        {
+            new Coordinate(8, 8), new Coordinate(12, 12), new Coordinate(14, 9), new Coordinate(8, 8)
+        }, geometries[7].Coordinates);
+        Assert.Equal(new[]
+        {
+            new Coordinate(14, 9), new Coordinate(10, 5), new Coordinate(10, 7), new Coordinate(14, 9)
+        }, geometries[8].Coordinates);
+        Assert.Equal(new[]
+        {
+            new Coordinate(10, 7), new Coordinate(8, 8), new Coordinate(14, 9), new Coordinate(10, 7)
+        }, geometries[9].Coordinates);
+    }
+    
+    [Fact]
+    public void ZeroTunnels_AfterHoleDeleter_TwoHolesFromOnePoint()
+    {
+        var gf = NetTopologySuite.NtsGeometryServices.Instance.CreateGeometryFactory(4326);
+        Coordinate[] coordinates =
+        {
+            new(1, 1), new(2, 11), new(4, 14), new(18, 12), new(18, 2), new(10, 1), new(11, 8),
+            new(13, 5), new(16, 5), new(15, 10), new(11, 8), new(10, 1), new(4, 3), new(7, 4),
+            new(7, 7), new(4, 7), new(4, 3), new(10, 1), new(1, 1)
+        };
+        var lnr = gf.CreateLinearRing(coordinates);
+        var slicer = new NonConvexSlicer.NonConvexSlicer(true);
+        var geometries = slicer.Slice(lnr);
+
+        Assert.Equal(14, geometries.Count);
+        Assert.Equal(new[]
+        {
+            new Coordinate(7, 4), new Coordinate(11, 8), new Coordinate(10, 1), new Coordinate(7, 4)
+        }, geometries[0].Coordinates);
+        Assert.Equal(new[]
+        {
+            new Coordinate(7, 4), new Coordinate(10, 1), new Coordinate(4, 3), new Coordinate(7, 4)
+        }, geometries[1].Coordinates);
+        Assert.Equal(new[]
+        {
+            new Coordinate(1, 1), new Coordinate(2, 11), new Coordinate(4, 14), new Coordinate(1, 1)
+        }, geometries[2].Coordinates);
+        Assert.Equal(new[]
+        {
+            new Coordinate(13, 5), new Coordinate(18, 2), new Coordinate(10, 1), new Coordinate(13, 5)
+        }, geometries[3].Coordinates);
+        Assert.Equal(new[]
+        {
+            new Coordinate(13, 5), new Coordinate(10, 1), new Coordinate(11, 8), new Coordinate(13, 5)
+        }, geometries[4].Coordinates);
+        Assert.Equal(new[]
+        {
+            new Coordinate(11, 8), new Coordinate(7, 4), new Coordinate(7, 7), new Coordinate(11, 8)
+        }, geometries[5].Coordinates);
+        Assert.Equal(new[]
+        {
+            new Coordinate(4, 3), new Coordinate(10, 1), new Coordinate(1, 1), new Coordinate(4, 3)
+        }, geometries[6].Coordinates);
+        Assert.Equal(new[]
+        {
+            new Coordinate(16, 5), new Coordinate(18, 12), new Coordinate(18, 2), new Coordinate(16, 5)
+        }, geometries[7].Coordinates);
+        Assert.Equal(new[]
+        {
+            new Coordinate(16, 5), new Coordinate(18, 2), new Coordinate(13, 5), new Coordinate(16, 5)
+        }, geometries[8].Coordinates);
+        Assert.Equal(new[]
+        {
+            new Coordinate(15, 10), new Coordinate(11, 8), new Coordinate(7, 7), new Coordinate(4, 7), new Coordinate(15, 10)
+        }, geometries[9].Coordinates);
+        Assert.Equal(new[]
+        {
+            new Coordinate(4, 14), new Coordinate(4, 3), new Coordinate(1, 1), new Coordinate(4, 14)
+        }, geometries[10].Coordinates);
+        Assert.Equal(new[]
+        {
+            new Coordinate(4, 3), new Coordinate(4, 14), new Coordinate(18, 12), new Coordinate(4, 7)
+        }, geometries[11].Coordinates);
+        Assert.Equal(new[]
+        {
+            new Coordinate(18, 12), new Coordinate(16, 5), new Coordinate(15, 10), new Coordinate(18, 12)
+        }, geometries[12].Coordinates);
+        Assert.Equal(new[]
+        {
+            new Coordinate(15, 10), new Coordinate(4, 7), new Coordinate(18, 12), new Coordinate(15, 10)
+        }, geometries[13].Coordinates);
     }
 }

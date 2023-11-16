@@ -178,6 +178,7 @@ public class NonConvexSlicer
         }
         return listRingsWithoutSpecialPoints;
     }
+    
     /*
     public List<LinearRing> SliceFigureWithOneSpecialPoint(LinearRing ring)
     {
@@ -192,7 +193,7 @@ public class NonConvexSlicer
             return listRingsWithoutSpecialPoints;
         }
 
-        var pozSpecialPoint = (int)listSpecialPoints[0].M;
+        var pozSpecialPoint = (int)listSpecialPoints[0].C;
         var pozMiddlePoint = ((newRing.Count - 1) / 2 + pozSpecialPoint) % (newRing.Count - 1);
 
         var coordA = new CoordinateM(
@@ -300,7 +301,7 @@ public class NonConvexSlicer
 
         return listRingsWithoutSpecialPoints;
     }*/
-
+    
     public List<LinearRing> Slice(LinearRing ring)
     {
         //Список особых точек
@@ -325,7 +326,7 @@ public class NonConvexSlicer
         }
 
         //coordCurrent, coordNext - координаты текущей и следующей точки, которые мы хотим соединить
-        var coordCurrent = ringCoords[(int)listSpecialPoints[0].M];
+        var coordCurrent = ringCoords[(int)listSpecialPoints[0].C];
         var coordPrev = coordCurrent;
         //Индексы начала и конца элементов списка особых точек, которые входят в одно кольцо в итерации
         var beginSpecialPointIndex = 0;
@@ -344,7 +345,7 @@ public class NonConvexSlicer
             {
                 beginSpecialPointIndex = endSpecialPointIndex;
                 endSpecialPointIndex = listSpecialPoints.Count;
-                coordCurrent = ringCoords[(int)listSpecialPoints[beginSpecialPointIndex].M];
+                coordCurrent = ringCoords[(int)listSpecialPoints[beginSpecialPointIndex].C];
                 coordPrev = coordCurrent;
                 //Замена коориднат кольца старой итерации на новое
                 for (var j = coordCurrent.C; j != coordCurrent.P;)
@@ -361,7 +362,7 @@ public class NonConvexSlicer
 
             var coordNext = ringCoords[(int)listSpecialPoints[
                 (currentSpecialPointIndex + 1 - beginSpecialPointIndex) %
-                (endSpecialPointIndex - beginSpecialPointIndex) + beginSpecialPointIndex].M];
+                (endSpecialPointIndex - beginSpecialPointIndex) + beginSpecialPointIndex].C];
 
 
             wasIntersectionInIteration = false;
@@ -382,13 +383,13 @@ public class NonConvexSlicer
                 coordNext = ringCoords[nextIndex];
             }
 
-            if (coordPrev.C == (int)listSpecialPoints[beginSpecialPointIndex].M &&
-                coordCurrent.C != (int)listSpecialPoints[beginSpecialPointIndex].M)
+            if (coordPrev.C == (int)listSpecialPoints[beginSpecialPointIndex].C &&
+                coordCurrent.C != (int)listSpecialPoints[beginSpecialPointIndex].C)
             {
                 afterFirstIndex = coordCurrent.C;
             }
 
-            if (coordNext.C == (int)listSpecialPoints[beginSpecialPointIndex].M)
+            if (coordNext.C == (int)listSpecialPoints[beginSpecialPointIndex].C)
             {
                 beforeFirstIndex = coordCurrent.C;
                 //Добавляем начальную точку, если она особая в получившемся кольце и не является единственной в нём
@@ -405,7 +406,7 @@ public class NonConvexSlicer
                             ringCoords[afterFirstIndex].Y - ringCoords[coordNext.C].Y)
                     ) >= 0 == _clockwise)
                 {
-                    //coordNext.ToCoordinateM
+                    listSpecialPoints.Add(coordNext);
                     listSpecialPoints.Add(coordNext);
                 }
             }
@@ -442,8 +443,8 @@ public class NonConvexSlicer
                 }
 
                 currentLinearRingCoords.Add(coordCurrent.C == coordNext.C
-                    ? ringCoords[coordCurrent.P].ToCoordinate()
-                    : ringCoords[coordNext.C].ToCoordinate());
+                    ? ringCoords[coordCurrent.P]
+                    : ringCoords[coordNext.C]);
                 currentLinearRingCoords.Add(currentLinearRingCoords[0]);
                 var currentLinearRing = _gf.CreateLinearRing(currentLinearRingCoords.ToArray());
                 var convexLists = SliceFigureWithMinNumberOfSpecialPoints(currentLinearRing);

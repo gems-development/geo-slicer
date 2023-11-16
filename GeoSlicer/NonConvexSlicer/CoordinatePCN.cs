@@ -18,14 +18,4 @@ public class CoordinatePCN : Coordinate
         PL = p;
         NL = n;
     }
-
-    public CoordinateM ToCoordinateM()
-    {
-        return new CoordinateM(X, Y, C);
-    }
-    
-    public Coordinate ToCoordinate()
-    {
-        return new Coordinate(X, Y);
-    }
 }
