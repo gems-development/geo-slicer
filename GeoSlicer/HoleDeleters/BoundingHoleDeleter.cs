@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NetTopologySuite.Geometries;
 using GeoSlicer.Utils.BoundHoleDelDependency;
+using NetTopologySuite.Algorithm;
 
 namespace GeoSlicer.HoleDeleters;
 
@@ -117,8 +118,11 @@ public class BoundingHoleDeleter
             if (!hasIntersectFrames)
             {
                 bool frameOfThisChanged = false;
-                if (_intersectFrames.Any()){}
+                if (_intersectFrames.Any())
+                {
                     //frameOfThisChanged = ConnectContainsRingsInThis(thisRing);
+                }
+
                 if (frameOfThisChanged)
                 {
                     if (thisRing.Value.PointMin.Equals(pointMinShell) && thisRing.Value.PointMax.Equals(pointMaxShell))
@@ -136,7 +140,7 @@ public class BoundingHoleDeleter
                     Coordinate oldPointMax = thisRing.Value.PointMax;
                     if (!ConnectNoIntersectRectan(thisRing, listOfHoles))
                     {
-                        //BruteforceConnect(thisRing);
+                        BruteforceConnect(thisRing, listOfHoles);
                     }
 
                     if (thisRing.Value.PointMin.Equals(pointMinShell) && thisRing.Value.PointMax.Equals(pointMaxShell))
@@ -167,11 +171,201 @@ public class BoundingHoleDeleter
         throw new AggregateException();
     }
 
-    private void BruteforceConnect(LinkedListNode<BoundingRing> thisRing)
+    private void BruteforceConnect(LinkedListNode<BoundingRing> thisRing, LinkedList<BoundingRing> listOfHoles)
     {
-        throw new AggregateException();
+        /*if (_nearABC is not null)
+        {
+            if (_nearABCintersect is not null)
+            {
+                var listAbc =
+                    new LinkedList<
+                        (LinkedListNode<BoundingRing> boundRing,
+                        List<PartitioningZones> zones)>();
+                int listAbcCount = 0;
+                foreach (var frame in _listA)
+                {
+                    listAbc.AddFirst(frame);
+                    listAbcCount++;
+                }
+                foreach (var frame in _listB)
+                {
+                    listAbc.AddFirst(frame);
+                    listAbcCount++;
+                }
+                foreach (var frame in _listC)
+                {
+                    listAbc.AddFirst(frame);
+                    listAbcCount++;
+                }
+                LinkedListNode<BoundingRing>? testingRing = null;
+                foreach (var frame in listAbc)
+                {
+                    if (!(frame.boundRing.Value.PointMin.Y < thisRing.Value.PointMax.Y))
+                    {
+                        testingRing = frame.boundRing;
+                        break;
+                    }
+                }
+                
+                for (int i = 0; i < listAbcCount; i++)
+                {
+                    var res = CheckIntersectFramesWithoutThisFrame(listAbc, thisRing.Value.PointUpNode.Elem,
+                        testingRing.Value.PointDownNode.Elem, testingRing);
+                    if (res is null)
+                        break;
+                    testingRing = res;
+                }
+            }
+        }*/
+        if (_nearABCSegmentintersect is not null)
+        {
+            bool flag = ConnectWithFrameWhoContainThisRing(_nearABCSegmentintersect, thisRing, listOfHoles, PartitioningZones.ABC);
+            if (flag)
+                return;
+        }
+        if (_nearCDESegmentintersect is not null)
+        {
+            bool flag = ConnectWithFrameWhoContainThisRing(_nearCDESegmentintersect, thisRing, listOfHoles, PartitioningZones.CDE);
+            if (flag)
+                return;
+        }
+        if (_nearEFGSegmentintersect is not null)
+        {
+            bool flag = ConnectWithFrameWhoContainThisRing(_nearEFGSegmentintersect, thisRing, listOfHoles, PartitioningZones.EFG);
+            if (flag)
+                return;
+        }
+        if (_nearAHGSegmentintersect is not null)
+        {
+            bool flag = ConnectWithFrameWhoContainThisRing(_nearAHGSegmentintersect, thisRing, listOfHoles, PartitioningZones.AHG);
+            if (flag)
+                return;
+        }
+    }
+    //todo добавить проверку на пересечение соединения с прямоугольниками
+    //todo рассмотреть ситуацию когда все ближайшие треугольники равны null (_nearAbc и другие подобные)
+    private bool ConnectWithFrameWhoContainThisRing(
+        (LinkedListNode<BoundingRing> boundRing, LinkedNode<Coordinate> _start)? nearSegmentIntersect,
+        LinkedListNode<BoundingRing> thisRing,
+        LinkedList<BoundingRing> listOfHoles, PartitioningZones zones)
+    {
+        var coord = nearSegmentIntersect.Value._start;
+        coord = RearrangePoints(coord, zones, thisRing);
+        var start = _framesContainThis.First;
+        do
+        {
+            if (ReferenceEquals(start!.Value.Value, nearSegmentIntersect.Value.boundRing.Value))
+            {
+                var buff = start.Value;
+                _framesContainThis.Remove(start);
+                _framesContainThis.AddFirst(buff);
+                break;
+            }
+
+            start = start.Next;
+        } while (start is not null);
+
+        LinkedNode<Coordinate> connectCoordThisR;
+        if (zones == PartitioningZones.ABC)
+            connectCoordThisR = thisRing.Value.PointUpNode;
+        else if (zones == PartitioningZones.CDE)
+            connectCoordThisR = thisRing.Value.PointLeftNode;
+        else if (zones == PartitioningZones.EFG)
+            connectCoordThisR = thisRing.Value.PointDownNode;
+        else
+            connectCoordThisR = thisRing.Value.PointRightNode;
+        
+        
+        bool flag;
+        var correctNode = _framesContainThis.First.Value;
+        do
+        {
+            flag = false;
+            foreach (var frame in _framesContainThis)
+            {
+                (LinkedListNode<BoundingRing> boundRing, LinkedNode<Coordinate> _start)? intersectSegment;
+                do
+                {
+                    intersectSegment =
+                        CheckIntersectRingWithSegment(frame, connectCoordThisR.Elem, coord.Elem);
+                    if (intersectSegment is not null)
+                    {
+                        flag = true;
+                        coord = intersectSegment.Value._start;
+                        coord = RearrangePoints(coord, zones, thisRing);
+
+                        correctNode = frame;
+                    }
+                } while (intersectSegment is not null);
+            }
+        } while (flag);
+
+        BoundRingService.ConnectBoundRings(thisRing.Value, correctNode.Value,
+            connectCoordThisR, coord);
+        listOfHoles.Remove(correctNode);
+        return true;
     }
 
+    private LinkedNode<Coordinate> RearrangePoints(LinkedNode<Coordinate> coord, PartitioningZones zones,  LinkedListNode<BoundingRing> thisRing)
+    {
+        if (zones == PartitioningZones.ABC)
+        {
+            if (coord.Elem.Y < thisRing.Value.PointUpNode.Elem.Y)
+            {
+                coord = coord.Next;
+            }
+        }
+        else if (zones == PartitioningZones.CDE)
+        {
+            if (coord.Elem.X > thisRing.Value.PointLeftNode.Elem.X)
+            {
+                coord = coord.Next;
+            }
+        }
+        else if (zones == PartitioningZones.EFG)
+        {
+            if (coord.Elem.Y > thisRing.Value.PointDownNode.Elem.Y)
+            {
+                coord = coord.Next;
+            }
+        }
+        else
+        {
+            if (coord.Elem.X < thisRing.Value.PointRightNode.Elem.X)
+            {
+                coord = coord.Next;
+            }
+        }
+
+        return coord;
+    }
+    private (LinkedListNode<BoundingRing> boundRing, LinkedNode<Coordinate> _start)? CheckIntersectRingWithSegment(
+        LinkedListNode<BoundingRing> ring, Coordinate a, Coordinate b)
+    {
+        var start = ring.Value.Ring;
+        do
+        {
+            if (HasIntersectedSegmentsNotInExternalPoints(start.Elem, start.Next.Elem, a, b))
+                return (ring, start);
+            start = start.Next;
+        } while (!ReferenceEquals(start, ring.Value.Ring));
+
+        return null;
+    }
+
+    private LinkedListNode<BoundingRing>? CheckIntersectFramesWithoutThisFrame
+    (LinkedList<(LinkedListNode<BoundingRing> boundRing, 
+            List<PartitioningZones> zones)> frames, Coordinate a,
+        Coordinate b, LinkedListNode<BoundingRing> thisFrame)
+    {
+        foreach (var frame in frames)
+        {
+            if (hasIntersectsFrame(frame.boundRing.Value, a, b) && !ReferenceEquals(frame.boundRing, thisFrame))
+                return frame.boundRing;
+        }
+
+        return null;
+    }
     private bool ConnectNoIntersectRectan(LinkedListNode<BoundingRing> thisRing, LinkedList<BoundingRing> listOfHoles)
     {
         bool flagAbcCanConnect = true;
@@ -401,7 +595,7 @@ public class BoundingHoleDeleter
             }
         }
         
-
+        
         var shell = _framesContainThis.First!.Value;
         _framesContainThis.Remove(_framesContainThis.First);
         _framesContainThis.AddLast(shell);
@@ -417,7 +611,7 @@ public class BoundingHoleDeleter
                      || buffer.Next.Elem.Y > thisRing.Value.PointMax.Y
                      || Math.Abs(buffer.Next.Elem.Y - thisRing.Value.PointMax.Y) < 1e-9))
                 {
-                    if (hasIntersectedSegments(firstCoordLineConnectNearAbc!, secondCoordLineConnectNearAbc!, buffer.Elem,
+                    if (HasIntersectedSegments(firstCoordLineConnectNearAbc!, secondCoordLineConnectNearAbc!, buffer.Elem,
                             buffer.Next.Elem))
                     {
                         _nearABCSegmentintersect = (frameWhoContainThis, buffer);
@@ -432,7 +626,7 @@ public class BoundingHoleDeleter
                      || buffer.Next.Elem.X < thisRing.Value.PointMin.X
                      || Math.Abs(buffer.Next.Elem.X - thisRing.Value.PointMin.X) < 1e-9))
                 {
-                    if (hasIntersectedSegments(firstCoordLineConnectNearCde!, secondCoordLineConnectNearCde!, buffer.Elem,
+                    if (HasIntersectedSegments(firstCoordLineConnectNearCde!, secondCoordLineConnectNearCde!, buffer.Elem,
                             buffer.Next.Elem))
                     {
                         _nearCDESegmentintersect = (frameWhoContainThis, buffer);
@@ -446,7 +640,7 @@ public class BoundingHoleDeleter
                      || buffer.Next.Elem.Y < thisRing.Value.PointMin.Y
                      || Math.Abs(buffer.Next.Elem.Y - thisRing.Value.PointMin.Y) < 1e-9))
                 {
-                    if (hasIntersectedSegments(firstCoordLineConnectNearEfg!, secondCoordLineConnectNearEfg!, buffer.Elem,
+                    if (HasIntersectedSegments(firstCoordLineConnectNearEfg!, secondCoordLineConnectNearEfg!, buffer.Elem,
                             buffer.Next.Elem))
                     {
                         _nearEFGSegmentintersect = (frameWhoContainThis, buffer);
@@ -460,7 +654,7 @@ public class BoundingHoleDeleter
                      || buffer.Next.Elem.X > thisRing.Value.PointMax.X
                      || Math.Abs(buffer.Next.Elem.X - thisRing.Value.PointMax.X) < 1e-9))
                 {
-                    if (hasIntersectedSegments(firstCoordLineConnectNearAhg!, secondCoordLineConnectNearAhg!, buffer.Elem,
+                    if (HasIntersectedSegments(firstCoordLineConnectNearAhg!, secondCoordLineConnectNearAhg!, buffer.Elem,
                             buffer.Next.Elem))
                     {
                         _nearAHGSegmentintersect = (frameWhoContainThis, buffer);
@@ -524,7 +718,7 @@ public class BoundingHoleDeleter
         LinkedNode<Coordinate> end = fragment.end;
         while (ReferenceEquals(start.Previous, end))
         {
-            if (hasIntersectedSegments(start.Elem, start.Next.Elem, a, b))
+            if (HasIntersectedSegments(start.Elem, start.Next.Elem, a, b))
                 return true;
             start = start.Next;
         }
@@ -551,9 +745,20 @@ public class BoundingHoleDeleter
     }
 
     //нужно улучшить
-    private bool hasIntersectedSegments(Coordinate a1, Coordinate b1, Coordinate a2, Coordinate b2)
+    private RobustLineIntersector li = new RobustLineIntersector();
+    private bool HasIntersectedSegments(Coordinate a1, Coordinate b1, Coordinate a2, Coordinate b2)
     {
-        return new LineSegment(a1, b1).Intersection(new LineSegment(a2, b2)) is not null;
+        //return new LineSegment(a1, b1).Intersection(new LineSegment(a2, b2)) is not null;
+        li.ComputeIntersection(a1, b1, a2, b2);
+        return li.HasIntersection;
+        //return li.GetIntersection(0);
+    }
+    private bool HasIntersectedSegmentsNotInExternalPoints(Coordinate a1, Coordinate b1, Coordinate a2, Coordinate b2)
+    {
+        //return new LineSegment(a1, b1).Intersection(new LineSegment(a2, b2)) is not null;
+        li.ComputeIntersection(a1, b1, a2, b2);
+        return (li.IsProper && (li.IntersectionNum == LineIntersector.PointIntersection));
+        //return li.GetIntersection(0);
     }
     
     private bool ConnectContainsRingsInThis(LinkedListNode<BoundingRing> thisRing)
