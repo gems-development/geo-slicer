@@ -1,5 +1,4 @@
 ﻿using NetTopologySuite;
-using NetTopologySuite.Algorithm;
 using NetTopologySuite.Geometries;
 using static GeoSlicer.NonConvexSlicer.SegmentService;
 
@@ -79,17 +78,17 @@ public class NonConvexSlicer
         var coordA = new CoordinateM(
             newRing.Coordinates[(pozSpecialPoint - 1 + newRing.Count - 1) % (newRing.Count - 1)].X,
             newRing.Coordinates[(pozSpecialPoint - 1 + newRing.Count - 1) % (newRing.Count - 1)].Y,
-                (pozSpecialPoint - 1 + newRing.Count - 1) % (newRing.Count - 1));
+            (pozSpecialPoint - 1 + newRing.Count - 1) % (newRing.Count - 1));
 
         var coordB = new CoordinateM(
             newRing.Coordinates[(pozSpecialPoint + newRing.Count - 1) % (newRing.Count - 1)].X,
             newRing.Coordinates[(pozSpecialPoint + newRing.Count - 1) % (newRing.Count - 1)].Y,
-                (pozSpecialPoint + newRing.Count - 1) % (newRing.Count - 1));
+            (pozSpecialPoint + newRing.Count - 1) % (newRing.Count - 1));
 
         var coordC = new CoordinateM(
             newRing.Coordinates[(pozSpecialPoint + 1 + newRing.Count - 1) % (newRing.Count - 1)].X,
             newRing.Coordinates[(pozSpecialPoint + 1 + newRing.Count - 1) % (newRing.Count - 1)].Y,
-                (pozSpecialPoint + 1 + newRing.Count - 1) % (newRing.Count - 1));
+            (pozSpecialPoint + 1 + newRing.Count - 1) % (newRing.Count - 1));
 
         var flag = true;
 
@@ -126,7 +125,7 @@ public class NonConvexSlicer
                         coordC.X - coordB.X,
                         coordC.Y - coordB.Y)
                 ) > 0 != _clockwise
-            )
+               )
             {
                 //MiddlePoint не является особой точкой в новом кольце
                 //и не лежит на одной прямой со старой особой точкой и предыдущей для старой особой
@@ -136,6 +135,7 @@ public class NonConvexSlicer
                 {
                     listFirst.Add(newRing[i]);
                 }
+
                 listFirst.Add(coordB);
                 listFirst.Add(coordM);
                 var ringFirst = IgnoreInnerPointsOfSegment(new LinearRing(listFirst.ToArray()));
@@ -146,6 +146,7 @@ public class NonConvexSlicer
                 {
                     listSecond.Add(newRing[i]);
                 }
+
                 listSecond.Add(coordM);
                 listSecond.Add(coordB);
                 var ringSecond = IgnoreInnerPointsOfSegment(new LinearRing(listSecond.ToArray()));
@@ -167,6 +168,7 @@ public class NonConvexSlicer
                 {
                     delta = -delta - 1;
                 }
+
                 k++;
 
                 if (k == newRing.Count - 1)
@@ -243,10 +245,15 @@ public class NonConvexSlicer
 
 
             wasIntersectionInIteration = false;
-            if (HasIntersection(ringCoords, coordCurrent.ToCoordinateM(), coordNext.ToCoordinateM()))
+            if (HasIntersection(ringCoords, coordCurrent, coordNext))
             {
                 var nextIndex = coordNext.P;
-                while (HasIntersection(ringCoords, coordCurrent.ToCoordinateM(), ringCoords[nextIndex].ToCoordinateM()))
+                while (VectorProduct(
+                           new Coordinate(ringCoords[coordCurrent.PL].X - ringCoords[coordCurrent.C].X,
+                               ringCoords[coordCurrent.PL].Y - ringCoords[coordCurrent.C].Y),
+                           new Coordinate(ringCoords[nextIndex].X - ringCoords[coordCurrent.C].X,
+                               ringCoords[nextIndex].Y - ringCoords[coordCurrent.C].Y)) < 0
+                       || HasIntersection(ringCoords, coordCurrent, ringCoords[nextIndex]))
                 {
                     nextIndex = ringCoords[nextIndex].P;
                 }
@@ -339,7 +346,9 @@ public class NonConvexSlicer
                 {
                     lastLinearRingCoords[j - beginSpecialPointIndex] = listSpecialPoints[j];
                 }
-                lastLinearRingCoords[endSpecialPointIndex - beginSpecialPointIndex] = listSpecialPoints[beginSpecialPointIndex];
+
+                lastLinearRingCoords[endSpecialPointIndex - beginSpecialPointIndex] =
+                    listSpecialPoints[beginSpecialPointIndex];
                 var lastLinearRing = _gf.CreateLinearRing(lastLinearRingCoords);
                 listLinearRing.Add(lastLinearRing);
             }
