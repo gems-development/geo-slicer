@@ -5,35 +5,25 @@ namespace GeoSlicer.Tests;
 
 public class SegmentServiceTests
 {
-    [Fact]
-    public void IntersectionOfSegmentsTest()
+    [Theory]
+    [InlineData(false, 0, 0, 2, 2, 0, 0, 2, 2)]
+    [InlineData(true, 0, 0, 2, 2, 1, 1, 3, 3)]
+    [InlineData(true, 0, 0, 2, 2, 0, 2, 2, 0)]
+    [InlineData(false, 0, 0, 2, 2, 2, 2, 0, 4)]
+    [InlineData(false, 0, 0, 0, 2, 2, 2, 4, 2)]
+    [InlineData(true, 0, 0, 2, 0, 2, 2, 2, -2)]
+    public void IntersectionOfSegmentsTest(bool intersectionAnswer, params int[] arr)
     {
         //Одинаковые отрезки не пересекаются
-        Assert.False(SegmentService.IsIntersectionOfSegments(new Coordinate(0, 0),
-            new Coordinate(2, 2),
-            new Coordinate(0, 0),
-            new Coordinate(2, 2)));
-        //Частично совпадающие отрезки пересекаются
-        Assert.True(SegmentService.IsIntersectionOfSegments(new Coordinate(0, 0), new Coordinate(2, 2),
-            new Coordinate(1, 1),
-            new Coordinate(3, 3)));
-        //Скрещенные отрезки пересекаются
-        Assert.True(SegmentService.IsIntersectionOfSegments(new Coordinate(0, 0), new Coordinate(2, 2),
-            new Coordinate(0, 2),
-            new Coordinate(2, 0)));
-        //Отрезки с общей граничной точкой не пересекаются
-        Assert.False(SegmentService.IsIntersectionOfSegments(new Coordinate(0, 0),
-            new Coordinate(2, 2),
-            new Coordinate(2, 2),
-            new Coordinate(0, 4)));
-        //Не имеющие общих точек отрезки не пересекаются
-        Assert.False(SegmentService.IsIntersectionOfSegments(new Coordinate(0, 0),
-            new Coordinate(0, 2),
-            new Coordinate(2, 2),
-            new Coordinate(4, 2)));
-        //Скрещенные отрезки пересекаются
-        Assert.True(SegmentService.IsIntersectionOfSegments(new Coordinate(0, 0), new Coordinate(2, 0),
-            new Coordinate(2, 2),
-            new Coordinate(2, -2)));
+        var coordinates = new Coordinate[4];
+        for (var i = 0; i < arr.Length; i += 2)
+        {
+            coordinates[(int)Math.Ceiling(i * 1.0 / 2)] = new Coordinate(arr[i], arr[i + 1]);
+        }
+
+        Assert.Equal(intersectionAnswer,
+            NonConvexSlicer.SegmentService.IsIntersectionOfSegments(
+                coordinates[0], coordinates[1],
+                coordinates[2], coordinates[3]));
     }
 }
