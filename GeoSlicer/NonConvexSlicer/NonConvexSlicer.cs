@@ -98,8 +98,8 @@ public class NonConvexSlicer
         while (flag)
         {
             var coordM = new CoordinatePCN(
-                newRing.Coordinates[(pozMiddlePoint + 2 + newRing.Count - 1) % (newRing.Count - 1)].X,
-                newRing.Coordinates[(pozMiddlePoint + 2 + newRing.Count - 1) % (newRing.Count - 1)].Y,
+                newRing.Coordinates[(pozMiddlePoint + newRing.Count - 1) % (newRing.Count - 1)].X,
+                newRing.Coordinates[(pozMiddlePoint + newRing.Count - 1) % (newRing.Count - 1)].Y,
                 c: (pozMiddlePoint + newRing.Count - 1) % (newRing.Count - 1));
 
             if (coordM.Equals2D(coordC) || coordM.Equals2D(coordA))
