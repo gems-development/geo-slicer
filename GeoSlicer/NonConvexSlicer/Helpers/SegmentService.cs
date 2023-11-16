@@ -33,15 +33,14 @@ public static class SegmentService
 
     public static bool HasIntersection(CoordinatePCN[] ring, CoordinatePCN coordCurrent, CoordinatePCN coordNext)
     {
-        if (coordCurrent.ToCoordinate().Equals2D(coordNext.ToCoordinate())) return false;
+        if (coordCurrent.Equals2D(coordNext)) return false;
         if (coordCurrent.PL == coordNext.C) return true;
         var index = coordCurrent.C;
         while (ring[index].NL != coordCurrent.C)
         {
             var firstCoord = ring[index];
             var secondCoord = ring[firstCoord.NL];
-            if (IsIntersectionOfSegments(coordCurrent.ToCoordinate(), coordNext.ToCoordinate(), firstCoord.ToCoordinate(),
-                    secondCoord.ToCoordinate()))
+            if (IsIntersectionOfSegments(coordCurrent, coordNext, firstCoord, secondCoord))
             {
                 return true;
             }
@@ -49,8 +48,7 @@ public static class SegmentService
             index = secondCoord.C;
         }
 
-        return IsIntersectionOfSegments(coordCurrent.ToCoordinate(), coordNext.ToCoordinate(), ring[index].ToCoordinate(),
-            coordCurrent.ToCoordinate());
+        return IsIntersectionOfSegments(coordCurrent, coordNext, ring[index], coordCurrent);
     }
 
     public static LinearRing IgnoreInnerPointsOfSegment(LinearRing ring)
