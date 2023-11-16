@@ -2,7 +2,7 @@
 using NetTopologySuite.Geometries;
 
 namespace GeoSlicer.NonConvexSlicer;
-public class SegmentService
+public static class SegmentService
 {
     public static double VectorProduct
         (Coordinate firstVec,
@@ -31,15 +31,16 @@ public class SegmentService
         return lineIntersector.IsInteriorIntersection();
     }
 
-    public static bool HasIntersection(CoordinatePCN[] ring, Coordinate coordCurrent, Coordinate coordNext)
+    public static bool HasIntersection(CoordinatePCN[] ring, CoordinatePCN coordCurrent, CoordinatePCN coordNext)
     {
-        if (coordCurrent.Equals2D(coordNext)) return false;
-        var index = (int)coordCurrent.M;
-        while (ring[index].NL != (int)coordCurrent.M)
+        if (coordCurrent.ToCoordinate().Equals2D(coordNext.ToCoordinate())) return false;
+        if (coordCurrent.PL == coordNext.C) return true;
+        var index = coordCurrent.C;
+        while (ring[index].NL != coordCurrent.C)
         {
             var firstCoord = ring[index];
             var secondCoord = ring[firstCoord.NL];
-            if (IsIntersectionOfSegments(coordCurrent, coordNext, firstCoord.ToCoordinate(),
+            if (IsIntersectionOfSegments(coordCurrent.ToCoordinate(), coordNext.ToCoordinate(), firstCoord.ToCoordinate(),
                     secondCoord.ToCoordinate()))
             {
                 return true;
@@ -48,8 +49,8 @@ public class SegmentService
             index = secondCoord.C;
         }
 
-        return IsIntersectionOfSegments(coordCurrent, coordNext, ring[index].ToCoordinate(),
-            coordCurrent);
+        return IsIntersectionOfSegments(coordCurrent.ToCoordinate(), coordNext.ToCoordinate(), ring[index].ToCoordinate(),
+            coordCurrent.ToCoordinate());
     }
 
     public static LinearRing IgnoreInnerPointsOfSegment(LinearRing ring)
