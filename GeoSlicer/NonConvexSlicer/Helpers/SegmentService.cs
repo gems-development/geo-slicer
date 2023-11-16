@@ -87,4 +87,16 @@ public static class SegmentService
 
         return new LinearRing(res);
     }
+    
+    public static bool SecondVectorIsRighterThanFirstVector(
+        Coordinate firstVectorPointA1,
+        Coordinate firstVectorPointA2,
+        Coordinate secondVectorPointB1,
+        Coordinate secondVectorPointB2)
+    {
+        return VectorProduct(
+            new Coordinate(firstVectorPointA2.X - firstVectorPointA1.X, firstVectorPointA2.Y - firstVectorPointA1.Y),
+            new Coordinate(secondVectorPointB2.X - secondVectorPointB1.X,
+                secondVectorPointB2.Y - secondVectorPointB1.Y)) < 0;
+    }
 }
