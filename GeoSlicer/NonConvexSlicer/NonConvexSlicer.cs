@@ -1,4 +1,5 @@
-﻿using NetTopologySuite;
+﻿using GeoSlicer.NonConvexSlicer.Helpers;
+using NetTopologySuite;
 using NetTopologySuite.Geometries;
 using static GeoSlicer.NonConvexSlicer.Helpers.SegmentService;
 
@@ -368,18 +369,11 @@ public class NonConvexSlicer
 
 
             wasIntersectionInIteration = false;
-            if ((SecondVectorIsRighterThanFirstVector(ringCoords[coordCurrent.C], ringCoords[coordCurrent.PL],
-                    ringCoords[coordCurrent.C], ringCoords[coordNext.C]) &&
-                SecondVectorIsRighterThanFirstVector(ringCoords[coordCurrent.NL], ringCoords[coordCurrent.C],
-                    ringCoords[coordCurrent.C], ringCoords[coordNext.C])
-                ) ||
+            if (!NonConvexSlicerHelper.CanSeeEachOther(ringCoords, coordCurrent, coordNext) ||
                 HasIntersection(ringCoords, coordCurrent, coordNext))
             {
                 var nextIndex = coordNext.P;
-                while ((SecondVectorIsRighterThanFirstVector(ringCoords[coordCurrent.C], ringCoords[coordCurrent.PL],
-                            ringCoords[coordCurrent.C], ringCoords[nextIndex]) &&
-                        SecondVectorIsRighterThanFirstVector(ringCoords[coordCurrent.NL], ringCoords[coordCurrent.C],
-                            ringCoords[coordCurrent.C], ringCoords[nextIndex])) ||
+                while (!NonConvexSlicerHelper.CanSeeEachOther(ringCoords, ringCoords[coordCurrent.C], ringCoords[nextIndex]) ||
                        HasIntersection(ringCoords, coordCurrent, ringCoords[nextIndex]))
                 {
                     nextIndex = ringCoords[nextIndex].P;

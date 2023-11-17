@@ -87,16 +87,53 @@ public static class SegmentService
 
         return new LinearRing(res);
     }
-    
-    public static bool SecondVectorIsRighterThanFirstVector(
-        Coordinate firstVectorPointA1,
-        Coordinate firstVectorPointA2,
-        Coordinate secondVectorPointB1,
-        Coordinate secondVectorPointB2)
+
+    private static double? CalculatePhiFromZeroTo2PI(double x, double y)
     {
-        return VectorProduct(
-            new Coordinate(firstVectorPointA2.X - firstVectorPointA1.X, firstVectorPointA2.Y - firstVectorPointA1.Y),
-            new Coordinate(secondVectorPointB2.X - secondVectorPointB1.X,
-                secondVectorPointB2.Y - secondVectorPointB1.Y)) < 0;
+        return x switch
+        {
+            > 0 when y >= 0 => Math.Atan(y / x),
+            > 0 when y < 0 => Math.Atan(y / x) + 2 * Math.PI,
+            < 0 => Math.Atan(y / x) + Math.PI,
+            0 when y > 0 => Math.PI / 2,
+            0 when y < 0 => 3 * Math.PI / 2,
+            0 when y == 0 => null,
+            _ => null
+        };
+    }
+    
+    private static double? CalculatePhiFromMinusPIToPlusPI(double x, double y)
+    {
+        return x switch
+        {
+            > 0  => Math.Atan(y / x),
+            < 0 when y >= 0 => Math.Atan(y / x) + Math.PI,
+            < 0 when y < 0 => Math.Atan(y / x) - Math.PI,
+            0 when y > 0 => Math.PI / 2,
+            0 when y < 0 => - Math.PI / 2,
+            0 when y == 0 => null,
+            _ => null
+        };
+    }
+    
+    public static bool InsideTheAngle(
+        Coordinate vectorPointA1,
+        Coordinate vectorPointA2,
+        Coordinate anglePointB1,
+        Coordinate anglePointB2,
+        Coordinate anglePointB3)
+    {
+        var vectorB1 = new Coordinate(anglePointB3.X - anglePointB2.X,
+            anglePointB3.Y - anglePointB2.Y);
+        var phiB1 = CalculatePhiFromMinusPIToPlusPI(vectorB1.X, vectorB1.Y);
+        if (phiB1 == null) return true;
+        var sign = -1;
+        var rotatedVectorAX = (vectorPointA2.X - vectorPointA1.X) * Math.Cos(sign * (double)phiB1) - (vectorPointA2.Y - vectorPointA1.Y) * Math.Sin(sign * (double)phiB1);
+        var rotatedVectorAY = (vectorPointA2.X - vectorPointA1.X) * Math.Sin(sign * (double)phiB1) + (vectorPointA2.Y - vectorPointA1.Y) * Math.Cos(sign * (double)phiB1);
+        var phiA = CalculatePhiFromZeroTo2PI(rotatedVectorAX, rotatedVectorAY);
+        var rotatedVectorB2X = (anglePointB1.X - anglePointB2.X) * Math.Cos(sign * (double)phiB1) - (anglePointB1.Y - anglePointB2.Y) * Math.Sin(sign * (double)phiB1);
+        var rotatedVectorB2Y = (anglePointB1.X - anglePointB2.X) * Math.Sin(sign * (double)phiB1) + (anglePointB1.Y - anglePointB2.Y) * Math.Cos(sign * (double)phiB1);
+        var phiB2 = CalculatePhiFromZeroTo2PI(rotatedVectorB2X, rotatedVectorB2Y);
+        return phiA < phiB2;
     }
 }

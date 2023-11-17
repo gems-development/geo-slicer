@@ -438,7 +438,7 @@ public class NonConvexSlicerTest
         }, geometries[0].Coordinates);
         Assert.Equal(new[]
         {
-            new Coordinate(5, 6), new Coordinate(3, 2), new Coordinate(1, 10), new Coordinate(6, 14), new Coordinate(5, 6)
+            new Coordinate(3, 2), new Coordinate(1, 10), new Coordinate(6, 14), new Coordinate(5, 6), new Coordinate(3, 2)
         }, geometries[1].Coordinates);
         Assert.Equal(new[]
         {
@@ -458,7 +458,7 @@ public class NonConvexSlicerTest
         }, geometries[5].Coordinates);
         Assert.Equal(new[]
         {
-            new Coordinate(10, 7), new Coordinate(15, 1), new Coordinate(10, 5), new Coordinate(10, 7)
+            new Coordinate(15, 1), new Coordinate(10, 5), new Coordinate(10, 7), new Coordinate(15, 1)
         }, geometries[6].Coordinates);
         Assert.Equal(new[]
         {
@@ -471,8 +471,8 @@ public class NonConvexSlicerTest
     {
         Coordinate[] coordinates =
         {
-            new(3, 2), new(1, 10), new(6, 14), new(17, 12), new(14, 11), new(12, 12), new(14, 9),
-            new(14, 11), new(17, 12), new(15, 1), new(7, 1), new(7, 4), new(10, 5), new(10, 7),
+            new(3, 2), new(1, 10), new(6, 14), new(18, 12), new(14, 11), new(12, 12), new(14, 9),
+            new(14, 11), new(18, 12), new(15, 1), new(7, 1), new(7, 4), new(10, 5), new(10, 7),
             new(8, 8), new(5, 6), new(7, 4), new(7, 1), new(3, 2)
         };
         var lnr = _gf.CreateLinearRing(coordinates);
