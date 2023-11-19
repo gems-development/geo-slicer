@@ -1,6 +1,7 @@
 ﻿using GeoSlicer.NonConvexSlicer.Helpers;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
+using static GeoSlicer.NonConvexSlicer.Helpers.NonConvexSlicerHelper;
 using static GeoSlicer.NonConvexSlicer.Helpers.SegmentService;
 
 namespace GeoSlicer.NonConvexSlicer;
@@ -8,34 +9,10 @@ namespace GeoSlicer.NonConvexSlicer;
 public class NonConvexSlicer
 {
     private readonly GeometryFactory _gf;
-    private readonly bool _clockwise;
 
-    public NonConvexSlicer(bool clockwise)
+    public NonConvexSlicer()
     {
         _gf = NtsGeometryServices.Instance.CreateGeometryFactory(4326);
-        _clockwise = clockwise;
-    }
-
-    public List<CoordinatePCN> GetSpecialPoints(LinearRing ring)
-    {
-        var list = new List<CoordinatePCN>();
-        for (var i = 0; i < ring.Coordinates.Length - 1; ++i)
-        {
-            if (VectorProduct(
-                    new Coordinate(
-                        ring.Coordinates[i].X -
-                        ring.Coordinates[(i - 1 + ring.Coordinates.Length - 1) % (ring.Coordinates.Length - 1)].X,
-                        ring.Coordinates[i].Y -
-                        ring.Coordinates[(i - 1 + ring.Coordinates.Length - 1) % (ring.Coordinates.Length - 1)].Y),
-                    new Coordinate(ring.Coordinates[(i + 1) % (ring.Coordinates.Length - 1)].X - ring.Coordinates[i].X,
-                        ring.Coordinates[(i + 1) % (ring.Coordinates.Length - 1)].Y - ring.Coordinates[i].Y)
-                ) >= 0 == _clockwise)
-            {
-                list.Add(new CoordinatePCN(ring.Coordinates[i].X, ring.Coordinates[i].Y, c: i));
-            }
-        }
-
-        return list;
     }
 
     private List<LinearRing> SimpleSlice(LinearRing ring, int pozSpecialPoint)
@@ -232,11 +209,12 @@ public class NonConvexSlicer
 
 
             wasIntersectionInIteration = false;
-            if (!NonConvexSlicerHelper.CanSeeEachOther(ringCoords, coordCurrent, coordNext) ||
+            if (!CanSeeEachOther(ringCoords, coordCurrent, coordNext) ||
                 HasIntersection(ringCoords, coordCurrent, coordNext))
             {
                 var nextIndex = coordNext.P;
-                while (!NonConvexSlicerHelper.CanSeeEachOther(ringCoords, ringCoords[coordCurrent.C], ringCoords[nextIndex]) ||
+                while (!CanSeeEachOther(ringCoords, ringCoords[coordCurrent.C],
+                           ringCoords[nextIndex]) ||
                        HasIntersection(ringCoords, coordCurrent, ringCoords[nextIndex]))
                 {
                     nextIndex = ringCoords[nextIndex].P;
@@ -267,7 +245,7 @@ public class NonConvexSlicer
                         new Coordinate(
                             ringCoords[afterFirstIndex].X - ringCoords[coordNext.C].X,
                             ringCoords[afterFirstIndex].Y - ringCoords[coordNext.C].Y)
-                    ) >= 0 == _clockwise)
+                    ) >= 0)
                 {
                     listSpecialPoints.Add(coordNext);
                     listSpecialPoints.Add(coordNext);
@@ -287,7 +265,7 @@ public class NonConvexSlicer
                         new Coordinate(
                             ringCoords[coordNext.C].X - ringCoords[coordCurrent.C].X,
                             ringCoords[coordNext.C].Y - ringCoords[coordCurrent.C].Y)
-                    ) >= 0 == _clockwise)
+                    ) >= 0)
                 {
                     listSpecialPoints.Add(coordCurrent);
                 }

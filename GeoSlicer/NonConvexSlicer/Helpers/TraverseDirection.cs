@@ -38,15 +38,10 @@ public static class TraverseDirection
 
     public static void ChangeDirection(LinearRing ring)
     {
-        //ring.Coordinates.Reverse
         Coordinate[] coordinates = ring.Coordinates;
-
         for (var i = 1; i < (coordinates.Length - 2) / 2 + 1; i++)
         {
-            Coordinate coord = coordinates[i];
-            coordinates[i] = coordinates[coordinates.Length - 1 - i];
-            coordinates[coordinates.Length - 1 - i] = coord;
+            (coordinates[i], coordinates[coordinates.Length - 1 - i]) = (coordinates[coordinates.Length - 1 - i], coordinates[i]);
         }
     }
 }
-

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NetTopologySuite.Geometries;
+using static GeoSlicer.NonConvexSlicer.Helpers.NonConvexSlicerHelper;
 
 namespace GeoSlicer.Tests;
 
@@ -17,7 +18,7 @@ public class NonConvexSlicerTest
             new(3, 1), new(1, 7), new(3, 5), new(5, 7), new(3, 1)
         };
         var lnr = _gf.CreateLinearRing(coordinates);
-        var slicer = new NonConvexSlicer.NonConvexSlicer(true);
+        var slicer = new NonConvexSlicer.NonConvexSlicer();
         var geometries = slicer.SliceFigureWithMinNumberOfSpecialPoints(lnr);
         Assert.Equal(2, geometries.Count);
         Assert.Equal(new[]
@@ -38,7 +39,7 @@ public class NonConvexSlicerTest
             new(3, 1), new(2, 4), new(1, 7), new(2, 6), new(3, 5), new(4, 6), new(5, 7), new(4, 4), new(3, 1)
         };
         var lnr = _gf.CreateLinearRing(coordinates);
-        var slicer = new NonConvexSlicer.NonConvexSlicer(true);
+        var slicer = new NonConvexSlicer.NonConvexSlicer();
         var geometries = slicer.SliceFigureWithMinNumberOfSpecialPoints(lnr);
         Assert.Equal(2, geometries.Count);
         Assert.Equal(new[]
@@ -59,7 +60,7 @@ public class NonConvexSlicerTest
             new(1, 1), new(1, 14), new(7, 14), new(2, 9), new(10, 1), new(1, 1)
         };
         var lnr = _gf.CreateLinearRing(coordinates);
-        var slicer = new NonConvexSlicer.NonConvexSlicer(true);
+        var slicer = new NonConvexSlicer.NonConvexSlicer();
         var geometries = slicer.SliceFigureWithMinNumberOfSpecialPoints(lnr);
         Assert.Equal(3, geometries.Count);
         Assert.Equal(new[]
@@ -86,7 +87,7 @@ public class NonConvexSlicerTest
             new(5, 1), new(4, 1), new(3, 1), new(2, 1), new(1, 1)
         };
         var lnr = _gf.CreateLinearRing(coordinates);
-        var slicer = new NonConvexSlicer.NonConvexSlicer(true);
+        var slicer = new NonConvexSlicer.NonConvexSlicer();
         var geometries = slicer.SliceFigureWithMinNumberOfSpecialPoints(lnr);
         Assert.Equal(3, geometries.Count);
         Assert.Equal(new[]
@@ -121,7 +122,7 @@ public class NonConvexSlicerTest
 
         var lnr = _gf.CreateLinearRing(coordinates);
 
-        var slicer = new NonConvexSlicer.NonConvexSlicer(true);
+        var slicer = new NonConvexSlicer.NonConvexSlicer();
         var geometries = slicer.Slice(lnr);
 
         //Проверка того, что в каждой части меньше точек, чем в изначальной фигуре
@@ -142,7 +143,7 @@ public class NonConvexSlicerTest
         //Проверка отсутствия особых точек в получившихся кольцах
         foreach (var ring in geometries)
         {
-            Assert.True(!slicer.GetSpecialPoints(ring).Any());
+            Assert.True(!GetSpecialPoints(ring).Any());
         }
     }
 
@@ -157,7 +158,7 @@ public class NonConvexSlicerTest
             new(7, 4), new(8, 3), new(10, 4), new(10, 3), new(3, 1), new(3, 3), new(1, 1)
         };
         var lnr = _gf.CreateLinearRing(coordinates);
-        var slicer = new NonConvexSlicer.NonConvexSlicer(true);
+        var slicer = new NonConvexSlicer.NonConvexSlicer();
         var geometries = slicer.Slice(lnr);
 
         Assert.Equal(13, geometries.Count);
@@ -235,7 +236,7 @@ public class NonConvexSlicerTest
             new(1, 1), new(1, 8), new(3, 7), new(3, 8), new(8, 6), new(6, 5), new(8, 4), new(3, 1), new(3, 2), new(1, 1)
         };
         var lnr = _gf.CreateLinearRing(coordinates);
-        var slicer = new NonConvexSlicer.NonConvexSlicer(true);
+        var slicer = new NonConvexSlicer.NonConvexSlicer();
         var geometries = slicer.Slice(lnr);
 
         Assert.Equal(4, geometries.Count);
@@ -266,7 +267,7 @@ public class NonConvexSlicerTest
             new(1, 1)
         };
         var lnr = _gf.CreateLinearRing(coordinates);
-        var slicer = new NonConvexSlicer.NonConvexSlicer(true);
+        var slicer = new NonConvexSlicer.NonConvexSlicer();
         var geometries = slicer.Slice(lnr);
 
         Assert.Equal(6, geometries.Count);
@@ -309,7 +310,7 @@ public class NonConvexSlicerTest
             new(10, 4), new(10, 2), new(2, 2)
         };
         var lnr = _gf.CreateLinearRing(coordinates);
-        var slicer = new NonConvexSlicer.NonConvexSlicer(true);
+        var slicer = new NonConvexSlicer.NonConvexSlicer();
         var geometries = slicer.Slice(lnr);
 
         Assert.Equal(8, geometries.Count);
@@ -363,7 +364,7 @@ public class NonConvexSlicerTest
             new(2, 1), new(2, 4), new(4, 4), new(4, 1), new(3, 1), new(3, 3), new(3, 1), new(2, 1)
         };
         var lnr = _gf.CreateLinearRing(coordinates);
-        var slicer = new NonConvexSlicer.NonConvexSlicer(true);
+        var slicer = new NonConvexSlicer.NonConvexSlicer();
         var geometries = slicer.Slice(lnr);
 
         Assert.Equal(3, geometries.Count);
@@ -389,7 +390,7 @@ public class NonConvexSlicerTest
             new(2, 1), new(2, 4), new(5, 4), new(5, 1), new(4, 1), new(4, 3), new(3, 3), new(3, 1), new(2, 1)
         };
         var lnr = _gf.CreateLinearRing(coordinates);
-        var slicer = new NonConvexSlicer.NonConvexSlicer(true);
+        var slicer = new NonConvexSlicer.NonConvexSlicer();
         var geometries = slicer.Slice(lnr);
 
         Assert.Equal(4, geometries.Count);
@@ -420,7 +421,7 @@ public class NonConvexSlicerTest
             new(8, 8), new(5, 6), new(7, 4), new(7, 1), new(3, 2)
         };
         var lnr = _gf.CreateLinearRing(coordinates);
-        var slicer = new NonConvexSlicer.NonConvexSlicer(true);
+        var slicer = new NonConvexSlicer.NonConvexSlicer();
         var geometries = slicer.Slice(lnr);
 
         Assert.Equal(8, geometries.Count);
@@ -470,7 +471,7 @@ public class NonConvexSlicerTest
             new(8, 8), new(5, 6), new(7, 4), new(7, 1), new(3, 2)
         };
         var lnr = _gf.CreateLinearRing(coordinates);
-        var slicer = new NonConvexSlicer.NonConvexSlicer(true);
+        var slicer = new NonConvexSlicer.NonConvexSlicer();
         var geometries = slicer.Slice(lnr);
 
         Assert.Equal(11, geometries.Count);
@@ -534,7 +535,7 @@ public class NonConvexSlicerTest
             new(7, 7), new(4, 7), new(4, 3), new(10, 1), new(1, 1)
         };
         var lnr = _gf.CreateLinearRing(coordinates);
-        var slicer = new NonConvexSlicer.NonConvexSlicer(true);
+        var slicer = new NonConvexSlicer.NonConvexSlicer();
         var geometries = slicer.Slice(lnr);
 
         Assert.Equal(14, geometries.Count);
