@@ -9,12 +9,12 @@ public static class TraverseDirection
         Coordinate[] coordinates = ring.Coordinates;
 
         //точка с минимальным х среди минимальных у
-        Coordinate coordB = coordinates[0];
+        var coordB = coordinates[0];
 
-        Coordinate coordA = coordinates[coordinates.Length - 2];
-        Coordinate coordC = coordinates[1];
+        var coordA = coordinates[^2];
+        var coordC = coordinates[1];
 
-        for (int i = 1; i < coordinates.Length; i++)
+        for (var i = 1; i < coordinates.Length; i++)
         {
             if (coordinates[i].Y < coordB.Y)
             {
@@ -22,25 +22,16 @@ public static class TraverseDirection
             }
         }
 
-        for (int i = 1; i < coordinates.Length; i++)
+        for (var i = 1; i < coordinates.Length; i++)
         {
-            if (coordinates[i].Y == coordB.Y && coordinates[i].X <= coordB.X)
-            {
-                coordB = coordinates[i];
-                coordA = coordinates[i - 1];
-                if (i == coordinates.Length - 1)
-                {
-                    coordC = coordinates[1];
-                }
-                else
-                {
-                    coordC = coordinates[i + 1];
-                }
-            }
+            if (!(Math.Abs(coordinates[i].Y - coordB.Y) < 1e-9) || !(coordinates[i].X <= coordB.X)) continue;
+            coordB = coordinates[i];
+            coordA = coordinates[i - 1];
+            coordC = i == coordinates.Length - 1 ? coordinates[1] : coordinates[i + 1];
         }
 
-        Coordinate vecAB = new Coordinate(coordB.X - coordA.X, coordB.Y - coordB.Y);
-        Coordinate vecBC = new Coordinate(coordC.X - coordB.X, coordC.Y - coordB.Y);
+        var vecAB = new Coordinate(coordB.X - coordA.X, coordB.Y - coordA.Y);
+        var vecBC = new Coordinate(coordC.X - coordB.X, coordC.Y - coordB.Y);
 
         return SegmentService.VectorProduct(vecAB, vecBC) < 0;
     }
@@ -50,7 +41,7 @@ public static class TraverseDirection
         //ring.Coordinates.Reverse
         Coordinate[] coordinates = ring.Coordinates;
 
-        for (int i = 1; i < (coordinates.Length - 2) / 2 + 1; i++)
+        for (var i = 1; i < (coordinates.Length - 2) / 2 + 1; i++)
         {
             Coordinate coord = coordinates[i];
             coordinates[i] = coordinates[coordinates.Length - 1 - i];

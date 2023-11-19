@@ -8,6 +8,7 @@ namespace GeoSlicer.Tests;
 public class NonConvexSlicerTest
 {
     private readonly GeometryFactory _gf = NetTopologySuite.NtsGeometryServices.Instance.CreateGeometryFactory(4326);
+
     [Fact]
     public void OneSpecialPoint_OptimalSlice()
     {
@@ -71,7 +72,7 @@ public class NonConvexSlicerTest
         }, geometries[1].Coordinates);
         Assert.Equal(new[]
         {
-            new Coordinate(2, 9), new Coordinate(1, 14), new Coordinate(7, 14), new Coordinate(2, 9)
+            new Coordinate(1, 14), new Coordinate(7, 14), new Coordinate(2, 9), new Coordinate(1, 14)
         }, geometries[2].Coordinates);
     }
 
@@ -98,7 +99,7 @@ public class NonConvexSlicerTest
         }, geometries[1].Coordinates);
         Assert.Equal(new[]
         {
-            new Coordinate(2, 9), new Coordinate(1, 14), new Coordinate(7, 14), new Coordinate(2, 9)
+            new Coordinate(1, 14), new Coordinate(7, 14), new Coordinate(2, 9), new Coordinate(1, 14)
         }, geometries[2].Coordinates);
     }
 
@@ -222,8 +223,7 @@ public class NonConvexSlicerTest
         }, geometries[11].Coordinates);
         Assert.Equal(new[]
         {
-            new Coordinate(5, 9), new Coordinate(6, 14), new Coordinate(7, 13),
-            new Coordinate(5, 9)
+            new Coordinate(6, 14), new Coordinate(7, 13), new Coordinate(5, 9), new Coordinate(6, 14)
         }, geometries[12].Coordinates);
     }
 
@@ -337,12 +337,12 @@ public class NonConvexSlicerTest
             geometries[3].Coordinates);
         Assert.Equal(new[]
         {
-            new Coordinate(12, 5), new Coordinate(9, 5), new Coordinate(11, 7), new Coordinate(12, 5)
+            new Coordinate(12, 5), new Coordinate(9, 5), new Coordinate(11, 7), new Coordinate(14, 7),
+            new Coordinate(12, 5)
         }, geometries[4].Coordinates);
         Assert.Equal(new[]
         {
-            new Coordinate(11, 7), new Coordinate(14, 7), new Coordinate(14, 4), new Coordinate(12, 5),
-            new Coordinate(11, 7)
+            new Coordinate(14, 7), new Coordinate(14, 4), new Coordinate(12, 5), new Coordinate(14, 7)
         }, geometries[5].Coordinates);
         Assert.Equal(new[]
         {
@@ -366,27 +366,19 @@ public class NonConvexSlicerTest
         var slicer = new NonConvexSlicer.NonConvexSlicer(true);
         var geometries = slicer.Slice(lnr);
 
-        Assert.Equal(5, geometries.Count);
+        Assert.Equal(3, geometries.Count);
         Assert.Equal(new[]
         {
-            new Coordinate(3, 3), new Coordinate(3, 1), new Coordinate(2, 1), new Coordinate(3, 3)
+            new Coordinate(3, 3), new Coordinate(3, 1), new Coordinate(2, 1), new Coordinate(2, 4), new Coordinate(3, 3)
         }, geometries[0].Coordinates);
         Assert.Equal(new[]
         {
-            new Coordinate(3, 3), new Coordinate(2, 1), new Coordinate(2, 4), new Coordinate(3, 3)
+            new Coordinate(3, 3), new Coordinate(2, 4), new Coordinate(4, 4), new Coordinate(3, 3)
         }, geometries[1].Coordinates);
         Assert.Equal(new[]
         {
-            new Coordinate(3, 3), new Coordinate(2, 4), new Coordinate(4, 4), new Coordinate(3, 3)
+            new Coordinate(4, 4), new Coordinate(4, 1), new Coordinate(3, 1), new Coordinate(3, 3), new Coordinate(4, 4)
         }, geometries[2].Coordinates);
-        Assert.Equal(new[]
-        {
-            new Coordinate(3, 3), new Coordinate(4, 4), new Coordinate(4, 1), new Coordinate(3, 3)
-        }, geometries[3].Coordinates);
-        Assert.Equal(new[]
-        {
-            new Coordinate(3, 3), new Coordinate(4, 1), new Coordinate(3, 1), new Coordinate(3, 3)
-        }, geometries[4].Coordinates);
     }
 
     [Fact]
@@ -434,11 +426,12 @@ public class NonConvexSlicerTest
         Assert.Equal(8, geometries.Count);
         Assert.Equal(new[]
         {
-            new Coordinate(5, 6), new Coordinate(7, 4), new Coordinate(7, 1), new Coordinate(3, 2), new Coordinate(5, 6)
+            new Coordinate(7, 4), new Coordinate(7, 1), new Coordinate(3, 2), new Coordinate(1, 10),
+            new Coordinate(7, 4)
         }, geometries[0].Coordinates);
         Assert.Equal(new[]
         {
-            new Coordinate(3, 2), new Coordinate(1, 10), new Coordinate(6, 14), new Coordinate(5, 6), new Coordinate(3, 2)
+            new Coordinate(1, 10), new Coordinate(6, 14), new Coordinate(5, 6), new Coordinate(1, 10)
         }, geometries[1].Coordinates);
         Assert.Equal(new[]
         {
@@ -446,7 +439,8 @@ public class NonConvexSlicerTest
         }, geometries[2].Coordinates);
         Assert.Equal(new[]
         {
-            new Coordinate(15, 1), new Coordinate(7, 1), new Coordinate(7, 4), new Coordinate(10, 5), new Coordinate(15, 1)
+            new Coordinate(15, 1), new Coordinate(7, 1), new Coordinate(7, 4), new Coordinate(10, 5),
+            new Coordinate(15, 1)
         }, geometries[3].Coordinates);
         Assert.Equal(new[]
         {
@@ -479,50 +473,57 @@ public class NonConvexSlicerTest
         var slicer = new NonConvexSlicer.NonConvexSlicer(true);
         var geometries = slicer.Slice(lnr);
 
-        Assert.Equal(10, geometries.Count);
+        Assert.Equal(11, geometries.Count);
         Assert.Equal(new[]
         {
-            new Coordinate(14, 9), new Coordinate(14, 11), new Coordinate(18, 12), new Coordinate(15, 11), new Coordinate(14, 9)
+            new Coordinate(14, 9), new Coordinate(14, 11), new Coordinate(18, 12), new Coordinate(15, 1),
+            new Coordinate(14, 9)
         }, geometries[0].Coordinates);
         Assert.Equal(new[]
         {
-            new Coordinate(10, 5), new Coordinate(14, 9), new Coordinate(15, 11), new Coordinate(7, 1), new Coordinate(10, 5)
+            new Coordinate(10, 5), new Coordinate(14, 9), new Coordinate(15, 1), new Coordinate(7, 1),
+            new Coordinate(10, 5)
         }, geometries[1].Coordinates);
         Assert.Equal(new[]
         {
-            new Coordinate(10, 5), new Coordinate(7, 1), new Coordinate(7, 4), new Coordinate(10, 5)
+            new Coordinate(7, 1), new Coordinate(7, 4), new Coordinate(10, 5), new Coordinate(7, 1)
         }, geometries[2].Coordinates);
         Assert.Equal(new[]
         {
-            new Coordinate(5, 6), new Coordinate(7, 4), new Coordinate(7, 1), new Coordinate(3, 2),
-            new Coordinate(1, 10), new Coordinate(5, 6)
+            new Coordinate(7, 4), new Coordinate(7, 1), new Coordinate(3, 2),
+            new Coordinate(1, 10), new Coordinate(7, 4)
         }, geometries[3].Coordinates);
         Assert.Equal(new[]
         {
-            new Coordinate(12, 12), new Coordinate(5, 6), new Coordinate(1, 10), new Coordinate(6, 14), new Coordinate(12, 12)
+            new Coordinate(12, 12), new Coordinate(5, 6), new Coordinate(1, 10), new Coordinate(6, 14),
+            new Coordinate(12, 12)
         }, geometries[4].Coordinates);
         Assert.Equal(new[]
         {
-            new Coordinate(12, 12), new Coordinate(6, 14), new Coordinate(18, 12), new Coordinate(14, 11), new Coordinate(12, 12)
+            new Coordinate(12, 12), new Coordinate(6, 14), new Coordinate(18, 12), new Coordinate(12, 12)
         }, geometries[5].Coordinates);
         Assert.Equal(new[]
         {
-            new Coordinate(8, 8), new Coordinate(5, 6), new Coordinate(12, 12), new Coordinate(8, 8)
+            new Coordinate(18, 12), new Coordinate(14, 11), new Coordinate(12, 12), new Coordinate(18, 12)
         }, geometries[6].Coordinates);
         Assert.Equal(new[]
         {
-            new Coordinate(8, 8), new Coordinate(12, 12), new Coordinate(14, 9), new Coordinate(8, 8)
+            new Coordinate(8, 8), new Coordinate(5, 6), new Coordinate(12, 12), new Coordinate(8, 8)
         }, geometries[7].Coordinates);
         Assert.Equal(new[]
         {
-            new Coordinate(14, 9), new Coordinate(10, 5), new Coordinate(10, 7), new Coordinate(14, 9)
+            new Coordinate(12, 12), new Coordinate(14, 9), new Coordinate(8, 8), new Coordinate(12, 12)
         }, geometries[8].Coordinates);
         Assert.Equal(new[]
         {
-            new Coordinate(10, 7), new Coordinate(8, 8), new Coordinate(14, 9), new Coordinate(10, 7)
+            new Coordinate(14, 9), new Coordinate(10, 5), new Coordinate(10, 7), new Coordinate(14, 9)
         }, geometries[9].Coordinates);
+        Assert.Equal(new[]
+        {
+            new Coordinate(10, 7), new Coordinate(8, 8), new Coordinate(14, 9), new Coordinate(10, 7)
+        }, geometries[10].Coordinates);
     }
-    
+
     [Fact]
     public void ZeroTunnels_AfterHoleDeleter_TwoHolesFromOnePoint()
     {
@@ -543,55 +544,56 @@ public class NonConvexSlicerTest
         }, geometries[0].Coordinates);
         Assert.Equal(new[]
         {
-            new Coordinate(7, 4), new Coordinate(10, 1), new Coordinate(4, 3), new Coordinate(7, 4)
+            new Coordinate(10, 1), new Coordinate(4, 3), new Coordinate(7, 4), new Coordinate(10, 1)
         }, geometries[1].Coordinates);
         Assert.Equal(new[]
         {
-            new Coordinate(1, 1), new Coordinate(2, 11), new Coordinate(4, 14), new Coordinate(1, 1)
+            new Coordinate(4, 3), new Coordinate(10, 1), new Coordinate(1, 1), new Coordinate(4, 3)
         }, geometries[2].Coordinates);
         Assert.Equal(new[]
         {
-            new Coordinate(13, 5), new Coordinate(18, 2), new Coordinate(10, 1), new Coordinate(13, 5)
+            new Coordinate(1, 1), new Coordinate(2, 11), new Coordinate(4, 3), new Coordinate(1, 1)
         }, geometries[3].Coordinates);
         Assert.Equal(new[]
         {
-            new Coordinate(13, 5), new Coordinate(10, 1), new Coordinate(11, 8), new Coordinate(13, 5)
+            new Coordinate(2, 11), new Coordinate(4, 14), new Coordinate(18, 12), new Coordinate(2, 11)
         }, geometries[4].Coordinates);
         Assert.Equal(new[]
         {
-            new Coordinate(11, 8), new Coordinate(7, 4), new Coordinate(7, 7), new Coordinate(11, 8)
+            new Coordinate(13, 5), new Coordinate(18, 2), new Coordinate(10, 1), new Coordinate(13, 5)
         }, geometries[5].Coordinates);
         Assert.Equal(new[]
         {
-            new Coordinate(4, 3), new Coordinate(10, 1), new Coordinate(1, 1), new Coordinate(4, 3)
+            new Coordinate(10, 1), new Coordinate(11, 8), new Coordinate(13, 5), new Coordinate(10, 1)
         }, geometries[6].Coordinates);
         Assert.Equal(new[]
         {
-            new Coordinate(16, 5), new Coordinate(18, 12), new Coordinate(18, 2), new Coordinate(16, 5)
+            new Coordinate(11, 8), new Coordinate(7, 4), new Coordinate(7, 7), new Coordinate(11, 8)
         }, geometries[7].Coordinates);
         Assert.Equal(new[]
         {
-            new Coordinate(16, 5), new Coordinate(18, 2), new Coordinate(13, 5), new Coordinate(16, 5)
+            new Coordinate(4, 7), new Coordinate(4, 3), new Coordinate(2, 11), new Coordinate(4, 7)
         }, geometries[8].Coordinates);
         Assert.Equal(new[]
         {
-            new Coordinate(15, 10), new Coordinate(11, 8), new Coordinate(7, 7), new Coordinate(4, 7), new Coordinate(15, 10)
+            new Coordinate(2, 11), new Coordinate(18, 12), new Coordinate(4, 7), new Coordinate(2, 11)
         }, geometries[9].Coordinates);
         Assert.Equal(new[]
         {
-            new Coordinate(4, 14), new Coordinate(4, 3), new Coordinate(1, 1), new Coordinate(4, 14)
+            new Coordinate(16, 5), new Coordinate(18, 12), new Coordinate(18, 2), new Coordinate(16, 5)
         }, geometries[10].Coordinates);
         Assert.Equal(new[]
         {
-            new Coordinate(4, 3), new Coordinate(4, 14), new Coordinate(18, 12), new Coordinate(4, 7)
+            new Coordinate(18, 2), new Coordinate(13, 5), new Coordinate(16, 5), new Coordinate(18, 2)
         }, geometries[11].Coordinates);
         Assert.Equal(new[]
         {
-            new Coordinate(18, 12), new Coordinate(16, 5), new Coordinate(15, 10), new Coordinate(18, 12)
+            new Coordinate(15, 10), new Coordinate(11, 8), new Coordinate(7, 7), new Coordinate(4, 7),
+            new Coordinate(18, 12), new Coordinate(15, 10)
         }, geometries[12].Coordinates);
         Assert.Equal(new[]
         {
-            new Coordinate(15, 10), new Coordinate(4, 7), new Coordinate(18, 12), new Coordinate(15, 10)
+            new Coordinate(18, 12), new Coordinate(16, 5), new Coordinate(15, 10), new Coordinate(18, 12)
         }, geometries[13].Coordinates);
     }
 }
