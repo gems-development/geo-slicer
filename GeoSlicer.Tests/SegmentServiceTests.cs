@@ -14,7 +14,6 @@ public class SegmentServiceTests
     [InlineData(true, 0, 0, 2, 0, 2, 2, 2, -2)]
     public void IntersectionOfSegmentsTest(bool intersectionAnswer, params int[] arr)
     {
-        //Одинаковые отрезки не пересекаются
         var coordinates = new Coordinate[4];
         for (var i = 0; i < arr.Length; i += 2)
         {
