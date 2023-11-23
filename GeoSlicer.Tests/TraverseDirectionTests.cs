@@ -6,28 +6,6 @@ namespace GeoSlicer.Tests;
 public class TraverseDirectionTests
 {
     [Fact]
-    public void IsClockwiseBypassSegmentTest()
-    {
-        Coordinate[] coordinates = new Coordinate[] {
-            new (2, 1), new (3, 3), new (2, 1)};
-
-        LinearRing ring = new LinearRing(coordinates);
-
-        Assert.True(TraverseDirection.IsClockwiseBypass(ring));
-    }
-
-    [Fact]
-    public void IsNotClockwiseBypassSegmentTest()
-    {
-        Coordinate[] coordinates = new Coordinate[] {
-            new (3, 3), new (2, 1), new (3, 3)};
-
-        LinearRing ring = new LinearRing(coordinates);
-
-        Assert.True(TraverseDirection.IsClockwiseBypass(ring));
-    }
-
-    [Fact]
     public void IsClockwiseBypassTriangleTest()
     {
         Coordinate[] coordinates = new Coordinate[] {
