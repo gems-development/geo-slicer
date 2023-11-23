@@ -1,4 +1,7 @@
-﻿using GeoSlicer.NonConvexSlicer.Helpers;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using GeoSlicer.NonConvexSlicer.Helpers;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
 using static GeoSlicer.NonConvexSlicer.Helpers.NonConvexSlicerHelper;

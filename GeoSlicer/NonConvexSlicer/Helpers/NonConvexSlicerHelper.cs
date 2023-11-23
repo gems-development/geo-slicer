@@ -1,4 +1,5 @@
-﻿using NetTopologySuite.Geometries;
+﻿using System.Collections.Generic;
+using NetTopologySuite.Geometries;
 using static GeoSlicer.NonConvexSlicer.Helpers.SegmentService;
 
 namespace GeoSlicer.NonConvexSlicer.Helpers;

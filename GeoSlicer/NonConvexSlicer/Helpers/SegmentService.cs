@@ -1,4 +1,5 @@
-﻿using NetTopologySuite.Algorithm;
+﻿using System;
+using NetTopologySuite.Algorithm;
 using NetTopologySuite.Geometries;
 
 namespace GeoSlicer.NonConvexSlicer.Helpers;
