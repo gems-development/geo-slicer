@@ -113,8 +113,8 @@ public class Intersector
         }
 
         // Проверяем, внутри ли отрезков лежит пересечение
-        if (IsCoordinateInLine(intersection, line1First, line1Second) &&
-            IsCoordinateInLine(intersection, line2First, line2Second))
+        if (IsCoordinateInSegmentBorders(intersection, line1First, line1Second) &&
+            IsCoordinateInSegmentBorders(intersection, line2First, line2Second))
         {
             return (IntersectionType.InnerIntersection, intersection);
         }
@@ -122,9 +122,13 @@ public class Intersector
         return (IntersectionType.NoIntersection, null);
     }
 
-    // Проверяет, принадлежит ли точка отрезку
-    private bool IsCoordinateInLine(Coordinate coordinate, Coordinate first, Coordinate second)
+    // Проверяет, принадлежит ли точка отрезку. Принимает точку, лежащую на прямой отрезка
+    private bool IsCoordinateInSegmentBorders(Coordinate coordinate, Coordinate first, Coordinate second)
     {
+        if (Math.Abs(first.X - second.X) <= _epsilon)
+        {
+            return coordinate.Y > Math.Min(first.Y, second.Y) && coordinate.Y < Math.Max(first.Y, second.Y);
+        }
         return coordinate.X > Math.Min(first.X, second.X) && coordinate.X < Math.Max(first.X, second.X);
     }
 
