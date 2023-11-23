@@ -31,12 +31,12 @@ public class Intersector
     }
 
 
-    public (IntersectionType, Coordinate?) GetSegmentIntersection(Line line1, Line line2)
+    public (IntersectionType intersectionType, Coordinate? intersectionCoordinate) GetSegmentIntersection(Line line1, Line line2)
     {
         return GetSegmentIntersection(line1.A, line1.B, line2.A, line2.B);
     }
 
-    public (IntersectionType, Coordinate?) GetSegmentIntersection(
+    public (IntersectionType intersectionType, Coordinate? intersectionCoordinate) GetSegmentIntersection(
         Coordinate line1First, Coordinate line1Second,
         Coordinate line2First, Coordinate line2Second)
     {
