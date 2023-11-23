@@ -122,6 +122,13 @@ public class Intersector
         return (IntersectionType.NoIntersection, null);
     }
 
+
+    public bool IsCoordinatesAtOneLine(Coordinate a, Coordinate b, Coordinate c)
+    {
+        double vectorProduct = (b.X - a.X) * (c.Y - b.Y) - (b.Y - a.Y) * (c.X - b.X);
+        return Math.Abs(vectorProduct) <= _epsilon;
+    }
+
     // Проверяет, принадлежит ли точка отрезку. Принимает точку, лежащую на прямой отрезка
     private bool IsCoordinateInSegmentBorders(Coordinate coordinate, Coordinate first, Coordinate second)
     {
