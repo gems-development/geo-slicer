@@ -31,6 +31,7 @@ public class Intersector
     }
 
 
+    // todo добавить док о том, что в случае нахождения одной прямой внутри другой возвращает null
     public (IntersectionType intersectionType, Coordinate? intersectionCoordinate) GetSegmentIntersection(Line line1, Line line2)
     {
         return GetSegmentIntersection(line1.A, line1.B, line2.A, line2.B);
@@ -73,7 +74,7 @@ public class Intersector
         }
 
         outerIntersection =
-            GetOuterIntersection(line1First, line1Second, line2First, line2Second);
+            GetOuterIntersection(line1First, line1Second, line2Second, line2First);
         if (outerIntersection is not null)
         {
             return ((IntersectionType, Coordinate?))outerIntersection;
