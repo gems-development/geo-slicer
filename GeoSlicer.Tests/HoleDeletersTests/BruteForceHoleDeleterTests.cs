@@ -1,4 +1,5 @@
-﻿using GeoSlicer.HoleDeleters;
+﻿using System.Collections.Generic;
+using GeoSlicer.HoleDeleters;
 using NetTopologySuite.Geometries;
 
 namespace GeoSlicer.Tests.HoleDeletersTests;
