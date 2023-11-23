@@ -33,6 +33,13 @@ public class Intersector
 
     public (IntersectionType, Coordinate?) GetSegmentIntersection(Line line1, Line line2)
     {
+        return GetSegmentIntersection(line1.A, line1.B, line2.A, line2.B);
+    }
+
+    public (IntersectionType, Coordinate?) GetSegmentIntersection(
+        Coordinate line1First, Coordinate line1Second,
+        Coordinate line2First, Coordinate line2Second)
+    {
         // Проверяет, равны ли отрезки, или имеют ли общее начало или конец
         (IntersectionType, Coordinate?)? GetOuterIntersection(
             Coordinate a1, Coordinate a2,
@@ -57,26 +64,25 @@ public class Intersector
         }
 
 
-        
         // Проверяем методом выше отрезки a1b1 с a2b2 и a1b1 с b2a2
         (IntersectionType, Coordinate?)? outerIntersection =
-            GetOuterIntersection(line1.a, line1.b, line2.a, line2.b);
+            GetOuterIntersection(line1First, line1Second, line2First, line2Second);
         if (outerIntersection is not null)
         {
             return ((IntersectionType, Coordinate?))outerIntersection;
         }
 
         outerIntersection =
-            GetOuterIntersection(line1.a, line1.b, line2.b, line2.a);
+            GetOuterIntersection(line1First, line1Second, line2First, line2Second);
         if (outerIntersection is not null)
         {
             return ((IntersectionType, Coordinate?))outerIntersection;
         }
 
         // Получаем точку пересечения
-        (double a, double b, double c) canonical1 = ToCanonical(line1);
-        (double a, double b, double c) canonical2 = ToCanonical(line2);
-        
+        (double a, double b, double c) canonical1 = ToCanonical(line1First, line1Second);
+        (double a, double b, double c) canonical2 = ToCanonical(line2First, line2Second);
+
         Coordinate? intersection = GetLineIntersection(canonical1, canonical2, _epsilon);
 
         if (intersection is null)
@@ -85,42 +91,46 @@ public class Intersector
         }
 
         // Проверяем, является ли пересечение пересечением по касательной
-        if (_epsilonCoordinateComparator.IsEquals(intersection, line1.a))
+        if (_epsilonCoordinateComparator.IsEquals(intersection, line1First))
         {
-            return (IntersectionType.TangentIntersection, line1.a);
+            return (IntersectionType.TangentIntersection, line1First);
         }
-        if (_epsilonCoordinateComparator.IsEquals(intersection, line1.b))
+
+        if (_epsilonCoordinateComparator.IsEquals(intersection, line1Second))
         {
-            return (IntersectionType.TangentIntersection, line1.b);
+            return (IntersectionType.TangentIntersection, line1Second);
         }
-        if (_epsilonCoordinateComparator.IsEquals(intersection, line2.a))
+
+        if (_epsilonCoordinateComparator.IsEquals(intersection, line2First))
         {
-            return (IntersectionType.TangentIntersection, line2.a);
+            return (IntersectionType.TangentIntersection, line2First);
         }
-        if (_epsilonCoordinateComparator.IsEquals(intersection, line2.b))
+
+        if (_epsilonCoordinateComparator.IsEquals(intersection, line2Second))
         {
-            return (IntersectionType.TangentIntersection, line2.b);
+            return (IntersectionType.TangentIntersection, line2Second);
         }
 
         // Проверяем, внутри ли отрезков лежит пересечение
-        if (IsCoordinateInLine(intersection, line1) && IsCoordinateInLine(intersection, line2))
+        if (IsCoordinateInLine(intersection, line1First, line1Second) &&
+            IsCoordinateInLine(intersection, line2First, line2Second))
         {
             return (IntersectionType.InnerIntersection, intersection);
         }
 
         return (IntersectionType.NoIntersection, null);
     }
-    
+
     // Проверяет, принадлежит ли точка отрезку
-    private bool IsCoordinateInLine(Coordinate coordinate, Line line)
+    private bool IsCoordinateInLine(Coordinate coordinate, Coordinate first, Coordinate second)
     {
-        return coordinate.X > Math.Min(line.a.X, line.b.X) && coordinate.X < Math.Max(line.a.X, line.b.X);
+        return coordinate.X > Math.Min(first.X, second.X) && coordinate.X < Math.Max(first.X, second.X);
     }
 
     // Получить пересечение прямых
     private static Coordinate? GetLineIntersection(
         (double a, double b, double c) line1,
-        (double a, double b, double c) line2, 
+        (double a, double b, double c) line2,
         double epsilon)
     {
         double delta = line1.a * line2.b - line2.a * line1.b;
@@ -136,11 +146,11 @@ public class Intersector
     }
 
     // Преобразовать в канонический вид
-    private static (double a, double b, double c) ToCanonical(Line line)
+    private static (double a, double b, double c) ToCanonical(Coordinate first, Coordinate second)
     {
-        double a = line.b.Y - line.a.Y;
-        double b = line.a.X - line.b.X;
-        double c = a * line.a.X + b * line.a.Y;
+        double a = second.Y - first.Y;
+        double b = first.X - second.X;
+        double c = a * first.X + b * first.Y;
         return (a, b, c);
     }
 }
