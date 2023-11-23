@@ -83,6 +83,7 @@ public class BoundingHoleDeleter
         //return BoundRingService.BoundRingsToPolygon(list).Shell;
         return BoundRingService.BoundRingsToPolygon(list);
     }
+    private int j = 0;
     private void DeleteHoles(LinkedList<BoundingRing> listOfHoles)
     {
         var thisRing = listOfHoles.First;
@@ -90,10 +91,14 @@ public class BoundingHoleDeleter
         var pointMaxShell = thisRing.Value.PointMax;
 
         int i = 0;
+
         int count = listOfHoles.Count;
         while (listOfHoles.First!.Next is not null)
         {
+            //GeoJsonFileService.GeoJsonFileService.WriteGeometryToFile(BoundRingService.BoundRingsToPolygon(listOfHoles), "C:\\Users\\Данил\\Downloads\\Telegram Desktop\\newBaikal" + j + ".geojson");
+            j++;
             i++;
+            //Console.WriteLine(j);
             if (count != listOfHoles.Count)
             {
                 count = listOfHoles.Count;
@@ -154,7 +159,7 @@ public class BoundingHoleDeleter
             }
             else
             {
-                //BruteforceConnectIntersectionFrames(thisRing);
+                BruteforceConnectIntersectionFrames(thisRing, listOfHoles);
                 if (thisRing.Value.PointMin.Equals(pointMinShell) && thisRing.Value.PointMax.Equals(pointMaxShell))
                 {
                     var buff = thisRing.Value;
@@ -165,14 +170,130 @@ public class BoundingHoleDeleter
             }
         }
     }
-
-    private void BruteforceConnectIntersectionFrames(LinkedListNode<BoundingRing> thisRing)
+    
+    private void BruteforceConnectIntersectionFrames(LinkedListNode<BoundingRing> thisRing, LinkedList<BoundingRing> listOfHoles)
     {
-        throw new AggregateException();
-    }
+        var currentFrameNode = _intersectFrames.First;
+        do
+        {
+            while (currentFrameNode is not null)
+            {
+                if (IntersectOrContainFramesCheck(currentFrameNode.Value.Value, thisRing.Value))
+                {
+                    break;
+                }
 
+                currentFrameNode = currentFrameNode.Next;
+            }
+
+            if (currentFrameNode is null)
+                return;
+            var currentFrame = currentFrameNode.Value;
+            var startThisRing = thisRing.Value.Ring;
+            var startCurrentFrame = currentFrame!.Value.Ring;
+            bool flagFirstCycle = false;
+            bool flagSecondCycle = false;
+            var intersectOfFrames = getIntersectionFrames(thisRing.Value, currentFrame.Value);
+            do
+            {
+                if (!flagFirstCycle)
+                {
+                    do
+                    {
+                        if (PointInsideFrameCheck(startThisRing.Elem, intersectOfFrames))
+                        {
+                            flagFirstCycle = true;
+                            break;
+                        }
+
+                        startThisRing = startThisRing.Next;
+                    } while (!ReferenceEquals(startThisRing, thisRing.Value.Ring));
+                }
+
+                if (!flagSecondCycle)
+                {
+                    int m = 0;
+                    do
+                    {
+                        if (PointInsideFrameCheck(startCurrentFrame.Elem, intersectOfFrames))
+                        {
+                            flagSecondCycle = true;
+                            break;
+                        }
+                        startCurrentFrame = startCurrentFrame.Next;
+                    } while (!ReferenceEquals(startCurrentFrame, currentFrame.Value.Ring));
+                }
+                if (flagFirstCycle && flagSecondCycle)
+                {
+                    if (IntersectLBoundRingNotExtPoints(thisRing, startThisRing.Elem, startCurrentFrame.Elem))
+                    {
+                        flagFirstCycle = false;
+                        startThisRing = startThisRing.Next;
+                    }
+
+                    if (IntersectLBoundRingNotExtPoints(currentFrameNode.Value, startThisRing.Elem,
+                            startCurrentFrame.Elem))
+                    {
+                        flagSecondCycle = false;
+                        startCurrentFrame = startCurrentFrame.Next;
+                    }
+
+                    if (flagFirstCycle && flagSecondCycle)
+                    {
+                        foreach (var frame in _intersectFrames)
+                        {
+                            if (!ReferenceEquals(currentFrameNode.Value, frame))
+                            {
+                                if (hasIntersectsFrame(frame.Value, startThisRing.Elem, startCurrentFrame.Elem)
+                                    || PointInsideFrameCheck(startThisRing.Elem, frame.Value)
+                                    || PointInsideFrameCheck(startCurrentFrame.Elem, frame.Value))
+                                {
+                                    if (IntersectLBoundRing(frame, startThisRing.Elem, startCurrentFrame.Elem))
+                                    {
+                                        flagFirstCycle = false;
+                                        flagSecondCycle = false;
+                                        startThisRing = startThisRing.Next;
+                                        startCurrentFrame = startCurrentFrame.Next;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                    if (flagFirstCycle && flagSecondCycle)
+                    {
+                        foreach (var frame in _framesContainThis)
+                        {
+                            if (IntersectLBoundRing(frame, startThisRing.Elem, startCurrentFrame.Elem))
+                            {
+                                flagFirstCycle = false;
+                                flagSecondCycle = false;
+                                startThisRing = startThisRing.Next;
+                                startCurrentFrame = startCurrentFrame.Next;
+                            }
+                        }
+
+                        if (flagFirstCycle && flagSecondCycle)
+                        {
+                            BoundRingService.ConnectBoundRings(
+                                thisRing.Value,
+                                currentFrame.Value,
+                                startThisRing,
+                                startCurrentFrame);
+                            listOfHoles.Remove(currentFrame);
+                            return;
+                        }
+                    }
+                }
+            } while (!ReferenceEquals(startThisRing, thisRing.Value.Ring) &&
+                     !ReferenceEquals(startCurrentFrame, currentFrame.Value.Ring));
+            currentFrameNode = currentFrameNode.Next;
+        } while (true);
+    }
+    //todo нахождение прямоугольника, соединение с которым не пересекает другие 
     private void BruteforceConnect(LinkedListNode<BoundingRing> thisRing, LinkedList<BoundingRing> listOfHoles)
     {
+        
         /*if (_nearABC is not null)
         {
             if (_nearABCintersect is not null)
@@ -244,16 +365,21 @@ public class BoundingHoleDeleter
     }
     //todo добавить проверку на пересечение соединения с прямоугольниками
     //todo рассмотреть ситуацию когда все ближайшие треугольники равны null (_nearAbc и другие подобные)
+    private int m = 0;
+    private int n = 0;
     private bool ConnectWithFrameWhoContainThisRing(
         (LinkedListNode<BoundingRing> boundRing, LinkedNode<Coordinate> _start)? nearSegmentIntersect,
         LinkedListNode<BoundingRing> thisRing,
         LinkedList<BoundingRing> listOfHoles, PartitioningZones zones)
     {
-        var coord = nearSegmentIntersect.Value._start;
+        var coord = nearSegmentIntersect!.Value._start;
         coord = RearrangePoints(coord, zones, thisRing);
         var start = _framesContainThis.First;
         do
         {
+            m++;
+            if (m == 21)
+                Console.WriteLine("sfg");
             if (ReferenceEquals(start!.Value.Value, nearSegmentIntersect.Value.boundRing.Value))
             {
                 var buff = start.Value;
@@ -277,7 +403,7 @@ public class BoundingHoleDeleter
         
         
         bool flag;
-        var correctNode = _framesContainThis.First.Value;
+        var correctNode = _framesContainThis.First!.Value;
         do
         {
             flag = false;
@@ -287,7 +413,7 @@ public class BoundingHoleDeleter
                 do
                 {
                     intersectSegment =
-                        CheckIntersectRingWithSegment(frame, connectCoordThisR.Elem, coord.Elem);
+                        CheckIntersectRingWithSegmentNotExtPoint(frame, connectCoordThisR.Elem, coord.Elem);
                     if (intersectSegment is not null)
                     {
                         flag = true;
@@ -296,8 +422,17 @@ public class BoundingHoleDeleter
 
                         correctNode = frame;
                     }
+
+                    if (m == 21)
+                    {
+                        Console.WriteLine("ff");
+                        //var variable = intersectSegment.Value;
+                    }
+                    //todo найти причину почему зациклиывается на kazanFail
                 } while (intersectSegment is not null);
+                
             }
+            
         } while (flag);
 
         BoundRingService.ConnectBoundRings(thisRing.Value, correctNode.Value,
@@ -339,13 +474,17 @@ public class BoundingHoleDeleter
 
         return coord;
     }
-    private (LinkedListNode<BoundingRing> boundRing, LinkedNode<Coordinate> _start)? CheckIntersectRingWithSegment(
+    private (LinkedListNode<BoundingRing> boundRing, LinkedNode<Coordinate> _start)? CheckIntersectRingWithSegmentNotExtPoint(
         LinkedListNode<BoundingRing> ring, Coordinate a, Coordinate b)
     {
         var start = ring.Value.Ring;
         do
         {
-            if (HasIntersectedSegmentsNotInExternalPoints(start.Elem, start.Next.Elem, a, b))
+            if (HasIntersectedSegments(start.Elem, start.Next.Elem, a, b)
+                && !ReferenceEquals(a, start.Elem)
+                && !ReferenceEquals(b, start.Elem)
+                && !ReferenceEquals(a, start.Next.Elem)
+                && !ReferenceEquals(b, start.Next.Elem))
                 return (ring, start);
             start = start.Next;
         } while (!ReferenceEquals(start, ring.Value.Ring));
@@ -708,25 +847,42 @@ public class BoundingHoleDeleter
         return flagAbcCanConnect || flagCdeCanConnect || flagEfgCanConnect || flagAhgCanConnect;
     }
 
-    private bool hasIntersectsFragment((
-        LinkedListNode<BoundingRing> boundRing,
-        LinkedNode<Coordinate> start,
-        LinkedNode<Coordinate> end
-        ) fragment, Coordinate a, Coordinate b)
+    private bool IntersectLBoundRingNotExtPoints(
+        LinkedListNode<BoundingRing> boundRing, 
+        Coordinate a,
+        Coordinate b)
     {
-        LinkedNode<Coordinate> start = fragment.start;
-        LinkedNode<Coordinate> end = fragment.end;
-        while (ReferenceEquals(start.Previous, end))
+        LinkedNode<Coordinate> start = boundRing.Value.Ring;
+        do
+        {
+            if (HasIntersectedSegments(start.Elem, start.Next.Elem, a, b)
+                && !ReferenceEquals(a, start.Elem)
+                && !ReferenceEquals(b, start.Elem)
+                && !ReferenceEquals(a, start.Next.Elem)
+                && !ReferenceEquals(b, start.Next.Elem))
+                return true;
+            start = start.Next;
+        } while (!ReferenceEquals(start, boundRing.Value.Ring));
+
+        return false;
+    }
+    private bool IntersectLBoundRing(
+        LinkedListNode<BoundingRing> boundRing, 
+        Coordinate a,
+        Coordinate b)
+    {
+        LinkedNode<Coordinate> start = boundRing.Value.Ring;
+        do
         {
             if (HasIntersectedSegments(start.Elem, start.Next.Elem, a, b))
                 return true;
             start = start.Next;
-        }
+        } while (!ReferenceEquals(start, boundRing.Value.Ring));
 
         return false;
     }
 
-    //возможно улучшение
+    //todo возможно улучшение
     private bool hasIntersectsFrame(BoundingRing ring, Coordinate a, Coordinate b)
     {
         LineSegment AB = new LineSegment(a, b);
@@ -744,7 +900,7 @@ public class BoundingHoleDeleter
         return false;
     }
 
-    //нужно улучшить
+    //todo нужно улучшить
     private RobustLineIntersector li = new RobustLineIntersector();
     private bool HasIntersectedSegments(Coordinate a1, Coordinate b1, Coordinate a2, Coordinate b2)
     {
@@ -827,7 +983,7 @@ public class BoundingHoleDeleter
     private bool FillListsRelativeRing(LinkedListNode<BoundingRing> boundRing,
         LinkedList<BoundingRing> boundRings)
     {
-        Boolean hasIntersectFrames = false;
+        bool hasIntersectFrames = false;
         LinkedListNode<BoundingRing>? thisRing = boundRings.First;
         while (thisRing is not null)
         {
@@ -837,11 +993,15 @@ public class BoundingHoleDeleter
                 {
                     if (!DetectPartitingZone(boundRing, thisRing))
                     {
-                        hasIntersectFrames = IntersectOrContainFramesCheck(boundRing, thisRing);
+                        hasIntersectFrames = IntersectOrContainFrames(boundRing, thisRing);
+                        if (hasIntersectFrames)
+                            _intersectFrames.AddFirst(thisRing);
                     }
                 }
                 else if (NotIntersectCheck(boundRing.Value, thisRing.Value))
-                    IntersectOrContainFramesCheck(boundRing, thisRing);
+                {
+                    IntersectOrContainFrames(boundRing, thisRing);
+                }
                 else
                 {
                     _intersectFrames.AddFirst(thisRing);
@@ -850,13 +1010,12 @@ public class BoundingHoleDeleter
 
             thisRing = thisRing.Next;
         }
-
         return hasIntersectFrames;
     }
 
     //возращает false если одна рамка содержится в другой
     //true в противном случае(могут пересекаться и не пересекаться)
-    private bool IntersectOrContainFramesCheck(
+    private bool IntersectOrContainFrames(
         LinkedListNode<BoundingRing> relativeBoundRing,
         LinkedListNode<BoundingRing> thisBoundRing)
     {
@@ -879,11 +1038,50 @@ public class BoundingHoleDeleter
             return false;
         }
 
-        _intersectFrames.AddFirst(thisBoundRing);
+        //_intersectFrames.AddFirst(thisBoundRing);
+        return true;
+    }
+    //возращает false если одна рамка содержится в другой
+    //true в противном случае(могут пересекаться и не пересекаться)
+    private bool IntersectOrContainFramesCheck(
+        BoundingRing ring1,
+        BoundingRing ring2)
+    {
+        Coordinate pointMin = new Coordinate(
+            Math.Min(ring1.PointMin.X, ring2.PointMin.X),
+            Math.Min(ring1.PointMin.Y, ring2.PointMin.Y));
+        Coordinate pointMax = new Coordinate(
+            Math.Max(ring1.PointMax.X, ring2.PointMax.X),
+            Math.Max(ring1.PointMax.Y, ring2.PointMax.Y));
+        if ((pointMin.Equals(ring1.PointMin) && pointMax.Equals(ring1.PointMax)) || 
+            (pointMin.Equals(ring2.PointMin) && pointMax.Equals(ring2.PointMax)))
+        {
+            return false;
+        }
         return true;
     }
 
-    
+    private (Coordinate pointMin, Coordinate pointMax) getIntersectionFrames(BoundingRing ring1, BoundingRing ring2)
+    {
+        Coordinate pointMin = new Coordinate(
+            Math.Max(ring1.PointMin.X, ring2.PointMin.X),
+            Math.Max(ring1.PointMin.Y, ring2.PointMin.Y));
+        Coordinate pointMax = new Coordinate(
+            Math.Min(ring1.PointMax.X, ring2.PointMax.X),
+            Math.Min(ring1.PointMax.Y, ring2.PointMax.Y));
+        return (pointMin, pointMax);
+    }
+    private (Coordinate pointMin, Coordinate pointMax) getIntersectionFrames
+        (BoundingRing ring1, (Coordinate pointMin, Coordinate pointMax) frame)
+    {
+        Coordinate pointMin = new Coordinate(
+            Math.Max(ring1.PointMin.X, frame.pointMin.X),
+            Math.Max(ring1.PointMin.Y, frame.pointMin.Y));
+        Coordinate pointMax = new Coordinate(
+            Math.Min(ring1.PointMax.X, frame.pointMax.X),
+            Math.Min(ring1.PointMax.Y, frame.pointMax.Y));
+        return (pointMin, pointMax);
+    }
     //возращает false если рамки пересекаются(не важно как)
     private bool DetectPartitingZone(LinkedListNode<BoundingRing> relativeBoundRing,
         LinkedListNode<BoundingRing> boundingRing)
@@ -1067,7 +1265,22 @@ public class BoundingHoleDeleter
                boundingRing.PointMin.X > relativeBoundRing.PointMax.X
                || Math.Abs(boundingRing.PointMin.X - relativeBoundRing.PointMax.X) < 1e-9;
     }
+    private bool NotIntersectCheck(BoundingRing relativeBoundRing, (Coordinate pointMin, Coordinate pointMax) frame)
+    {
+        return frame.pointMin.Y > relativeBoundRing.PointMax.Y
+               || Math.Abs(frame.pointMin.Y - relativeBoundRing.PointMax.Y) < 1e-9 ||
 
+
+               frame.pointMax.X < relativeBoundRing.PointMin.X
+               || Math.Abs(frame.pointMax.X - relativeBoundRing.PointMin.X) < 1e-9 ||
+
+               frame.pointMax.Y < relativeBoundRing.PointMin.Y
+               || Math.Abs(frame.pointMax.Y - relativeBoundRing.PointMin.Y) < 1e-9 ||
+
+
+               frame.pointMin.X > relativeBoundRing.PointMax.X
+               || Math.Abs(frame.pointMin.X - relativeBoundRing.PointMax.X) < 1e-9;
+    }
     private bool SegmentContainAtLeastOneNumber(double a, double b, double[] arr)
     {
         for (int i = 0; i < arr.Length; i++)
@@ -1077,6 +1290,17 @@ public class BoundingHoleDeleter
         }
 
         return false;
+    }
+
+    private bool PointInsideFrameCheck(Coordinate point, BoundingRing ring)
+    {
+        var pointMin = ring.PointMin;
+        var pointMax = ring.PointMax;
+        return point.X < pointMax.X && point.X > pointMin.X && point.Y < pointMax.Y && point.Y > pointMin.Y;
+    }
+    private bool PointInsideFrameCheck(Coordinate point, (Coordinate pointMin, Coordinate pointMax) frame)
+    {
+        return point.X < frame.pointMax.X && point.X > frame.pointMin.X && point.Y < frame.pointMax.Y && point.Y > frame.pointMin.Y;
     }
 }
 
