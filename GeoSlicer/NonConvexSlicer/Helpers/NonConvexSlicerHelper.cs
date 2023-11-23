@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
+using GeoSlicer.Utils;
 using NetTopologySuite.Geometries;
-using static GeoSlicer.NonConvexSlicer.Helpers.SegmentService;
+using static GeoSlicer.Utils.SegmentService;
 
 namespace GeoSlicer.NonConvexSlicer.Helpers;
 

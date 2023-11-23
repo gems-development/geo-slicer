@@ -1,4 +1,5 @@
 ﻿using System;
+using GeoSlicer.Utils;
 using NetTopologySuite.Geometries;
 
 namespace GeoSlicer.Tests;
@@ -22,7 +23,7 @@ public class SegmentServiceTests
         }
 
         Assert.Equal(intersectionAnswer,
-            NonConvexSlicer.Helpers.SegmentService.IsIntersectionOfSegments(
+            SegmentService.IsIntersectionOfSegments(
                 coordinates[0], coordinates[1],
                 coordinates[2], coordinates[3]));
     }

@@ -2,7 +2,7 @@
 using NetTopologySuite.Algorithm;
 using NetTopologySuite.Geometries;
 
-namespace GeoSlicer.NonConvexSlicer.Helpers;
+namespace GeoSlicer.Utils;
 
 public static class SegmentService
 {

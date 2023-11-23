@@ -1,7 +1,7 @@
 ﻿using System;
 using NetTopologySuite.Geometries;
 
-namespace GeoSlicer.NonConvexSlicer.Helpers;
+namespace GeoSlicer.Utils;
 
 public static class TraverseDirection
 {

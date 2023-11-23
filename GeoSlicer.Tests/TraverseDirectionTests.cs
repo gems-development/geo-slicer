@@ -1,5 +1,6 @@
 ﻿using NetTopologySuite.Geometries;
 using GeoSlicer.NonConvexSlicer.Helpers;
+using GeoSlicer.Utils;
 
 namespace GeoSlicer.Tests;
 

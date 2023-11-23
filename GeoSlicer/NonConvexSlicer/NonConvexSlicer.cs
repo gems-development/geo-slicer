@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using GeoSlicer.NonConvexSlicer.Helpers;
+using GeoSlicer.Utils;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
 using static GeoSlicer.NonConvexSlicer.Helpers.NonConvexSlicerHelper;
-using static GeoSlicer.NonConvexSlicer.Helpers.SegmentService;
+using static GeoSlicer.Utils.SegmentService;
 
 namespace GeoSlicer.NonConvexSlicer;
 
