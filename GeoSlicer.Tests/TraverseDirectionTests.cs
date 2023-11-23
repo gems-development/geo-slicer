@@ -92,3 +92,18 @@ public class TraverseDirectionTests
         Assert.Equal(expectedRing, ring);
     }
 }
+        LinearRing ring = new LinearRing(coordinates);
+
+        Coordinate[] expectedCoordinates =
+        {
+            new(14, -1), new(1, 2), new(-1, 2), new(-1, 1),
+            new(7, 2), new(2, -3), new(11, -3), new(9, -1), new(14, -1)
+        };
+
+        LinearRing expectedRing = new LinearRing(expectedCoordinates);
+
+        TraverseDirection.ChangeDirection(ring);
+
+        Assert.Equal(expectedRing, ring);
+    }
+}
