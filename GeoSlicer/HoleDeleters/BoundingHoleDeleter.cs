@@ -170,7 +170,7 @@ public class BoundingHoleDeleter
             }
         }
     }
-    
+    private int m = 0;
     private void BruteforceConnectIntersectionFrames(LinkedListNode<BoundingRing> thisRing, LinkedList<BoundingRing> listOfHoles)
     {
         var currentFrameNode = _intersectFrames.First;
@@ -280,6 +280,7 @@ public class BoundingHoleDeleter
                                 currentFrame.Value,
                                 startThisRing,
                                 startCurrentFrame);
+
                             listOfHoles.Remove(currentFrame);
                             return;
                         }
@@ -365,8 +366,6 @@ public class BoundingHoleDeleter
     }
     //todo добавить проверку на пересечение соединения с прямоугольниками
     //todo рассмотреть ситуацию когда все ближайшие треугольники равны null (_nearAbc и другие подобные)
-    private int m = 0;
-    private int n = 0;
     private bool ConnectWithFrameWhoContainThisRing(
         (LinkedListNode<BoundingRing> boundRing, LinkedNode<Coordinate> _start)? nearSegmentIntersect,
         LinkedListNode<BoundingRing> thisRing,
@@ -374,22 +373,20 @@ public class BoundingHoleDeleter
     {
         var coord = nearSegmentIntersect!.Value._start;
         coord = RearrangePoints(coord, zones, thisRing);
-        var start = _framesContainThis.First;
+        //todo изменить nearSegmentIntersect так чтобы он содержал узел в списке _framesContainThis
+        var startFrameContainThis = _framesContainThis.First;
         do
         {
-            m++;
-            if (m == 21)
-                Console.WriteLine("sfg");
-            if (ReferenceEquals(start!.Value.Value, nearSegmentIntersect.Value.boundRing.Value))
+            if (ReferenceEquals(startFrameContainThis!.Value.Value, nearSegmentIntersect.Value.boundRing.Value))
             {
-                var buff = start.Value;
-                _framesContainThis.Remove(start);
+                var buff = startFrameContainThis.Value;
+                _framesContainThis.Remove(startFrameContainThis);
                 _framesContainThis.AddFirst(buff);
                 break;
             }
 
-            start = start.Next;
-        } while (start is not null);
+            startFrameContainThis = startFrameContainThis.Next;
+        } while (startFrameContainThis is not null);
 
         LinkedNode<Coordinate> connectCoordThisR;
         if (zones == PartitioningZones.ABC)
@@ -422,13 +419,8 @@ public class BoundingHoleDeleter
 
                         correctNode = frame;
                     }
-
-                    if (m == 21)
-                    {
-                        Console.WriteLine("ff");
-                        //var variable = intersectSegment.Value;
-                    }
-                    //todo найти причину почему зациклиывается на kazanFail
+                    
+                    //todo найти причину почему зацикливается на kazanFail
                 } while (intersectSegment is not null);
                 
             }
@@ -814,6 +806,7 @@ public class BoundingHoleDeleter
                 _nearABC!.Value.boundRing.Value,
                 thisRing.Value.PointUpNode,
                 _nearABC.Value.boundRing.Value.PointDownNode);
+            
             listOfHoles.Remove(_nearABC.Value.boundRing);
         }
 
@@ -823,6 +816,7 @@ public class BoundingHoleDeleter
                 _nearCDE!.Value.boundRing.Value,
                 thisRing.Value.PointLeftNode,
                 _nearCDE.Value.boundRing.Value.PointRightNode);
+
             listOfHoles.Remove(_nearCDE.Value.boundRing);
         }
 
@@ -1160,7 +1154,7 @@ public class BoundingHoleDeleter
         else if (boundingRing.Value.PointMax.Y < relativeBoundRing.Value.PointMin.Y
             || Math.Abs(boundingRing.Value.PointMax.Y - relativeBoundRing.Value.PointMin.Y) < 1e-9)
         {
-            if (boundingRing.Value.PointMax.X > relativeBoundRing.Value.PointMax.Y)
+            if (boundingRing.Value.PointMax.X > relativeBoundRing.Value.PointMax.X)
             {
                 list.Add(PartitioningZones.G);
                 _listG.AddFirst((boundingRing, list));
@@ -1224,7 +1218,6 @@ public class BoundingHoleDeleter
         {
             _nearABC = (boundingRing, list);
         }
-
         if ((_nearCDE is null ||
              boundingRing.Value.PointMax.X > _nearCDE.Value.boundRing.Value.PointMax.X) &&
             (flagCDE || (list.Count == 1 && (flagC || flagE))))
@@ -1288,7 +1281,7 @@ public class BoundingHoleDeleter
             if ((arr[i] > a && arr[i] < b) || Math.Abs(a - arr[i]) < 1e-9 || Math.Abs(b - arr[i]) < 1e-9)
                 return true;
         }
-
+        
         return false;
     }
 
