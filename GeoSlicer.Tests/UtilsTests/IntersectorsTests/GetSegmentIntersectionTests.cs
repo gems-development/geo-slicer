@@ -10,7 +10,7 @@ public class GetSegmentIntersectionTests
 
     private const double Delta = 1E-6;
     private static readonly EpsilonCoordinateComparator EpsilonCoordinateComparator = new(Delta);
-    private static readonly Intersector Intersector = new(EpsilonCoordinateComparator, Delta);
+    private static readonly LineIntersector LineIntersector = new(EpsilonCoordinateComparator, Delta);
 
 
     [Theory]
@@ -43,7 +43,7 @@ public class GetSegmentIntersectionTests
         Coordinate b2 = new Coordinate(b2X, b2Y);
         Coordinate expectedIntersection = new Coordinate(intersectionX, intersectionY);
 
-        (IntersectionType, Coordinate) result = Intersector.GetIntersection(a1, a2, b1, b2)!;
+        (IntersectionType, Coordinate) result = LineIntersector.GetIntersection(a1, a2, b1, b2)!;
 
         Assert.Equal(expectedType, result.Item1);
         Assert.True(EpsilonCoordinateComparator.IsEquals(expectedIntersection, result.Item2));
@@ -78,7 +78,7 @@ public class GetSegmentIntersectionTests
         Coordinate b1 = new Coordinate(b1X, b1Y);
         Coordinate b2 = new Coordinate(b2X, b2Y);
 
-        (IntersectionType, Coordinate) result = Intersector.GetIntersection(a1, a2, b1, b2)!;
+        (IntersectionType, Coordinate) result = LineIntersector.GetIntersection(a1, a2, b1, b2)!;
 
         Assert.Equal(expectedType, result.Item1);
     }

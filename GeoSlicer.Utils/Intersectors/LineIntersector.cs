@@ -6,7 +6,7 @@ namespace GeoSlicer.Utils.Intersectors;
 
 using CanonicalLine = Tuple<double, double, double>;
 
-public class Intersector
+public class LineIntersector
 {
     private readonly double _epsilon;
 
@@ -14,7 +14,7 @@ public class Intersector
     private readonly EpsilonCoordinateComparator _epsilonCoordinateComparator;
     private readonly LineService _lineService;
 
-    public Intersector(ICoordinateComparator coordinateComparator, double epsilon = 1E-5)
+    public LineIntersector(ICoordinateComparator coordinateComparator, double epsilon = 1E-5)
     {
         _coordinateComparator = coordinateComparator;
         _epsilonCoordinateComparator = new EpsilonCoordinateComparator(epsilon);
