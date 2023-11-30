@@ -1,4 +1,4 @@
-﻿namespace GeoSlicer.Utils.BoundHoleDelDependency;
+﻿namespace GeoSlicer.HoleDeleters.BoundingHoleDelDetails;
 
 public enum PartitioningZones
 {

@@ -1,5 +1,5 @@
 ﻿using NetTopologySuite.Geometries;
-using GeoSlicer.Utils.BoundHoleDelDependency;
+using GeoSlicer.Utils.BoundRing;
 
 
 namespace GeoSlicer.Tests.HoleDeletersTests;

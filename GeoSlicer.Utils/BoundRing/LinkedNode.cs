@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace GeoSlicer.Utils.BoundHoleDelDependency;
+namespace GeoSlicer.Utils.BoundRing;
 
 public class LinkedNode<T>
 {

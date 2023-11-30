@@ -1,7 +1,7 @@
 ﻿
 using NetTopologySuite.Geometries;
 
-namespace GeoSlicer.Utils.BoundHoleDelDependency;
+namespace GeoSlicer.Utils.BoundRing;
 
 public static class CoordinateNodeService
 {
