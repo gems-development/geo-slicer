@@ -95,6 +95,18 @@ public static class BoundRIntersectsChecker
         return _li.HasIntersection;
         //return li.GetIntersection(0);
     }
+    public static bool HasIntersectedSegmentsNotExternalPoints(Coordinate a1, Coordinate b1, Coordinate a2, Coordinate b2)
+    {
+        //return new LineSegment(a1, b1).Intersection(new LineSegment(a2, b2)) is not null;
+        if (ReferenceEquals(a1, a2) ||
+            ReferenceEquals(a1, b2) ||
+            ReferenceEquals(b1, a2) ||
+            ReferenceEquals(b1, b2))
+            return false;
+        _li.ComputeIntersection(a1, b1, a2, b2);
+        return _li.HasIntersection;
+        //return li.GetIntersection(0);
+    }
 
     
     //возращает false если одна рамка содержится в другой

@@ -39,7 +39,7 @@ public static class BoundRingService
         }
         return new Polygon(shell, holes, factory);
     }
-
+    
     private static LinearRing BoundRingToLinearRing(BoundingRing boundRing)
     {
         var points = new Coordinate[boundRing.PointsCount + 1];

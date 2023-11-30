@@ -92,7 +92,8 @@ public class PartitionBoundRingsCache
                 }
                 else if (BoundRIntersectsChecker.NotIntersectCheck(boundRing.Value, thisRing.Value))
                 {
-                    IntersectOrContainFrames(boundRing, thisRing);
+                    if (IntersectOrContainFrames(boundRing, thisRing))
+                        DetectPartitingZone(boundRing, thisRing);
                 }
                 else
                 {
