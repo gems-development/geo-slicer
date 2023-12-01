@@ -833,7 +833,9 @@ public class BoundingHoleDeleter
                     if (BoundRIntersectsChecker.HasIntersectsBoundRFrame(
                             frame.Value,
                             thisRing.Value.PointUpNode.Elem,
-                            connectedPoint.Elem))
+                            connectedPoint.Elem) || 
+                        BoundRIntersectsChecker.PointInsideBoundRFrame(thisRing.Value.PointUpNode.Elem, frame.Value)|| 
+                        BoundRIntersectsChecker.PointInsideBoundRFrame(connectedPoint.Elem, frame.Value))
                     {
                         var start = frame.Value.PointUpNode;
                         do
