@@ -8,8 +8,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeoSlicer.GeoJsonFileServic
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeoSlicer.Utils", "GeoSlicer.Utils\GeoSlicer.Utils.csproj", "{056E4DDA-2430-47AB-94F1-5ECA4772BECD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeoSlicer.Tests", "GeoSlicer.Tests\GeoSlicer.Tests.csproj", "{90CCDCDD-73B3-4B32-A37E-7D2C4AE6CF54}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeoJson.ConsoleRunner", "GeoJson.ConsoleRunner\GeoJson.ConsoleRunner.csproj", "{8E12E648-19F5-443F-8D41-00990E73CE93}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GeoSlicer.Tests", "GeoSlicer.Tests\GeoSlicer.Tests.csproj", "{1EEACCC1-B778-4BB6-B106-711EAAE67976}"
