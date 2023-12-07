@@ -21,10 +21,6 @@
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
     </ItemGroup>
-    
-    <ItemGroup>
-      <Folder Include="HoleDeletersTests\TestData\" />
-    </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\GeoSlicer\GeoSlicer.csproj" />
