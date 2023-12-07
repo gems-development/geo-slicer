@@ -55,7 +55,6 @@ public class LineIntersector
             if (_lineService.IsLineEquals(canonicalA, canonicalB))
                 return (GetParallelIntersection(a1, a2, b1, b2), null);
             return (IntersectionType.NoIntersection, null);
-
         }
 
         // Есть точка пересечения, проверка на Inner, Corner, TyShaped, Outside
@@ -68,10 +67,15 @@ public class LineIntersector
             return (IntersectionType.Corner, intersectionCoordinate);
         }
 
-        if (_epsilonCoordinateComparator.IsEquals(intersectionCoordinate, a1) ||
-            _epsilonCoordinateComparator.IsEquals(intersectionCoordinate, a2) ||
-            _epsilonCoordinateComparator.IsEquals(intersectionCoordinate, b1) ||
-            _epsilonCoordinateComparator.IsEquals(intersectionCoordinate, b2))
+        if (
+            (_epsilonCoordinateComparator.IsEquals(intersectionCoordinate, a1)
+             || _epsilonCoordinateComparator.IsEquals(intersectionCoordinate, a2))
+            && _lineService.IsCoordinateInSegmentBorders(intersectionCoordinate, b1, b2)
+            ||
+            (_epsilonCoordinateComparator.IsEquals(intersectionCoordinate, b1)
+             || _epsilonCoordinateComparator.IsEquals(intersectionCoordinate, b2))
+            && _lineService.IsCoordinateInSegmentBorders(intersectionCoordinate, a1, a2)
+        )
         {
             return (IntersectionType.TyShaped, intersectionCoordinate);
         }

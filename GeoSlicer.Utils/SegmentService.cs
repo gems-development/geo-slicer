@@ -1,11 +1,15 @@
 ﻿using System;
-using NetTopologySuite.Algorithm;
 using NetTopologySuite.Geometries;
 
 namespace GeoSlicer.Utils;
 
 public static class SegmentService
 {
+    private const double Epsilon = 1E-6;
+    
+    private static  readonly LineService LineService = new LineService(Epsilon);
+    
+
     public static double VectorProduct
     (Coordinate firstVec,
         Coordinate secondVec,
@@ -20,29 +24,17 @@ public static class SegmentService
 
         return product;
     }
-
-    public static bool IsIntersectionOfSegments(
-        Coordinate firstSegmentPointA,
-        Coordinate firstSegmentPointB,
-        Coordinate secondSegmentPointC,
-        Coordinate secondSegmentPointD)
-    {
-        LineIntersector lineIntersector = new RobustLineIntersector();
-        lineIntersector.ComputeIntersection(firstSegmentPointA, firstSegmentPointB, secondSegmentPointC,
-            secondSegmentPointD);
-        return lineIntersector.IsInteriorIntersection();
-    }
+    
 
     public static LinearRing IgnoreInnerPointsOfSegment(LinearRing ring)
     {
         var array = new Coordinate[ring.Count - 1];
         var j = 0;
-        if (!IsIntersectionOfSegments(
-                ring.Coordinates[ring.Count - 2],
-                ring.Coordinates[1],
-                ring.Coordinates[0],
-                ring.Coordinates[1])
-           )
+        if (!LineService.IsCoordinateAtLine(
+                ring.Coordinates[0], 
+                ring.Coordinates[ring.Count - 2], 
+                ring.Coordinates[1]))
+
         {
             array[j] = ring.Coordinates[0];
             j++;
@@ -50,10 +42,9 @@ public static class SegmentService
 
         for (var i = 1; i < ring.Count - 1; i++)
         {
-            if (!IsIntersectionOfSegments(
-                    ring.Coordinates[i - 1],
-                    ring.Coordinates[i + 1],
-                    ring.Coordinates[i],
+            if (!LineService.IsCoordinateAtLine(
+                    ring.Coordinates[i], 
+                    ring.Coordinates[i - 1], 
                     ring.Coordinates[i + 1]))
             {
                 array[j] = ring.Coordinates[i];
@@ -100,6 +91,7 @@ public static class SegmentService
         };
     }
 
+    // todo поработать в каноническом виде
     public static bool InsideTheAngle(
         Coordinate vectorPointA1,
         Coordinate vectorPointA2,
