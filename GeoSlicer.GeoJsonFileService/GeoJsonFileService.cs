@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using NetTopologySuite.IO;
 
 namespace GeoSlicer.GeoJsonFileService;
@@ -14,7 +13,7 @@ public static class GeoJsonFileService
 
     private static readonly string RootName = "geo-slicer";
     
-    private static string? _fullRootName = null;
+    private static string? _fullRootName;
 
     public static void WriteGeometryToFile<T>(T geometry, string path, bool flagOfGlobalPath = false) where T : class
     {
@@ -46,8 +45,8 @@ public static class GeoJsonFileService
     {
         if (_fullRootName is null)
         {
-            DirectoryInfo directoryInfo = new DirectoryInfo(Directory.GetCurrentDirectory())!;
-            while (directoryInfo!.Name != RootName)
+            DirectoryInfo directoryInfo = new DirectoryInfo(Directory.GetCurrentDirectory());
+            while (directoryInfo.Name != RootName)
             {
                 directoryInfo = directoryInfo.Parent!;
             }

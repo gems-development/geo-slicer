@@ -33,25 +33,26 @@ public class SegmentService
     public LinearRing IgnoreInnerPointsOfSegment(LinearRing ring)
     {
         var array = new Coordinate[ring.Count - 1];
+        var coordinates = ring.Coordinates;
         var j = 0;
         if (!_lineService.IsCoordinateAtLine(
-                ring.Coordinates[0],
-                ring.Coordinates[ring.Count - 2],
-                ring.Coordinates[1]))
+                coordinates[0],
+                coordinates[ring.Count - 2],
+                coordinates[1]))
 
         {
-            array[j] = ring.Coordinates[0];
+            array[j] = coordinates[0];
             j++;
         }
 
-        for (var i = 1; i < ring.Count - 1; i++)
+        for (var i = 1; i < coordinates.Length - 1; i++)
         {
             if (!_lineService.IsCoordinateAtLine(
-                    ring.Coordinates[i],
-                    ring.Coordinates[i - 1],
-                    ring.Coordinates[i + 1]))
+                    coordinates[i],
+                    coordinates[i - 1],
+                    coordinates[i + 1]))
             {
-                array[j] = ring.Coordinates[i];
+                array[j] = coordinates[i];
                 j++;
             }
         }

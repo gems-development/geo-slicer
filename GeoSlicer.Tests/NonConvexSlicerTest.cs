@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using GeoSlicer.NonConvexSlicer.Helpers;
 using NetTopologySuite.Geometries;
-using static GeoSlicer.NonConvexSlicer.Helpers.NonConvexSlicerHelper;
 
 namespace GeoSlicer.Tests;
 

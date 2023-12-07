@@ -14,8 +14,6 @@ public class NonConvexSlicerHelper
                                                               IntersectionType.Contains | IntersectionType.Part |
                                                               IntersectionType.Overlay;
 
-    private readonly double _epsilon;
-
     private readonly LineIntersector _lineIntersector;
     private readonly SegmentService _segmentService;
     private readonly TraverseDirection _traverseDirection;
@@ -26,7 +24,6 @@ public class NonConvexSlicerHelper
         SegmentService? segmentService = null,
         TraverseDirection? traverseDirection = null)
     {
-        _epsilon = epsilon;
         _lineIntersector = lineIntersector ?? new(new EpsilonCoordinateComparator(epsilon), epsilon);
         _segmentService = segmentService ?? new SegmentService(epsilon);
         _traverseDirection = traverseDirection ?? new TraverseDirection(_segmentService);
@@ -36,19 +33,20 @@ public class NonConvexSlicerHelper
     {
         var list = new List<CoordinatePCN>();
         var clockwise = _traverseDirection.IsClockwiseBypass(ring);
-        for (var i = 0; i < ring.Coordinates.Length - 1; ++i)
+        var coordinates = ring.Coordinates;
+        for (var i = 0; i < coordinates.Length - 1; ++i)
         {
             if (_segmentService.VectorProduct(
                     new Coordinate(
-                        ring.Coordinates[i].X -
-                        ring.Coordinates[(i - 1 + ring.Coordinates.Length - 1) % (ring.Coordinates.Length - 1)].X,
-                        ring.Coordinates[i].Y -
-                        ring.Coordinates[(i - 1 + ring.Coordinates.Length - 1) % (ring.Coordinates.Length - 1)].Y),
-                    new Coordinate(ring.Coordinates[(i + 1) % (ring.Coordinates.Length - 1)].X - ring.Coordinates[i].X,
-                        ring.Coordinates[(i + 1) % (ring.Coordinates.Length - 1)].Y - ring.Coordinates[i].Y)
+                        coordinates[i].X -
+                        coordinates[(i - 1 + coordinates.Length - 1) % (coordinates.Length - 1)].X,
+                        coordinates[i].Y -
+                        coordinates[(i - 1 + coordinates.Length - 1) % (coordinates.Length - 1)].Y),
+                    new Coordinate(coordinates[(i + 1) % (coordinates.Length - 1)].X - coordinates[i].X,
+                        coordinates[(i + 1) % (coordinates.Length - 1)].Y - coordinates[i].Y)
                 ) >= 0 == clockwise)
             {
-                list.Add(new CoordinatePCN(ring.Coordinates[i].X, ring.Coordinates[i].Y, c: i));
+                list.Add(new CoordinatePCN(coordinates[i].X, coordinates[i].Y, c: i));
             }
         }
 

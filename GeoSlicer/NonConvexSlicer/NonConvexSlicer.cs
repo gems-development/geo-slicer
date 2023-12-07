@@ -5,14 +5,11 @@ using GeoSlicer.NonConvexSlicer.Helpers;
 using GeoSlicer.Utils;
 using NetTopologySuite;
 using NetTopologySuite.Geometries;
-using static GeoSlicer.NonConvexSlicer.Helpers.NonConvexSlicerHelper;
-using static GeoSlicer.Utils.SegmentService;
 
 namespace GeoSlicer.NonConvexSlicer;
 
 public class NonConvexSlicer
 {
-    private readonly double _epsilon;
     private readonly GeometryFactory _gf;
     private readonly SegmentService _segmentService;
     private readonly NonConvexSlicerHelper _helper;
@@ -24,7 +21,6 @@ public class NonConvexSlicer
         NonConvexSlicerHelper? helper = null,
         TraverseDirection? traverseDirection = null)
     {
-        _epsilon = epsilon;
         _gf = gf ?? NtsGeometryServices.Instance.CreateGeometryFactory(4326);
         _segmentService = segmentService ?? new SegmentService(epsilon);
         _helper = helper ?? new NonConvexSlicerHelper(epsilon);
@@ -34,16 +30,16 @@ public class NonConvexSlicer
     private List<LinearRing> SimpleSlice(LinearRing ring, int pozSpecialPoint)
     {
         var listResult = new List<LinearRing>();
-
+        var coordinates = ring.Coordinates;
         var i = (pozSpecialPoint + 1) % (ring.Count - 1);
         var count = 0;
         while (count < ring.Count - 1 - 2)
         {
             var array = new Coordinate[4];
-            array[0] = ring.Coordinates[pozSpecialPoint];
-            array[1] = ring.Coordinates[(i + ring.Count - 1) % (ring.Count - 1)];
-            array[2] = ring.Coordinates[(i + 1 + ring.Count - 1) % (ring.Count - 1)];
-            array[3] = ring.Coordinates[pozSpecialPoint];
+            array[0] = coordinates[pozSpecialPoint];
+            array[1] = coordinates[(i + ring.Count - 1) % (ring.Count - 1)];
+            array[2] = coordinates[(i + 1 + ring.Count - 1) % (ring.Count - 1)];
+            array[3] = coordinates[pozSpecialPoint];
 
             listResult.Add(new LinearRing(array));
             count++;
@@ -57,6 +53,7 @@ public class NonConvexSlicer
     public List<LinearRing> SliceFigureWithMinNumberOfSpecialPoints(LinearRing ring)
     {
         var newRing = _segmentService.IgnoreInnerPointsOfSegment(ring);
+        var newRingCoordinates = newRing.Coordinates;
         var listRingsWithoutSpecialPoints = new List<LinearRing>();
 
         var listSpecialPoints = _helper.GetSpecialPoints(newRing);
@@ -68,22 +65,18 @@ public class NonConvexSlicer
         }
 
         CoordinatePCN firstSpecialPoint = listSpecialPoints[0];
-
-        var coordA = new CoordinatePCN(
-            newRing.Coordinates[(firstSpecialPoint.C - 1 + newRing.Count - 1) % (newRing.Count - 1)].X,
-            newRing.Coordinates[(firstSpecialPoint.C - 1 + newRing.Count - 1) % (newRing.Count - 1)].Y,
-            c: (firstSpecialPoint.C - 1 + newRing.Count - 1) % (newRing.Count - 1));
+        
         var coordB = new CoordinatePCN(
-            newRing.Coordinates[firstSpecialPoint.C % (newRing.Count - 1)].X,
-            newRing.Coordinates[firstSpecialPoint.C % (newRing.Count - 1)].Y,
-            c: firstSpecialPoint.C % (newRing.Count - 1));
+            newRingCoordinates[firstSpecialPoint.C % (newRingCoordinates.Length - 1)].X,
+            newRingCoordinates[firstSpecialPoint.C % (newRingCoordinates.Length - 1)].Y,
+            c: firstSpecialPoint.C % (newRingCoordinates.Length - 1));
 
         var coordC = new CoordinatePCN(
-            newRing.Coordinates[(firstSpecialPoint.C + 1) % (newRing.Count - 1)].X,
-            newRing.Coordinates[(firstSpecialPoint.C + 1) % (newRing.Count - 1)].Y,
-            c: (firstSpecialPoint.C + 1) % (newRing.Count - 1));
+            newRingCoordinates[(firstSpecialPoint.C + 1) % (newRingCoordinates.Length - 1)].X,
+            newRingCoordinates[(firstSpecialPoint.C + 1) % (newRingCoordinates.Length - 1)].Y,
+            c: (firstSpecialPoint.C + 1) % (newRingCoordinates.Length - 1));
 
-        var pozNextPoint = (firstSpecialPoint.C + 2) % (newRing.Count - 1);
+        var pozNextPoint = (firstSpecialPoint.C + 2) % (newRingCoordinates.Length - 1);
 
         var flag = true;
         var k = 0;
@@ -91,8 +84,8 @@ public class NonConvexSlicer
         while (flag)
         {
             var coordM = new CoordinatePCN(
-                newRing.Coordinates[pozNextPoint].X,
-                newRing.Coordinates[pozNextPoint].Y,
+                newRingCoordinates[pozNextPoint].X,
+                newRingCoordinates[pozNextPoint].Y,
                 c: pozNextPoint);
 
             if (_segmentService.VectorProduct(
@@ -106,16 +99,16 @@ public class NonConvexSlicer
             {
                 //NextPoint не является особой точкой в новом кольце
                 //и не лежит на одной прямой со старой особой точкой и предыдущей для старой особой
-                pozNextPoint = (pozNextPoint - 1 + newRing.Count - 1) % (newRing.Count - 1);
+                pozNextPoint = (pozNextPoint - 1 + newRingCoordinates.Length - 1) % (newRingCoordinates.Length - 1);
                 coordM = new CoordinatePCN(
-                    newRing.Coordinates[pozNextPoint].X,
-                    newRing.Coordinates[pozNextPoint].Y,
+                    newRingCoordinates[pozNextPoint].X,
+                    newRingCoordinates[pozNextPoint].Y,
                     c: pozNextPoint);
                 var listFirst = new List<Coordinate>();
 
-                for (var i = coordB.C; i != coordM.C; i = (i + 1) % (newRing.Count - 1))
+                for (var i = coordB.C; i != coordM.C; i = (i + 1) % (newRingCoordinates.Length - 1))
                 {
-                    listFirst.Add(newRing[i]);
+                    listFirst.Add(newRingCoordinates[i]);
                 }
 
                 listFirst.Add(coordM);
@@ -123,9 +116,9 @@ public class NonConvexSlicer
 
                 var listSecond = new List<Coordinate>();
 
-                for (var i = coordM.C; i != coordB.C; i = (i + 1) % (newRing.Count - 1))
+                for (var i = coordM.C; i != coordB.C; i = (i + 1) % (newRingCoordinates.Length - 1))
                 {
-                    listSecond.Add(newRing[i]);
+                    listSecond.Add(newRingCoordinates[i]);
                 }
 
                 listSecond.Add(coordB);
@@ -145,11 +138,11 @@ public class NonConvexSlicer
             }
             else
             {
-                pozNextPoint = (pozNextPoint + 1) % (newRing.Count - 1);
+                pozNextPoint = (pozNextPoint + 1) % (newRingCoordinates.Length - 1);
 
                 k++;
 
-                if (k == newRing.Count - 1)
+                if (k == newRingCoordinates.Length - 1)
                 {
                     return SimpleSlice(newRing, firstSpecialPoint.C);
                 }

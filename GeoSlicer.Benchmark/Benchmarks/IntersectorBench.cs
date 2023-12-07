@@ -10,9 +10,6 @@ namespace GeoSlicer.Benchmark.Benchmarks;
 [MemoryDiagnoser(false)]
 public class IntersectorBench
 {
-    private static readonly GeometryFactory Gf =
-        NetTopologySuite.NtsGeometryServices.Instance.CreateGeometryFactory(4326);
-
     private readonly RobustLineIntersector _robustLineIntersector = new RobustLineIntersector();
     private readonly LineIntersector _lineIntersector = new LineIntersector(new EpsilonCoordinateComparator());
 

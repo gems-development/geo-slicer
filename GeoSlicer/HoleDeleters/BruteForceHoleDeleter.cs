@@ -94,7 +94,7 @@ public class BruteForceHoleDeleter
                     break;
                 }
 
-                innerRingNumberNode = innerRingNumberNode!.Next;
+                innerRingNumberNode = innerRingNumberNode.Next;
                 // Если к этой внешней точке был присоединен объект, то ссылка будет null и мы перейдем к след точке
             } while (innerRingNumberNode is not null);
         }
@@ -124,7 +124,7 @@ public class BruteForceHoleDeleter
         LinkedList<(int from, int ring, int to)> list = table[tableStringNum];
         Coordinate[] coordinates = ring.Coordinates;
 
-        LinkedListNode<(int from, int ring, int to)>? node = list?.First;
+        LinkedListNode<(int from, int ring, int to)>? node = list.First;
         int from = (node is null) ? -1 : node.Value.from;
         for (int i = 0; i < coordinates.Length; i++)
         {
@@ -133,7 +133,7 @@ public class BruteForceHoleDeleter
             if (n == from || n == 0 && from == coordinates.Length - 1)
             {
                 FillResultCoordinates(result, holes[node!.Value.ring], table,
-                    node!.Value.ring + 1, node!.Value.to, holes);
+                    node.Value.ring + 1, node.Value.to, holes);
                 result.Add(coordinates[n]);
                 node = node.Next;
                 from = (node is null) ? -1 : node.Value.from;
