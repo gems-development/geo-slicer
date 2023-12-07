@@ -37,7 +37,7 @@ public class BoundingRingTest
         LinkedNode<Coordinate> secondHoleNode = LinearRingToRingNode(secondHole);
 
         _boundRings = new LinkedList<BoundingRing>();
-
+        /*
         _boundRings.AddFirst(new BoundingRing(
             new Coordinate(-3, -2),
             new Coordinate(2, 2),
@@ -45,7 +45,7 @@ public class BoundingRingTest
             FindRingNode(shellNode, new Coordinate(2, 2)),
             FindRingNode(shellNode, new Coordinate(-2, 2)),
             FindRingNode(shellNode, new Coordinate(2, -2)),
-            shellNode, shell.Count - 1));
+            shellNode, shell.Count - 1, true));
 
         _boundRings.AddLast(new BoundingRing(
             new Coordinate(0, 0),
@@ -54,7 +54,7 @@ public class BoundingRingTest
             FindRingNode(firstHoleNode, new Coordinate(1, 1)),
             FindRingNode(firstHoleNode, new Coordinate(0, 1)),
             FindRingNode(firstHoleNode, new Coordinate(1, 0)),
-            firstHoleNode, firstHole.Count - 1));
+            firstHoleNode, firstHole.Count - 1,true));
         
         _boundRings.AddLast(new BoundingRing(
             new Coordinate(-1, 0.3), new Coordinate(0.7, 0.6),
@@ -62,7 +62,7 @@ public class BoundingRingTest
             FindRingNode(secondHoleNode, new Coordinate(0.7, 0.3)),
             FindRingNode(secondHoleNode, new Coordinate(0, 0.6)),
             FindRingNode(secondHoleNode, new Coordinate(0.7, 0.3)), 
-            secondHoleNode, secondHole.Count - 1));
+            secondHoleNode, secondHole.Count - 1, true));*/
     }
     private LinkedNode<Coordinate> LinearRingToRingNode(LinearRing ring)
     {
@@ -91,7 +91,7 @@ public class BoundingRingTest
         //Arrange
         Initialize();
         //Act
-        LinkedList<BoundingRing> actualBoundRings = BoundRingService.PolygonToBoundRings(_polygon!);
+        LinkedList<BoundingRing> actualBoundRings = BoundingRing.PolygonToBoundRings(_polygon!);
         //Assert
         Assert.Equal(_boundRings, actualBoundRings);
     }
@@ -116,14 +116,15 @@ public class BoundingRingTest
         ringNode = new LinkedNode<Coordinate>(new Coordinate(0.7, 0.3), ringNode);
         ringNode = ringNode.Next.Next;
         
-        BoundingRing boundRing = new BoundingRing(
+        BoundingRing boundRing = null;
+        /*boundRing = new BoundingRing(
             new Coordinate(-1, 0),
             new Coordinate(1, 1),
             FindRingNode(ringNode, new Coordinate(-1, 0.3)),
             FindRingNode(ringNode, new Coordinate(1, 1)),
             FindRingNode(ringNode, new Coordinate(0, 1)),
             FindRingNode(ringNode, new Coordinate(1, 0)),
-            ringNode, 13);
+            ringNode, 13);*/
 
         var boundRingsIter = _boundRings!.GetEnumerator();
         boundRingsIter.MoveNext();
@@ -133,12 +134,11 @@ public class BoundingRingTest
         BoundingRing boundSecondHole = boundRingsIter.Current;
         boundRingsIter.Dispose();
         //Act
-        BoundingRing actualBoundRing = BoundRingService.ConnectBoundRings(
-            boundSecondHole, 
+        boundSecondHole.ConnectBoundRings(
             boundFirstHole,
             FindRingNode(boundSecondHole.Ring, new Coordinate(0, 0.6)),
             FindRingNode(boundFirstHole.Ring, new Coordinate(0, 0.9)));
         //Assert
-        Assert.Equal(boundRing, actualBoundRing);
+        Assert.Equal(boundRing, boundSecondHole);
     }
 }

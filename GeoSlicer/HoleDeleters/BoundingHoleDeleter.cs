@@ -11,10 +11,10 @@ public class BoundingHoleDeleter
 {
     public static /*LinearRing*/ Polygon DeleteHoles(Polygon polygon)
     {
-        LinkedList<BoundingRing> list = BoundRingService.PolygonToBoundRings(polygon);
+        LinkedList<BoundingRing> list = BoundingRing.PolygonToBoundRings(polygon);
         new BoundingHoleDeleter().DeleteHoles(list, new PartitionBoundRingsCache());
         //return BoundRingService.BoundRingsToPolygon(list).Shell;
-        return BoundRingService.BoundRingsToPolygon(list);
+        return BoundingRing.BoundRingsToPolygon(list);
     }
     
     private void DeleteHoles(LinkedList<BoundingRing> listOfHoles, PartitionBoundRingsCache cache)
@@ -22,9 +22,10 @@ public class BoundingHoleDeleter
         var thisRing = listOfHoles.First;
         var pointMinShell = thisRing!.Value.PointMin;
         var pointMaxShell = thisRing.Value.PointMax;
-        //int i = 0;
 
-        int count = listOfHoles.Count;
+
+        //int count = listOfHoles.Count;
+        
         while (listOfHoles.First!.Next is not null)
         {
             /*i++;
@@ -420,7 +421,7 @@ public class BoundingHoleDeleter
         Coordinate oldPointMax = thisRing.Value.PointMax;
         if (flagAbcCanConnect)
         {
-            thisRing.Value = BoundRingService.ConnectBoundRings(thisRing.Value,
+            thisRing.Value.ConnectBoundRings(
                 cache.NearABC!.Value.boundRing.Value,
                 thisRing.Value.PointUpNode,
                 cache.NearABC.Value.boundRing.Value.PointDownNode);
@@ -430,7 +431,7 @@ public class BoundingHoleDeleter
 
         if (flagCdeCanConnect && oldPointMin.Equals(thisRing.Value.PointMin))
         {
-            thisRing.Value = BoundRingService.ConnectBoundRings(thisRing.Value,
+            thisRing.Value.ConnectBoundRings(
                 cache.NearCDE!.Value.boundRing.Value,
                 thisRing.Value.PointLeftNode,
                 cache.NearCDE.Value.boundRing.Value.PointRightNode);
@@ -440,7 +441,7 @@ public class BoundingHoleDeleter
 
         if (flagEfgCanConnect && oldPointMin.Equals(thisRing.Value.PointMin))
         {
-            thisRing.Value = BoundRingService.ConnectBoundRings(thisRing.Value,
+            thisRing.Value.ConnectBoundRings(
                 cache.NearEFG!.Value.boundRing.Value,
                 thisRing.Value.PointDownNode,
                 cache.NearEFG.Value.boundRing.Value.PointUpNode);
@@ -449,7 +450,7 @@ public class BoundingHoleDeleter
 
         if (flagAhgCanConnect && oldPointMax.Equals(thisRing.Value.PointMax))
         {
-            thisRing.Value = BoundRingService.ConnectBoundRings(thisRing.Value,
+            thisRing.Value.ConnectBoundRings(
                 cache.NearAHG!.Value.boundRing.Value,
                 thisRing.Value.PointRightNode,
                 cache.NearAHG.Value.boundRing.Value.PointLeftNode);
@@ -577,8 +578,7 @@ public class BoundingHoleDeleter
 
                             if (flagFirstCycle && flagSecondCycle)
                             {
-                                BoundRingService.ConnectBoundRings(
-                                    thisRing.Value,
+                                thisRing.Value.ConnectBoundRings(
                                     currentFrame.Value,
                                     startThisRing,
                                     startCurrentFrame);
@@ -743,7 +743,7 @@ public class BoundingHoleDeleter
             
         } while (flag);
 
-        BoundRingService.ConnectBoundRings(thisRing.Value, correctNode.Value,
+        thisRing.Value.ConnectBoundRings(correctNode.Value,
             connectCoordThisR, coord);
         listOfHoles.Remove(correctNode);
         return true;
@@ -944,7 +944,7 @@ public class BoundingHoleDeleter
             } while (flagThirdCycle);
         } while (flag);
         
-        BoundRingService.ConnectBoundRings(thisRing.Value,
+        thisRing.Value.ConnectBoundRings(
             connectedFrame.Value,
             thisRing.Value.PointUpNode,
             connectedPoint);

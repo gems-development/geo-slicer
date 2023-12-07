@@ -8,6 +8,8 @@ public class LinkedNode<T>
     public T Elem { get; set; }
     public LinkedNode<T> Next { get; set; }
     public LinkedNode<T> Previous { get; set; }
+    public LinkedNode<T>? Next2 { get; set; }
+    public LinkedNode<T>? Previous2 { get; set; }
 
     public LinkedNode(T elem)
     {
