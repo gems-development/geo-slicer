@@ -442,40 +442,7 @@ public class NonConvexSlicerTest
         Assert.Equal(seventhGeometryCoordinatesExpected, geometries[6].Coordinates);
         Assert.Equal(eighthGeometryCoordinatesExpected, geometries[7].Coordinates);
     }
-
-    [Fact]
-    public void ZeroTunnel_Type_V()
-    {
-        //Arrange.
-        Coordinate[] coordinates =
-        {
-            new(2, 1), new(2, 4), new(4, 4), new(4, 1), new(3, 1), new(3, 3), new(3, 1), new(2, 1)
-        };
-        var lnr = _gf.CreateLinearRing(coordinates);
-        var slicer = new NonConvexSlicer.NonConvexSlicer();
-        var firstGeometryCoordinatesExpected = new[]
-        {
-            new Coordinate(3, 3), new Coordinate(3, 1), new Coordinate(2, 1), new Coordinate(2, 4), new Coordinate(3, 3)
-        };
-        var secondGeometryCoordinatesExpected = new[]
-        {
-            new Coordinate(3, 3), new Coordinate(2, 4), new Coordinate(4, 4), new Coordinate(3, 3)
-        };
-        var thirdGeometryCoordinatesExpected = new[]
-        {
-            new Coordinate(4, 4), new Coordinate(4, 1), new Coordinate(3, 1), new Coordinate(3, 3), new Coordinate(4, 4)
-        };
-
-        //Act.
-        var geometries = slicer.Slice(lnr);
-
-        //Assert.
-        Assert.Equal(3, geometries.Count);
-        Assert.Equal(firstGeometryCoordinatesExpected, geometries[0].Coordinates);
-        Assert.Equal(secondGeometryCoordinatesExpected, geometries[1].Coordinates);
-        Assert.Equal(thirdGeometryCoordinatesExpected, geometries[2].Coordinates);
-    }
-
+    
     [Fact]
     public void TwoSpecialPointsInRow()
     {

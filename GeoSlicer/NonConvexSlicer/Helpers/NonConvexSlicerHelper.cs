@@ -1,18 +1,30 @@
 ﻿using System.Collections.Generic;
 using GeoSlicer.Utils;
+using GeoSlicer.Utils.Intersectors;
+using GeoSlicer.Utils.Intersectors.CoordinateComparators;
 using NetTopologySuite.Geometries;
 using static GeoSlicer.Utils.SegmentService;
+using LineIntersector = GeoSlicer.Utils.Intersectors.LineIntersector;
 
 namespace GeoSlicer.NonConvexSlicer.Helpers;
 
 public static class NonConvexSlicerHelper
 {
+    private const IntersectionType SuitableIntersectionType = IntersectionType.Inner | IntersectionType.TyShaped |
+                                                              IntersectionType.Contains | IntersectionType.Part |
+                                                              IntersectionType.Overlay;
+
+    private const double Epsilon = 1E-6;
+
+    private static readonly LineIntersector LineIntersector =
+        new LineIntersector(new EpsilonCoordinateComparator(Epsilon), Epsilon);
+
     public static List<CoordinatePCN> GetSpecialPoints(LinearRing ring)
     {
         var list = new List<CoordinatePCN>();
+        var clockwise = TraverseDirection.IsClockwiseBypass(ring);
         for (var i = 0; i < ring.Coordinates.Length - 1; ++i)
         {
-            var clockwise = TraverseDirection.IsClockwiseBypass(ring);
             if (VectorProduct(
                     new Coordinate(
                         ring.Coordinates[i].X -
@@ -29,7 +41,7 @@ public static class NonConvexSlicerHelper
 
         return list;
     }
-    
+
     private static bool FirstPointCanSeeSecond(CoordinatePCN[] ring, CoordinatePCN pointA, CoordinatePCN pointB)
     {
         return pointA.Equals2D(pointB) ||
@@ -53,7 +65,8 @@ public static class NonConvexSlicerHelper
         {
             var firstCoord = ring[index];
             var secondCoord = ring[firstCoord.NL];
-            if (IsIntersectionOfSegments(coordCurrent, coordNext, firstCoord, secondCoord))
+            if (LineIntersector.CheckIntersection(SuitableIntersectionType,
+                    coordCurrent, coordNext, firstCoord, secondCoord))
             {
                 return true;
             }
@@ -61,6 +74,7 @@ public static class NonConvexSlicerHelper
             index = secondCoord.C;
         }
 
-        return IsIntersectionOfSegments(coordCurrent, coordNext, ring[index], coordCurrent);
+        return LineIntersector.CheckIntersection(SuitableIntersectionType,
+            coordCurrent, coordNext, ring[index], coordCurrent);
     }
 }
