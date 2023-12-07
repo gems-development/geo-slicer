@@ -23,7 +23,7 @@ public class NonConvexSlicer
     {
         _gf = gf ?? NtsGeometryServices.Instance.CreateGeometryFactory(4326);
         _segmentService = segmentService ?? new SegmentService(epsilon);
-        _helper = helper ?? new NonConvexSlicerHelper(epsilon);
+        _helper = helper ?? new NonConvexSlicerHelper(epsilon, segmentService: _segmentService);
         _traverseDirection = traverseDirection ?? new TraverseDirection(_segmentService);
     }
 
@@ -192,6 +192,7 @@ public class NonConvexSlicer
              currentSpecialPointIndex < listSpecialPoints.Count;
              currentSpecialPointIndex += wasIntersectionInIteration ? 0 : 1)
         {
+            Console.WriteLine(currentSpecialPointIndex + " / " + listSpecialPoints.Count + ". (" + (listSpecialPoints.Count - currentSpecialPointIndex) + ")");
             if (currentSpecialPointIndex == endSpecialPointIndex && endSpecialPointIndex != listSpecialPoints.Count)
             {
                 i = 0;

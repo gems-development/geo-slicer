@@ -47,8 +47,9 @@ public class LineService
 
     public bool IsLineEquals((double a, double b, double c) line1, (double a, double b, double c) line2)
     {
-        return Math.Abs(line1.a * line2.b - line1.b * line2.a) <= _epsilon
+        bool res = Math.Abs(line1.a * line2.b - line1.b * line2.a) <= _epsilon
                && Math.Abs(line1.a * line2.c - line1.c * line2.a) <= _epsilon
                && Math.Abs(line1.b * line2.c - line1.c * line2.b) <= _epsilon;
+        return res;
     }
 }

@@ -35,7 +35,7 @@ public class SegmentService
         var array = new Coordinate[ring.Count - 1];
         var coordinates = ring.Coordinates;
         var j = 0;
-        if (!_lineService.IsCoordinateAtLine(
+        if (!_lineService.IsCoordinateInSegment(
                 coordinates[0],
                 coordinates[ring.Count - 2],
                 coordinates[1]))
