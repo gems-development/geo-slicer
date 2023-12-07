@@ -3,36 +3,40 @@ using NetTopologySuite.Geometries;
 
 namespace GeoSlicer.Utils;
 
-public static class SegmentService
+public class SegmentService
 {
-    private const double Epsilon = 1E-6;
-    
-    private static  readonly LineService LineService = new LineService(Epsilon);
-    
+    private readonly double _epsilon;
 
-    public static double VectorProduct
+    private readonly LineService _lineService;
+
+    public SegmentService(double epsilon = 1E-5, LineService? lineService = null)
+    {
+        _epsilon = epsilon;
+        _lineService = lineService ?? new LineService(epsilon);
+    }
+
+    public double VectorProduct
     (Coordinate firstVec,
-        Coordinate secondVec,
-        double epsilon = 1e-9)
+        Coordinate secondVec)
     {
         var product = firstVec.X * secondVec.Y - secondVec.X * firstVec.Y;
 
-        if (Math.Abs(product) < epsilon)
+        if (Math.Abs(product) < _epsilon)
         {
             return 0;
         }
 
         return product;
     }
-    
 
-    public static LinearRing IgnoreInnerPointsOfSegment(LinearRing ring)
+
+    public LinearRing IgnoreInnerPointsOfSegment(LinearRing ring)
     {
         var array = new Coordinate[ring.Count - 1];
         var j = 0;
-        if (!LineService.IsCoordinateAtLine(
-                ring.Coordinates[0], 
-                ring.Coordinates[ring.Count - 2], 
+        if (!_lineService.IsCoordinateAtLine(
+                ring.Coordinates[0],
+                ring.Coordinates[ring.Count - 2],
                 ring.Coordinates[1]))
 
         {
@@ -42,9 +46,9 @@ public static class SegmentService
 
         for (var i = 1; i < ring.Count - 1; i++)
         {
-            if (!LineService.IsCoordinateAtLine(
-                    ring.Coordinates[i], 
-                    ring.Coordinates[i - 1], 
+            if (!_lineService.IsCoordinateAtLine(
+                    ring.Coordinates[i],
+                    ring.Coordinates[i - 1],
                     ring.Coordinates[i + 1]))
             {
                 array[j] = ring.Coordinates[i];
@@ -105,14 +109,14 @@ public static class SegmentService
         if (phiB1 == null) return true;
         const int sign = -1;
         var rotatedVectorAx = (vectorPointA2.X - vectorPointA1.X) * Math.Cos(sign * (double)phiB1) -
-                                    (vectorPointA2.Y - vectorPointA1.Y) * Math.Sin(sign * (double)phiB1);
+                              (vectorPointA2.Y - vectorPointA1.Y) * Math.Sin(sign * (double)phiB1);
         var rotatedVectorAy = (vectorPointA2.X - vectorPointA1.X) * Math.Sin(sign * (double)phiB1) +
-                                    (vectorPointA2.Y - vectorPointA1.Y) * Math.Cos(sign * (double)phiB1);
+                              (vectorPointA2.Y - vectorPointA1.Y) * Math.Cos(sign * (double)phiB1);
         var phiA = CalculatePhiFromZeroTo2Pi(rotatedVectorAx, rotatedVectorAy);
         var rotatedVectorB2X = (anglePointB1.X - anglePointB2.X) * Math.Cos(sign * (double)phiB1) -
-                                     (anglePointB1.Y - anglePointB2.Y) * Math.Sin(sign * (double)phiB1);
+                               (anglePointB1.Y - anglePointB2.Y) * Math.Sin(sign * (double)phiB1);
         var rotatedVectorB2Y = (anglePointB1.X - anglePointB2.X) * Math.Sin(sign * (double)phiB1) +
-                                     (anglePointB1.Y - anglePointB2.Y) * Math.Cos(sign * (double)phiB1);
+                               (anglePointB1.Y - anglePointB2.Y) * Math.Cos(sign * (double)phiB1);
         var phiB2 = CalculatePhiFromZeroTo2Pi(rotatedVectorB2X, rotatedVectorB2Y);
         return phiA < phiB2;
     }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using GeoSlicer.NonConvexSlicer.Helpers;
 using NetTopologySuite.Geometries;
 using static GeoSlicer.NonConvexSlicer.Helpers.NonConvexSlicerHelper;
 
@@ -177,10 +178,11 @@ public class NonConvexSlicerTest
 
         Assert.False(partsSet.Any());
 
+        NonConvexSlicerHelper helper = new NonConvexSlicerHelper();
         //Проверка отсутствия особых точек в получившихся кольцах
         foreach (var ring in geometries)
         {
-            Assert.True(!GetSpecialPoints(ring).Any());
+            Assert.True(!helper.GetSpecialPoints(ring).Any());
         }
     }
 

@@ -6,6 +6,7 @@ namespace GeoSlicer.Tests;
 
 public class TraverseDirectionTests
 {
+    private TraverseDirection _traverseDirection = new TraverseDirection(new SegmentService());
     [Fact]
     public void IsClockwiseBypassTriangleTest()
     {
@@ -14,7 +15,7 @@ public class TraverseDirectionTests
 
         LinearRing ring = new LinearRing(coordinates);
 
-        Assert.True(TraverseDirection.IsClockwiseBypass(ring));
+        Assert.True(_traverseDirection.IsClockwiseBypass(ring));
     }
 
     [Fact]
@@ -25,7 +26,7 @@ public class TraverseDirectionTests
 
         LinearRing ring = new LinearRing(coordinates);
 
-        Assert.False(TraverseDirection.IsClockwiseBypass(ring));
+        Assert.False(_traverseDirection.IsClockwiseBypass(ring));
     }
 
     [Fact]
@@ -37,7 +38,7 @@ public class TraverseDirectionTests
 
         LinearRing ring = new LinearRing(coordinates);
 
-        Assert.True(TraverseDirection.IsClockwiseBypass(ring));
+        Assert.True(_traverseDirection.IsClockwiseBypass(ring));
     }
 
     [Fact]
@@ -49,7 +50,7 @@ public class TraverseDirectionTests
 
         LinearRing ring = new LinearRing(coordinates);
 
-        Assert.False(TraverseDirection.IsClockwiseBypass(ring));
+        Assert.False(_traverseDirection.IsClockwiseBypass(ring));
     }
 
     [Fact]
