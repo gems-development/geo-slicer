@@ -13,7 +13,7 @@ public class IntersectorBench
     private readonly RobustLineIntersector _robustLineIntersector = new RobustLineIntersector();
     private readonly LineIntersector _lineIntersector = new LineIntersector(new EpsilonCoordinateComparator());
 
-    private readonly Coordinate[] _coordinates = GeoJsonFileService.GeoJsonFileService.ReadGeometryFromFile<LineString>("GeoSlicer.Benchmark\\BenchData\\maloeOzeroLinearRing.geojson").Coordinates;
+    private readonly Coordinate[] _coordinates = GeoJsonFileService.GeoJsonFileService.ReadGeometryFromFile<LineString>("TestFiles\\maloeOzeroLinearRing.geojson").Coordinates;
 
     [Benchmark]
     public void TestRobust()
