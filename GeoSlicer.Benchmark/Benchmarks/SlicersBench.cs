@@ -8,9 +8,6 @@ namespace GeoSlicer.Benchmark.Benchmarks;
 [MemoryDiagnoser(false)]
 public class SlicersBench
 {
-    private static readonly GeometryFactory Gf =
-        NetTopologySuite.NtsGeometryServices.Instance.CreateGeometryFactory(4326);
-
     private static readonly LinearRing Ring = Generators.GenerateConvexLinearRing(40);
 
     [Benchmark]
