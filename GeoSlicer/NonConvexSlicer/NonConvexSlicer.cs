@@ -281,7 +281,7 @@ public class NonConvexSlicer
                 }
             }
 
-            if (Math.Abs(coordNext.C - coordCurrent.C) + 1 != 2)
+            if (coordNext.C != coordCurrent.NL)
             {
                 var currentLinearRingCoords = new List<Coordinate>();
                 for (var j = coordCurrent.C; j != (coordCurrent.C == coordNext.C ? coordCurrent.P : coordNext.C);)
