@@ -42,7 +42,10 @@ public class LineService
             return coordinate.Y > Math.Min(first.Y, second.Y) && coordinate.Y < Math.Max(first.Y, second.Y);
         }
 
-        return coordinate.X > Math.Min(first.X, second.X) && coordinate.X < Math.Max(first.X, second.X);
+        return coordinate.Y > Math.Min(first.Y, second.Y)
+               && coordinate.Y < Math.Max(first.Y, second.Y) 
+               && coordinate.X > Math.Min(first.X, second.X)
+               && coordinate.X < Math.Max(first.X, second.X);
     }
 
     public bool IsLineEquals((double a, double b, double c) line1, (double a, double b, double c) line2)
