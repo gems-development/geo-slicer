@@ -142,6 +142,13 @@ public class LineIntersector
         return IntersectionType.Overlay;
     }
 
+    public Coordinate? GetIntersectionCoordinate(
+        Coordinate a1, Coordinate a2,
+        Coordinate b1, Coordinate b2)
+    {
+        return GetIntersectionCoordinate(LineService.ToCanonical(a1, a2), LineService.ToCanonical(b1, b2));
+    }
+
     private Coordinate? GetIntersectionCoordinate(
         (double a, double b, double c) line1,
         (double a, double b, double c) line2)
