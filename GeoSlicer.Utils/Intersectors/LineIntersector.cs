@@ -139,7 +139,15 @@ public class LineIntersector
             return IntersectionType.Contains;
         }
 
-        return IntersectionType.Overlay;
+        //Проверка на Overlay
+        if ((_lineService.IsCoordinateInSegmentBorders(b1, a1, a2)
+             || _lineService.IsCoordinateInSegmentBorders(b2, a1, a2)) 
+            && (_lineService.IsCoordinateInSegmentBorders(a1, b1, b2)
+                || _lineService.IsCoordinateInSegmentBorders(a2, b1, b2)))
+        {
+            return IntersectionType.Overlay;
+        }
+        return IntersectionType.Outside;
     }
 
     public Coordinate? GetIntersectionCoordinate(
