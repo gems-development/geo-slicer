@@ -13,6 +13,12 @@ public class LineService
         _epsilon = epsilon;
     }
 
+    public double VectorProduct
+    (Coordinate firstVec, Coordinate secondVec)
+    {
+        double product = firstVec.X * secondVec.Y - secondVec.X * firstVec.Y;
+        return product;
+    }
 
     public static (double a, double b, double c) ToCanonical(Coordinate first, Coordinate second)
     {
