@@ -15,19 +15,7 @@ public class SegmentService
         _lineService = lineService ?? new LineService(epsilon);
     }
 
-    public double VectorProduct
-    (Coordinate firstVec,
-        Coordinate secondVec)
-    {
-        var product = firstVec.X * secondVec.Y - secondVec.X * firstVec.Y;
 
-        if (Math.Abs(product) < _epsilon)
-        {
-            return 0;
-        }
-
-        return product;
-    }
 
 
     public LinearRing IgnoreInnerPointsOfSegment(LinearRing ring)
