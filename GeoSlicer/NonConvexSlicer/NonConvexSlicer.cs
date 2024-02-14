@@ -23,7 +23,7 @@ public class NonConvexSlicer
     {
         _gf = gf ?? NtsGeometryServices.Instance.CreateGeometryFactory(4326);
         _segmentService = segmentService ?? new SegmentService(epsilon);
-        _helper = helper ?? new NonConvexSlicerHelper(epsilon);
+        _helper = helper ?? new NonConvexSlicerHelper(epsilon, segmentService: _segmentService);
         _traverseDirection = traverseDirection ?? new TraverseDirection(_segmentService);
     }
 
@@ -216,7 +216,6 @@ public class NonConvexSlicer
                 (currentSpecialPointIndex + 1 - beginSpecialPointIndex) %
                 (endSpecialPointIndex - beginSpecialPointIndex) + beginSpecialPointIndex].C];
 
-
             wasIntersectionInIteration = false;
             if (!_helper.CanSeeEachOther(ringCoords, coordCurrent, coordNext) ||
                 _helper.HasIntersection(ringCoords, coordCurrent, coordNext))
@@ -232,7 +231,6 @@ public class NonConvexSlicer
                 wasIntersectionInIteration = true;
                 coordNext = ringCoords[nextIndex];
             }
-
             if (coordPrev.C == listSpecialPoints[beginSpecialPointIndex].C &&
                 coordCurrent.C != listSpecialPoints[beginSpecialPointIndex].C)
             {
@@ -242,23 +240,6 @@ public class NonConvexSlicer
             if (coordNext.C == listSpecialPoints[beginSpecialPointIndex].C)
             {
                 beforeFirstIndex = coordCurrent.C;
-                //Добавляем начальную точку, если она особая в получившемся кольце и не является единственной в нём
-                //При этом кольцо не двуугольник
-                if (coordNext.C != afterFirstIndex &&
-                    coordNext.C != beforeFirstIndex &&
-                    afterFirstIndex != beforeFirstIndex &&
-                    _segmentService.VectorProduct(
-                        new Coordinate(
-                            ringCoords[coordNext.C].X - ringCoords[beforeFirstIndex].X,
-                            ringCoords[coordNext.C].Y - ringCoords[beforeFirstIndex].Y),
-                        new Coordinate(
-                            ringCoords[afterFirstIndex].X - ringCoords[coordNext.C].X,
-                            ringCoords[afterFirstIndex].Y - ringCoords[coordNext.C].Y)
-                    ) >= 0)
-                {
-                    listSpecialPoints.Add(coordNext);
-                    listSpecialPoints.Add(coordNext);
-                }
             }
 
             if (currentSpecialPointIndex >= beginSpecialPointIndex + 1 &&
@@ -280,7 +261,27 @@ public class NonConvexSlicer
                 }
             }
 
-            if (Math.Abs(coordNext.C - coordCurrent.C) + 1 != 2)
+            if (coordNext.C == listSpecialPoints[beginSpecialPointIndex].C)
+            {
+                //Добавляем начальную точку, если она особая в получившемся кольце и не является единственной в нём
+                //При этом кольцо не двуугольник
+                if (coordNext.C != afterFirstIndex &&
+                    coordNext.C != beforeFirstIndex &&
+                    afterFirstIndex != beforeFirstIndex &&
+                    _segmentService.VectorProduct(
+                        new Coordinate(
+                            ringCoords[coordNext.C].X - ringCoords[beforeFirstIndex].X,
+                            ringCoords[coordNext.C].Y - ringCoords[beforeFirstIndex].Y),
+                        new Coordinate(
+                            ringCoords[afterFirstIndex].X - ringCoords[coordNext.C].X,
+                            ringCoords[afterFirstIndex].Y - ringCoords[coordNext.C].Y)
+                    ) >= 0)
+                {
+                    listSpecialPoints.Add(coordNext);
+                }
+            }
+
+            if (coordNext.C != coordCurrent.NL)
             {
                 var currentLinearRingCoords = new List<Coordinate>();
                 for (var j = coordCurrent.C; j != (coordCurrent.C == coordNext.C ? coordCurrent.P : coordNext.C);)
