@@ -1,19 +1,27 @@
 ﻿using System;
-using NetTopologySuite.Algorithm;
 using NetTopologySuite.Geometries;
 
 namespace GeoSlicer.Utils;
 
-public static class SegmentService
+public class SegmentService
 {
-    public static double VectorProduct
+    private readonly double _epsilon;
+
+    private readonly LineService _lineService;
+
+    public SegmentService(double epsilon = 1E-5, LineService? lineService = null)
+    {
+        _epsilon = epsilon;
+        _lineService = lineService ?? new LineService(epsilon);
+    }
+
+    public double VectorProduct
     (Coordinate firstVec,
-        Coordinate secondVec,
-        double epsilon = 1e-9)
+        Coordinate secondVec)
     {
         var product = firstVec.X * secondVec.Y - secondVec.X * firstVec.Y;
 
-        if (Math.Abs(product) < epsilon)
+        if (Math.Abs(product) < _epsilon)
         {
             return 0;
         }
@@ -21,42 +29,30 @@ public static class SegmentService
         return product;
     }
 
-    public static bool IsIntersectionOfSegments(
-        Coordinate firstSegmentPointA,
-        Coordinate firstSegmentPointB,
-        Coordinate secondSegmentPointC,
-        Coordinate secondSegmentPointD)
-    {
-        LineIntersector lineIntersector = new RobustLineIntersector();
-        lineIntersector.ComputeIntersection(firstSegmentPointA, firstSegmentPointB, secondSegmentPointC,
-            secondSegmentPointD);
-        return lineIntersector.IsInteriorIntersection();
-    }
 
-    public static LinearRing IgnoreInnerPointsOfSegment(LinearRing ring)
+    public LinearRing IgnoreInnerPointsOfSegment(LinearRing ring)
     {
         var array = new Coordinate[ring.Count - 1];
+        var coordinates = ring.Coordinates;
         var j = 0;
-        if (!IsIntersectionOfSegments(
-                ring.Coordinates[ring.Count - 2],
-                ring.Coordinates[1],
-                ring.Coordinates[0],
-                ring.Coordinates[1])
-           )
+        if (!_lineService.IsCoordinateInSegment(
+                coordinates[0],
+                coordinates[ring.Count - 2],
+                coordinates[1]))
+
         {
-            array[j] = ring.Coordinates[0];
+            array[j] = coordinates[0];
             j++;
         }
 
-        for (var i = 1; i < ring.Count - 1; i++)
+        for (var i = 1; i < coordinates.Length - 1; i++)
         {
-            if (!IsIntersectionOfSegments(
-                    ring.Coordinates[i - 1],
-                    ring.Coordinates[i + 1],
-                    ring.Coordinates[i],
-                    ring.Coordinates[i + 1]))
+            if (!_lineService.IsCoordinateAtLine(
+                    coordinates[i],
+                    coordinates[i - 1],
+                    coordinates[i + 1]))
             {
-                array[j] = ring.Coordinates[i];
+                array[j] = coordinates[i];
                 j++;
             }
         }
@@ -100,6 +96,7 @@ public static class SegmentService
         };
     }
 
+    // todo поработать в каноническом виде
     public static bool InsideTheAngle(
         Coordinate vectorPointA1,
         Coordinate vectorPointA2,
@@ -113,14 +110,14 @@ public static class SegmentService
         if (phiB1 == null) return true;
         const int sign = -1;
         var rotatedVectorAx = (vectorPointA2.X - vectorPointA1.X) * Math.Cos(sign * (double)phiB1) -
-                                    (vectorPointA2.Y - vectorPointA1.Y) * Math.Sin(sign * (double)phiB1);
+                              (vectorPointA2.Y - vectorPointA1.Y) * Math.Sin(sign * (double)phiB1);
         var rotatedVectorAy = (vectorPointA2.X - vectorPointA1.X) * Math.Sin(sign * (double)phiB1) +
-                                    (vectorPointA2.Y - vectorPointA1.Y) * Math.Cos(sign * (double)phiB1);
+                              (vectorPointA2.Y - vectorPointA1.Y) * Math.Cos(sign * (double)phiB1);
         var phiA = CalculatePhiFromZeroTo2Pi(rotatedVectorAx, rotatedVectorAy);
         var rotatedVectorB2X = (anglePointB1.X - anglePointB2.X) * Math.Cos(sign * (double)phiB1) -
-                                     (anglePointB1.Y - anglePointB2.Y) * Math.Sin(sign * (double)phiB1);
+                               (anglePointB1.Y - anglePointB2.Y) * Math.Sin(sign * (double)phiB1);
         var rotatedVectorB2Y = (anglePointB1.X - anglePointB2.X) * Math.Sin(sign * (double)phiB1) +
-                                     (anglePointB1.Y - anglePointB2.Y) * Math.Cos(sign * (double)phiB1);
+                               (anglePointB1.Y - anglePointB2.Y) * Math.Cos(sign * (double)phiB1);
         var phiB2 = CalculatePhiFromZeroTo2Pi(rotatedVectorB2X, rotatedVectorB2Y);
         return phiA < phiB2;
     }
