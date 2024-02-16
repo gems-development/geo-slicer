@@ -14,12 +14,12 @@ public class LineIntersector
     private readonly EpsilonCoordinateComparator _epsilonCoordinateComparator;
     private readonly LineService _lineService;
 
-    public LineIntersector(ICoordinateComparator coordinateComparator, double epsilon = 1E-5)
+    public LineIntersector(ICoordinateComparator coordinateComparator, LineService lineService, double epsilon)
     {
         _coordinateComparator = coordinateComparator;
         _epsilonCoordinateComparator = new EpsilonCoordinateComparator(epsilon);
         _epsilon = epsilon;
-        _lineService = new LineService(epsilon);
+        _lineService = lineService;
     }
 
     public bool CheckIntersection(IntersectionType requiredType, LineSegment a, LineSegment b)
