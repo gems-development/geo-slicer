@@ -8,11 +8,17 @@ public class LineService
     private readonly double _epsilon;
 
 
-    public LineService(double epsilon = 1E-5)
+    public LineService(double epsilon)
     {
         _epsilon = epsilon;
     }
 
+    public double VectorProduct
+    (Coordinate firstVec, Coordinate secondVec)
+    {
+        double product = firstVec.X * secondVec.Y - secondVec.X * firstVec.Y;
+        return product;
+    }
 
     public static (double a, double b, double c) ToCanonical(Coordinate first, Coordinate second)
     {
@@ -29,9 +35,12 @@ public class LineService
 
     public bool IsCoordinateAtLine(Coordinate coordinate, Coordinate first, Coordinate second)
     {
-        (double a, double b, double c) canonical = ToCanonical(first, second);
-        double difference = canonical.a * coordinate.X + canonical.b * coordinate.Y - canonical.c;
-        return Math.Abs(difference) <= _epsilon;
+        if (coordinate.Equals2D(new Coordinate(66.09066550, 57.13496720)))
+        {
+            int i = 0;
+        }
+        return Math.Abs(VectorProduct(new Coordinate(coordinate.X - first.X, coordinate.Y - first.Y),
+            new Coordinate(second.X - coordinate.X, second.Y - coordinate.Y))) < _epsilon;
     }
 
 

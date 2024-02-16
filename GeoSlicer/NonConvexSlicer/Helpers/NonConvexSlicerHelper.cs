@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using GeoSlicer.Utils;
 using GeoSlicer.Utils.Intersectors;
-using GeoSlicer.Utils.Intersectors.CoordinateComparators;
 using NetTopologySuite.Geometries;
 using static GeoSlicer.Utils.SegmentService;
 using LineIntersector = GeoSlicer.Utils.Intersectors.LineIntersector;
@@ -16,18 +14,17 @@ public class NonConvexSlicerHelper
                                                               IntersectionType.Overlay;
 
     private readonly LineIntersector _lineIntersector;
-    private readonly SegmentService _segmentService;
+    private readonly LineService _lineService;
     private readonly TraverseDirection _traverseDirection;
 
     public NonConvexSlicerHelper(
-        double epsilon = 1E-5, 
-        LineIntersector? lineIntersector = null, 
-        SegmentService? segmentService = null,
-        TraverseDirection? traverseDirection = null)
+        LineIntersector lineIntersector, 
+        TraverseDirection traverseDirection, 
+        LineService lineService)
     {
-        _lineIntersector = lineIntersector ?? new(new EpsilonCoordinateComparator(epsilon), epsilon);
-        _segmentService = segmentService ?? new SegmentService(epsilon);
-        _traverseDirection = traverseDirection ?? new TraverseDirection(_segmentService);
+        _lineIntersector = lineIntersector;
+        _traverseDirection = traverseDirection;
+        _lineService = lineService;
     }
 
     public List<CoordinatePCN> GetSpecialPoints(LinearRing ring)
@@ -37,7 +34,7 @@ public class NonConvexSlicerHelper
         var coordinates = ring.Coordinates;
         for (var i = 0; i < coordinates.Length - 1; ++i)
         {
-            if (_segmentService.VectorProduct(
+            if (_lineService.VectorProduct(
                     new Coordinate(
                         coordinates[i].X -
                         coordinates[(i - 1 + coordinates.Length - 1) % (coordinates.Length - 1)].X,
