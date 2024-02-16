@@ -32,6 +32,11 @@ public class SegmentService
 
     public LinearRing IgnoreInnerPointsOfSegment(LinearRing ring)
     {
+        if (ring.Count < 4)
+        {
+            return ring;
+        }
+
         var array = new Coordinate[ring.Count - 1];
         var coordinates = ring.Coordinates;
         var j = 0;
