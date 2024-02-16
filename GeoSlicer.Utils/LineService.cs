@@ -35,10 +35,6 @@ public class LineService
 
     public bool IsCoordinateAtLine(Coordinate coordinate, Coordinate first, Coordinate second)
     {
-        if (coordinate.Equals2D(new Coordinate(66.09066550, 57.13496720)))
-        {
-            int i = 0;
-        }
         return Math.Abs(VectorProduct(new Coordinate(coordinate.X - first.X, coordinate.Y - first.Y),
             new Coordinate(second.X - coordinate.X, second.Y - coordinate.Y))) < _epsilon;
     }

@@ -12,10 +12,7 @@ public class SegmentService
     {
         _lineService = lineService;
     }
-
-
-    private static int num = 0;
-
+    
     public LinearRing IgnoreInnerPointsOfSegment(LinearRing ring)
     {
         var array = new Coordinate[ring.Count - 1];
@@ -30,13 +27,6 @@ public class SegmentService
             array[j] = coordinates[0];
             j++;
         }
-        else
-        {
-            if (coordinates[0].Equals2D(new Coordinate(66.09066550, 57.13496720)))
-            {
-                num++;
-            }
-        }
 
         for (var i = 1; i < coordinates.Length - 1; i++)
         {
@@ -47,13 +37,6 @@ public class SegmentService
             {
                 array[j] = coordinates[i];
                 j++;
-            }
-            else
-            {
-                if (coordinates[i].Equals2D(new Coordinate(66.09066550, 57.13496720)))
-                {
-                    num++;
-                }
             }
         }
 
