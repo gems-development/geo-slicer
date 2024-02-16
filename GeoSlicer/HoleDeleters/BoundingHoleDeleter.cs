@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using GeoSlicer.HoleDeleters.BoundingHoleDelDetails;
+using GeoSlicer.Utils;
 using NetTopologySuite.Geometries;
 using GeoSlicer.Utils.BoundRing;
 
@@ -9,9 +10,9 @@ namespace GeoSlicer.HoleDeleters;
 
 public class BoundingHoleDeleter
 {
-    public static /*LinearRing*/ Polygon DeleteHoles(Polygon polygon)
+    public static /*LinearRing*/ Polygon DeleteHoles(Polygon polygon, TraverseDirection direction)
     {
-        LinkedList<BoundingRing> list = BoundingRing.PolygonToBoundRings(polygon);
+        LinkedList<BoundingRing> list = BoundingRing.PolygonToBoundRings(polygon, direction);
         new BoundingHoleDeleter().DeleteHoles(list, new PartitionBoundRingsCache());
         //return BoundRingService.BoundRingsToPolygon(list).Shell;
         return BoundingRing.BoundRingsToPolygon(list);

@@ -65,13 +65,13 @@ public class BoundingRing
     
     private static readonly GeometryFactory DefaultGeometryFactory =
         NetTopologySuite.NtsGeometryServices.Instance.CreateGeometryFactory(4326);
-    public static LinkedList<BoundingRing> PolygonToBoundRings(Polygon polygon)
+    public static LinkedList<BoundingRing> PolygonToBoundRings(Polygon polygon, TraverseDirection direction)
     {
         LinkedList<BoundingRing> boundRings = new LinkedList<BoundingRing>();
-        boundRings.AddFirst(LinearRingToBoundingRing(polygon.Shell, true));
+        boundRings.AddFirst(LinearRingToBoundingRing(polygon.Shell, true, direction));
         foreach(LinearRing ring in polygon.Holes)
         {
-            boundRings.AddLast(LinearRingToBoundingRing(ring, false));
+            boundRings.AddLast(LinearRingToBoundingRing(ring, false, direction));
         }
         return boundRings;
     }
@@ -112,7 +112,7 @@ public class BoundingRing
         return new LinearRing(points);
     }
 
-    private static BoundingRing LinearRingToBoundingRing(LinearRing ring, bool counterClockwiseBypass)
+    private static BoundingRing LinearRingToBoundingRing(LinearRing ring, bool counterClockwiseBypass, TraverseDirection direction)
     {
         Coordinate[] coordinates = ring.Coordinates;
         LinkedNode <Coordinate> ringNode = new LinkedNode<Coordinate>(coordinates[0]);
@@ -120,7 +120,7 @@ public class BoundingRing
         LinkedNode<Coordinate> pointRightNode = ringNode;
         LinkedNode<Coordinate> pointUpNode = ringNode;
         LinkedNode<Coordinate> pointDownNode = ringNode;
-        bool clockwise = TraverseDirection.IsClockwiseBypass(ring);
+        bool clockwise = direction.IsClockwiseBypass(ring);
         bool counterClockwiseBypassBuff = counterClockwiseBypass;   
         if (!counterClockwiseBypass) 
         {

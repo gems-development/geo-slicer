@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.IO;
+using GeoSlicer.Utils;
 using NetTopologySuite.Geometries;
 using GeoSlicer.Utils.BoundRing;
 
@@ -91,7 +92,8 @@ public class BoundingRingTest
         //Arrange
         Initialize();
         //Act
-        LinkedList<BoundingRing> actualBoundRings = BoundingRing.PolygonToBoundRings(_polygon!);
+        LinkedList<BoundingRing> actualBoundRings = BoundingRing.PolygonToBoundRings(_polygon!,
+            new TraverseDirection(new SegmentService()));
         //Assert
         Assert.Equal(_boundRings, actualBoundRings);
     }
