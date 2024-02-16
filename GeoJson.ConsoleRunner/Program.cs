@@ -1,17 +1,28 @@
 ﻿using GeoSlicer.GeoJsonFileService;
 using GeoSlicer.NonConvexSlicer;
+using GeoSlicer.NonConvexSlicer.Helpers;
 using GeoSlicer.Utils;
+using GeoSlicer.Utils.Intersectors;
+using GeoSlicer.Utils.Intersectors.CoordinateComparators;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 
-string fileName = "TestFiles\\kazan_fix_2.geojson";
+var fileName = "TestFiles\\kazan_fix_2.geojson";
 var featureCollection = GeoJsonFileService.ReadGeometryFromFile<FeatureCollection>(fileName);
 
 var polygon = (Polygon)(((MultiPolygon)(featureCollection[0].Geometry))[0]);
 
 // var polygon = (Polygon)GeoJsonFileService.ReadGeometryFromFile<MultiPolygon>(fileName)[0];
+var epsilon = 1E-7;
+var gf = NetTopologySuite.NtsGeometryServices.Instance.CreateGeometryFactory(4326);
+var lineService = new LineService(epsilon);
+var segmentService = new SegmentService(lineService);
+var traverseDirection = new TraverseDirection(lineService);
+var nonConvexSlicerHelper = new NonConvexSlicerHelper(
+    new LineIntersector(new EpsilonCoordinateComparator(epsilon), lineService, epsilon),
+    traverseDirection, lineService);
 
-var slicer = new NonConvexSlicer(1e-9);
+var slicer = new NonConvexSlicer(gf, segmentService, nonConvexSlicerHelper, traverseDirection, lineService);
 
 var list = slicer.Slice(polygon.Shell);
 
@@ -24,5 +35,5 @@ foreach (var iter in list)
     listPolygons.Add(polygon);
 }
 
-MultiPolygon multiPolygon = new MultiPolygon(listPolygons.ToArray());
+var multiPolygon = new MultiPolygon(listPolygons.ToArray());
 GeoJsonFileService.WriteGeometryToFile(multiPolygon, "TestFiles\\kazan_porezannaya.geojson");

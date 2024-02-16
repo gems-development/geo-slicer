@@ -19,4 +19,14 @@ public class AccuracyCalculator
         _maxAccuracy = maxAccuracy;
         _epsilon = Math.Pow(0.1, _maxAccuracy);
     }
+    
+    public bool EqualZero(double number)
+    {
+        return Math.Abs(number) <= _epsilon;
+    }
+    
+    public bool EqualNumbers(double firstNumber, double secondNumber)
+    {
+        return Math.Abs(firstNumber - secondNumber) <= _epsilon;
+    }
 }
