@@ -29,9 +29,11 @@ public class NonConvexSlicer
         _lineService = lineService;
     }
 
+    
+    // todo убедиться в рациональности
     private List<LinearRing> SimpleSlice(LinearRing ring, int pozSpecialPoint)
     {
-        var listResult = new List<LinearRing>();
+        var listResult = new List<LinearRing>(ring.Count -2);
         var coordinates = ring.Coordinates;
         var i = (pozSpecialPoint + 1) % (ring.Count - 1);
         var count = 0;
@@ -56,9 +58,11 @@ public class NonConvexSlicer
     {
         var newRing = _segmentService.IgnoreInnerPointsOfSegment(ring);
         var newRingCoordinates = newRing.Coordinates;
+        
+        // todo делать проверку только для нужных точек
+        var listSpecialPoints = _helper.GetSpecialPoints(newRing);
         var listRingsWithoutSpecialPoints = new List<LinearRing>();
 
-        var listSpecialPoints = _helper.GetSpecialPoints(newRing);
 
         if (!listSpecialPoints.Any())
         {
@@ -106,6 +110,8 @@ public class NonConvexSlicer
                     newRingCoordinates[pozNextPoint].X,
                     newRingCoordinates[pozNextPoint].Y,
                     c: pozNextPoint);
+                
+                // todo Вычислить заранее количество точек (и ниже) (и убедиться, что вычисленно верно)
                 var listFirst = new List<Coordinate>();
 
                 for (var i = coordB.C; i != coordM.C; i = (i + 1) % (newRingCoordinates.Length - 1))
@@ -168,7 +174,7 @@ public class NonConvexSlicer
         }
 
         //Список LinearRing для ответа
-        var listLinearRing = new List<LinearRing>();
+        var listLinearRing = new List<LinearRing>(listSpecialPoints.Count);
 
         switch (listSpecialPoints.Count)
         {
@@ -300,7 +306,7 @@ public class NonConvexSlicer
                 currentLinearRingCoords.Add(currentLinearRingCoords[0]);
                 var currentLinearRing = _gf.CreateLinearRing(currentLinearRingCoords.ToArray());
                 var convexLists = SliceFigureWithMinNumberOfSpecialPoints(currentLinearRing);
-                listLinearRing = listLinearRing.Union(convexLists).ToList();
+                listLinearRing.AddRange(convexLists);
             }
 
             i++;
