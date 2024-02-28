@@ -42,16 +42,23 @@ public class LineService
 
     public bool IsCoordinateInSegmentBorders(Coordinate coordinate, Coordinate first, Coordinate second)
     {
+        return IsCoordinateInSegmentBorders(coordinate.X, coordinate.Y, first, second);
+    }
+
+    public bool IsCoordinateInSegmentBorders(double x, double y, Coordinate first, Coordinate second)
+    {
         if (Math.Abs(first.X - second.X) <= _epsilon)
         {
-            return coordinate.Y > Math.Min(first.Y, second.Y) && coordinate.Y < Math.Max(first.Y, second.Y);
+            return y >= Math.Min(first.Y, second.Y) - _epsilon &&
+                   y <= Math.Max(first.Y, second.Y) + _epsilon;
         }
 
-        return coordinate.Y > Math.Min(first.Y, second.Y)
-               && coordinate.Y < Math.Max(first.Y, second.Y) 
-               && coordinate.X > Math.Min(first.X, second.X)
-               && coordinate.X < Math.Max(first.X, second.X);
+        return y >= Math.Min(first.Y, second.Y) - _epsilon
+               && y <= Math.Max(first.Y, second.Y) + _epsilon
+               && x >= Math.Min(first.X, second.X) - _epsilon
+               && x <= Math.Max(first.X, second.X) + _epsilon;
     }
+
 
     public bool IsLineEquals((double a, double b, double c) line1, (double a, double b, double c) line2)
     {
