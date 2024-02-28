@@ -1,28 +1,23 @@
 ﻿using GeoSlicer.GeoJsonFileService;
-using GeoSlicer.NonConvexSlicer;
+using GeoSlicer.HoleDeleters;
+using GeoSlicer.Tests.HoleDeletersTests;
 using GeoSlicer.Utils;
+using GeoSlicer.Utils.Intersectors;
+using GeoSlicer.Utils.Intersectors.CoordinateComparators;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 
-string fileName = "TestFiles\\kazan_fix_2.geojson";
+string fileName = "C:\\Users\\User\\Downloads\\Telegram Desktop\\kazan_fix_2.geojson";
 var featureCollection = GeoJsonFileService.ReadGeometryFromFile<FeatureCollection>(fileName);
 
 var polygon = (Polygon)(((MultiPolygon)(featureCollection[0].Geometry))[0]);
+var newPolygon = BoundingHoleDeleter.DeleteHoles(polygon, new TraverseDirection(new SegmentService()));
 
-// var polygon = (Polygon)GeoJsonFileService.ReadGeometryFromFile<MultiPolygon>(fileName)[0];
+GeoJsonFileService.WriteGeometryToFile(newPolygon, "C:\\Users\\User\\Downloads\\Telegram Desktop\\newKazan.geojson");
 
-var slicer = new NonConvexSlicer(1e-9);
-
-var list = slicer.Slice(polygon.Shell);
-
-var listPolygons = new List<Polygon>();
+var newSample = BoundingHoleDeleter.DeleteHoles(GeoJsonFileService.ReadGeometryFromFile<Polygon>("C:\\Users\\User\\Downloads\\Telegram Desktop\\sample.geojson"), new TraverseDirection(new SegmentService()));
+GeoJsonFileService.WriteGeometryToFile(newSample, "C:\\Users\\User\\Downloads\\Telegram Desktop\\newSample.geojson");
 
 
-foreach (var iter in list)
-{
-    polygon = new Polygon(iter);
-    listPolygons.Add(polygon);
-}
-
-MultiPolygon multiPolygon = new MultiPolygon(listPolygons.ToArray());
-GeoJsonFileService.WriteGeometryToFile(multiPolygon, "TestFiles\\kazan_porezannaya.geojson");
+var zeroDivider = new ZeroTunnelDivider(10, 0.2, new LineIntersector(new EpsilonCoordinateComparator(1e-9)));
+GeoJsonFileService.WriteGeometryToFile(zeroDivider.DivideZeroTunnels(newSample.Shell), "C:\\Users\\User\\Downloads\\Telegram Desktop\\newSample2.geojson");
