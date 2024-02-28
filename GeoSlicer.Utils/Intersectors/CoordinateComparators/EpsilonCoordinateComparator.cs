@@ -21,4 +21,9 @@ public class EpsilonCoordinateComparator : ICoordinateComparator
 
         return Math.Abs(a.X - b.X) <= _epsilon && Math.Abs(a.Y - b.Y) <= _epsilon;
     }
+
+    public bool IsEquals(Coordinate a, double x, double y)
+    {
+        return Math.Abs(a.X - x) <= _epsilon && Math.Abs(a.Y - y) <= _epsilon;
+    }
 }
