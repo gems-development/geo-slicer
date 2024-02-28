@@ -29,7 +29,7 @@ public class NonConvexSlicerHelper
 
     public List<CoordinatePCN> GetSpecialPoints(LinearRing ring)
     {
-        var list = new List<CoordinatePCN>();
+        var list = new List<CoordinatePCN>(ring.Count - 4);
         var clockwise = _traverseDirection.IsClockwiseBypass(ring);
         var coordinates = ring.Coordinates;
         for (var i = 0; i < coordinates.Length - 1; ++i)
