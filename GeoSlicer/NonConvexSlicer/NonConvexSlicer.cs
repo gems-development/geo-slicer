@@ -12,24 +12,28 @@ public class NonConvexSlicer
 {
     private readonly GeometryFactory _gf;
     private readonly SegmentService _segmentService;
+    private readonly LineService _lineService;
     private readonly NonConvexSlicerHelper _helper;
     private readonly TraverseDirection _traverseDirection;
 
-    public NonConvexSlicer(double epsilon = 1E-5,
-        GeometryFactory? gf = null,
-        SegmentService? segmentService = null,
-        NonConvexSlicerHelper? helper = null,
-        TraverseDirection? traverseDirection = null)
+    public NonConvexSlicer(
+        GeometryFactory gf,
+        SegmentService segmentService,
+        NonConvexSlicerHelper helper,
+        TraverseDirection traverseDirection, LineService lineService)
     {
-        _gf = gf ?? NtsGeometryServices.Instance.CreateGeometryFactory(4326);
-        _segmentService = segmentService ?? new SegmentService(epsilon);
-        _helper = helper ?? new NonConvexSlicerHelper(epsilon, segmentService: _segmentService);
-        _traverseDirection = traverseDirection ?? new TraverseDirection(_segmentService);
+        _gf = gf;
+        _segmentService = segmentService;
+        _helper = helper;
+        _traverseDirection = traverseDirection;
+        _lineService = lineService;
     }
 
+    
+    // todo убедиться в рациональности
     private List<LinearRing> SimpleSlice(LinearRing ring, int pozSpecialPoint)
     {
-        var listResult = new List<LinearRing>();
+        var listResult = new List<LinearRing>(ring.Count -2);
         var coordinates = ring.Coordinates;
         var i = (pozSpecialPoint + 1) % (ring.Count - 1);
         var count = 0;
@@ -54,9 +58,11 @@ public class NonConvexSlicer
     {
         var newRing = _segmentService.IgnoreInnerPointsOfSegment(ring);
         var newRingCoordinates = newRing.Coordinates;
+        
+        // todo делать проверку только для нужных точек
+        var listSpecialPoints = _helper.GetSpecialPoints(newRing);
         var listRingsWithoutSpecialPoints = new List<LinearRing>();
 
-        var listSpecialPoints = _helper.GetSpecialPoints(newRing);
 
         if (!listSpecialPoints.Any())
         {
@@ -88,7 +94,7 @@ public class NonConvexSlicer
                 newRingCoordinates[pozNextPoint].Y,
                 c: pozNextPoint);
 
-            if (_segmentService.VectorProduct(
+            if (_lineService.VectorProduct(
                     new Coordinate(
                         coordB.X - coordC.X,
                         coordB.Y - coordC.Y),
@@ -104,6 +110,8 @@ public class NonConvexSlicer
                     newRingCoordinates[pozNextPoint].X,
                     newRingCoordinates[pozNextPoint].Y,
                     c: pozNextPoint);
+                
+                // todo Вычислить заранее количество точек (и ниже) (и убедиться, что вычисленно верно)
                 var listFirst = new List<Coordinate>();
 
                 for (var i = coordB.C; i != coordM.C; i = (i + 1) % (newRingCoordinates.Length - 1))
@@ -166,7 +174,7 @@ public class NonConvexSlicer
         }
 
         //Список LinearRing для ответа
-        var listLinearRing = new List<LinearRing>();
+        var listLinearRing = new List<LinearRing>(listSpecialPoints.Count);
 
         switch (listSpecialPoints.Count)
         {
@@ -248,7 +256,7 @@ public class NonConvexSlicer
                 //Если особая точка будет особой в получившемся кольце, то добавляем с конец списка особых точек.
                 //При этом кольцо не двуугольник
                 if (afterFirstIndex != beforeFirstIndex &&
-                    _segmentService.VectorProduct(
+                    _lineService.VectorProduct(
                         new Coordinate(
                             ringCoords[coordCurrent.C].X - ringCoords[coordPrev.C].X,
                             ringCoords[coordCurrent.C].Y - ringCoords[coordPrev.C].Y),
@@ -268,7 +276,7 @@ public class NonConvexSlicer
                 if (coordNext.C != afterFirstIndex &&
                     coordNext.C != beforeFirstIndex &&
                     afterFirstIndex != beforeFirstIndex &&
-                    _segmentService.VectorProduct(
+                    _lineService.VectorProduct(
                         new Coordinate(
                             ringCoords[coordNext.C].X - ringCoords[beforeFirstIndex].X,
                             ringCoords[coordNext.C].Y - ringCoords[beforeFirstIndex].Y),
@@ -298,7 +306,7 @@ public class NonConvexSlicer
                 currentLinearRingCoords.Add(currentLinearRingCoords[0]);
                 var currentLinearRing = _gf.CreateLinearRing(currentLinearRingCoords.ToArray());
                 var convexLists = SliceFigureWithMinNumberOfSpecialPoints(currentLinearRing);
-                listLinearRing = listLinearRing.Union(convexLists).ToList();
+                listLinearRing.AddRange(convexLists);
             }
 
             i++;

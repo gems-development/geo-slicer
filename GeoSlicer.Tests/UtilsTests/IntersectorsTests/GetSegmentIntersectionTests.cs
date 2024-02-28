@@ -1,4 +1,5 @@
-﻿using GeoSlicer.Utils.Intersectors;
+﻿using GeoSlicer.Utils;
+using GeoSlicer.Utils.Intersectors;
 using GeoSlicer.Utils.Intersectors.CoordinateComparators;
 using NetTopologySuite.Geometries;
 
@@ -8,9 +9,11 @@ public class GetSegmentIntersectionTests
 {
     // a1b1 a2b2, a1b2 a2b1, a2b1 a1b2, a2b2 a1b1
 
-    private const double Delta = 1E-6;
-    private static readonly EpsilonCoordinateComparator EpsilonCoordinateComparator = new(Delta);
-    private static readonly LineIntersector LineIntersector = new(EpsilonCoordinateComparator, Delta);
+    private const double Epsilon = 1E-6;
+    private static readonly EpsilonCoordinateComparator EpsilonCoordinateComparator = new(Epsilon);
+
+    private static readonly LineIntersector LineIntersector =
+        new(EpsilonCoordinateComparator, new LineService(1E-5), Epsilon);
 
 
     [Theory]
@@ -67,7 +70,7 @@ public class GetSegmentIntersectionTests
     [InlineData(1, 1, 3, 2, 2, 1.5, 4, 2.5, IntersectionType.Overlay)]
     [InlineData(2, 1.5, 4, 2.5, 1, 1, 3, 2, IntersectionType.Overlay)]
     [InlineData(1, 1, 4, 2.5, 2, 1.5, 3, 2, IntersectionType.Contains)]
-    [InlineData(2, 1.5, 3, 2,1, 1, 4, 2.5,  IntersectionType.Contains)]
+    [InlineData(2, 1.5, 3, 2, 1, 1, 4, 2.5, IntersectionType.Contains)]
     private void TestWithoutIntersection(
         double a1X, double a1Y, double a2X, double a2Y,
         double b1X, double b1Y, double b2X, double b2Y,

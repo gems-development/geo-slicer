@@ -8,11 +8,17 @@ public class LineService
     private readonly double _epsilon;
 
 
-    public LineService(double epsilon = 1E-5)
+    public LineService(double epsilon)
     {
         _epsilon = epsilon;
     }
 
+    public double VectorProduct
+    (Coordinate firstVec, Coordinate secondVec)
+    {
+        double product = firstVec.X * secondVec.Y - secondVec.X * firstVec.Y;
+        return product;
+    }
 
     public static (double a, double b, double c) ToCanonical(Coordinate first, Coordinate second)
     {
@@ -29,24 +35,30 @@ public class LineService
 
     public bool IsCoordinateAtLine(Coordinate coordinate, Coordinate first, Coordinate second)
     {
-        (double a, double b, double c) canonical = ToCanonical(first, second);
-        double difference = canonical.a * coordinate.X + canonical.b * coordinate.Y - canonical.c;
-        return Math.Abs(difference) <= _epsilon;
+        return Math.Abs(VectorProduct(new Coordinate(coordinate.X - first.X, coordinate.Y - first.Y),
+            new Coordinate(second.X - coordinate.X, second.Y - coordinate.Y))) < _epsilon;
     }
 
 
     public bool IsCoordinateInSegmentBorders(Coordinate coordinate, Coordinate first, Coordinate second)
     {
+        return IsCoordinateInSegmentBorders(coordinate.X, coordinate.Y, first, second);
+    }
+
+    public bool IsCoordinateInSegmentBorders(double x, double y, Coordinate first, Coordinate second)
+    {
         if (Math.Abs(first.X - second.X) <= _epsilon)
         {
-            return coordinate.Y > Math.Min(first.Y, second.Y) && coordinate.Y < Math.Max(first.Y, second.Y);
+            return y >= Math.Min(first.Y, second.Y) - _epsilon &&
+                   y <= Math.Max(first.Y, second.Y) + _epsilon;
         }
 
-        return (coordinate.Y > Math.Min(first.Y, second.Y) || Math.Abs(coordinate.Y - Math.Min(first.Y, second.Y)) < _epsilon)
-               && (coordinate.Y < Math.Max(first.Y, second.Y) || Math.Abs(coordinate.Y - Math.Max(first.Y, second.Y)) < _epsilon) 
-               && (coordinate.X > Math.Min(first.X, second.X) || Math.Abs(coordinate.X - Math.Min(first.X, second.X)) < _epsilon)
-               && (coordinate.X < Math.Max(first.X, second.X) || Math.Abs(coordinate.X - Math.Max(first.X, second.X)) < _epsilon);
+        return y >= Math.Min(first.Y, second.Y) - _epsilon
+               && y <= Math.Max(first.Y, second.Y) + _epsilon
+               && x >= Math.Min(first.X, second.X) - _epsilon
+               && x <= Math.Max(first.X, second.X) + _epsilon;
     }
+
 
     public bool IsLineEquals((double a, double b, double c) line1, (double a, double b, double c) line2)
     {

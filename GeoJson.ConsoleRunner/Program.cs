@@ -1,23 +1,67 @@
 ﻿using GeoSlicer.GeoJsonFileService;
-using GeoSlicer.HoleDeleters;
-using GeoSlicer.Tests.HoleDeletersTests;
+using GeoSlicer.NonConvexSlicer;
+using GeoSlicer.NonConvexSlicer.Helpers;
 using GeoSlicer.Utils;
 using GeoSlicer.Utils.Intersectors;
 using GeoSlicer.Utils.Intersectors.CoordinateComparators;
-using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 
-string fileName = "C:\\Users\\User\\Downloads\\Telegram Desktop\\kazan_fix_2.geojson";
-var featureCollection = GeoJsonFileService.ReadGeometryFromFile<FeatureCollection>(fileName);
 
-var polygon = (Polygon)(((MultiPolygon)(featureCollection[0].Geometry))[0]);
-var newPolygon = BoundingHoleDeleter.DeleteHoles(polygon, new TraverseDirection(new SegmentService()));
+const double epsilon = 1E-15;
+GeometryFactory gf =
+    NetTopologySuite.NtsGeometryServices.Instance.CreateGeometryFactory(4326);
+LineService lineService = new LineService(epsilon);
+SegmentService segmentService = new SegmentService(lineService);
+TraverseDirection traverseDirection = new TraverseDirection(lineService);
+NonConvexSlicer nonConvexSlicer =
+    new(gf,
+        segmentService,
+        new NonConvexSlicerHelper(
+            new LineIntersector(new EpsilonCoordinateComparator(epsilon), lineService, epsilon), traverseDirection,
+            lineService), traverseDirection, lineService);
 
-GeoJsonFileService.WriteGeometryToFile(newPolygon, "C:\\Users\\User\\Downloads\\Telegram Desktop\\newKazan.geojson");
+MultiPolygon multiPolygon =
+    GeoJsonFileService.ReadGeometryFromFile<MultiPolygon>("TestFiles\\baikal_multy_polygon.geojson");
 
-var newSample = BoundingHoleDeleter.DeleteHoles(GeoJsonFileService.ReadGeometryFromFile<Polygon>("C:\\Users\\User\\Downloads\\Telegram Desktop\\sample.geojson"), new TraverseDirection(new SegmentService()));
-GeoJsonFileService.WriteGeometryToFile(newSample, "C:\\Users\\User\\Downloads\\Telegram Desktop\\newSample.geojson");
+LinearRing shell = ((Polygon)multiPolygon[0]).Shell;
+
+List<LinearRing> result = nonConvexSlicer.Slice(shell);
+IEnumerable<Polygon> polygons = result.Select(ring => new Polygon(ring));
+
+MultiPolygon multiPolygonResult = new MultiPolygon(polygons.ToArray());
+GeoJsonFileService.WriteGeometryToFile(multiPolygonResult, "TestFiles\\baikal_result.geojson");
 
 
-var zeroDivider = new ZeroTunnelDivider(10, 0.2, new LineIntersector(new EpsilonCoordinateComparator(1e-9)));
-GeoJsonFileService.WriteGeometryToFile(zeroDivider.DivideZeroTunnels(newSample.Shell), "C:\\Users\\User\\Downloads\\Telegram Desktop\\newSample2.geojson");
+// MultiPolygon baikalMultiPolygon =
+//     GeoJsonFileService.ReadGeometryFromFile<MultiPolygon>("TestFiles\\baikal_multy_polygon.geojson");
+// MultiPolygon resultMultiPolygon =
+//     GeoJsonFileService.ReadGeometryFromFile<MultiPolygon>("TestFiles\\baikal_result.geojson");
+//
+// HashSet<Coordinate> baikalSet = new HashSet<Coordinate>(((Polygon)baikalMultiPolygon[0]).Shell.Coordinates);
+//
+// var resultCoordinateArrays = resultMultiPolygon.Select(geometry => ((Polygon)geometry).Coordinates);
+//
+// HashSet<Coordinate> resultSet = new HashSet<Coordinate>();
+// foreach (Coordinate[] coordinateArray in resultCoordinateArrays)
+// {
+//     resultSet.UnionWith(coordinateArray);
+// }
+// Console.WriteLine(baikalSet.Count);
+// Console.WriteLine(resultSet.Count);
+//
+// baikalSet.ExceptWith(resultSet);
+// foreach (Coordinate coordinate in baikalSet)
+// {
+//     Console.WriteLine(coordinate);
+// }
+// Console.WriteLine(baikalSet);
+
+
+
+
+
+
+
+
+
+

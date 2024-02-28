@@ -1,37 +1,25 @@
 ﻿using System;
+using System.Linq;
 using NetTopologySuite.Geometries;
 
 namespace GeoSlicer.Utils;
 
 public class SegmentService
 {
-    private readonly double _epsilon;
-
     private readonly LineService _lineService;
 
-    public SegmentService(double epsilon = 1E-5, LineService? lineService = null)
+    public SegmentService(LineService lineService)
     {
-        _epsilon = epsilon;
-        _lineService = lineService ?? new LineService(epsilon);
+        _lineService = lineService;
     }
-
-    public double VectorProduct
-    (Coordinate firstVec,
-        Coordinate secondVec)
-    {
-        var product = firstVec.X * secondVec.Y - secondVec.X * firstVec.Y;
-
-        if (Math.Abs(product) < _epsilon)
-        {
-            return 0;
-        }
-
-        return product;
-    }
-
-
+    
     public LinearRing IgnoreInnerPointsOfSegment(LinearRing ring)
     {
+        if (ring.Count < 4)
+        {
+            return ring;
+        }
+
         var array = new Coordinate[ring.Count - 1];
         var coordinates = ring.Coordinates;
         var j = 0;

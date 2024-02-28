@@ -5,11 +5,11 @@ namespace GeoSlicer.Utils;
 
 public class TraverseDirection
 {
-    private readonly SegmentService _segmentService;
+    private readonly LineService _lineService;
 
-    public TraverseDirection(SegmentService segmentService)
+    public TraverseDirection(LineService lineService)
     {
-        _segmentService = segmentService;
+        _lineService = lineService;
     }
 
     public bool IsClockwiseBypass(LinearRing ring)
@@ -38,10 +38,10 @@ public class TraverseDirection
             coordC = i == coordinates.Length - 1 ? coordinates[1] : coordinates[i + 1];
         }
 
-        var vecAB = new Coordinate(coordB.X - coordA.X, coordB.Y - coordA.Y);
-        var vecBC = new Coordinate(coordC.X - coordB.X, coordC.Y - coordB.Y);
+        var vecAb = new Coordinate(coordB.X - coordA.X, coordB.Y - coordA.Y);
+        var vecBc = new Coordinate(coordC.X - coordB.X, coordC.Y - coordB.Y);
 
-        return _segmentService.VectorProduct(vecAB, vecBC) < 0;
+        return _lineService.VectorProduct(vecAb, vecBc) < 0;
     }
 
     public static void ChangeDirection(LinearRing ring)
