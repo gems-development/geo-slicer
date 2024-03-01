@@ -12,13 +12,14 @@ public class ZeroTunnelDivider
     
     private LineIntersector _intersector;
 
-    private double _tolerance = 1e-9;
+    private double _tolerance;
 
-    public ZeroTunnelDivider(int countOfSteps, double stepSize, LineIntersector intersector)
+    public ZeroTunnelDivider(int countOfSteps, double stepSize, LineIntersector intersector, double tolerance)
     {
         CountOfSteps = countOfSteps;
         StepSize = stepSize;
         _intersector = intersector;
+        _tolerance = tolerance;
     }
 
     public LinearRing DivideZeroTunnels(LinearRing ring)
@@ -28,15 +29,13 @@ public class ZeroTunnelDivider
         {
             for (int j = 1; j < coordinates.Length; j++)
             {
-                if (i != j && coordinates[i].Equals(coordinates[j]) && coordinates[i + 1].Equals(coordinates[j - 1]))
+                if (i != j && coordinates[i].Equals(coordinates[j]))
                 {
-                    if (!MoveTunnel(coordinates, i ,  i + 1) ||
-                        !MoveTunnel(coordinates, i + 1,i))
+                    if (!MoveTunnel(coordinates, i ,  i + 1))
                     {
                         return new LinearRing(coordinates);
                     }
                     
-
                 }
             }
         }
@@ -48,11 +47,8 @@ public class ZeroTunnelDivider
     //numbersOfEqualCoordsAdjacentCoord - номера координат, которые совпадают с координатой с номером coordAdjacentLine
     //в методе MoveTunnel
     //метод пытается передвинуть точку под номером firstCoordFirstTunnel по ступенькам. True в случае успеха, false иначе
-    private int m = 0;
     private bool MoveTunnel(Coordinate[] coordinates, int firstCoordFirstTunnel, int secondCoordFirstTunnel)
     {
-        m++;
-        
         LinkedList<int> numbersOfEqualCoordsSecondCoord = new LinkedList<int>();
         LinkedList<int> numbersOfEqualCoordsAdjacentCoord = new LinkedList<int>();
         FillNumbersOfEqualCoordinates(coordinates, secondCoordFirstTunnel, numbersOfEqualCoordsSecondCoord);
@@ -73,7 +69,6 @@ public class ZeroTunnelDivider
             for (int stepNumber = 0; stepNumber < CountOfSteps; stepNumber++)
             {
                 MovePointUpTheStairs(coordinates, quarterNumber, stepNumber, firstCoordFirstTunnel);
-                GeoJsonFileService.GeoJsonFileService.WriteGeometryToFile(new LinearRing(coordinates), "C:\\Users\\Данил\\Downloads\\Telegram Desktop\\newSampleBefore"+ m + quarterNumber + stepNumber + ".geojson");
                 if (CheckIntersects(coordinates, firstCoordFirstTunnel, secondCoordFirstTunnel, coordAdjacentLine,
                         numbersOfEqualCoordsSecondCoord, numbersOfEqualCoordsAdjacentCoord))
                 {
@@ -106,7 +101,6 @@ public class ZeroTunnelDivider
     //Проверяет, что линии с общей точкой с номером firstCoordFirstTunnel не пересекают другие линии в проверяемой геометрии
     //Точка с координатой secondCoordFirstTunnel может совпадать с другими координатами в
     //геометрии(накладываться на координаты других нулевых тунелей)
-    private int g = 0;
     private bool CheckIntersects(Coordinate[] coordinates,
         int firstCoordFirstTunnel, int secondCoordFirstTunnel, int coordAdjacentLine,
         LinkedList<int> numbersOfEqualCoordsSecondCoord,
@@ -140,11 +134,13 @@ public class ZeroTunnelDivider
         return false;
     }
 
-    private bool CheckIntersectsLine(int i, int firstCoordFirstTunnel, int secondCoordFirstTunnel, Coordinate[] coordinates, LinkedList<int> numberOfEqualCoordinates)
+    private bool CheckIntersectsLine(
+        int coordLineChecked, int firstCoordFirstTunnel, int secondCoordFirstTunnel,
+        Coordinate[] coordinates, LinkedList<int> numberOfEqualCoordinates)
     {
         var intersectionType = _intersector.GetIntersection(
-                        coordinates[i],
-                        coordinates[i + 1],
+                        coordinates[coordLineChecked],
+                        coordinates[coordLineChecked + 1],
                         coordinates[firstCoordFirstTunnel], 
                         coordinates[secondCoordFirstTunnel]);
         var intersection = intersectionType.Item1;
@@ -152,14 +148,14 @@ public class ZeroTunnelDivider
         //в случае пересечения extension getIntersection возращает точку пересечения null
         if (intersection == IntersectionType.Extension)
         {
-            if (coordinates[i].Equals2D(coordinates[firstCoordFirstTunnel], _tolerance) ||
-                coordinates[i].Equals2D(coordinates[secondCoordFirstTunnel], _tolerance))
+            if (coordinates[coordLineChecked].Equals2D(coordinates[firstCoordFirstTunnel], _tolerance) ||
+                coordinates[coordLineChecked].Equals2D(coordinates[secondCoordFirstTunnel], _tolerance))
             {
-                intersectionPoint = coordinates[i];
+                intersectionPoint = coordinates[coordLineChecked];
             }
             else
             {
-                intersectionPoint = coordinates[i + 1];
+                intersectionPoint = coordinates[coordLineChecked + 1];
             }
         }
         if (intersection != IntersectionType.NoIntersection && intersection != IntersectionType.Outside)
@@ -171,8 +167,8 @@ public class ZeroTunnelDivider
             }
             //дальше пересечение либо corner, либо extension
             if (!LinesFollowEachOther(
-                    i, 
-                    i + 1, 
+                    coordLineChecked, 
+                    coordLineChecked + 1, 
                     firstCoordFirstTunnel, 
                     secondCoordFirstTunnel, 
                     coordinates))
@@ -195,7 +191,8 @@ public class ZeroTunnelDivider
         return false;
     }
 
-    private void FillNumbersOfEqualCoordinates(Coordinate[] coordinates, int numberOfCoordinate, LinkedList<int> numbersOfEqualsCoordinates)
+    private void FillNumbersOfEqualCoordinates(
+        Coordinate[] coordinates, int numberOfCoordinate, LinkedList<int> numbersOfEqualsCoordinates)
     {
         for (int i = 0; i < coordinates.Length; i++)
         {
