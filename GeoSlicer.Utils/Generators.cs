@@ -17,10 +17,7 @@ public static class Generators
     /// <exception cref="ArgumentException">Если требуемое число точек не кратно 4м</exception>
     public static LinearRing GenerateConvexLinearRing(int pointCount, GeometryFactory? gf = null)
     {
-        if (gf is null)
-        {
-            gf = Gf;
-        }
+        gf ??= Gf;
 
         if (pointCount % 4 != 0)
         {

@@ -33,7 +33,7 @@ public class LineIntersector
         Coordinate b1, Coordinate b2)
     {
         IntersectionType actualType =
-            GetIntersection(a1, a2, b1, b2, out double x, out double y, out bool isIntersects);
+            GetIntersection(a1, a2, b1, b2, out double _, out double _, out bool _);
         return (actualType & requiredType) != 0;
     }
 
@@ -112,17 +112,17 @@ public class LineIntersector
         Coordinate a1, Coordinate a2,
         Coordinate b1, Coordinate b2)
     {
-        IntersectionType? CheckEnds(Coordinate a1, Coordinate a2, Coordinate b1, Coordinate b2)
+        IntersectionType? CheckEnds(Coordinate x1, Coordinate x2, Coordinate y1, Coordinate y2)
         {
-            if (_coordinateComparator.IsEquals(a1, b1))
+            if (_coordinateComparator.IsEquals(x1, y1))
             {
-                if (_coordinateComparator.IsEquals(a2, b2))
+                if (_coordinateComparator.IsEquals(x2, y2))
                 {
                     return IntersectionType.Equals;
                 }
 
-                if (_lineService.IsCoordinateInSegmentBorders(a2, b1, b2) ||
-                    _lineService.IsCoordinateInSegmentBorders(b2, a1, a2))
+                if (_lineService.IsCoordinateInSegmentBorders(x2, y1, y2) ||
+                    _lineService.IsCoordinateInSegmentBorders(y2, x1, x2))
                 {
                     return IntersectionType.Part;
                 }
