@@ -44,17 +44,23 @@ public class ZeroTunnelDivider
         return new LinearRing(coordinates);
     }
 
-    //_numbersOfEqualCoordinates - номера координат, которые совпадают с координатой с номером secondCoordFirstTunnel
+    //numbersOfEqualCoordsSecondCoord - номера координат, которые совпадают с координатой с номером secondCoordFirstTunnel
+    //numbersOfEqualCoordsAdjacentCoord - номера координат, которые совпадают с координатой с номером coordAdjacentLine
     //в методе MoveTunnel
-    private LinkedList<int>? _numbersOfEqualCoordinates;
-    private int m = 0;
-    
     //метод пытается передвинуть точку под номером firstCoordFirstTunnel по ступенькам. True в случае успеха, false иначе
+    private int m = 0;
     private bool MoveTunnel(Coordinate[] coordinates, int firstCoordFirstTunnel, int secondCoordFirstTunnel)
     {
         m++;
-        _numbersOfEqualCoordinates = new LinkedList<int>();
-        FillNumbersOfEqualCoordinates(coordinates, secondCoordFirstTunnel);
+        
+        LinkedList<int> numbersOfEqualCoordsSecondCoord = new LinkedList<int>();
+        LinkedList<int> numbersOfEqualCoordsAdjacentCoord = new LinkedList<int>();
+        FillNumbersOfEqualCoordinates(coordinates, secondCoordFirstTunnel, numbersOfEqualCoordsSecondCoord);
+        //номер второй координаты линии, смежной к проверяемой линии-(firstCoordFirstTunnel, secondCoordFirstTunnel)
+        int coordAdjacentLine = (2 * firstCoordFirstTunnel - secondCoordFirstTunnel + coordinates.Length - 1) %
+                                (coordinates.Length - 1);
+        FillNumbersOfEqualCoordinates(coordinates, coordAdjacentLine, numbersOfEqualCoordsAdjacentCoord);
+        
         var originalCoord = coordinates[firstCoordFirstTunnel];
         bool correctMove = false;
         
@@ -67,8 +73,9 @@ public class ZeroTunnelDivider
             for (int stepNumber = 0; stepNumber < CountOfSteps; stepNumber++)
             {
                 MovePointUpTheStairs(coordinates, quarterNumber, stepNumber, firstCoordFirstTunnel);
-                GeoJsonFileService.GeoJsonFileService.WriteGeometryToFile(new LinearRing(coordinates), "C:\\Users\\User\\Downloads\\Telegram Desktop\\newSampleBefore"+ m + quarterNumber + stepNumber + ".geojson");
-                if (CheckIntersects(coordinates, firstCoordFirstTunnel, secondCoordFirstTunnel))
+                GeoJsonFileService.GeoJsonFileService.WriteGeometryToFile(new LinearRing(coordinates), "C:\\Users\\Данил\\Downloads\\Telegram Desktop\\newSampleBefore"+ m + quarterNumber + stepNumber + ".geojson");
+                if (CheckIntersects(coordinates, firstCoordFirstTunnel, secondCoordFirstTunnel, coordAdjacentLine,
+                        numbersOfEqualCoordsSecondCoord, numbersOfEqualCoordsAdjacentCoord))
                 {
                     if (correctMove)
                     {
@@ -85,7 +92,6 @@ public class ZeroTunnelDivider
 
             if (correctMove)
             {
-                _numbersOfEqualCoordinates = null;
                 return true;
             }
             if (quarterNumber != 4) 
@@ -94,15 +100,17 @@ public class ZeroTunnelDivider
                     firstCoordFirstTunnel, 
                     originalCoord);
         }
-        _numbersOfEqualCoordinates = null;
         return false;
     }
-
-    private int g = 0; 
+    
     //Проверяет, что линии с общей точкой с номером firstCoordFirstTunnel не пересекают другие линии в проверяемой геометрии
     //Точка с координатой secondCoordFirstTunnel может совпадать с другими координатами в
     //геометрии(накладываться на координаты других нулевых тунелей)
-    private bool CheckIntersects(Coordinate[] coordinates, int firstCoordFirstTunnel, int secondCoordFirstTunnel)
+    private int g = 0;
+    private bool CheckIntersects(Coordinate[] coordinates,
+        int firstCoordFirstTunnel, int secondCoordFirstTunnel, int coordAdjacentLine,
+        LinkedList<int> numbersOfEqualCoordsSecondCoord,
+        LinkedList<int> numbersOfEqualCoordsAdjacentCoord)
     {
         for (int i = 0; i < coordinates.Length - 1; i++)
         {
@@ -111,67 +119,88 @@ public class ZeroTunnelDivider
                     i + 1, 
                     firstCoordFirstTunnel, 
                     secondCoordFirstTunnel,
+                    coordinates) &&
+                !EqualLines(
+                    i, 
+                    i + 1, 
+                    coordAdjacentLine, 
+                    firstCoordFirstTunnel,
                     coordinates))
             {
-                var intersectionType = _intersector.GetIntersection(
-                        coordinates[i],
-                        coordinates[i + 1],
-                        coordinates[firstCoordFirstTunnel], 
-                        coordinates[secondCoordFirstTunnel]);
-                var intersection = intersectionType.Item1;
-                var intersectionPoint = intersectionType.Item2;
-                //в случае пересечения extension getIntersection возращает точку пересечения null
-                if (intersection == IntersectionType.Extension)
-                {
-                    if (coordinates[i].Equals2D(coordinates[firstCoordFirstTunnel], _tolerance) ||
-                        coordinates[i].Equals2D(coordinates[secondCoordFirstTunnel], _tolerance))
-                    {
-                        intersectionPoint = coordinates[i];
-                    }
-                    else
-                    {
-                        intersectionPoint = coordinates[i + 1];
-                    }
-                }
-                if (intersection != IntersectionType.NoIntersection && intersection != IntersectionType.Outside)
-                {
-                    if ((IntersectionType.Overlay <= intersection && IntersectionType.Equals >= intersection)
-                        || IntersectionType.Inner == intersection || IntersectionType.TyShaped == intersection)
-                    {
-                        return true;
-                    }
-
-                    if (!LinesFollowEachOther(
-                            i, 
-                            i + 1, 
-                            firstCoordFirstTunnel, 
-                            secondCoordFirstTunnel, 
-                            coordinates))
-                    {
-                        bool flag = false;
-                        foreach (var number in _numbersOfEqualCoordinates)
-                        {
-                            if (coordinates[number].Equals2D(intersectionPoint, _tolerance))
-                                flag = true;
-                        }
-
-                        if (!flag)
-                        {
-                            return true;
-                        }
-                    }
-                }
+                bool res1 = CheckIntersectsLine(i, firstCoordFirstTunnel, secondCoordFirstTunnel, coordinates,
+                    numbersOfEqualCoordsSecondCoord);
+                
+                bool res2 = CheckIntersectsLine(i, firstCoordFirstTunnel, coordAdjacentLine, coordinates,
+                    numbersOfEqualCoordsAdjacentCoord);
+                
+                if (res1 || res2)
+                    return true;
             }
         }
         return false;
     }
 
-    private void FillNumbersOfEqualCoordinates(Coordinate[] coordinates, int numberOfCoordinate)
+    private bool CheckIntersectsLine(int i, int firstCoordFirstTunnel, int secondCoordFirstTunnel, Coordinate[] coordinates, LinkedList<int> numberOfEqualCoordinates)
+    {
+        var intersectionType = _intersector.GetIntersection(
+                        coordinates[i],
+                        coordinates[i + 1],
+                        coordinates[firstCoordFirstTunnel], 
+                        coordinates[secondCoordFirstTunnel]);
+        var intersection = intersectionType.Item1;
+        var intersectionPoint = intersectionType.Item2;
+        //в случае пересечения extension getIntersection возращает точку пересечения null
+        if (intersection == IntersectionType.Extension)
+        {
+            if (coordinates[i].Equals2D(coordinates[firstCoordFirstTunnel], _tolerance) ||
+                coordinates[i].Equals2D(coordinates[secondCoordFirstTunnel], _tolerance))
+            {
+                intersectionPoint = coordinates[i];
+            }
+            else
+            {
+                intersectionPoint = coordinates[i + 1];
+            }
+        }
+        if (intersection != IntersectionType.NoIntersection && intersection != IntersectionType.Outside)
+        {
+            if ((IntersectionType.Overlay <= intersection && IntersectionType.Equals >= intersection)
+                || IntersectionType.Inner == intersection || IntersectionType.TyShaped == intersection)
+            {
+                return true;
+            }
+            //дальше пересечение либо corner, либо extension
+            if (!LinesFollowEachOther(
+                    i, 
+                    i + 1, 
+                    firstCoordFirstTunnel, 
+                    secondCoordFirstTunnel, 
+                    coordinates))
+                    
+            {
+                //линии не идут друг за другом
+                bool flag = false;
+                foreach (var number in numberOfEqualCoordinates)
+                {
+                    if (coordinates[number].Equals2D(intersectionPoint, _tolerance))
+                        flag = true;
+                }
+                if (!flag)
+                {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private void FillNumbersOfEqualCoordinates(Coordinate[] coordinates, int numberOfCoordinate, LinkedList<int> numbersOfEqualsCoordinates)
     {
         for (int i = 0; i < coordinates.Length; i++)
         {
             if (coordinates[i].Equals(coordinates[numberOfCoordinate]))
-                _numbersOfEqualCoordinates!.AddFirst(i);
+                numbersOfEqualsCoordinates.AddFirst(i);
         }
     }
     private void AssignNewCoordinate(Coordinate[] coordinates, int coordinateFirstLine, Coordinate newCoordinate)

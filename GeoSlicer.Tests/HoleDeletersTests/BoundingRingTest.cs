@@ -93,7 +93,7 @@ public class BoundingRingTest
         Initialize();
         //Act
         LinkedList<BoundingRing> actualBoundRings = BoundingRing.PolygonToBoundRings(_polygon!,
-            new TraverseDirection(new SegmentService()));
+            new TraverseDirection(new LineService(1e-9)));
         //Assert
         Assert.Equal(_boundRings, actualBoundRings);
     }
