@@ -15,22 +15,18 @@ public class NonConvexSlicerHelper
 
     private readonly LineIntersector _lineIntersector;
     private readonly LineService _lineService;
-    private readonly TraverseDirection _traverseDirection;
 
     public NonConvexSlicerHelper(
         LineIntersector lineIntersector, 
-        TraverseDirection traverseDirection, 
         LineService lineService)
     {
         _lineIntersector = lineIntersector;
-        _traverseDirection = traverseDirection;
         _lineService = lineService;
     }
 
     public List<CoordinatePCN> GetSpecialPoints(LinearRing ring)
     {
         var list = new List<CoordinatePCN>(ring.Count - 4);
-        var clockwise = _traverseDirection.IsClockwiseBypass(ring);
         var coordinates = ring.Coordinates;
         for (var i = 0; i < coordinates.Length - 1; ++i)
         {
@@ -42,7 +38,7 @@ public class NonConvexSlicerHelper
                         coordinates[(i - 1 + coordinates.Length - 1) % (coordinates.Length - 1)].Y),
                     new Coordinate(coordinates[(i + 1) % (coordinates.Length - 1)].X - coordinates[i].X,
                         coordinates[(i + 1) % (coordinates.Length - 1)].Y - coordinates[i].Y)
-                ) >= 0 == clockwise)
+                ) >= 0)
             {
                 list.Add(new CoordinatePCN(coordinates[i].X, coordinates[i].Y, c: i));
             }

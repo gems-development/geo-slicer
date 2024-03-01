@@ -17,19 +17,25 @@ NonConvexSlicer nonConvexSlicer =
     new(gf,
         segmentService,
         new NonConvexSlicerHelper(
-            new LineIntersector(new EpsilonCoordinateComparator(epsilon), lineService, epsilon), traverseDirection,
+            new LineIntersector(new EpsilonCoordinateComparator(epsilon), lineService, epsilon),
             lineService), traverseDirection, lineService);
 
-MultiPolygon multiPolygon =
-    GeoJsonFileService.ReadGeometryFromFile<MultiPolygon>("TestFiles\\baikal_multy_polygon.geojson");
+LinearRing linearRing;
 
-LinearRing shell = ((Polygon)multiPolygon[0]).Shell;
+// MultiPolygon multiPolygon =
+//     GeoJsonFileService.ReadGeometryFromFile<MultiPolygon>("TestFiles\\baikal_multy_polygon.geojson");
+//
+// linearRing = ((Polygon)multiPolygon[0]).Shell;
 
-List<LinearRing> result = nonConvexSlicer.Slice(shell);
+LineString lineString = GeoJsonFileService.ReadGeometryFromFile<LineString>("TestFiles\\maloeOzeroLinearRing.geojson");
+
+linearRing = gf.CreateLinearRing(lineString.Coordinates);
+
+List<LinearRing> result = nonConvexSlicer.Slice(linearRing);
 IEnumerable<Polygon> polygons = result.Select(ring => new Polygon(ring));
 
 MultiPolygon multiPolygonResult = new MultiPolygon(polygons.ToArray());
-GeoJsonFileService.WriteGeometryToFile(multiPolygonResult, "TestFiles\\baikal_result.geojson");
+GeoJsonFileService.WriteGeometryToFile(multiPolygonResult, "TestFiles\\moNew_res.geojson");
 
 
 // MultiPolygon baikalMultiPolygon =
