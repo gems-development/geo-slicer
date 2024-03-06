@@ -66,16 +66,21 @@ public class LineIntersector
         out double y, out bool isIntersects)
     {
         result = null;
-
-        (double a, double b, double c) canonicalA = LineService.ToCanonical(a1, a2);
-        (double a, double b, double c) canonicalB = LineService.ToCanonical(b1, b2);
-        GetIntersectionCoordinate(canonicalA, canonicalB, out x, out y, out isIntersects);
+        
+        LineService.ToCanonical(a1, a2, 
+            out double canonical1A, out double canonical1B, out double canonical1C);
+        LineService.ToCanonical(b1, b2, 
+            out double canonical2A, out double canonical2B, out double canonical2C);
+        GetIntersectionCoordinate(canonical1A, canonical1B, canonical1C,
+            canonical2A, canonical2B, canonical2C,
+            out x, out y, out isIntersects);
 
         // Прямые параллельны, проверка на Extension, Part, Equals, Contains, Overlay, NoIntersection
         if (!isIntersects)
         {
             // Проверка, есть ли между прямыми расстояние
-            if (_lineService.IsLineEquals(canonicalA, canonicalB))
+            if (_lineService.IsLineEquals(canonical1A, canonical1B, canonical1C,
+                    canonical2A, canonical2B, canonical2C))
             {
                 return GetParallelIntersection(a1, a2, b1, b2, ref result);
             }
@@ -208,13 +213,13 @@ public class LineIntersector
 
     // Возвращает точку пересечения в out переменных
     private void GetIntersectionCoordinate(
-        (double a, double b, double c) line1,
-        (double a, double b, double c) line2,
+        double a1, double b1, double c1,
+        double a2, double b2, double c2,
         out double x,
         out double y,
         out bool isIntersects)
     {
-        double delta = line1.a * line2.b - line2.a * line1.b;
+        double delta = a1 * b2 - a2 * b1;
 
         if (Math.Abs(delta) <= _epsilon)
         {
@@ -224,8 +229,8 @@ public class LineIntersector
             return;
         }
 
-        x = (line2.b * line1.c - line1.b * line2.c) / delta;
-        y = (line1.a * line2.c - line2.a * line1.c) / delta;
+        x = (b2 * c1 - b1 * c2) / delta;
+        y = (a1 * c2 - a2 * c1) / delta;
         isIntersects = true;
     }
 }

@@ -20,12 +20,12 @@ public class LineService
         return product;
     }
 
-    public static (double a, double b, double c) ToCanonical(Coordinate first, Coordinate second)
+    public static void ToCanonical(Coordinate first, Coordinate second,
+        out double a, out double b, out double c)
     {
-        double a = second.Y - first.Y;
-        double b = first.X - second.X;
-        double c = a * first.X + b * first.Y;
-        return (a, b, c);
+        a = second.Y - first.Y;
+        b = first.X - second.X;
+        c = a * first.X + b * first.Y;
     }
 
     public bool IsCoordinateInSegment(Coordinate coordinate, Coordinate first, Coordinate second)
@@ -60,11 +60,11 @@ public class LineService
     }
 
 
-    public bool IsLineEquals((double a, double b, double c) line1, (double a, double b, double c) line2)
+    public bool IsLineEquals(double a1, double b1, double c1, double a2, double b2, double c2)
     {
-        bool res = Math.Abs(line1.a * line2.b - line1.b * line2.a) <= _epsilon
-               && Math.Abs(line1.a * line2.c - line1.c * line2.a) <= _epsilon
-               && Math.Abs(line1.b * line2.c - line1.c * line2.b) <= _epsilon;
+        bool res = Math.Abs(a1 * b2 - b1 * a2) <= _epsilon
+               && Math.Abs(a1 * c2 - c1 * a2) <= _epsilon
+               && Math.Abs(b1 * c2 - c1 * b2) <= _epsilon;
         return res;
     }
 }
