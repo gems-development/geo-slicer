@@ -51,13 +51,13 @@ public class IntersectorBench
         {
             for (int j = 0; j < _coordinates.Length - 1; j++)
             {
-                _lineIntersector.CheckIntersection(IntersectionType.Inner, _coordinates[i], _coordinates[i + 1],
+                _lineIntersector.CheckIntersection(LineIntersectionType.Inner, _coordinates[i], _coordinates[i + 1],
                     _coordinates[j], _coordinates[j + 1]);
-                _lineIntersector.CheckIntersection(IntersectionType.Inner, _coordinates[i], _coordinates[j + 1],
+                _lineIntersector.CheckIntersection(LineIntersectionType.Inner, _coordinates[i], _coordinates[j + 1],
                     _coordinates[j], _coordinates[i + 1]);
-                _lineIntersector.CheckIntersection(IntersectionType.Inner, _coordinates[i], _coordinates[i + 1],
+                _lineIntersector.CheckIntersection(LineIntersectionType.Inner, _coordinates[i], _coordinates[i + 1],
                     _coordinates[i], _coordinates[j + 1]);
-                _lineIntersector.CheckIntersection(IntersectionType.Inner, _coordinates[i], _coordinates[i + 1],
+                _lineIntersector.CheckIntersection(LineIntersectionType.Inner, _coordinates[i], _coordinates[i + 1],
                     _coordinates[i + 1], _coordinates[i]);
             }
         }

@@ -9,9 +9,9 @@ namespace GeoSlicer.NonConvexSlicer.Helpers;
 
 public class NonConvexSlicerHelper
 {
-    private const IntersectionType SuitableIntersectionType = IntersectionType.Inner | IntersectionType.TyShaped |
-                                                              IntersectionType.Contains | IntersectionType.Part |
-                                                              IntersectionType.Overlay;
+    private const LineIntersectionType SuitableIntersectionType = LineIntersectionType.Inner | LineIntersectionType.TyShaped |
+                                                              LineIntersectionType.Contains | LineIntersectionType.Part |
+                                                              LineIntersectionType.Overlay;
 
     private readonly LineIntersector _lineIntersector;
     private readonly LineService _lineService;
