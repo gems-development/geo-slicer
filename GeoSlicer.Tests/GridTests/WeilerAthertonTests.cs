@@ -1,17 +1,12 @@
 ﻿using NetTopologySuite.Geometries;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using GeoSlicer.GridSlicer;
 
 namespace GeoSlicer.Tests.GridTests;
 
 public class WeilerAthertonTests
 {
     private readonly GeometryFactory _gf = NetTopologySuite.NtsGeometryServices.Instance.CreateGeometryFactory(4326);
-
+    private readonly GridSlicer.GridSlicer slicer = new GridSlicer.GridSlicer();
     [Fact]
     public void SimpleTest()
     {
@@ -26,18 +21,43 @@ public class WeilerAthertonTests
             new(3, 2), new(5, 6), new(8, 2), new(3, 2)
         };
 
-        //var lnr = _gf.CreateLinearRing(coordinates);
-        var slicer = new GridSlicer.GridSlicer();
-
         List<List<Coordinate>> expected = new List<List<Coordinate>>()
         {
             new List<Coordinate>() {
-                new Coordinate(4, 2), new Coordinate(3, 2), new Coordinate(4, 4), new Coordinate(4, 2)
+                new Coordinate(4, 4), new Coordinate(4, 2), new Coordinate(3, 2), new Coordinate(4, 4)
             }
         };
 
         //Act
         var figures = slicer.WeilerAtherton(clipped,cutting);
+
+        //Assert
+        Assert.Equal(expected, figures);
+    }
+
+    [Fact]
+    public void TestWhereNodeToENextEqualsNull()
+    {
+        //Arrange
+        List<Coordinate> clipped = new List<Coordinate>()
+        {
+            new(8,2), new(2,-2), new(-1,2), new(1,6), new(8,6), new(8,2)
+        };
+
+        List<Coordinate> cutting = new List<Coordinate>()
+        {
+            new(5,4), new(10, 4), new(10, -2), new(5, -2), new(5,4)
+        };
+
+        List<List<Coordinate>> expected = new List<List<Coordinate>>()
+        {
+            new List<Coordinate>() {
+                new(8, 4), new(8, 2), new(5, 0), new(5,4), new(8, 4)
+            }
+        };
+
+        //Act
+        var figures = slicer.WeilerAtherton(clipped, cutting);
 
         //Assert
         Assert.Equal(expected, figures);

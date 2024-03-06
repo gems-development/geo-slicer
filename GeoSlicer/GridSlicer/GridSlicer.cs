@@ -5,10 +5,7 @@ using NetTopologySuite;
 using NetTopologySuite.Geometries;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;    
 using static GeoSlicer.Utils.SegmentService;
 
 namespace GeoSlicer.GridSlicer;
@@ -143,9 +140,8 @@ public class GridSlicer
 
                 if (intersection.Item2 != null && intersection.Item1 is IntersectionType.Inner)
                 {
-                    CoordinateSupport pointIntersection = new CoordinateSupport(intersection.Item2);
-                    LinkedListNode<CoordinateSupport> intersectionNodeInClip = new LinkedListNode<CoordinateSupport>(pointIntersection);
-                    LinkedListNode<CoordinateSupport> intersectionNodeInCut = new LinkedListNode<CoordinateSupport>(pointIntersection);
+                    LinkedListNode<CoordinateSupport> intersectionNodeInClip = new LinkedListNode<CoordinateSupport>(new CoordinateSupport(intersection.Item2));
+                    LinkedListNode<CoordinateSupport> intersectionNodeInCut = new LinkedListNode<CoordinateSupport>(new CoordinateSupport(intersection.Item2));
 
                     intersectionNodeInClip.Value.Coord = intersectionNodeInCut;
                     intersectionNodeInCut.Value.Coord = intersectionNodeInClip;
@@ -187,11 +183,6 @@ public class GridSlicer
                     if (node_from_e_to_l.Next == null)
                     {
                         node_from_e_to_l = clipped.First;
-
-                        if(node_from_e_to_l!.Value.Type == PointType.Living)
-                        {
-                            start_in_cutting = node_from_e_to_l.Value.Coord;
-                        }
                     }
                     
                     if (node_from_e_to_l!.Next!.Value.Type == PointType.Living)
@@ -200,11 +191,17 @@ public class GridSlicer
                     }
                 }
 
-                for(LinkedListNode<CoordinateSupport>? node_cutting = start_in_cutting; node_cutting!.Value.Coord!=node_in_clipped; node_cutting = node_cutting.Next)
+                for(LinkedListNode<CoordinateSupport>? node_cutting = start_in_cutting; node_cutting!.Value.Coord!=node_in_clipped; node_cutting = node_cutting!.Next)
                 {
                     figure.Add(node_cutting.Value);
+
+                    if(node_cutting.Next == null)
+                    {
+                        node_cutting = cutting.First;
+                    }
                 }
 
+                figure.Add(node_in_clipped.Value);
                 result.Add(figure);
             }
         }
