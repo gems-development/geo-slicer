@@ -7,7 +7,7 @@ using GeoSlicer.Benchmark.Benchmarks;
 
 namespace GeoSlicer.Benchmark
 {
-    public class Program
+    public static class Program
     {
         public static void Main(string[] args)
         {

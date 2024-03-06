@@ -5,7 +5,8 @@ namespace GeoSlicer.Tests;
 
 public class TraverseDirectionTests
 {
-    private TraverseDirection _traverseDirection = new TraverseDirection(new SegmentService());
+    private readonly TraverseDirection _traverseDirection = new TraverseDirection(new LineService(1E-5));
+    
     [Fact]
     public void IsClockwiseBypassTriangleTest()
     {

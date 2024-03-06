@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using GeoSlicer.Utils;
 using GeoSlicer.Utils.Intersectors;
-using GeoSlicer.Utils.Intersectors.CoordinateComparators;
 using NetTopologySuite.Geometries;
 using static GeoSlicer.Utils.SegmentService;
 using LineIntersector = GeoSlicer.Utils.Intersectors.LineIntersector;
@@ -10,33 +9,28 @@ namespace GeoSlicer.NonConvexSlicer.Helpers;
 
 public class NonConvexSlicerHelper
 {
-    private const IntersectionType SuitableIntersectionType = IntersectionType.Inner | IntersectionType.TyShaped |
-                                                              IntersectionType.Contains | IntersectionType.Part |
-                                                              IntersectionType.Overlay;
+    private const LineIntersectionType SuitableIntersectionType = LineIntersectionType.Inner | LineIntersectionType.TyShaped |
+                                                              LineIntersectionType.Contains | LineIntersectionType.Part |
+                                                              LineIntersectionType.Overlay;
 
     private readonly LineIntersector _lineIntersector;
-    private readonly SegmentService _segmentService;
-    private readonly TraverseDirection _traverseDirection;
+    private readonly LineService _lineService;
 
     public NonConvexSlicerHelper(
-        double epsilon = 1E-5, 
-        LineIntersector? lineIntersector = null, 
-        SegmentService? segmentService = null,
-        TraverseDirection? traverseDirection = null)
+        LineIntersector lineIntersector, 
+        LineService lineService)
     {
-        _lineIntersector = lineIntersector ?? new(new EpsilonCoordinateComparator(epsilon), epsilon);
-        _segmentService = segmentService ?? new SegmentService(epsilon);
-        _traverseDirection = traverseDirection ?? new TraverseDirection(_segmentService);
+        _lineIntersector = lineIntersector;
+        _lineService = lineService;
     }
 
-    public List<CoordinatePCN> GetSpecialPoints(LinearRing ring)
+    public List<CoordinatePcn> GetSpecialPoints(LinearRing ring)
     {
-        var list = new List<CoordinatePCN>();
-        var clockwise = _traverseDirection.IsClockwiseBypass(ring);
+        var list = new List<CoordinatePcn>(ring.Count - 4);
         var coordinates = ring.Coordinates;
         for (var i = 0; i < coordinates.Length - 1; ++i)
         {
-            if (_segmentService.VectorProduct(
+            if (_lineService.VectorProduct(
                     new Coordinate(
                         coordinates[i].X -
                         coordinates[(i - 1 + coordinates.Length - 1) % (coordinates.Length - 1)].X,
@@ -44,38 +38,38 @@ public class NonConvexSlicerHelper
                         coordinates[(i - 1 + coordinates.Length - 1) % (coordinates.Length - 1)].Y),
                     new Coordinate(coordinates[(i + 1) % (coordinates.Length - 1)].X - coordinates[i].X,
                         coordinates[(i + 1) % (coordinates.Length - 1)].Y - coordinates[i].Y)
-                ) >= 0 == clockwise)
+                ) >= 0)
             {
-                list.Add(new CoordinatePCN(coordinates[i].X, coordinates[i].Y, c: i));
+                list.Add(new CoordinatePcn(coordinates[i].X, coordinates[i].Y, c: i));
             }
         }
 
         return list;
     }
 
-    private bool FirstPointCanSeeSecond(CoordinatePCN[] ring, CoordinatePCN pointA, CoordinatePCN pointB)
+    private bool FirstPointCanSeeSecond(CoordinatePcn[] ring, CoordinatePcn pointA, CoordinatePcn pointB)
     {
         return pointA.Equals2D(pointB) ||
-               InsideTheAngle(pointA, pointB, ring[pointA.NL],
-                   pointA, ring[pointA.PL]) ||
-               (ring[pointA.NL].Equals2D(pointB) && pointA.NL == pointB.C) ||
-               (ring[pointA.PL].Equals2D(pointB) && pointA.PL == pointB.C);
+               InsideTheAngle(pointA, pointB, ring[pointA.Nl],
+                   pointA, ring[pointA.Pl]) ||
+               (ring[pointA.Nl].Equals2D(pointB) && pointA.Nl == pointB.C) ||
+               (ring[pointA.Pl].Equals2D(pointB) && pointA.Pl == pointB.C);
     }
 
-    public bool CanSeeEachOther(CoordinatePCN[] ring, CoordinatePCN pointA, CoordinatePCN pointB)
+    public bool CanSeeEachOther(CoordinatePcn[] ring, CoordinatePcn pointA, CoordinatePcn pointB)
     {
         return FirstPointCanSeeSecond(ring, pointA, pointB) && FirstPointCanSeeSecond(ring, pointB, pointA);
     }
 
-    public bool HasIntersection(CoordinatePCN[] ring, CoordinatePCN coordCurrent, CoordinatePCN coordNext)
+    public bool HasIntersection(CoordinatePcn[] ring, CoordinatePcn coordCurrent, CoordinatePcn coordNext)
     {
         if (coordCurrent.Equals2D(coordNext)) return false;
-        if (coordCurrent.PL == coordNext.C) return true;
+        if (coordCurrent.Pl == coordNext.C) return true;
         var index = coordCurrent.C;
-        while (ring[index].NL != coordCurrent.C)
+        while (ring[index].Nl != coordCurrent.C)
         {
             var firstCoord = ring[index];
-            var secondCoord = ring[firstCoord.NL];
+            var secondCoord = ring[firstCoord.Nl];
             if (_lineIntersector.CheckIntersection(SuitableIntersectionType,
                     coordCurrent, coordNext, firstCoord, secondCoord))
             {
