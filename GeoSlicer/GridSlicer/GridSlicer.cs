@@ -5,6 +5,7 @@ using NetTopologySuite;
 using NetTopologySuite.Geometries;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -42,6 +43,7 @@ public class GridSlicer
         return false;
     }
 
+    // todo вынести epsilon в поле класса
     public bool IsPointOnSegment(Coordinate point, Coordinate l1, Coordinate l2, double epsilon = 1e-9)
     {
         Coordinate vec1 = new Coordinate(l2.X - point.X, l2.Y - point.Y);
@@ -114,7 +116,6 @@ public class GridSlicer
  
     public List<List<Coordinate>> WeilerAtherton(List<Coordinate> _clipped, List<Coordinate> _cutting, double epsilon = 1e-9)
     {
-        //проверяем, находятся ли вершины каждого многоугольника внутри другого   ///это нужно будет для определения entering и living точек
         LinkedList<CoordinateSupport> clipped = CoordinateToCoordinateSupport(_clipped);
         LinkedList<CoordinateSupport> cutting = CoordinateToCoordinateSupport(_cutting);
         
@@ -129,41 +130,45 @@ public class GridSlicer
                 }
                 else if (node_i.Next != null)
                 {
-                    intersection = _lineIntersector.GetIntersection(node_i!.Value, node_i.Next!.Value, node_j!.Value, cutting.First!.Value);
+                    intersection = _lineIntersector.GetIntersection(node_i!.Value, node_i.Next!.Value, node_j!.Value, cutting.First!.Next!.Value);
                 }
                 else if (node_j.Next != null)
                 {
-                    intersection = _lineIntersector.GetIntersection(node_i!.Value, clipped.First!.Value, node_j!.Value, node_j.Next!.Value);
+                    intersection = _lineIntersector.GetIntersection(node_i!.Value, clipped.First!.Next!.Value, node_j!.Value, node_j.Next!.Value);
                 }
                 else
                 {
-                    intersection = _lineIntersector.GetIntersection(node_i!.Value, clipped.First!.Value, node_j!.Value, cutting.First!.Value);
-
+                    intersection = _lineIntersector.GetIntersection(node_i!.Value, clipped.First!.Next!.Value, node_j!.Value, cutting.First!.Next!.Value);
                 }
+
                 if (intersection.Item2 != null && intersection.Item1 is IntersectionType.Inner)
                 {
                     CoordinateSupport pointIntersection = new CoordinateSupport(intersection.Item2);
                     LinkedListNode<CoordinateSupport> intersectionNodeInClip = new LinkedListNode<CoordinateSupport>(pointIntersection);
                     LinkedListNode<CoordinateSupport> intersectionNodeInCut = new LinkedListNode<CoordinateSupport>(pointIntersection);
-                    LinkedListNode<CoordinateSupport> clippedNode = new LinkedListNode<CoordinateSupport>(node_i.Value);
-                    LinkedListNode<CoordinateSupport> cuttingNode = new LinkedListNode<CoordinateSupport>(node_j.Value);
 
-                    clipped.AddAfter(clippedNode, intersectionNodeInClip);
-                    cutting.AddAfter(cuttingNode, intersectionNodeInCut);
+                    intersectionNodeInClip.Value.Coord = intersectionNodeInCut;
+                    intersectionNodeInCut.Value.Coord = intersectionNodeInClip;
 
+                    clipped.AddAfter(node_i, intersectionNodeInClip);
+                    cutting.AddAfter(node_j, intersectionNodeInCut);
+                    
                     if (IsPointInPolygon(node_i.Value, _cutting))
                     {
                         intersectionNodeInClip.Value.Type = PointType.Living;
-                        intersectionNodeInClip.Value.Coord = intersectionNodeInCut;
+                        intersectionNodeInCut.Value.Type = PointType.Living;
                     }
                     else
                     {
                         intersectionNodeInCut.Value.Type = PointType.Entering;
-                        intersectionNodeInCut.Value.Coord = intersectionNodeInClip;
+                        intersectionNodeInClip.Value.Type = PointType.Entering;
                     }
                 }
             }
         }
+
+        Print(clipped, cutting);
+        
 
         List<List<Coordinate>> result = new();
         
@@ -173,7 +178,7 @@ public class GridSlicer
             {
                 List<Coordinate> figure = new();
 
-                LinkedListNode<CoordinateSupport>? start_in_cutting = new LinkedListNode<CoordinateSupport>(cutting.First!.Value);
+                LinkedListNode<CoordinateSupport>? start_in_cutting = new LinkedListNode<CoordinateSupport>(node_in_clipped.Value);
 
                 for (LinkedListNode<CoordinateSupport>? node_from_e_to_l = node_in_clipped; node_from_e_to_l!.Value.Type != PointType.Living; node_from_e_to_l = node_from_e_to_l!.Next)
                 {
@@ -205,6 +210,46 @@ public class GridSlicer
         }
 
         return result;
+    }
+
+    void Print(LinkedList<CoordinateSupport> clipped, LinkedList<CoordinateSupport> cutting)
+    {
+        try
+        {
+            //Pass the filepath and filename to the StreamWriter Constructor
+            StreamWriter sw = new StreamWriter("C:\\Users\\micha\\Desktop\\Миша\\work\\C#\\Geo\\geo-slicer\\GeoSlicer\\GridSlicer\\Bad.txt");
+            //Write a line of text
+            sw.WriteLine("clipped\n");
+            for (LinkedListNode<CoordinateSupport>? i = clipped.First; i != null; i = i.Next)
+            {
+                if (i.Value.Coord != null)
+                {
+                    sw.WriteLine(i.Value + " " + i.Value.Type + " " + i.Value.Coord.Next!.Value);
+                }
+                else
+                {
+                    sw.WriteLine(i.Value + " " + i.Value.Type);
+                }
+            }
+            sw.WriteLine("\n\n\ncutting\n");
+            for (LinkedListNode<CoordinateSupport>? i = cutting.First; i != null; i = i.Next)
+            {
+                if (i.Value.Coord != null)
+                {
+                    sw.WriteLine(i.Value + " " + i.Value.Type + " " + i.Value.Coord.Next!.Value);
+                }
+                else
+                {
+                    sw.WriteLine(i.Value + " " + i.Value.Type);
+                }
+            }
+            //Close the file
+            sw.Close();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("Exception: " + e.Message);
+        }
     }
 }
  
