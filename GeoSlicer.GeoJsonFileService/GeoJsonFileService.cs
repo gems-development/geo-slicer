@@ -41,7 +41,7 @@ public static class GeoJsonFileService
         return Path.Combine(root, path);
     }
 
-    public static string GetRoot()
+    private static string GetRoot()
     {
         if (_fullRootName is null)
         {

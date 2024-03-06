@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using NetTopologySuite.Geometries;
 
 namespace GeoSlicer.Utils;

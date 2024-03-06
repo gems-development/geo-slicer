@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using GeoSlicer.NonConvexSlicer.Helpers;
 using GeoSlicer.Utils;
-using NetTopologySuite;
 using NetTopologySuite.Geometries;
 
 namespace GeoSlicer.NonConvexSlicer;
@@ -70,14 +68,14 @@ public class NonConvexSlicer
             return listRingsWithoutSpecialPoints;
         }
 
-        CoordinatePCN firstSpecialPoint = listSpecialPoints[0];
+        CoordinatePcn firstSpecialPoint = listSpecialPoints[0];
         
-        var coordB = new CoordinatePCN(
+        var coordB = new CoordinatePcn(
             newRingCoordinates[firstSpecialPoint.C % (newRingCoordinates.Length - 1)].X,
             newRingCoordinates[firstSpecialPoint.C % (newRingCoordinates.Length - 1)].Y,
             c: firstSpecialPoint.C % (newRingCoordinates.Length - 1));
 
-        var coordC = new CoordinatePCN(
+        var coordC = new CoordinatePcn(
             newRingCoordinates[(firstSpecialPoint.C + 1) % (newRingCoordinates.Length - 1)].X,
             newRingCoordinates[(firstSpecialPoint.C + 1) % (newRingCoordinates.Length - 1)].Y,
             c: (firstSpecialPoint.C + 1) % (newRingCoordinates.Length - 1));
@@ -89,7 +87,7 @@ public class NonConvexSlicer
 
         while (flag)
         {
-            var coordM = new CoordinatePCN(
+            var coordM = new CoordinatePcn(
                 newRingCoordinates[pozNextPoint].X,
                 newRingCoordinates[pozNextPoint].Y,
                 c: pozNextPoint);
@@ -106,7 +104,7 @@ public class NonConvexSlicer
                 //NextPoint не является особой точкой в новом кольце
                 //и не лежит на одной прямой со старой особой точкой и предыдущей для старой особой
                 pozNextPoint = (pozNextPoint - 1 + newRingCoordinates.Length - 1) % (newRingCoordinates.Length - 1);
-                coordM = new CoordinatePCN(
+                coordM = new CoordinatePcn(
                     newRingCoordinates[pozNextPoint].X,
                     newRingCoordinates[pozNextPoint].Y,
                     c: pozNextPoint);
@@ -165,10 +163,10 @@ public class NonConvexSlicer
         if (!_traverseDirection.IsClockwiseBypass(ring)) TraverseDirection.ChangeDirection(ring);
         //Список особых точек
         var listSpecialPoints = _helper.GetSpecialPoints(ring);
-        var ringCoords = new CoordinatePCN[ring.Count - 1];
+        var ringCoords = new CoordinatePcn[ring.Count - 1];
         for (var i = 0; i < ring.Count - 1; ++i)
         {
-            ringCoords[i] = new CoordinatePCN(ring.Coordinates[i].X, ring.Coordinates[i].Y,
+            ringCoords[i] = new CoordinatePcn(ring.Coordinates[i].X, ring.Coordinates[i].Y,
                 (i - 2 + ring.Count) % (ring.Count - 1),
                 i, (i + 1) % (ring.Count - 1));
         }
@@ -211,13 +209,13 @@ public class NonConvexSlicer
                 for (var j = coordCurrent.C; j != coordCurrent.P;)
                 {
                     var coordIter = ringCoords[j];
-                    coordIter.PL = coordIter.P;
-                    coordIter.NL = coordIter.N;
+                    coordIter.Pl = coordIter.P;
+                    coordIter.Nl = coordIter.N;
                     j = coordIter.N;
                 }
 
-                ringCoords[coordCurrent.P].PL = ringCoords[coordCurrent.P].P;
-                ringCoords[coordCurrent.P].NL = ringCoords[coordCurrent.P].N;
+                ringCoords[coordCurrent.P].Pl = ringCoords[coordCurrent.P].P;
+                ringCoords[coordCurrent.P].Nl = ringCoords[coordCurrent.P].N;
             }
 
             var coordNext = ringCoords[listSpecialPoints[
@@ -289,7 +287,7 @@ public class NonConvexSlicer
                 }
             }
 
-            if (coordNext.C != coordCurrent.NL)
+            if (coordNext.C != coordCurrent.Nl)
             {
                 var currentLinearRingCoords = new List<Coordinate>();
                 for (var j = coordCurrent.C; j != (coordCurrent.C == coordNext.C ? coordCurrent.P : coordNext.C);)

@@ -15,22 +15,18 @@ public class NonConvexSlicerHelper
 
     private readonly LineIntersector _lineIntersector;
     private readonly LineService _lineService;
-    private readonly TraverseDirection _traverseDirection;
 
     public NonConvexSlicerHelper(
         LineIntersector lineIntersector, 
-        TraverseDirection traverseDirection, 
         LineService lineService)
     {
         _lineIntersector = lineIntersector;
-        _traverseDirection = traverseDirection;
         _lineService = lineService;
     }
 
-    public List<CoordinatePCN> GetSpecialPoints(LinearRing ring)
+    public List<CoordinatePcn> GetSpecialPoints(LinearRing ring)
     {
-        var list = new List<CoordinatePCN>(ring.Count - 4);
-        var clockwise = _traverseDirection.IsClockwiseBypass(ring);
+        var list = new List<CoordinatePcn>(ring.Count - 4);
         var coordinates = ring.Coordinates;
         for (var i = 0; i < coordinates.Length - 1; ++i)
         {
@@ -42,38 +38,38 @@ public class NonConvexSlicerHelper
                         coordinates[(i - 1 + coordinates.Length - 1) % (coordinates.Length - 1)].Y),
                     new Coordinate(coordinates[(i + 1) % (coordinates.Length - 1)].X - coordinates[i].X,
                         coordinates[(i + 1) % (coordinates.Length - 1)].Y - coordinates[i].Y)
-                ) >= 0 == clockwise)
+                ) >= 0)
             {
-                list.Add(new CoordinatePCN(coordinates[i].X, coordinates[i].Y, c: i));
+                list.Add(new CoordinatePcn(coordinates[i].X, coordinates[i].Y, c: i));
             }
         }
 
         return list;
     }
 
-    private bool FirstPointCanSeeSecond(CoordinatePCN[] ring, CoordinatePCN pointA, CoordinatePCN pointB)
+    private bool FirstPointCanSeeSecond(CoordinatePcn[] ring, CoordinatePcn pointA, CoordinatePcn pointB)
     {
         return pointA.Equals2D(pointB) ||
-               InsideTheAngle(pointA, pointB, ring[pointA.NL],
-                   pointA, ring[pointA.PL]) ||
-               (ring[pointA.NL].Equals2D(pointB) && pointA.NL == pointB.C) ||
-               (ring[pointA.PL].Equals2D(pointB) && pointA.PL == pointB.C);
+               InsideTheAngle(pointA, pointB, ring[pointA.Nl],
+                   pointA, ring[pointA.Pl]) ||
+               (ring[pointA.Nl].Equals2D(pointB) && pointA.Nl == pointB.C) ||
+               (ring[pointA.Pl].Equals2D(pointB) && pointA.Pl == pointB.C);
     }
 
-    public bool CanSeeEachOther(CoordinatePCN[] ring, CoordinatePCN pointA, CoordinatePCN pointB)
+    public bool CanSeeEachOther(CoordinatePcn[] ring, CoordinatePcn pointA, CoordinatePcn pointB)
     {
         return FirstPointCanSeeSecond(ring, pointA, pointB) && FirstPointCanSeeSecond(ring, pointB, pointA);
     }
 
-    public bool HasIntersection(CoordinatePCN[] ring, CoordinatePCN coordCurrent, CoordinatePCN coordNext)
+    public bool HasIntersection(CoordinatePcn[] ring, CoordinatePcn coordCurrent, CoordinatePcn coordNext)
     {
         if (coordCurrent.Equals2D(coordNext)) return false;
-        if (coordCurrent.PL == coordNext.C) return true;
+        if (coordCurrent.Pl == coordNext.C) return true;
         var index = coordCurrent.C;
-        while (ring[index].NL != coordCurrent.C)
+        while (ring[index].Nl != coordCurrent.C)
         {
             var firstCoord = ring[index];
-            var secondCoord = ring[firstCoord.NL];
+            var secondCoord = ring[firstCoord.Nl];
             if (_lineIntersector.CheckIntersection(SuitableIntersectionType,
                     coordCurrent, coordNext, firstCoord, secondCoord))
             {
