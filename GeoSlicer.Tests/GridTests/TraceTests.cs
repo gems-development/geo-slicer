@@ -1,26 +1,26 @@
 ﻿using NetTopologySuite.Geometries;
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using GeoSlicer.GridSlicer;
-using NetTopologySuite.Algorithm;
+using GeoSlicer.Utils;
+using GeoSlicer.Utils.Intersectors.CoordinateComparators;
+using LineIntersector = GeoSlicer.Utils.Intersectors.LineIntersector;
 
 namespace GeoSlicer.Tests.GridTests;
 
 public class TraceTests
 {
-    private readonly GeometryFactory _gf = NetTopologySuite.NtsGeometryServices.Instance.CreateGeometryFactory(4326);
+    private static readonly double Epsilon = 1E-9;
+
+    private static readonly LineService LineService = new LineService(Epsilon);
+
+    private static readonly GridSlicer.GridSlicer Slicer =
+        new(new LineIntersector(new EpsilonCoordinateComparator(Epsilon), LineService, Epsilon), Epsilon, LineService);
 
     [Fact]
     public void TestIsPointInPolygon()
     {
         Coordinate[] polygon1
               = { new Coordinate(2, 1), new Coordinate(1, 4), new Coordinate(4, 4), new Coordinate(2, 1) };
-
-        var slicer = new GridSlicer.GridSlicer();
-
+        
         Coordinate pointTrue1 = new Coordinate(2, 1);
         Coordinate pointTrue2 = new Coordinate(2, 2);
         Coordinate pointTrue3 = new Coordinate(1, 4);
@@ -31,15 +31,15 @@ public class TraceTests
         Coordinate pointFalse2 = new Coordinate(1, 2);
         Coordinate pointFalse3 = new Coordinate(-1, 4);
 
-        Assert.True(slicer.IsPointInPolygon(pointTrue1, polygon1.ToList()));
-        Assert.True(slicer.IsPointInPolygon(pointTrue2, polygon1.ToList()));
-        Assert.True(slicer.IsPointInPolygon(pointTrue3, polygon1.ToList()));
-        Assert.True(slicer.IsPointInPolygon(pointTrue4, polygon1.ToList()));
-        Assert.True(slicer.IsPointInPolygon(pointTrue5, polygon1.ToList()));
+        Assert.True(Slicer.IsPointInPolygon(pointTrue1, polygon1.ToList()));
+        Assert.True(Slicer.IsPointInPolygon(pointTrue2, polygon1.ToList()));
+        Assert.True(Slicer.IsPointInPolygon(pointTrue3, polygon1.ToList()));
+        Assert.True(Slicer.IsPointInPolygon(pointTrue4, polygon1.ToList()));
+        Assert.True(Slicer.IsPointInPolygon(pointTrue5, polygon1.ToList()));
 
-        Assert.False(slicer.IsPointInPolygon(pointFalse1, polygon1.ToList()));
-        Assert.False(slicer.IsPointInPolygon(pointFalse2, polygon1.ToList()));
-        Assert.False(slicer.IsPointInPolygon(pointFalse3, polygon1.ToList()));
+        Assert.False(Slicer.IsPointInPolygon(pointFalse1, polygon1.ToList()));
+        Assert.False(Slicer.IsPointInPolygon(pointFalse2, polygon1.ToList()));
+        Assert.False(Slicer.IsPointInPolygon(pointFalse3, polygon1.ToList()));
     }
 
     [Fact]
@@ -47,9 +47,7 @@ public class TraceTests
     {
         Coordinate[] polygon1
               = { new Coordinate(1, 4), new Coordinate(3, 7), new Coordinate(5, 4), new Coordinate(3, 4), new Coordinate(3, 2), new Coordinate(1, 4) };
-
-        var slicer = new GridSlicer.GridSlicer();
-
+        
         Coordinate pointTrue1 = new Coordinate(2, 4);
         Coordinate pointTrue2 = new Coordinate(2, 3);
         Coordinate pointTrue3 = new Coordinate(5, 4);
@@ -66,21 +64,21 @@ public class TraceTests
         Coordinate pointFalse7 = new Coordinate(6, 4);
         Coordinate pointFalse8 = new Coordinate(3, 1);
 
-        Assert.True(slicer.IsPointInPolygon(pointTrue1, polygon1.ToList()));
-        Assert.True(slicer.IsPointInPolygon(pointTrue2, polygon1.ToList()));
-        Assert.True(slicer.IsPointInPolygon(pointTrue3, polygon1.ToList()));
-        Assert.True(slicer.IsPointInPolygon(pointTrue4, polygon1.ToList()));
-        Assert.True(slicer.IsPointInPolygon(pointTrue5, polygon1.ToList()));
-        Assert.True(slicer.IsPointInPolygon(pointTrue6, polygon1.ToList()));
+        Assert.True(Slicer.IsPointInPolygon(pointTrue1, polygon1.ToList()));
+        Assert.True(Slicer.IsPointInPolygon(pointTrue2, polygon1.ToList()));
+        Assert.True(Slicer.IsPointInPolygon(pointTrue3, polygon1.ToList()));
+        Assert.True(Slicer.IsPointInPolygon(pointTrue4, polygon1.ToList()));
+        Assert.True(Slicer.IsPointInPolygon(pointTrue5, polygon1.ToList()));
+        Assert.True(Slicer.IsPointInPolygon(pointTrue6, polygon1.ToList()));
 
-        Assert.False(slicer.IsPointInPolygon(pointFalse1, polygon1.ToList()));
-        Assert.False(slicer.IsPointInPolygon(pointFalse2, polygon1.ToList()));
-        Assert.False(slicer.IsPointInPolygon(pointFalse3, polygon1.ToList()));
-        Assert.False(slicer.IsPointInPolygon(pointFalse4, polygon1.ToList()));
-        Assert.False(slicer.IsPointInPolygon(pointFalse5, polygon1.ToList()));
-        Assert.False(slicer.IsPointInPolygon(pointFalse6, polygon1.ToList()));
-        Assert.False(slicer.IsPointInPolygon(pointFalse7, polygon1.ToList()));
-        Assert.False(slicer.IsPointInPolygon(pointFalse8, polygon1.ToList()));
+        Assert.False(Slicer.IsPointInPolygon(pointFalse1, polygon1.ToList()));
+        Assert.False(Slicer.IsPointInPolygon(pointFalse2, polygon1.ToList()));
+        Assert.False(Slicer.IsPointInPolygon(pointFalse3, polygon1.ToList()));
+        Assert.False(Slicer.IsPointInPolygon(pointFalse4, polygon1.ToList()));
+        Assert.False(Slicer.IsPointInPolygon(pointFalse5, polygon1.ToList()));
+        Assert.False(Slicer.IsPointInPolygon(pointFalse6, polygon1.ToList()));
+        Assert.False(Slicer.IsPointInPolygon(pointFalse7, polygon1.ToList()));
+        Assert.False(Slicer.IsPointInPolygon(pointFalse8, polygon1.ToList()));
     }
 
     [Fact]
@@ -91,7 +89,6 @@ public class TraceTests
                   new Coordinate(7,0), new Coordinate(5,3), new Coordinate(4,1), new Coordinate(3,3), new Coordinate(2,1),
                   new Coordinate(1,1) };
 
-        var slicer = new GridSlicer.GridSlicer();
 
         Coordinate pointTrue1 = new Coordinate(1, 6);
         Coordinate pointTrue2 = new Coordinate(3, 6);
@@ -125,36 +122,36 @@ public class TraceTests
         Coordinate pointFalse17 = new Coordinate(1, -1);
         Coordinate pointFalse18 = new Coordinate(7, -1);
 
-        Assert.True(slicer.IsPointInPolygon(pointTrue1, polygon1.ToList()));
-        Assert.True(slicer.IsPointInPolygon(pointTrue2, polygon1.ToList()));
-        Assert.True(slicer.IsPointInPolygon(pointTrue3, polygon1.ToList()));
-        Assert.True(slicer.IsPointInPolygon(pointTrue4, polygon1.ToList()));
-        Assert.True(slicer.IsPointInPolygon(pointTrue5, polygon1.ToList()));
-        Assert.True(slicer.IsPointInPolygon(pointTrue6, polygon1.ToList()));
-        Assert.True(slicer.IsPointInPolygon(pointTrue7, polygon1.ToList()));
-        Assert.True(slicer.IsPointInPolygon(pointTrue8, polygon1.ToList()));
-        Assert.True(slicer.IsPointInPolygon(pointTrue9, polygon1.ToList()));
-        Assert.True(slicer.IsPointInPolygon(pointTrue10, polygon1.ToList()));
-        Assert.True(slicer.IsPointInPolygon(pointTrue11, polygon1.ToList()));
-        Assert.True(slicer.IsPointInPolygon(pointTrue12, polygon1.ToList()));
+        Assert.True(Slicer.IsPointInPolygon(pointTrue1, polygon1.ToList()));
+        Assert.True(Slicer.IsPointInPolygon(pointTrue2, polygon1.ToList()));
+        Assert.True(Slicer.IsPointInPolygon(pointTrue3, polygon1.ToList()));
+        Assert.True(Slicer.IsPointInPolygon(pointTrue4, polygon1.ToList()));
+        Assert.True(Slicer.IsPointInPolygon(pointTrue5, polygon1.ToList()));
+        Assert.True(Slicer.IsPointInPolygon(pointTrue6, polygon1.ToList()));
+        Assert.True(Slicer.IsPointInPolygon(pointTrue7, polygon1.ToList()));
+        Assert.True(Slicer.IsPointInPolygon(pointTrue8, polygon1.ToList()));
+        Assert.True(Slicer.IsPointInPolygon(pointTrue9, polygon1.ToList()));
+        Assert.True(Slicer.IsPointInPolygon(pointTrue10, polygon1.ToList()));
+        Assert.True(Slicer.IsPointInPolygon(pointTrue11, polygon1.ToList()));
+        Assert.True(Slicer.IsPointInPolygon(pointTrue12, polygon1.ToList()));
 
-        Assert.False(slicer.IsPointInPolygon(pointFalse1, polygon1.ToList()));
-        Assert.False(slicer.IsPointInPolygon(pointFalse2, polygon1.ToList()));
-        Assert.False(slicer.IsPointInPolygon(pointFalse3, polygon1.ToList()));
-        Assert.False(slicer.IsPointInPolygon(pointFalse4, polygon1.ToList()));
-        Assert.False(slicer.IsPointInPolygon(pointFalse5, polygon1.ToList()));
-        Assert.False(slicer.IsPointInPolygon(pointFalse6, polygon1.ToList()));
-        Assert.False(slicer.IsPointInPolygon(pointFalse7, polygon1.ToList()));
-        Assert.False(slicer.IsPointInPolygon(pointFalse8, polygon1.ToList()));
-        Assert.False(slicer.IsPointInPolygon(pointFalse9, polygon1.ToList()));
-        Assert.False(slicer.IsPointInPolygon(pointFalse10, polygon1.ToList()));
-        Assert.False(slicer.IsPointInPolygon(pointFalse11, polygon1.ToList()));
-        Assert.False(slicer.IsPointInPolygon(pointFalse12, polygon1.ToList()));
-        Assert.False(slicer.IsPointInPolygon(pointFalse13, polygon1.ToList()));
-        Assert.False(slicer.IsPointInPolygon(pointFalse14, polygon1.ToList()));
-        Assert.False(slicer.IsPointInPolygon(pointFalse15, polygon1.ToList()));
-        Assert.False(slicer.IsPointInPolygon(pointFalse16, polygon1.ToList()));
-        Assert.False(slicer.IsPointInPolygon(pointFalse17, polygon1.ToList()));
-        Assert.False(slicer.IsPointInPolygon(pointFalse18, polygon1.ToList()));
+        Assert.False(Slicer.IsPointInPolygon(pointFalse1, polygon1.ToList()));
+        Assert.False(Slicer.IsPointInPolygon(pointFalse2, polygon1.ToList()));
+        Assert.False(Slicer.IsPointInPolygon(pointFalse3, polygon1.ToList()));
+        Assert.False(Slicer.IsPointInPolygon(pointFalse4, polygon1.ToList()));
+        Assert.False(Slicer.IsPointInPolygon(pointFalse5, polygon1.ToList()));
+        Assert.False(Slicer.IsPointInPolygon(pointFalse6, polygon1.ToList()));
+        Assert.False(Slicer.IsPointInPolygon(pointFalse7, polygon1.ToList()));
+        Assert.False(Slicer.IsPointInPolygon(pointFalse8, polygon1.ToList()));
+        Assert.False(Slicer.IsPointInPolygon(pointFalse9, polygon1.ToList()));
+        Assert.False(Slicer.IsPointInPolygon(pointFalse10, polygon1.ToList()));
+        Assert.False(Slicer.IsPointInPolygon(pointFalse11, polygon1.ToList()));
+        Assert.False(Slicer.IsPointInPolygon(pointFalse12, polygon1.ToList()));
+        Assert.False(Slicer.IsPointInPolygon(pointFalse13, polygon1.ToList()));
+        Assert.False(Slicer.IsPointInPolygon(pointFalse14, polygon1.ToList()));
+        Assert.False(Slicer.IsPointInPolygon(pointFalse15, polygon1.ToList()));
+        Assert.False(Slicer.IsPointInPolygon(pointFalse16, polygon1.ToList()));
+        Assert.False(Slicer.IsPointInPolygon(pointFalse17, polygon1.ToList()));
+        Assert.False(Slicer.IsPointInPolygon(pointFalse18, polygon1.ToList()));
     }
 }
