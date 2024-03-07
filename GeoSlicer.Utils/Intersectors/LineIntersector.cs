@@ -4,8 +4,6 @@ using NetTopologySuite.Geometries;
 
 namespace GeoSlicer.Utils.Intersectors;
 
-using CanonicalLine = Tuple<double, double, double>;
-
 public class LineIntersector
 {
     private readonly double _epsilon;
