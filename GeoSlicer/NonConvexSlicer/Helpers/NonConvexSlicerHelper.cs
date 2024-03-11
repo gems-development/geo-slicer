@@ -8,7 +8,7 @@ namespace GeoSlicer.NonConvexSlicer.Helpers;
 
 public class NonConvexSlicerHelper
 {
-    private const LineLineIntersectionType SuitableLineIntersectionType = LineLineIntersectionType.Inner | LineLineIntersectionType.TyShaped |
+    private const LineLineIntersectionType SuitableLineLineIntersectionType = LineLineIntersectionType.Inner | LineLineIntersectionType.TyShaped |
                                                               LineLineIntersectionType.Contains | LineLineIntersectionType.Part |
                                                               LineLineIntersectionType.Overlay;
 
@@ -69,7 +69,7 @@ public class NonConvexSlicerHelper
         {
             var firstCoord = ring[index];
             var secondCoord = ring[firstCoord.Nl];
-            if (_lineLineIntersector.CheckIntersection(SuitableLineIntersectionType,
+            if (_lineLineIntersector.CheckIntersection(SuitableLineLineIntersectionType,
                     coordCurrent, coordNext, firstCoord, secondCoord))
             {
                 return true;
@@ -78,7 +78,7 @@ public class NonConvexSlicerHelper
             index = secondCoord.C;
         }
 
-        return _lineLineIntersector.CheckIntersection(SuitableLineIntersectionType,
+        return _lineLineIntersector.CheckIntersection(SuitableLineLineIntersectionType,
             coordCurrent, coordNext, ring[index], coordCurrent);
     }
 }
