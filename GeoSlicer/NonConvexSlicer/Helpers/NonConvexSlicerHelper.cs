@@ -12,7 +12,9 @@ public class NonConvexSlicerHelper
                                                               LineLineIntersectionType.Contains | LineLineIntersectionType.Part |
                                                               LineLineIntersectionType.Overlay;
 
+    private const AreaAreaIntersectionType SuitableAreaAreaIntersectionType = AreaAreaIntersectionType.Inside;
     private readonly LineLineIntersector _lineLineIntersector;
+    private readonly AreaAreaIntersector _areaAreaIntersector = new();
     private readonly LineService _lineService;
 
     public NonConvexSlicerHelper(
@@ -69,16 +71,22 @@ public class NonConvexSlicerHelper
         {
             var firstCoord = ring[index];
             var secondCoord = ring[firstCoord.Nl];
-            if (_lineLineIntersector.CheckIntersection(SuitableLineLineIntersectionType,
+            if (_areaAreaIntersector.CheckIntersection(SuitableAreaAreaIntersectionType,
                     coordCurrent, coordNext, firstCoord, secondCoord))
             {
-                return true;
+                if (_lineLineIntersector.CheckIntersection(SuitableLineLineIntersectionType,
+                        coordCurrent, coordNext, firstCoord, secondCoord))
+                {
+                    return true;
+                }
             }
 
             index = secondCoord.C;
         }
 
-        return _lineLineIntersector.CheckIntersection(SuitableLineLineIntersectionType,
+        return _areaAreaIntersector.CheckIntersection(SuitableAreaAreaIntersectionType,
+                   coordCurrent, coordNext, ring[index], coordCurrent) &&
+            _lineLineIntersector.CheckIntersection(SuitableLineLineIntersectionType,
             coordCurrent, coordNext, ring[index], coordCurrent);
     }
 }
