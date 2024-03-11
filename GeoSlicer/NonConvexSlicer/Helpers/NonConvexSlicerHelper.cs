@@ -3,24 +3,23 @@ using GeoSlicer.Utils;
 using GeoSlicer.Utils.Intersectors;
 using NetTopologySuite.Geometries;
 using static GeoSlicer.Utils.SegmentService;
-using LineIntersector = GeoSlicer.Utils.Intersectors.LineIntersector;
 
 namespace GeoSlicer.NonConvexSlicer.Helpers;
 
 public class NonConvexSlicerHelper
 {
-    private const LineIntersectionType SuitableLineIntersectionType = LineIntersectionType.Inner | LineIntersectionType.TyShaped |
-                                                              LineIntersectionType.Contains | LineIntersectionType.Part |
-                                                              LineIntersectionType.Overlay;
+    private const LineLineIntersectionType SuitableLineIntersectionType = LineLineIntersectionType.Inner | LineLineIntersectionType.TyShaped |
+                                                              LineLineIntersectionType.Contains | LineLineIntersectionType.Part |
+                                                              LineLineIntersectionType.Overlay;
 
-    private readonly LineIntersector _lineIntersector;
+    private readonly LineLineIntersector _lineLineIntersector;
     private readonly LineService _lineService;
 
     public NonConvexSlicerHelper(
-        LineIntersector lineIntersector, 
+        LineLineIntersector lineLineIntersector, 
         LineService lineService)
     {
-        _lineIntersector = lineIntersector;
+        _lineLineIntersector = lineLineIntersector;
         _lineService = lineService;
     }
 
@@ -70,7 +69,7 @@ public class NonConvexSlicerHelper
         {
             var firstCoord = ring[index];
             var secondCoord = ring[firstCoord.Nl];
-            if (_lineIntersector.CheckIntersection(SuitableLineIntersectionType,
+            if (_lineLineIntersector.CheckIntersection(SuitableLineIntersectionType,
                     coordCurrent, coordNext, firstCoord, secondCoord))
             {
                 return true;
@@ -79,7 +78,7 @@ public class NonConvexSlicerHelper
             index = secondCoord.C;
         }
 
-        return _lineIntersector.CheckIntersection(SuitableLineIntersectionType,
+        return _lineLineIntersector.CheckIntersection(SuitableLineIntersectionType,
             coordCurrent, coordNext, ring[index], coordCurrent);
     }
 }

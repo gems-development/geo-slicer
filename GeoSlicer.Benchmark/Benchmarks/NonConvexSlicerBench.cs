@@ -23,7 +23,7 @@ public class NonConvexSlicerBench
         new(Gf,
             SegmentService,
             new NonConvexSlicerHelper(
-                new LineIntersector(new EpsilonCoordinateComparator(Epsilon), LineService, Epsilon),
+                new LineLineIntersector(new EpsilonCoordinateComparator(Epsilon), LineService, Epsilon),
                 LineService), TraverseDirection, LineService);
 
     private readonly LinearRing _ring = Gf.CreateLinearRing(

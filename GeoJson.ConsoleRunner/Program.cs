@@ -17,7 +17,7 @@ NonConvexSlicer nonConvexSlicer =
     new(gf,
         segmentService,
         new NonConvexSlicerHelper(
-            new LineIntersector(new EpsilonCoordinateComparator(epsilon), lineService, epsilon),
+            new LineLineIntersector(new EpsilonCoordinateComparator(epsilon), lineService, epsilon),
             lineService), traverseDirection, lineService);
 
 MultiPolygon multiPolygon =
