@@ -8,9 +8,10 @@ namespace GeoSlicer.NonConvexSlicer.Helpers;
 
 public class NonConvexSlicerHelper
 {
-    private const LineLineIntersectionType SuitableLineLineIntersectionType = LineLineIntersectionType.Inner | LineLineIntersectionType.TyShaped |
-                                                              LineLineIntersectionType.Contains | LineLineIntersectionType.Part |
-                                                              LineLineIntersectionType.Overlay;
+    private const LineLineIntersectionType SuitableLineLineIntersectionType =
+        LineLineIntersectionType.Inner | LineLineIntersectionType.TyShaped |
+        LineLineIntersectionType.Contains | LineLineIntersectionType.Part |
+        LineLineIntersectionType.Overlay;
 
     private const AreaAreaIntersectionType SuitableAreaAreaIntersectionType = AreaAreaIntersectionType.Inside;
     private readonly LineLineIntersector _lineLineIntersector;
@@ -18,11 +19,21 @@ public class NonConvexSlicerHelper
     private readonly LineService _lineService;
 
     public NonConvexSlicerHelper(
-        LineLineIntersector lineLineIntersector, 
+        LineLineIntersector lineLineIntersector,
         LineService lineService)
     {
         _lineLineIntersector = lineLineIntersector;
         _lineService = lineService;
+    }
+    
+    public bool CurrentPointIsSpecial(Coordinate previousPoint, Coordinate currentPoint, Coordinate nextPoint)
+    {
+        return _lineService.VectorProduct(
+            currentPoint.X - previousPoint.X,
+            currentPoint.Y - previousPoint.Y,
+            nextPoint.X - currentPoint.X,
+            nextPoint.Y - currentPoint.Y
+        ) >= 0;
     }
 
     public List<CoordinatePcn> GetSpecialPoints(LinearRing ring)
