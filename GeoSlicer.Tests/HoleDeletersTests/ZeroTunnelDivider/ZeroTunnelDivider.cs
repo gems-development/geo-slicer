@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using GeoSlicer.Utils.Intersectors;
 using NetTopologySuite.Geometries;
 
@@ -21,34 +22,53 @@ public class ZeroTunnelDivider
         _intersector = intersector;
         _tolerance = tolerance;
     }
-
-    public LinearRing DivideZeroTunnels(LinearRing ring)
+    
+    
+    public (LinearRing, LinkedList<(Coordinate, int number1, int number2)> problemCoordinates) DivideZeroTunnels(LinearRing ring)
     {
         Coordinate[] oldCoordinates = ring.Coordinates;
         Coordinate[] coordinates = new Coordinate[oldCoordinates.Length - 1];
         Array.Copy(oldCoordinates, 0, coordinates, 0, coordinates.Length);
+        LinkedList<(Coordinate, int number1, int number2)> problemCoordinates = new LinkedList<(Coordinate, int number1, int number2)>();
+        LinkedList<int> equalsCoordinatesNumber = new LinkedList<int>();
         
         for (int i = 0; i < coordinates.Length - 1; i++)
         {
-            for (int j = 1; j < coordinates.Length; j++)
+            equalsCoordinatesNumber.Clear();
+            for (int j = i + 1; j < coordinates.Length; j++)
             {
                 if (i != j && coordinates[i].Equals(coordinates[j]))
                 {
-                    if (!MoveCoordinate(coordinates, i))
+                    equalsCoordinatesNumber.AddLast(j);
+                }
+            }
+
+            if (equalsCoordinatesNumber.Any())
+            {
+                var coordBuffer = coordinates[i];
+                equalsCoordinatesNumber.AddFirst(i);
+                bool flag = false;
+                foreach (var num in equalsCoordinatesNumber)
+                {
+                    var buff = coordinates[num];
+                    if (MoveCoordinate(coordinates, num))
                     {
-                        //todo вывод информации о туннеле, который не удалось раздвинуть
-                        //return new LinearRing(coordinates);
-                        throw new ApplicationException("не удалось раздвинуть");
+                        flag = true;
+                        break;
                     }
-                    
+                    coordinates[num] = buff;
+                }
+
+                if (!flag)
+                {
+                    problemCoordinates.AddLast((new Coordinate(coordBuffer), i, i));
                 }
             }
         }
-
         Coordinate[] newCoordinates = new Coordinate[oldCoordinates.Length];
         Array.Copy(coordinates, 0, newCoordinates, 0, coordinates.Length);
         newCoordinates[newCoordinates.Length - 1] = coordinates[0];
-        return new LinearRing(newCoordinates);
+        return (new LinearRing(newCoordinates), problemCoordinates);
     }
 
     // numbersOfEqualCoordsSecondCoord - номера координат, которые совпадают с координатой с номером secondCoordFirstTunnel
@@ -68,7 +88,6 @@ public class ZeroTunnelDivider
         
         var originalCoord = coordinates[firstCoordFirstTunnel];
         bool correctMove = false;
-        
         // quarterNumber = номер четверти на координатной оси
         for (int quarterNumber = 1; quarterNumber <= 4; quarterNumber++)
         {

@@ -264,16 +264,26 @@ public class BoundingRing
             ring1Node.Elem,
             new LinkedNode<Coordinate>(ring2Node.Elem, ring2NodePrevious, ring1NodeNext),
             ring1NodeNext);
-        
-        ring1Node.Previous2 = ring1Node.Previous;
+        //меняем ссылки у первого кольца
+        if (ring1Node.Previous2 == null)
+            ring1Node.Previous2 = ring1Node.Previous;
+        var oldRing1NodeNext2 = ring1Node.Next2;
         ring1Node.Next2 = ring1NodeNext.Previous;
+        
         ring1NodeNext.Previous.Previous2 = ring1Node;
-        ring1NodeNext.Previous.Next2 = ring1NodeNext.Previous.Next;
-
-        ring2Node.Next2 = ring2Node.Next;
+        if (oldRing1NodeNext2 == null)
+            ring1NodeNext.Previous.Next2 = ring1NodeNext.Previous.Next;
+        else ring1NodeNext.Previous.Next2 = oldRing1NodeNext2;
+        //меняем ссылки у второго кольца
+        if(ring2Node.Next2 == null)
+            ring2Node.Next2 = ring2Node.Next;
+        var oldRing2NodePrevious2 = ring2Node.Previous2;
         ring2Node.Previous2 = ring2NodePrevious.Next;
         ring2NodePrevious.Next.Next2 = ring2Node;
-        ring2NodePrevious.Next.Previous2 = ring2NodePrevious.Next.Previous;
+        if (oldRing2NodePrevious2 == null)
+            ring2NodePrevious.Next.Previous2 = ring2NodePrevious.Next.Previous;
+        else
+            ring2NodePrevious.Next.Previous2 = oldRing2NodePrevious2;
         
         return ring1Node;
     }
