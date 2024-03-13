@@ -4,7 +4,6 @@ using GeoSlicer.Utils.Intersectors;
 using GeoSlicer.Utils.Intersectors.CoordinateComparators;
 using NetTopologySuite.Algorithm;
 using NetTopologySuite.Geometries;
-using LineIntersector = GeoSlicer.Utils.Intersectors.LineIntersector;
 
 namespace GeoSlicer.Benchmark.Benchmarks;
 
@@ -15,8 +14,16 @@ public class IntersectorBench
 
     private readonly RobustLineIntersector _robustLineIntersector = new RobustLineIntersector();
 
-    private readonly LineIntersector _lineIntersector =
-        new LineIntersector(new EpsilonCoordinateComparator(Epsilon), new LineService(Epsilon), Epsilon);
+    private readonly LineLineIntersector _lineLineIntersector =
+        new LineLineIntersector(new EpsilonCoordinateComparator(Epsilon), new LineService(Epsilon), Epsilon);
+    
+    private readonly LineAreaIntersector _lineAreaIntersector =
+        new LineAreaIntersector(new EpsilonCoordinateComparator(Epsilon), new LineService(Epsilon), Epsilon);
+    
+    private readonly AreaAreaIntersector _areaAreaIntersector = new AreaAreaIntersector();
+
+    private const LineAreaIntersectionType SuitableLineAreaIntersectionType =
+        LineAreaIntersectionType.Inside| LineAreaIntersectionType.PartlyInside | LineAreaIntersectionType.Overlay;
 
     private readonly Coordinate[] _coordinates = GeoJsonFileService.GeoJsonFileService
         .ReadGeometryFromFile<LineString>("TestFiles\\maloeOzeroLinearRing.geojson").Coordinates;
@@ -45,19 +52,57 @@ public class IntersectorBench
     }
 
     [Benchmark]
-    public void TestOur()
+    public void TestOur_LineLine()
     {
         for (int i = 0; i < _coordinates.Length - 1; i++)
         {
             for (int j = 0; j < _coordinates.Length - 1; j++)
             {
-                _lineIntersector.CheckIntersection(LineIntersectionType.Inner, _coordinates[i], _coordinates[i + 1],
+                _lineLineIntersector.CheckIntersection(LineLineIntersectionType.Inner, _coordinates[i], _coordinates[i + 1],
                     _coordinates[j], _coordinates[j + 1]);
-                _lineIntersector.CheckIntersection(LineIntersectionType.Inner, _coordinates[i], _coordinates[j + 1],
+                _lineLineIntersector.CheckIntersection(LineLineIntersectionType.Inner, _coordinates[i], _coordinates[j + 1],
                     _coordinates[j], _coordinates[i + 1]);
-                _lineIntersector.CheckIntersection(LineIntersectionType.Inner, _coordinates[i], _coordinates[i + 1],
+                _lineLineIntersector.CheckIntersection(LineLineIntersectionType.Inner, _coordinates[i], _coordinates[i + 1],
                     _coordinates[i], _coordinates[j + 1]);
-                _lineIntersector.CheckIntersection(LineIntersectionType.Inner, _coordinates[i], _coordinates[i + 1],
+                _lineLineIntersector.CheckIntersection(LineLineIntersectionType.Inner, _coordinates[i], _coordinates[i + 1],
+                    _coordinates[i + 1], _coordinates[i]);
+            }
+        }
+    }
+    
+    [Benchmark]
+    public void TestOur_LineArea()
+    {
+        for (int i = 0; i < _coordinates.Length - 1; i++)
+        {
+            for (int j = 0; j < _coordinates.Length - 1; j++)
+            {
+                _lineAreaIntersector.CheckIntersection(SuitableLineAreaIntersectionType, _coordinates[i], _coordinates[i + 1],
+                    _coordinates[j], _coordinates[j + 1]);
+                _lineAreaIntersector.CheckIntersection(SuitableLineAreaIntersectionType, _coordinates[i], _coordinates[j + 1],
+                    _coordinates[j], _coordinates[i + 1]);
+                _lineAreaIntersector.CheckIntersection(SuitableLineAreaIntersectionType, _coordinates[i], _coordinates[i + 1],
+                    _coordinates[i], _coordinates[j + 1]);
+                _lineAreaIntersector.CheckIntersection(SuitableLineAreaIntersectionType, _coordinates[i], _coordinates[i + 1],
+                    _coordinates[i + 1], _coordinates[i]);
+            }
+        }
+    }
+    
+    [Benchmark]
+    public void TestOur_AreaArea()
+    {
+        for (int i = 0; i < _coordinates.Length - 1; i++)
+        {
+            for (int j = 0; j < _coordinates.Length - 1; j++)
+            {
+                _areaAreaIntersector.CheckIntersection(AreaAreaIntersectionType.Inside, _coordinates[i], _coordinates[i + 1],
+                    _coordinates[j], _coordinates[j + 1]);
+                _areaAreaIntersector.CheckIntersection(AreaAreaIntersectionType.Inside, _coordinates[i], _coordinates[j + 1],
+                    _coordinates[j], _coordinates[i + 1]);
+                _areaAreaIntersector.CheckIntersection(AreaAreaIntersectionType.Inside, _coordinates[i], _coordinates[i + 1],
+                    _coordinates[i], _coordinates[j + 1]);
+                _areaAreaIntersector.CheckIntersection(AreaAreaIntersectionType.Inside, _coordinates[i], _coordinates[i + 1],
                     _coordinates[i + 1], _coordinates[i]);
             }
         }

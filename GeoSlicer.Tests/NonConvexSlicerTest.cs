@@ -21,7 +21,7 @@ public class NonConvexSlicerTest
     private static readonly TraverseDirection TraverseDirection = new TraverseDirection(LineService);
 
     private static readonly NonConvexSlicerHelper NonConvexSlicerHelper = new NonConvexSlicerHelper(
-        new LineIntersector(new EpsilonCoordinateComparator(Epsilon), LineService, Epsilon), LineService);
+        new LineLineIntersector(new EpsilonCoordinateComparator(Epsilon), LineService, Epsilon), LineService);
 
     private readonly NonConvexSlicer.NonConvexSlicer _nonConvexSlicer =
         new(Gf, SegmentService, NonConvexSlicerHelper, TraverseDirection, LineService);
