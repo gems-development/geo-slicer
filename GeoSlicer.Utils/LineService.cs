@@ -50,8 +50,8 @@ public class LineService
 
     public bool IsCoordinateAtLine(Coordinate coordinate, Coordinate first, Coordinate second)
     {
-        return Math.Abs(VectorProduct(new Coordinate(coordinate.X - first.X, coordinate.Y - first.Y),
-            new Coordinate(second.X - coordinate.X, second.Y - coordinate.Y))) < _epsilon;
+        return Math.Abs(VectorProduct(coordinate.X - first.X, coordinate.Y - first.Y,
+            second.X - coordinate.X, second.Y - coordinate.Y)) < _epsilon;
     }
 
 

@@ -32,13 +32,10 @@ public class NonConvexSlicerHelper
         for (var i = 0; i < coordinates.Length - 1; ++i)
         {
             if (_lineService.VectorProduct(
-                    new Coordinate(
-                        coordinates[i].X -
-                        coordinates[(i - 1 + coordinates.Length - 1) % (coordinates.Length - 1)].X,
-                        coordinates[i].Y -
-                        coordinates[(i - 1 + coordinates.Length - 1) % (coordinates.Length - 1)].Y),
-                    new Coordinate(coordinates[(i + 1) % (coordinates.Length - 1)].X - coordinates[i].X,
-                        coordinates[(i + 1) % (coordinates.Length - 1)].Y - coordinates[i].Y)
+                    coordinates[i].X - coordinates[(i - 1 + coordinates.Length - 1) % (coordinates.Length - 1)].X,
+                    coordinates[i].Y - coordinates[(i - 1 + coordinates.Length - 1) % (coordinates.Length - 1)].Y, 
+                    coordinates[(i + 1) % (coordinates.Length - 1)].X - coordinates[i].X,
+                    coordinates[(i + 1) % (coordinates.Length - 1)].Y - coordinates[i].Y
                 ) >= 0)
             {
                 list.Add(new CoordinatePcn(coordinates[i].X, coordinates[i].Y, c: i));
