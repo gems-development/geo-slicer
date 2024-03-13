@@ -6,7 +6,7 @@ using NetTopologySuite.Geometries;
 
 namespace GeoSlicer.NonConvexSlicer;
 
-public class NonConvexSlicer
+public class Slicer
 {
     private readonly GeometryFactory _gf;
     private readonly SegmentService _segmentService;
@@ -14,7 +14,7 @@ public class NonConvexSlicer
     private readonly NonConvexSlicerHelper _helper;
     private readonly TraverseDirection _traverseDirection;
 
-    public NonConvexSlicer(
+    public Slicer(
         GeometryFactory gf,
         SegmentService segmentService,
         NonConvexSlicerHelper helper,

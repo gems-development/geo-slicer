@@ -25,7 +25,7 @@ public class IntersectorBench
     private const LineAreaIntersectionType SuitableLineAreaIntersectionType =
         LineAreaIntersectionType.Inside| LineAreaIntersectionType.PartlyInside | LineAreaIntersectionType.Overlay;
 
-    private readonly Coordinate[] _coordinates = GeoJsonFileService.GeoJsonFileService
+    private readonly Coordinate[] _coordinates = GeoJsonFileService
         .ReadGeometryFromFile<LineString>("TestFiles\\maloeOzeroLinearRing.geojson").Coordinates;
 
     [Benchmark]
