@@ -23,7 +23,7 @@ public class NonConvexSlicerBaikalBench
         new(Gf,
             SegmentService,
             new NonConvexSlicerHelper(
-                new LineLineIntersector(new EpsilonCoordinateComparator(Epsilon), LineService, Epsilon),
+                new LinesIntersector(new EpsilonCoordinateComparator(Epsilon), LineService, Epsilon),
                 LineService), TraverseDirection, LineService);
     
     private static readonly MultiPolygon MultiPolygon =
