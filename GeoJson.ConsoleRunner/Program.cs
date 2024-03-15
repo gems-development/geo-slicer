@@ -16,7 +16,7 @@ Slicer slicer =
     new(gf,
         segmentService,
         new NonConvexSlicerHelper(
-            new LineLineIntersector(new EpsilonCoordinateComparator(epsilon), lineService, epsilon),
+            new LinesIntersector(new EpsilonCoordinateComparator(epsilon), lineService, epsilon),
             lineService), traverseDirection, lineService);
 
 MultiPolygon multiPolygon =

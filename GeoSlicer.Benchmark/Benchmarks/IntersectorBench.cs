@@ -14,13 +14,13 @@ public class IntersectorBench
 
     private readonly RobustLineIntersector _robustLineIntersector = new RobustLineIntersector();
 
-    private readonly LineLineIntersector _lineLineIntersector =
-        new LineLineIntersector(new EpsilonCoordinateComparator(Epsilon), new LineService(Epsilon), Epsilon);
+    private readonly LinesIntersector _linesIntersector =
+        new LinesIntersector(new EpsilonCoordinateComparator(Epsilon), new LineService(Epsilon), Epsilon);
     
     private readonly LineAreaIntersector _lineAreaIntersector =
         new LineAreaIntersector(new EpsilonCoordinateComparator(Epsilon), new LineService(Epsilon), Epsilon);
     
-    private readonly AreaAreaIntersector _areaAreaIntersector = new AreaAreaIntersector();
+    private readonly AreasIntersector _areasIntersector = new AreasIntersector();
 
     private const LineAreaIntersectionType SuitableLineAreaIntersectionType =
         LineAreaIntersectionType.Inside| LineAreaIntersectionType.PartlyInside | LineAreaIntersectionType.Overlay;
@@ -58,13 +58,13 @@ public class IntersectorBench
         {
             for (int j = 0; j < _coordinates.Length - 1; j++)
             {
-                _lineLineIntersector.CheckIntersection(LineLineIntersectionType.Inner, _coordinates[i], _coordinates[i + 1],
+                _linesIntersector.CheckIntersection(LinesIntersectionType.Inner, _coordinates[i], _coordinates[i + 1],
                     _coordinates[j], _coordinates[j + 1]);
-                _lineLineIntersector.CheckIntersection(LineLineIntersectionType.Inner, _coordinates[i], _coordinates[j + 1],
+                _linesIntersector.CheckIntersection(LinesIntersectionType.Inner, _coordinates[i], _coordinates[j + 1],
                     _coordinates[j], _coordinates[i + 1]);
-                _lineLineIntersector.CheckIntersection(LineLineIntersectionType.Inner, _coordinates[i], _coordinates[i + 1],
+                _linesIntersector.CheckIntersection(LinesIntersectionType.Inner, _coordinates[i], _coordinates[i + 1],
                     _coordinates[i], _coordinates[j + 1]);
-                _lineLineIntersector.CheckIntersection(LineLineIntersectionType.Inner, _coordinates[i], _coordinates[i + 1],
+                _linesIntersector.CheckIntersection(LinesIntersectionType.Inner, _coordinates[i], _coordinates[i + 1],
                     _coordinates[i + 1], _coordinates[i]);
             }
         }
@@ -96,13 +96,13 @@ public class IntersectorBench
         {
             for (int j = 0; j < _coordinates.Length - 1; j++)
             {
-                _areaAreaIntersector.CheckIntersection(AreaAreaIntersectionType.Inside, _coordinates[i], _coordinates[i + 1],
+                _areasIntersector.CheckIntersection(AreasIntersectionType.Inside, _coordinates[i], _coordinates[i + 1],
                     _coordinates[j], _coordinates[j + 1]);
-                _areaAreaIntersector.CheckIntersection(AreaAreaIntersectionType.Inside, _coordinates[i], _coordinates[j + 1],
+                _areasIntersector.CheckIntersection(AreasIntersectionType.Inside, _coordinates[i], _coordinates[j + 1],
                     _coordinates[j], _coordinates[i + 1]);
-                _areaAreaIntersector.CheckIntersection(AreaAreaIntersectionType.Inside, _coordinates[i], _coordinates[i + 1],
+                _areasIntersector.CheckIntersection(AreasIntersectionType.Inside, _coordinates[i], _coordinates[i + 1],
                     _coordinates[i], _coordinates[j + 1]);
-                _areaAreaIntersector.CheckIntersection(AreaAreaIntersectionType.Inside, _coordinates[i], _coordinates[i + 1],
+                _areasIntersector.CheckIntersection(AreasIntersectionType.Inside, _coordinates[i], _coordinates[i + 1],
                     _coordinates[i + 1], _coordinates[i]);
             }
         }
