@@ -32,7 +32,7 @@ public class ZeroTunnelDivider
         LinkedList<(Coordinate, int number1, int number2)> problemCoordinates = new LinkedList<(Coordinate, int number1, int number2)>();
         LinkedList<int> equalsCoordinatesNumber = new LinkedList<int>();
         
-        for (int i = 0; i < coordinates.Length - 1; i++)
+        /*for (int i = 0; i < coordinates.Length - 1; i++)
         {
             equalsCoordinatesNumber.Clear();
             for (int j = i + 1; j < coordinates.Length; j++)
@@ -64,7 +64,20 @@ public class ZeroTunnelDivider
                     problemCoordinates.AddLast((new Coordinate(coordBuffer), i, i));
                 }
             }
+        }*/
+        for (int i = 0; i < coordinates.Length - 1; i++)
+        {
+            for (int j = i + 1; j < coordinates.Length; j++)
+            {
+                if (i != j && coordinates[i].Equals(coordinates[j]) && coordinates[i].X >=  49.0013647900 && coordinates[i].X <=  49.0013647902 && coordinates[i].Y <= 55.86897326002 && coordinates[i].Y >= 55.8689732599)
+                {
+                    Console.WriteLine(coordinates[i] + "  " + j);
+                    MoveCoordinate(coordinates, i);
+                    goto END;
+                }
+            }
         }
+        END:
         Coordinate[] newCoordinates = new Coordinate[oldCoordinates.Length];
         Array.Copy(coordinates, 0, newCoordinates, 0, coordinates.Length);
         newCoordinates[newCoordinates.Length - 1] = coordinates[0];
@@ -75,39 +88,45 @@ public class ZeroTunnelDivider
     // numbersOfEqualCoordsAdjacentCoord - номера координат, которые совпадают с координатой с номером coordAdjacentLine
     // в методе MoveCoordinate
     // метод пытается передвинуть точку под номером firstCoordFirstTunnel по ступенькам. True в случае успеха, false иначе
-    private bool MoveCoordinate(Coordinate[] coordinates, int firstCoordFirstTunnel)
+    private int b = 0;
+    private bool MoveCoordinate(Coordinate[] coordinates, int firstCoordinate)
     {
         LinkedList<int> numbersOfEqualCoordsSecondCoord = new LinkedList<int>();
         LinkedList<int> numbersOfEqualCoordsAdjacentCoord = new LinkedList<int>();
-        int secondCoordFirstTunnel = firstCoordFirstTunnel + 1;
-        FillNumbersOfEqualCoordinates(coordinates, secondCoordFirstTunnel, numbersOfEqualCoordsSecondCoord);
+        int secondCoord = firstCoordinate + 1;
+        FillNumbersOfEqualCoordinates(coordinates, secondCoord, numbersOfEqualCoordsSecondCoord);
         // номер второй координаты линии, смежной к проверяемой линии-(firstCoordFirstTunnel, secondCoordFirstTunnel)
-        int coordAdjacentLine = (2 * firstCoordFirstTunnel - secondCoordFirstTunnel + coordinates.Length - 1) %
+        int coordAdjacentLine = (2 * firstCoordinate - secondCoord + coordinates.Length - 1) %
                                 (coordinates.Length - 1);
         FillNumbersOfEqualCoordinates(coordinates, coordAdjacentLine, numbersOfEqualCoordsAdjacentCoord);
         
-        var originalCoord = coordinates[firstCoordFirstTunnel];
+        var originalCoord = coordinates[firstCoordinate];
         bool correctMove = false;
         // quarterNumber = номер четверти на координатной оси
         for (int quarterNumber = 1; quarterNumber <= 4; quarterNumber++)
         {
-            Coordinate buffer = coordinates[firstCoordFirstTunnel];
+            Coordinate buffer = coordinates[firstCoordinate];
             
             // stepNumber = номер ступеньки на которую передвигаем текущую координату
             for (int stepNumber = 0; stepNumber < CountOfSteps; stepNumber++)
             {
-                MovePointUpTheStairs(coordinates, quarterNumber, stepNumber, firstCoordFirstTunnel);
-                if (CheckIntersects(coordinates, firstCoordFirstTunnel, secondCoordFirstTunnel, coordAdjacentLine,
+                b++;
+                MovePointUpTheStairs(coordinates, quarterNumber, stepNumber, firstCoordinate);
+                if (CheckIntersects(coordinates, firstCoordinate, secondCoord, coordAdjacentLine,
                         numbersOfEqualCoordsSecondCoord, numbersOfEqualCoordsAdjacentCoord))
                 {
                     if (correctMove)
                     {
-                        coordinates[firstCoordFirstTunnel] = buffer;
+                        coordinates[firstCoordinate] = buffer;
                         return true;
                     }
                 }
-                else correctMove = true;
-                buffer = coordinates[firstCoordFirstTunnel];
+                else
+                {
+                    correctMove = true;
+                    Console.WriteLine(b);
+                }
+                buffer = coordinates[firstCoordinate];
             }
 
             if (correctMove)
@@ -115,7 +134,7 @@ public class ZeroTunnelDivider
                 return true;
             }
             if (quarterNumber != 4) 
-                coordinates[firstCoordFirstTunnel] = originalCoord;
+                coordinates[firstCoordinate] = originalCoord;
         }
         return false;
     }
@@ -124,27 +143,29 @@ public class ZeroTunnelDivider
     // Точка с координатой secondCoordFirstTunnel может совпадать с другими координатами в
     // геометрии(накладываться на координаты других нулевых тунелей)
     private bool CheckIntersects(Coordinate[] coordinates,
-        int firstCoordFirstTunnel, int secondCoordFirstTunnel, int coordAdjacentLine,
+        int firstCoord, int secondCoord, int coordAdjacentLine,
         LinkedList<int> numbersOfEqualCoordsSecondCoord,
         LinkedList<int> numbersOfEqualCoordsAdjacentCoord)
     {
         for (int i = 0; i < coordinates.Length - 1; i++)
         {
+            if (b == 1 && i == 6087)
+                Console.WriteLine("error2");
             if (!EqualLines(
                     i, 
                     i + 1, 
-                    firstCoordFirstTunnel, 
-                    secondCoordFirstTunnel) &&
+                    firstCoord, 
+                    secondCoord) &&
                 !EqualLines(
                     i, 
                     i + 1, 
                     coordAdjacentLine, 
-                    firstCoordFirstTunnel))
+                    firstCoord))
             {
-                bool res1 = CheckIntersectsLine(i, firstCoordFirstTunnel, secondCoordFirstTunnel, coordinates,
+                bool res1 = CheckIntersectsLine(i, firstCoord, secondCoord, coordinates,
                     numbersOfEqualCoordsSecondCoord);
                 
-                bool res2 = CheckIntersectsLine(i, firstCoordFirstTunnel, coordAdjacentLine, coordinates,
+                bool res2 = CheckIntersectsLine(i, firstCoord, coordAdjacentLine, coordinates,
                     numbersOfEqualCoordsAdjacentCoord);
                 
                 if (res1 || res2)
