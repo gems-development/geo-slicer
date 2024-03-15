@@ -8,9 +8,9 @@ using NetTopologySuite.Geometries;
 namespace GeoSlicer.Benchmark.Benchmarks;
 
 [MemoryDiagnoser(false)]
-public class NonConvexSlicerBench
+public class NonConvexSlicerBaikalBench
 {
-    private static readonly double Epsilon = 1E-11;
+    private static readonly double Epsilon = 1E-15;
 
     private static readonly GeometryFactory Gf =
         NetTopologySuite.NtsGeometryServices.Instance.CreateGeometryFactory(4326);
@@ -25,10 +25,11 @@ public class NonConvexSlicerBench
             new NonConvexSlicerHelper(
                 new LinesIntersector(new EpsilonCoordinateComparator(Epsilon), LineService, Epsilon),
                 LineService), TraverseDirection, LineService);
+    
+    private static readonly MultiPolygon MultiPolygon =
+        GeoJsonFileService.ReadGeometryFromFile<MultiPolygon>("TestFiles\\baikal_multy_polygon.geojson");
 
-    private readonly LinearRing _ring = Gf.CreateLinearRing(
-        GeoJsonFileService.ReadGeometryFromFile<LineString>(
-            "TestFiles\\maloeOzeroLinearRing.geojson").Coordinates);
+    private readonly LinearRing _ring = ((Polygon)MultiPolygon[0]).Shell;
 
     [Benchmark]
     public void Check()

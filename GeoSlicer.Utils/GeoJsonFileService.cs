@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using NetTopologySuite.IO;
 
-namespace GeoSlicer.GeoJsonFileService;
+namespace GeoSlicer.Utils;
 
 public static class GeoJsonFileService
 {

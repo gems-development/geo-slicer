@@ -24,7 +24,6 @@
 
     <ItemGroup>
       <ProjectReference Include="..\GeoSlicer\GeoSlicer.csproj" />
-      <ProjectReference Include="..\GeoSlicer.GeoJsonFileService\GeoSlicer.GeoJsonFileService.csproj" />
     </ItemGroup>
 
 </Project>

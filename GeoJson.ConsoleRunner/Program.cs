@@ -1,5 +1,4 @@
-﻿using GeoSlicer.GeoJsonFileService;
-using GeoSlicer.NonConvexSlicer;
+﻿using GeoSlicer.NonConvexSlicer;
 using GeoSlicer.NonConvexSlicer.Helpers;
 using GeoSlicer.Utils;
 using GeoSlicer.Utils.Intersectors;
@@ -13,29 +12,32 @@ GeometryFactory gf =
 LineService lineService = new LineService(epsilon);
 SegmentService segmentService = new SegmentService(lineService);
 TraverseDirection traverseDirection = new TraverseDirection(lineService);
-NonConvexSlicer nonConvexSlicer =
+Slicer slicer =
     new(gf,
         segmentService,
         new NonConvexSlicerHelper(
-            new LineIntersector(new EpsilonCoordinateComparator(epsilon), lineService, epsilon),
+            new LinesIntersector(new EpsilonCoordinateComparator(epsilon), lineService, epsilon),
             lineService), traverseDirection, lineService);
 
-LinearRing linearRing;
+MultiPolygon multiPolygon =
+    GeoJsonFileService.ReadGeometryFromFile<MultiPolygon>("TestFiles\\baikal_multy_polygon.geojson");
 
-// MultiPolygon multiPolygon =
-//     GeoJsonFileService.ReadGeometryFromFile<MultiPolygon>("TestFiles\\baikal_multy_polygon.geojson");
-//
-// linearRing = ((Polygon)multiPolygon[0]).Shell;
+LinearRing shell = ((Polygon)multiPolygon[0]).Shell;
 
-LineString lineString = GeoJsonFileService.ReadGeometryFromFile<LineString>("TestFiles\\maloeOzeroLinearRing.geojson");
+/*//Для нахождения особых точек
+if (!traverseDirection.IsClockwiseBypass(shell)) TraverseDirection.ChangeDirection(shell);
 
-linearRing = gf.CreateLinearRing(lineString.Coordinates);
+var listSpecialPoints = new NonConvexSlicerHelper(
+    new LineIntersector(new EpsilonCoordinateComparator(epsilon), lineService, epsilon), traverseDirection,
+    lineService).GetSpecialPoints(shell);
+GeoJsonFileService.WriteGeometryToFile(new LineString(listSpecialPoints.ToArray()), "TestFiles\\baikal_without_holes_part_123.geojson");
+*/
 
-List<LinearRing> result = nonConvexSlicer.Slice(linearRing);
+List<LinearRing> result = slicer.Slice(shell);
 IEnumerable<Polygon> polygons = result.Select(ring => new Polygon(ring));
 
 MultiPolygon multiPolygonResult = new MultiPolygon(polygons.ToArray());
-GeoJsonFileService.WriteGeometryToFile(multiPolygonResult, "TestFiles\\moNew_res.geojson");
+GeoJsonFileService.WriteGeometryToFile(multiPolygonResult, "TestFiles\\baikal_result.geojson");
 
 
 // MultiPolygon baikalMultiPolygon =
