@@ -27,7 +27,7 @@ public class NonConvexSlicer
     }
 
     
-    // todo убедиться в рациональности
+    // todo убедиться в рациональности такого разрезания
     private List<LinearRing> SimpleSlice(LinearRing ring, int pozSpecialPoint)
     {
         var listResult = new List<LinearRing>(ring.Count -2);
@@ -55,12 +55,13 @@ public class NonConvexSlicer
     {
         var newRing = _segmentService.IgnoreInnerPointsOfSegment(ring);
         var newRingCoordinates = newRing.Coordinates;
+        var newRingCoordinatesLength = newRingCoordinates.Length;
 
 
         var firstPointIndex = newRing.GetIndex(firstPoint) ?? -1;
         var firstPointIsSpecial = firstPointIndex != -1 && _helper.CurrentPointIsSpecial(
-            newRingCoordinates[(firstPointIndex - 1 + newRingCoordinates.Length - 1) % (newRingCoordinates.Length - 1)],
-            firstPoint, newRingCoordinates[(firstPointIndex + 1) % (newRingCoordinates.Length - 1)]);
+            newRingCoordinates[(firstPointIndex - 1 + newRingCoordinatesLength - 1) % (newRingCoordinatesLength - 1)],
+            firstPoint, newRingCoordinates[(firstPointIndex + 1) % (newRingCoordinatesLength - 1)]);
 
 
         int secondPointIndex = -1;
@@ -70,10 +71,11 @@ public class NonConvexSlicer
         if (secondPoint != null)
         {
             secondPointIndex = newRing.GetIndex(secondPoint) ?? -1;
-            secondPointIsSpecial = _helper.CurrentPointIsSpecial(newRingCoordinates[(secondPointIndex - 1 + newRingCoordinates.Length - 1) % (newRingCoordinates.Length - 1)],
-                secondPoint, newRingCoordinates[(secondPointIndex + 1) % (newRingCoordinates.Length - 1)]);
+            secondPointIsSpecial = _helper.CurrentPointIsSpecial(
+                newRingCoordinates[(secondPointIndex - 1 + newRingCoordinatesLength - 1) % (newRingCoordinatesLength - 1)],
+                secondPoint, newRingCoordinates[(secondPointIndex + 1) % (newRingCoordinatesLength - 1)]);
         }
-        var listRingsWithoutSpecialPoints = new List<LinearRing>(newRingCoordinates.Length - 4);
+        var listRingsWithoutSpecialPoints = new List<LinearRing>(newRingCoordinatesLength - 4);
 
         int specialPointIndex;
         Coordinate specialPoint;
@@ -94,9 +96,9 @@ public class NonConvexSlicer
             return listRingsWithoutSpecialPoints;
         }
 
-        var coordC = newRingCoordinates[(specialPointIndex + 1) % (newRingCoordinates.Length - 1)];
+        var coordC = newRingCoordinates[(specialPointIndex + 1) % (newRingCoordinatesLength - 1)];
 
-        var pozNextPoint = (specialPointIndex + 2) % (newRingCoordinates.Length - 1);
+        var pozNextPoint = (specialPointIndex + 2) % (newRingCoordinatesLength - 1);
 
         var flag = true;
         var k = 0;
@@ -109,33 +111,46 @@ public class NonConvexSlicer
             {
                 //NextPoint не является особой точкой в новом кольце
                 //и не лежит на одной прямой со старой особой точкой и предыдущей для старой особой
-                pozNextPoint = (pozNextPoint - 1 + newRingCoordinates.Length - 1) % (newRingCoordinates.Length - 1);
+                pozNextPoint = (pozNextPoint - 1 + newRingCoordinatesLength - 1) % (newRingCoordinatesLength - 1);
                 coordM = newRingCoordinates[pozNextPoint];
                 
-                // todo Вычислить заранее количество точек (и ниже) (и убедиться, что вычисленно верно)
-                var listFirst = new List<Coordinate>();
-
-                for (var i = specialPointIndex; i != pozNextPoint; i = (i + 1) % (newRingCoordinates.Length - 1))
+                int firstArraySize;
+                int secondArraySize;
+                if (specialPointIndex <= pozNextPoint)
                 {
-                    listFirst.Add(newRingCoordinates[i]);
+                    firstArraySize = pozNextPoint - specialPointIndex;
+                    secondArraySize = newRingCoordinatesLength - 1 - firstArraySize;
+                }
+                else
+                {
+                    secondArraySize = specialPointIndex - pozNextPoint;
+                    firstArraySize = newRingCoordinatesLength - 1 - secondArraySize;
                 }
 
-                listFirst.Add(coordM);
-                listFirst.Add(specialPoint);
+                firstArraySize += 2;
+                secondArraySize += 2;
 
-                var listSecond = new List<Coordinate>();
-
-                for (var i = pozNextPoint; i != specialPointIndex; i = (i + 1) % (newRingCoordinates.Length - 1))
+                var firstArray = new Coordinate[firstArraySize];
+                var secondArray = new Coordinate[secondArraySize];
+                
+                for (int i = specialPointIndex, j = 0; i != pozNextPoint; i = (i + 1) % (newRingCoordinatesLength - 1), ++j)
                 {
-                    listSecond.Add(newRingCoordinates[i]);
+                    firstArray[j] = newRingCoordinates[i];
                 }
 
-                listSecond.Add(specialPoint);
-                listSecond.Add(coordM);
+                firstArray[firstArraySize - 2] = coordM;
+                firstArray[firstArraySize - 1] = specialPoint;
+                
+                for (int i = pozNextPoint, j = 0; i != specialPointIndex; i = (i + 1) % (newRingCoordinatesLength - 1), ++j)
+                {
+                    secondArray[j] = newRingCoordinates[i];
+                }
 
+                secondArray[secondArraySize - 2] = specialPoint;
+                secondArray[secondArraySize - 1] = coordM;
 
-                var ringFirst = _segmentService.IgnoreInnerPointsOfSegment(new LinearRing(listFirst.ToArray()));
-                var ringSecond = _segmentService.IgnoreInnerPointsOfSegment(new LinearRing(listSecond.ToArray()));
+                var ringFirst = _segmentService.IgnoreInnerPointsOfSegment(new LinearRing(firstArray));
+                var ringSecond = _segmentService.IgnoreInnerPointsOfSegment(new LinearRing(secondArray));
 
                 listRingsWithoutSpecialPoints.Add(ringFirst);
 
@@ -147,11 +162,11 @@ public class NonConvexSlicer
             }
             else
             {
-                pozNextPoint = (pozNextPoint + 1) % (newRingCoordinates.Length - 1);
+                pozNextPoint = (pozNextPoint + 1) % (newRingCoordinatesLength - 1);
 
                 k++;
 
-                if (k == newRingCoordinates.Length - 1)
+                if (k == newRingCoordinatesLength - 1)
                 {
                     return SimpleSlice(newRing, specialPointIndex);
                 }
