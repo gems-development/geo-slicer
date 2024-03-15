@@ -13,7 +13,7 @@ public class WeilerAthertonTests
     private static readonly LineService LineService = new LineService(Epsilon);
 
     private static readonly GridSlicer.GridSlicer Slicer =
-        new(new LineIntersector(new EpsilonCoordinateComparator(Epsilon), LineService, Epsilon), Epsilon, LineService);
+        new(new LinesIntersector(new EpsilonCoordinateComparator(Epsilon), LineService, Epsilon), Epsilon, LineService);
 
     [Fact]
     public void SimpleTest()

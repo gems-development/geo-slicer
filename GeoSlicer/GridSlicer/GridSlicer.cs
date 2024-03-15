@@ -9,13 +9,13 @@ namespace GeoSlicer.GridSlicer;
 
 public class GridSlicer
 {
-    private readonly LineIntersector _lineIntersector;
+    private readonly LinesIntersector _linesIntersector;
     private readonly double _epsilon;
     private readonly LineService _lineService;
 
-    public GridSlicer(LineIntersector lineIntersector, double epsilon, LineService lineService)
+    public GridSlicer(LinesIntersector linesIntersector, double epsilon, LineService lineService)
     {
-        _lineIntersector = lineIntersector;
+        _linesIntersector = linesIntersector;
         _epsilon = epsilon;
         _lineService = lineService;
     }
@@ -99,29 +99,29 @@ public class GridSlicer
                 LinkedListNode<CoordinateSupport>? numberThree = nodeJ;
                 LinkedListNode<CoordinateSupport>? numberFour = nodeJ.Next;
 
-                (LineIntersectionType, Coordinate?) intersection;
+                (LinesIntersectionType, Coordinate?) intersection;
                 if (nodeI.Next != null && nodeJ.Next != null)
                 {
-                    intersection = _lineIntersector.GetIntersection(
+                    intersection = _linesIntersector.GetIntersection(
                         nodeI.Value, nodeI.Next!.Value, nodeJ.Value, nodeJ.Next!.Value);
                 }
                 else if (nodeI.Next != null)
                 {
-                    intersection = _lineIntersector.GetIntersection(
+                    intersection = _linesIntersector.GetIntersection(
                         nodeI.Value, nodeI.Next!.Value, nodeJ.Value, cutting.First!.Next!.Value);
 
                     numberFour = cutting.First.Next;
                 }
                 else if (nodeJ.Next != null)
                 {
-                    intersection = _lineIntersector.GetIntersection(
+                    intersection = _linesIntersector.GetIntersection(
                         nodeI.Value, clipped.First!.Next!.Value, nodeJ.Value, nodeJ.Next!.Value);
 
                     numberTwo = clipped.First.Next;
                 }
                 else
                 {
-                    intersection = _lineIntersector.GetIntersection(
+                    intersection = _linesIntersector.GetIntersection(
                         nodeI.Value, clipped.First!.Next!.Value, nodeJ.Value, cutting.First!.Next!.Value);
 
                     numberTwo = clipped.First.Next;
@@ -130,7 +130,7 @@ public class GridSlicer
 
                 //Overlay
 
-                if (intersection is { Item1: LineIntersectionType.Overlay })
+                if (intersection is { Item1: LinesIntersectionType.Overlay })
                 {
                     flagWereIntersection = true;
 
@@ -222,7 +222,7 @@ public class GridSlicer
                 
                 //Inner
 
-                else if (intersection is { Item2: not null, Item1: LineIntersectionType.Inner })
+                else if (intersection is { Item2: not null, Item1: LinesIntersectionType.Inner })
                 {
                     flagWereIntersection = true;
 

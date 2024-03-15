@@ -1,8 +1,8 @@
 ﻿using NetTopologySuite.Geometries;
 using System.Linq;
 using GeoSlicer.Utils;
+using GeoSlicer.Utils.Intersectors;
 using GeoSlicer.Utils.Intersectors.CoordinateComparators;
-using LineIntersector = GeoSlicer.Utils.Intersectors.LineIntersector;
 
 namespace GeoSlicer.Tests.GridTests;
 
@@ -13,7 +13,7 @@ public class TraceTests
     private static readonly LineService LineService = new LineService(Epsilon);
 
     private static readonly GridSlicer.GridSlicer Slicer =
-        new(new LineIntersector(new EpsilonCoordinateComparator(Epsilon), LineService, Epsilon), Epsilon, LineService);
+        new(new LinesIntersector(new EpsilonCoordinateComparator(Epsilon), LineService, Epsilon), Epsilon, LineService);
 
     [Fact]
     public void TestIsPointInPolygon()
