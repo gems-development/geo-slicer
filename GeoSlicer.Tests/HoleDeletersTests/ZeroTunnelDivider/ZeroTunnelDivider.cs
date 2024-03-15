@@ -8,19 +8,18 @@ namespace GeoSlicer.Tests.HoleDeletersTests;
 
 public class ZeroTunnelDivider
 {
-    public int CountOfSteps { get; set; }
-    public double StepSize { get; set; }
-    
+    private IList<(int countOfSteps, double stepSize)> _stepCharacteristic;
     private LineIntersector _intersector;
 
     private double _tolerance;
 
-    public ZeroTunnelDivider(int countOfSteps, double stepSize, LineIntersector intersector, double tolerance)
+    public ZeroTunnelDivider(
+        IList<(int countOfSteps, double stepSize)> stepCharacteristic,
+        LineIntersector intersector, double tolerance)
     {
-        CountOfSteps = countOfSteps;
-        StepSize = stepSize;
         _intersector = intersector;
         _tolerance = tolerance;
+        _stepCharacteristic = stepCharacteristic;
     }
     
     
@@ -29,55 +28,32 @@ public class ZeroTunnelDivider
         Coordinate[] oldCoordinates = ring.Coordinates;
         Coordinate[] coordinates = new Coordinate[oldCoordinates.Length - 1];
         Array.Copy(oldCoordinates, 0, coordinates, 0, coordinates.Length);
-        LinkedList<(Coordinate, int number1, int number2)> problemCoordinates = new LinkedList<(Coordinate, int number1, int number2)>();
-        LinkedList<int> equalsCoordinatesNumber = new LinkedList<int>();
-        
-        /*for (int i = 0; i < coordinates.Length - 1; i++)
+        LinkedList<(Coordinate, int number1, int number2)> problemCoordinates
+            = new LinkedList<(Coordinate, int number1, int number2)>();
+        for (int m = 0; m < _stepCharacteristic.Count; m++)
         {
-            equalsCoordinatesNumber.Clear();
-            for (int j = i + 1; j < coordinates.Length; j++)
+            for (int i = 0; i < coordinates.Length - 1; i++)
             {
-                if (i != j && coordinates[i].Equals(coordinates[j]))
+                for (int j = i + 1; j < coordinates.Length; j++)
                 {
-                    equalsCoordinatesNumber.AddLast(j);
-                }
-            }
-
-            if (equalsCoordinatesNumber.Any())
-            {
-                var coordBuffer = coordinates[i];
-                equalsCoordinatesNumber.AddFirst(i);
-                bool flag = false;
-                foreach (var num in equalsCoordinatesNumber)
-                {
-                    var buff = coordinates[num];
-                    if (MoveCoordinate(coordinates, num))
+                    if (i != j && coordinates[i].Equals(coordinates[j]))
                     {
-                        flag = true;
-                        break;
+                        var buff = coordinates[i];
+                        if (!MoveCoordinate(
+                                coordinates,
+                                i,
+                                _stepCharacteristic[m].countOfSteps,
+                                _stepCharacteristic[m].stepSize))
+                        {
+                            if (m == _stepCharacteristic.Count - 1)
+                                problemCoordinates.AddFirst((coordinates[i], i, j));
+                            else coordinates[i] = buff;
+                        }
                     }
-                    coordinates[num] = buff;
-                }
-
-                if (!flag)
-                {
-                    problemCoordinates.AddLast((new Coordinate(coordBuffer), i, i));
-                }
-            }
-        }*/
-        for (int i = 0; i < coordinates.Length - 1; i++)
-        {
-            for (int j = i + 1; j < coordinates.Length; j++)
-            {
-                if (i != j && coordinates[i].Equals(coordinates[j]) && coordinates[i].X >=  49.0013647900 && coordinates[i].X <=  49.0013647902 && coordinates[i].Y <= 55.86897326002 && coordinates[i].Y >= 55.8689732599)
-                {
-                    Console.WriteLine(coordinates[i] + "  " + j);
-                    MoveCoordinate(coordinates, i);
-                    goto END;
                 }
             }
         }
-        END:
+
         Coordinate[] newCoordinates = new Coordinate[oldCoordinates.Length];
         Array.Copy(coordinates, 0, newCoordinates, 0, coordinates.Length);
         newCoordinates[newCoordinates.Length - 1] = coordinates[0];
@@ -88,8 +64,7 @@ public class ZeroTunnelDivider
     // numbersOfEqualCoordsAdjacentCoord - номера координат, которые совпадают с координатой с номером coordAdjacentLine
     // в методе MoveCoordinate
     // метод пытается передвинуть точку под номером firstCoordFirstTunnel по ступенькам. True в случае успеха, false иначе
-    private int b = 0;
-    private bool MoveCoordinate(Coordinate[] coordinates, int firstCoordinate)
+    private bool MoveCoordinate(Coordinate[] coordinates, int firstCoordinate, int countOfSteps, double stepSize)
     {
         LinkedList<int> numbersOfEqualCoordsSecondCoord = new LinkedList<int>();
         LinkedList<int> numbersOfEqualCoordsAdjacentCoord = new LinkedList<int>();
@@ -108,10 +83,9 @@ public class ZeroTunnelDivider
             Coordinate buffer = coordinates[firstCoordinate];
             
             // stepNumber = номер ступеньки на которую передвигаем текущую координату
-            for (int stepNumber = 0; stepNumber < CountOfSteps; stepNumber++)
+            for (int stepNumber = 0; stepNumber < countOfSteps; stepNumber++)
             {
-                b++;
-                MovePointUpTheStairs(coordinates, quarterNumber, stepNumber, firstCoordinate);
+                MovePointUpTheStairs(coordinates, quarterNumber, stepNumber, firstCoordinate, stepSize);
                 if (CheckIntersects(coordinates, firstCoordinate, secondCoord, coordAdjacentLine,
                         numbersOfEqualCoordsSecondCoord, numbersOfEqualCoordsAdjacentCoord))
                 {
@@ -124,7 +98,6 @@ public class ZeroTunnelDivider
                 else
                 {
                     correctMove = true;
-                    Console.WriteLine(b);
                 }
                 buffer = coordinates[firstCoordinate];
             }
@@ -149,8 +122,6 @@ public class ZeroTunnelDivider
     {
         for (int i = 0; i < coordinates.Length - 1; i++)
         {
-            if (b == 1 && i == 6087)
-                Console.WriteLine("error2");
             if (!EqualLines(
                     i, 
                     i + 1, 
@@ -248,25 +219,26 @@ public class ZeroTunnelDivider
         Coordinate[] coordinates,
         int quarterNumber,
         int numberOfIteration,
-        int firstCoordFirstTunnel)
+        int firstCoordFirstTunnel,
+        double stepSize)
     {
         if (numberOfIteration % 2 == 0)
         {
             if (quarterNumber == 1 || quarterNumber == 4)
                 coordinates[firstCoordFirstTunnel] = new Coordinate(
-                    coordinates[firstCoordFirstTunnel].X + StepSize, coordinates[firstCoordFirstTunnel].Y);
+                    coordinates[firstCoordFirstTunnel].X + stepSize, coordinates[firstCoordFirstTunnel].Y);
             else if (quarterNumber == 2 || quarterNumber == 3)
                 coordinates[firstCoordFirstTunnel] = new Coordinate(
-                    coordinates[firstCoordFirstTunnel].X - StepSize, coordinates[firstCoordFirstTunnel].Y);
+                    coordinates[firstCoordFirstTunnel].X - stepSize, coordinates[firstCoordFirstTunnel].Y);
         }
         else
         {
             if (quarterNumber == 1 || quarterNumber == 2)
                 coordinates[firstCoordFirstTunnel] = new Coordinate(
-                    coordinates[firstCoordFirstTunnel].X, coordinates[firstCoordFirstTunnel].Y + StepSize);
+                    coordinates[firstCoordFirstTunnel].X, coordinates[firstCoordFirstTunnel].Y + stepSize);
             else if (quarterNumber == 3 || quarterNumber == 4)
                 coordinates[firstCoordFirstTunnel] = new Coordinate(
-                    coordinates[firstCoordFirstTunnel].X,coordinates[firstCoordFirstTunnel].Y - StepSize);
+                    coordinates[firstCoordFirstTunnel].X,coordinates[firstCoordFirstTunnel].Y - stepSize);
         }
     }
 }
