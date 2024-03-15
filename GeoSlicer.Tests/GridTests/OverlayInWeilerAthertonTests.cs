@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using GeoSlicer.Utils;
 using GeoSlicer.Utils.Intersectors;
 using GeoSlicer.Utils.Intersectors.CoordinateComparators;
@@ -21,8 +17,10 @@ public class OverlayInWeilerAthertonTests
 
 
     [Theory]
-    [MemberData(nameof(Data.DataTestInner), MemberType = typeof(Data))]
-    private void TestInner(List<Coordinate> clipped, List<Coordinate> cutting, List<Coordinate> expected)
+    [MemberData(nameof(Data.DataInner), MemberType = typeof(Data))]
+    [MemberData(nameof(Data.DataTangent), MemberType = typeof(Data))]
+    [MemberData(nameof(Data.DataResRectangle), MemberType = typeof(Data))]
+    private void Test(List<Coordinate> clipped, List<Coordinate> cutting, List<Coordinate> expected)
     {
         List<List<Coordinate>> actual = Slicer.WeilerAtherton(clipped, cutting);
 
@@ -32,46 +30,399 @@ public class OverlayInWeilerAthertonTests
 
     private static class Data
     {
-        public static IEnumerable<IEnumerable<int?[]>> DataContainsIEnumerableTrue =>
-            new[]
-            {
-                new[] { new int?[] { 1, null, 3, 4, 5 }, new int?[] { 1, null } },
-                new[] { new int?[] { 1, null, 3, 4, 5 }, new int?[] { 3, 4 } },
-                new[] { new int?[] { 1, null, 3, 4, 5 }, new int?[] { 4, 5 } },
-                new[] { new int?[] { null, null, 3, 4, null }, new int?[] { 3, 4 } },
-                new[] { new int?[] { 1, 2, 1, 2, 4, 2, 1, 2, 1, 2, 1, 3, 2, 1, 2, 1, 4 }, new int?[] { 1, 2, 1, 3 } }
-            };
-
-        public static IEnumerable<IEnumerable<List<Coordinate>>> DataTestInner =>
+        public static IEnumerable<IEnumerable<List<Coordinate>>> DataInner =>
             new[]
             {
                 new[]
                 {
                     new List<Coordinate>()
                     {
-                        new Coordinate(-2, 3),
-                        new Coordinate(2, 3),
-                        new Coordinate(3, 5),
-                        new Coordinate(5, 5),
-                        new Coordinate(5, -2),
+                        new Coordinate(-4, 2),
+                        new Coordinate(0, 2),
+                        new Coordinate(4, 4),
+                        new Coordinate(2, 0),
+                        new Coordinate(2, -4),
+                        new Coordinate(-2, -4),
+                        new Coordinate(-2, 0),
+                        new Coordinate(-4, -2),
+                    },
+                    new List<Coordinate>()
+                    {
+                        new Coordinate(-2, 2),
+                        new Coordinate(2, 2),
+                        new Coordinate(2, -2),
                         new Coordinate(-2, -2),
-                        new Coordinate(-2, 3)
+                        new Coordinate(-2, 2)
                     },
                     new List<Coordinate>()
                     {
-                        new Coordinate(0, 3),
-                        new Coordinate(3, 3),
-                        new Coordinate(3, 1),
-                        new Coordinate(0, 3)
+                        new Coordinate(-2, 2),
+                        new Coordinate(0, 2),
+                        new Coordinate(2, 2),
+                        new Coordinate(2, 0),
+                        new Coordinate(2, -2),
+                        new Coordinate(-2, -2),
+                        new Coordinate(-2, 0),
+                        new Coordinate(-2, 2)
+                    }
+                },
+                new[]
+                {
+                    new List<Coordinate>()
+                    {
+                        new Coordinate(-2, 2),
+                        new Coordinate(2, 2),
+                        new Coordinate(2, -2),
+                        new Coordinate(-2, -2),
+                        new Coordinate(-2, 2)
                     },
                     new List<Coordinate>()
                     {
-                        new Coordinate(0, 3),
-                        new Coordinate(3, 3),
-                        new Coordinate(3, 1),
-                        new Coordinate(0, 3)
+                        new Coordinate(-4, 2),
+                        new Coordinate(0, 2),
+                        new Coordinate(4, 4),
+                        new Coordinate(2, 0),
+                        new Coordinate(2, -4),
+                        new Coordinate(-2, -4),
+                        new Coordinate(-2, 0),
+                        new Coordinate(-4, -2),
+                    },
+                    new List<Coordinate>()
+                    {
+                        new Coordinate(-2, 2),
+                        new Coordinate(0, 2),
+                        new Coordinate(2, 2),
+                        new Coordinate(2, 0),
+                        new Coordinate(2, -2),
+                        new Coordinate(-2, -2),
+                        new Coordinate(-2, 0),
+                        new Coordinate(-2, 2)
+                    }
+                },
+                new[]
+                {
+                    new List<Coordinate>()
+                    {
+                        new Coordinate(2, -4),
+                        new Coordinate(2, 0),
+                        new Coordinate(4, 4),
+                        new Coordinate(0, 2),
+                        new Coordinate(-4, 2),
+                        new Coordinate(-4, -2),
+                        new Coordinate(0, -2),
+                        new Coordinate(-2, -4),
+                    },
+                    new List<Coordinate>()
+                    {
+                        new Coordinate(2, -2),
+                        new Coordinate(2, 2),
+                        new Coordinate(-2, 2),
+                        new Coordinate(-2, -2),
+                        new Coordinate(2, -2)
+                    },
+                    new List<Coordinate>()
+                    {
+                        new Coordinate(2, -2),
+                        new Coordinate(2, 0),
+                        new Coordinate(2, 2),
+                        new Coordinate(0, 2),
+                        new Coordinate(-2, 2),
+                        new Coordinate(-2, -2),
+                        new Coordinate(0, -2),
+                        new Coordinate(2, -2)
+                    }
+                },
+                new[]
+                {
+                    new List<Coordinate>()
+                    {
+                        new Coordinate(2, -2),
+                        new Coordinate(2, 2),
+                        new Coordinate(-2, 2),
+                        new Coordinate(-2, -2),
+                        new Coordinate(2, -2)
+                    },
+                    new List<Coordinate>()
+                    {
+                        new Coordinate(2, -4),
+                        new Coordinate(2, 0),
+                        new Coordinate(4, 4),
+                        new Coordinate(0, 2),
+                        new Coordinate(-4, 2),
+                        new Coordinate(-4, -2),
+                        new Coordinate(0, -2),
+                        new Coordinate(-2, -4),
+                    },
+                    new List<Coordinate>()
+                    {
+                        new Coordinate(2, -2),
+                        new Coordinate(2, 0),
+                        new Coordinate(2, 2),
+                        new Coordinate(0, 2),
+                        new Coordinate(-2, 2),
+                        new Coordinate(-2, -2),
+                        new Coordinate(0, -2),
+                        new Coordinate(2, -2)
+                    }
+                },
+            };
+
+        public static IEnumerable<IEnumerable<List<Coordinate>>> DataTangent =>
+            new[]
+            {
+                new[]
+                {
+                    new List<Coordinate>()
+                    {
+                        new Coordinate(-2, 1),
+                        new Coordinate(-1, 2),
+                        new Coordinate(0, 1),
+                        new Coordinate(-2, 1)
+                    },
+                    new List<Coordinate>()
+                    {
+                        new Coordinate(-1, 1),
+                        new Coordinate(1, 1),
+                        new Coordinate(0, 0),
+                        new Coordinate(-1, 1)
+                    },
+                    new List<Coordinate>()
+                    {
+                        new Coordinate(-1, 1),
+                        new Coordinate(0, 1),
+                        new Coordinate(-1, 1),
+                    }
+                },
+                new[]
+                {
+                    new List<Coordinate>()
+                    {
+                        new Coordinate(-1, 1),
+                        new Coordinate(1, 1),
+                        new Coordinate(0, 0),
+                        new Coordinate(-1, 1)
+                    },
+                    new List<Coordinate>()
+                    {
+                        new Coordinate(-2, 1),
+                        new Coordinate(-1, 2),
+                        new Coordinate(0, 1),
+                        new Coordinate(-2, 1)
+                    },
+                    new List<Coordinate>()
+                    {
+                        new Coordinate(-1, 1),
+                        new Coordinate(0, 1),
+                        new Coordinate(-1, 1),
+                    }
+                },
+                new[]
+                {
+                    new List<Coordinate>()
+                    {
+                        new Coordinate(-1, 1),
+                        new Coordinate(1, 1),
+                        new Coordinate(0, 0),
+                        new Coordinate(-1, 1)
+                    },
+                    new List<Coordinate>()
+                    {
+                        new Coordinate(0, 1),
+                        new Coordinate(1, 2),
+                        new Coordinate(2, 1),
+                        new Coordinate(0, 1)
+                    },
+                    new List<Coordinate>()
+                    {
+                        new Coordinate(1, 1),
+                        new Coordinate(0, 1),
+                        new Coordinate(1, 1),
+                    }
+                },
+                new[]
+                {
+                    new List<Coordinate>()
+                    {
+                        new Coordinate(0, 1),
+                        new Coordinate(1, 2),
+                        new Coordinate(2, 1),
+                        new Coordinate(0, 1)
+                    },
+                    new List<Coordinate>()
+                    {
+                        new Coordinate(-1, 1),
+                        new Coordinate(1, 1),
+                        new Coordinate(0, 0),
+                        new Coordinate(-1, 1)
+                    },
+                    new List<Coordinate>()
+                    {
+                        new Coordinate(1, 1),
+                        new Coordinate(0, 1),
+                        new Coordinate(1, 1),
+                    }
+                },
+                new[]
+                {
+                    new List<Coordinate>()
+                    {
+                        new Coordinate(1, -2),
+                        new Coordinate(2, -1),
+                        new Coordinate(1, 0),
+                        new Coordinate(1, -2)
+                    },
+                    new List<Coordinate>()
+                    {
+                        new Coordinate(1, -1),
+                        new Coordinate(1, 1),
+                        new Coordinate(0, 0),
+                        new Coordinate(1, -1)
+                    },
+                    new List<Coordinate>()
+                    {
+                        new Coordinate(1, -1),
+                        new Coordinate(1, 0),
+                        new Coordinate(1, -1),
+                    }
+                },
+                new[]
+                {
+                    new List<Coordinate>()
+                    {
+                        new Coordinate(1, -1),
+                        new Coordinate(1, 1),
+                        new Coordinate(0, 0),
+                        new Coordinate(1, -1)
+                    },
+                    new List<Coordinate>()
+                    {
+                        new Coordinate(1, -2),
+                        new Coordinate(2, -1),
+                        new Coordinate(1, 0),
+                        new Coordinate(1, -2)
+                    },
+                    new List<Coordinate>()
+                    {
+                        new Coordinate(1, -1),
+                        new Coordinate(1, 0),
+                        new Coordinate(1, -1),
                     }
                 }
             };
+        
+
+        public static IEnumerable<IEnumerable<List<Coordinate>>> DataResRectangle =>
+            new[]
+            {
+                new[]
+                {
+                    new List<Coordinate>()
+                    {
+                        new Coordinate(-1, -1),
+                        new Coordinate(-1, 2),
+                        new Coordinate(1, 2),
+                        new Coordinate(1, -1),
+                        new Coordinate(-1, -1)
+                    },
+                    new List<Coordinate>()
+                    {
+                        new Coordinate(0, 2),
+                        new Coordinate(2, 2),
+                        new Coordinate(2, 0),
+                        new Coordinate(0, 0),
+                        new Coordinate(0, 2)
+                    },
+                    new List<Coordinate>()
+                    {
+                        new Coordinate(0, 2),
+                        new Coordinate(1, 2),
+                        new Coordinate(1, 0),
+                        new Coordinate(0, 0),
+                        new Coordinate(0, 2)
+                    }
+                },
+                new[]
+                {
+                    new List<Coordinate>()
+                    {
+                        new Coordinate(0, 2),
+                        new Coordinate(2, 2),
+                        new Coordinate(2, 0),
+                        new Coordinate(0, 0),
+                        new Coordinate(0, 2)
+                    },
+                    new List<Coordinate>()
+                    {
+                        new Coordinate(-1, -1),
+                        new Coordinate(-1, 2),
+                        new Coordinate(1, 2),
+                        new Coordinate(1, -1),
+                        new Coordinate(-1, -1)
+                    },
+                    new List<Coordinate>()
+                    {
+                        new Coordinate(0, 2),
+                        new Coordinate(1, 2),
+                        new Coordinate(1, 0),
+                        new Coordinate(0, 0),
+                        new Coordinate(0, 2)
+                    }
+                },
+                new[]
+                {
+                    new List<Coordinate>()
+                    {
+                        new Coordinate(-2, 2),
+                        new Coordinate(0, 2),
+                        new Coordinate(0, 0),
+                        new Coordinate(-2, 0),
+                        new Coordinate(-2, 2)
+                    },
+                    new List<Coordinate>()
+                    {
+                        new Coordinate(-1, -1),
+                        new Coordinate(-1, 2),
+                        new Coordinate(1, 2),
+                        new Coordinate(1, -1),
+                        new Coordinate(-1, -1)
+                    },
+                    new List<Coordinate>()
+                    {
+                        new Coordinate(-1, 2),
+                        new Coordinate(0, 2),
+                        new Coordinate(0, 0),
+                        new Coordinate(-1, 0),
+                        new Coordinate(-1, 2)
+                    }
+                },
+                new[]
+                {
+                    new List<Coordinate>()
+                    {
+                        new Coordinate(-1, -1),
+                        new Coordinate(-1, 2),
+                        new Coordinate(1, 2),
+                        new Coordinate(1, -1),
+                        new Coordinate(-1, -1)
+                    },
+                    new List<Coordinate>()
+                    {
+                        new Coordinate(-2, 2),
+                        new Coordinate(0, 2),
+                        new Coordinate(0, 0),
+                        new Coordinate(-2, 0),
+                        new Coordinate(-2, 2)
+                    },
+                    new List<Coordinate>()
+                    {
+                        new Coordinate(-1, 2),
+                        new Coordinate(0, 2),
+                        new Coordinate(0, 0),
+                        new Coordinate(-1, 0),
+                        new Coordinate(-1, 2)
+                    }
+                },
+            };
+        
     }
 }
