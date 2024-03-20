@@ -2,11 +2,11 @@
 
 namespace GeoSlicer.Slicers;
 
-public class RadialConvexSlicer : ISlicer
+public class RadialSlicer : ISlicer
 {
     private readonly GeometryFactory _gf;
 
-    public RadialConvexSlicer(GeometryFactory? gf = null)
+    public RadialSlicer(GeometryFactory? gf = null)
     {
         _gf = gf ?? NetTopologySuite.NtsGeometryServices.Instance.CreateGeometryFactory(4326);
     }

@@ -2,11 +2,11 @@
 
 namespace GeoSlicer.Slicers;
 
-public class StepConvexSlicer : ISlicer
+public class StepSlicer : ISlicer
 {
     private readonly GeometryFactory _gf;
 
-    public StepConvexSlicer(GeometryFactory? gf = null)
+    public StepSlicer(GeometryFactory? gf = null)
     {
         _gf = gf ?? NetTopologySuite.NtsGeometryServices.Instance.CreateGeometryFactory(4326);
     }

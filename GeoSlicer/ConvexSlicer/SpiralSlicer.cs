@@ -3,11 +3,11 @@ using NetTopologySuite.Geometries;
 
 namespace GeoSlicer.Slicers;
 
-public class SpiralConvexSlicer : ISlicer
+public class SpiralSlicer : ISlicer
 {
     private readonly GeometryFactory _gf;
 
-    public SpiralConvexSlicer(GeometryFactory? gf = null)
+    public SpiralSlicer(GeometryFactory? gf = null)
     {
         _gf = gf ?? NetTopologySuite.NtsGeometryServices.Instance.CreateGeometryFactory(4326);
     }
