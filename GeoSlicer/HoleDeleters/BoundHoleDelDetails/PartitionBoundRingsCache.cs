@@ -69,7 +69,6 @@ public class PartitionBoundRingsCache
         NearEFGSegmentintersect = null;
         NearAHGSegmentintersect = null;
     }
-    //
     public bool FillListsRelativeRing(
         LinkedListNode<BoundingRing> boundRing,
         LinkedList<BoundingRing> boundRings)

@@ -1,23 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using NetTopologySuite.Geometries;
 namespace GeoSlicer.Utils.BoundRing;
 
 public class BoundingRing
 {
-    
+    //Координаты левой снизу и правой сверху точек у прямоугольника
     public Coordinate PointMin { get; private set; }
     public Coordinate PointMax { get; private set; }
-
+    
+    
+    //Координаты точек кольца, которые касаются сторон прямоугольника
     public LinkedNode<Coordinate> PointLeftNode { get; private set; }
     public LinkedNode<Coordinate> PointRightNode { get; private set; }
     public LinkedNode<Coordinate> PointUpNode { get; private set; }
     public LinkedNode<Coordinate> PointDownNode { get; private set; }
-
+    
     public LinkedNode<Coordinate> Ring { get; private set; }
     public int PointsCount { get; private set; }
-    public bool counterClockwiseBypass;
+    
+    //true - обход кольца по часовой стрелке
+    private readonly bool _counterClockwiseBypass;
 
     public BoundingRing(Coordinate pointMin,
         Coordinate pointMax,
@@ -35,7 +38,7 @@ public class BoundingRing
         PointDownNode = pointDownNode;
         Ring = ring;
         PointsCount = pointsCount;
-        this.counterClockwiseBypass = counterClockwiseBypass;
+        _counterClockwiseBypass = counterClockwiseBypass;
     }
 
     protected bool Equals(BoundingRing other)
@@ -62,111 +65,48 @@ public class BoundingRing
         return HashCode.Combine(PointMin, PointMax, PointLeftNode, PointRightNode,
             PointUpNode, PointDownNode, Ring, PointsCount);
     }
-    
-    private static readonly GeometryFactory DefaultGeometryFactory =
-        NetTopologySuite.NtsGeometryServices.Instance.CreateGeometryFactory(4326);
+    //Преобразует Polygon в список из BoundingRing, в котором первый элемент - оболочка полигона,
+    //остальные элементы - дыры полигона
     public static LinkedList<BoundingRing> PolygonToBoundRings(Polygon polygon, TraverseDirection direction)
     {
         LinkedList<BoundingRing> boundRings = new LinkedList<BoundingRing>();
-        boundRings.AddFirst(LinearRingToBoundingRing(polygon.Shell, true, direction));
+        boundRings.AddFirst(BoundRService.LinearRingToBoundingRing(polygon.Shell, true, direction));
         foreach(LinearRing ring in polygon.Holes)
         {
-            boundRings.AddLast(LinearRingToBoundingRing(ring, false, direction));
+            boundRings.AddLast(BoundRService.LinearRingToBoundingRing(ring, false, direction));
         }
         return boundRings;
     }
+    //преобразует список из BoundingRing в Polygon. В списке первый элемент должен быть оболочкой полигона.
+    //Остальные элементы - дырами полигона
     public static Polygon BoundRingsToPolygon(LinkedList<BoundingRing> boundRings, GeometryFactory? factory = null)
     {
         if (factory is null)
-            factory = DefaultGeometryFactory;
-        LinearRing shell = BoundRingToLinearRing(boundRings.First!.Value);
+            factory = NetTopologySuite.NtsGeometryServices.Instance.CreateGeometryFactory(4326);
+        
+        LinearRing shell = BoundRService.BoundRingToLinearRing(boundRings.First!.Value);
         LinearRing[] holes = new LinearRing[boundRings.Count - 1];
+        
         using(var enumerator = boundRings.GetEnumerator())
         {
             enumerator.MoveNext();
             int i = 0;
             while (enumerator.MoveNext())
             {
-                holes[i] = BoundRingToLinearRing(enumerator.Current);
+                holes[i] = BoundRService.BoundRingToLinearRing(enumerator.Current);
                 i++;
             }
         }
         return new Polygon(shell, holes, factory);
     }
-    
-    private static LinearRing BoundRingToLinearRing(BoundingRing boundRing)
-    {
-        var points = new Coordinate[boundRing.PointsCount + 1];
-        var ringNode = boundRing.Ring;
-        var ringNodeBuff = ringNode;
-        int i = 0;
-        do
-        {
-            points[i] = ringNodeBuff.Elem;
-            ringNodeBuff = ringNodeBuff.Next;
-            i++;
-        } while (!ReferenceEquals(ringNodeBuff, ringNode));
-
-        points[i] = ringNode.Elem;
-
-        return new LinearRing(points);
-    }
-
-    private static BoundingRing LinearRingToBoundingRing(LinearRing ring, bool counterClockwiseBypass, TraverseDirection direction)
-    {
-        Coordinate[] coordinates = ring.Coordinates;
-        LinkedNode <Coordinate> ringNode = new LinkedNode<Coordinate>(coordinates[0]);
-        LinkedNode<Coordinate> pointLeftNode = ringNode;
-        LinkedNode<Coordinate> pointRightNode = ringNode;
-        LinkedNode<Coordinate> pointUpNode = ringNode;
-        LinkedNode<Coordinate> pointDownNode = ringNode;
-        bool clockwise = direction.IsClockwiseBypass(ring);
-        bool counterClockwiseBypassBuff = counterClockwiseBypass;   
-        if (!counterClockwiseBypass) 
-        {
-            clockwise = !clockwise;
-        }
-        
-        if (clockwise)
-        {
-            for (int i = 1; i < coordinates.Length - 1; i++)
-            {
-                ringNode = new LinkedNode<Coordinate>(coordinates[i], ringNode);
-                pointLeftNode = CoordinateNodeService.MinByX(pointLeftNode, ringNode);
-                pointRightNode = CoordinateNodeService.MaxByX(pointRightNode, ringNode);
-                pointUpNode = CoordinateNodeService.MaxByY(pointUpNode, ringNode);
-                pointDownNode = CoordinateNodeService.MinByY(pointDownNode, ringNode);
-            }
-        }
-        else
-        {
-            for (int i = coordinates.Length - 2; i >= 1; i--)
-            {
-                ringNode = new LinkedNode<Coordinate>(coordinates[i], ringNode);
-                pointLeftNode = CoordinateNodeService.MinByX(pointLeftNode, ringNode);
-                pointRightNode = CoordinateNodeService.MaxByX(pointRightNode, ringNode);
-                pointUpNode = CoordinateNodeService.MaxByY(pointUpNode, ringNode);
-                pointDownNode = CoordinateNodeService.MinByY(pointDownNode, ringNode);
-            }
-        }
-        
-        Coordinate pointMax = new Coordinate(
-            Math.Max(pointUpNode.Elem.X, pointRightNode.Elem.X),
-            Math.Max(pointUpNode.Elem.Y, pointRightNode.Elem.Y));
-        Coordinate pointMin = new Coordinate(
-            Math.Min(pointDownNode.Elem.X, pointLeftNode.Elem.X),
-            Math.Min(pointDownNode.Elem.Y, pointLeftNode.Elem.Y));
-        
-        return new BoundingRing(pointMin, pointMax, pointLeftNode, pointRightNode,
-            pointUpNode, pointDownNode, ringNode.Next, coordinates.Length - 1, counterClockwiseBypassBuff);
-    }
+    //Соединяет два BoundingRing нулевым туннелем. BoundingRing2 переходит в некорректное состояние после работы метода.
     public void ConnectBoundRings(
         BoundingRing boundRing2,
         LinkedNode<Coordinate> point1Node, LinkedNode<Coordinate> point2Node)
     {
-        point1Node = FindCorrectLinkedCoord(point1Node, point2Node.Elem, this.counterClockwiseBypass);
-        point2Node = FindCorrectLinkedCoord(point2Node, point1Node.Elem, boundRing2.counterClockwiseBypass);
-        Ring = ConnectRingsNodes(point1Node, point2Node);
+        point1Node = BoundRService.FindCorrectLinkedCoord(point1Node, point2Node.Elem, this._counterClockwiseBypass);
+        point2Node = BoundRService.FindCorrectLinkedCoord(point2Node, point1Node.Elem, boundRing2._counterClockwiseBypass);
+        Ring = BoundRService.ConnectRingsNodes(point1Node, point2Node);
 
         PointRightNode = CoordinateNodeService.MaxByX(
             PointRightNode,
@@ -194,98 +134,4 @@ public class BoundingRing
         
         PointsCount = PointsCount + boundRing2.PointsCount + 2;
     }
-
-    private LinkedNode<Coordinate> FindCorrectLinkedCoord(
-        LinkedNode<Coordinate> point1Node,
-        Coordinate point2,
-        bool thisCounterClockwiseBypass)
-    {
-        if (point1Node.Next2 is null)
-            return point1Node;
-        if (thisCounterClockwiseBypass)
-        {
-            while (ReferenceEquals(point1Node.Previous2!.Elem, point1Node.Elem))
-            {
-                point1Node = point1Node.Previous2;
-            }
-            while (true)
-            {
-                if (!ReferenceEquals(point1Node.Next2!.Elem, point1Node.Elem))
-                {
-                    return point1Node;
-                }
-
-                Coordinate b1 = point1Node.Previous.Elem;
-                Coordinate b2 = point1Node.Elem;
-                Coordinate b3 = point1Node.Next.Elem;
-                if (SegmentService.InsideTheAngle(point1Node.Elem, point2, b1, b2, b3))
-                {
-                    return point1Node;
-                }
-
-                point1Node = point1Node.Next2;
-            }
-        }
-        while (ReferenceEquals(point1Node.Previous2!.Elem, point1Node.Elem))
-        {
-            point1Node = point1Node.Previous2;
-        }
-        while (true)
-        {
-            if (!ReferenceEquals(point1Node.Next2!.Elem, point1Node.Elem))
-            {
-                return point1Node;
-            }
-
-            Coordinate b1 = point1Node.Next.Elem;
-            Coordinate b2 = point1Node.Elem;
-            Coordinate b3 = point1Node.Previous.Elem;
-            if (SegmentService.InsideTheAngle(point1Node.Elem, point2, b1, b2, b3))
-            {
-                return point1Node;
-            }
-
-            point1Node = point1Node.Next2;
-        }
-    }
-    private LinkedNode<Coordinate> ConnectRingsNodes(
-        LinkedNode<Coordinate> ring1Node,
-        LinkedNode<Coordinate> ring2Node)
-    {
-        LinkedNode<Coordinate> ring1NodeNext = ring1Node.Next;
-        LinkedNode<Coordinate> ring2NodePrevious = ring2Node.Previous;
-        
-        ring1Node.Next = ring2Node;
-        ring2Node.Previous = ring1Node;
-
-        ring2NodePrevious.Next = ring1NodeNext;
-        ring1NodeNext.Previous = ring2NodePrevious;
-        new LinkedNode<Coordinate>(
-            ring1Node.Elem,
-            new LinkedNode<Coordinate>(ring2Node.Elem, ring2NodePrevious, ring1NodeNext),
-            ring1NodeNext);
-        //меняем ссылки у первого кольца
-        if (ring1Node.Previous2 == null)
-            ring1Node.Previous2 = ring1Node.Previous;
-        var oldRing1NodeNext2 = ring1Node.Next2;
-        ring1Node.Next2 = ring1NodeNext.Previous;
-        
-        ring1NodeNext.Previous.Previous2 = ring1Node;
-        if (oldRing1NodeNext2 == null)
-            ring1NodeNext.Previous.Next2 = ring1NodeNext.Previous.Next;
-        else ring1NodeNext.Previous.Next2 = oldRing1NodeNext2;
-        //меняем ссылки у второго кольца
-        if(ring2Node.Next2 == null)
-            ring2Node.Next2 = ring2Node.Next;
-        var oldRing2NodePrevious2 = ring2Node.Previous2;
-        ring2Node.Previous2 = ring2NodePrevious.Next;
-        ring2NodePrevious.Next.Next2 = ring2Node;
-        if (oldRing2NodePrevious2 == null)
-            ring2NodePrevious.Next.Previous2 = ring2NodePrevious.Next.Previous;
-        else
-            ring2NodePrevious.Next.Previous2 = oldRing2NodePrevious2;
-        
-        return ring1Node;
-    }
-    
 }

@@ -8,8 +8,8 @@ public class LinkedNode<T>
     public T Elem { get; set; }
     public LinkedNode<T> Next { get; set; }
     public LinkedNode<T> Previous { get; set; }
-    public LinkedNode<T>? Next2 { get; set; }
-    public LinkedNode<T>? Previous2 { get; set; }
+    public LinkedNode<T>? AdditionalNext { get; set; }
+    public LinkedNode<T>? AdditionalPrevious { get; set; }
 
     public LinkedNode(T elem)
     {
@@ -34,22 +34,12 @@ public class LinkedNode<T>
         previous.Next = this;
     }
 
-    public void LeaveList()
-    {
-        if (ReferenceEquals(this, Next))
-            throw new AggregateException("The list consists of one element");
-        Previous.Next = Next;
-        Next.Previous = Previous;
-        Next = this;
-        Previous = this;
-    }
-
     protected bool Equals(LinkedNode<T> other)
     {
         if (EqualityComparer<T>.Default.Equals(Elem, other.Elem))
         {
             LinkedNode<T> otherNext = other.Next;
-            LinkedNode<T> thisNext = this.Next;
+            LinkedNode<T> thisNext = Next;
             while (!ReferenceEquals(this, thisNext))
             {
                 if (!EqualityComparer<T>.Default.Equals(thisNext.Elem, otherNext.Elem))
