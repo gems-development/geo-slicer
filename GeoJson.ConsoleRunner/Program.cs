@@ -7,7 +7,7 @@ using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 
 
-const double epsilon = 1E-16;
+const double epsilon = 1E-19;
 GeometryFactory gf =
     NetTopologySuite.NtsGeometryServices.Instance.CreateGeometryFactory(4326);
 LineService lineService = new LineService(epsilon);

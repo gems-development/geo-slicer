@@ -52,7 +52,7 @@ public class SegmentService
 
         res[j] = res[0];
 
-        return new LinearRing(res);
+        return res.Length <= 3 ? ring : new LinearRing(res);
     }
 
     private static double? CalculatePhiFromZeroTo2Pi(double x, double y)
