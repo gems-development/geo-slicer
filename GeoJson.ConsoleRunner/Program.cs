@@ -3,10 +3,11 @@ using GeoSlicer.NonConvexSlicer.Helpers;
 using GeoSlicer.Utils;
 using GeoSlicer.Utils.Intersectors;
 using GeoSlicer.Utils.Intersectors.CoordinateComparators;
+using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 
 
-const double epsilon = 1E-15;
+const double epsilon = 1E-16;
 GeometryFactory gf =
     NetTopologySuite.NtsGeometryServices.Instance.CreateGeometryFactory(4326);
 LineService lineService = new LineService(epsilon);
@@ -19,10 +20,12 @@ Slicer slicer =
             new LinesIntersector(new EpsilonCoordinateComparator(epsilon), lineService, epsilon),
             lineService), traverseDirection, lineService);
 
-MultiPolygon multiPolygon =
-    GeoJsonFileService.ReadGeometryFromFile<MultiPolygon>("TestFiles\\baikal_multy_polygon.geojson");
+var featureCollection = GeoJsonFileService.ReadGeometryFromFile<FeatureCollection>("TestFiles\\kazan.geojson");
 
-LinearRing shell = ((Polygon)multiPolygon[0]).Shell;
+var polygon = (Polygon)((MultiPolygon)featureCollection[0].Geometry)[0];
+
+LinearRing shell = polygon.Shell;
+
 
 /*//Для нахождения особых точек
 if (!traverseDirection.IsClockwiseBypass(shell)) TraverseDirection.ChangeDirection(shell);
@@ -37,7 +40,7 @@ List<LinearRing> result = slicer.Slice(shell);
 IEnumerable<Polygon> polygons = result.Select(ring => new Polygon(ring));
 
 MultiPolygon multiPolygonResult = new MultiPolygon(polygons.ToArray());
-GeoJsonFileService.WriteGeometryToFile(multiPolygonResult, "TestFiles\\baikal_result.geojson");
+GeoJsonFileService.WriteGeometryToFile(multiPolygonResult, "TestFiles\\kazan_result.geojson");
 
 
 // MultiPolygon baikalMultiPolygon =
