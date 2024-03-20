@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using GeoSlicer.Utils.Intersectors;
 using NetTopologySuite.Geometries;
 
@@ -8,10 +7,10 @@ namespace GeoSlicer.Tests.HoleDeletersTests;
 
 public class ZeroTunnelDivider
 {
-    private IList<(int countOfSteps, double stepSize)> _stepCharacteristic;
+    private readonly IList<(int countOfSteps, double stepSize)> _stepCharacteristic;
     private LineIntersector _intersector;
 
-    private double _tolerance;
+    private readonly double _tolerance;
 
     public ZeroTunnelDivider(
         IList<(int countOfSteps, double stepSize)> stepCharacteristic,
@@ -23,15 +22,17 @@ public class ZeroTunnelDivider
     }
     
     
-    public (LinearRing, LinkedList<(Coordinate, int number1, int number2)> problemCoordinates) DivideZeroTunnels(LinearRing ring)
+    public void DivideZeroTunnels(LinearRing ring, out LinearRing resultRing, out LinkedList<Coordinate> problemCoordinates)
     {
         Coordinate[] oldCoordinates = ring.Coordinates;
         Coordinate[] coordinates = new Coordinate[oldCoordinates.Length - 1];
         Array.Copy(oldCoordinates, 0, coordinates, 0, coordinates.Length);
-        LinkedList<(Coordinate, int number1, int number2)> problemCoordinates
-            = new LinkedList<(Coordinate, int number1, int number2)>();
-        for (int m = 0; m < _stepCharacteristic.Count; m++)
+        problemCoordinates
+            = new LinkedList<Coordinate>();
+        for (int stepNumber = 0; stepNumber < _stepCharacteristic.Count; stepNumber++)
         {
+            bool stepNumberIterationHaveErrors = false;
+            
             for (int i = 0; i < coordinates.Length - 1; i++)
             {
                 for (int j = i + 1; j < coordinates.Length; j++)
@@ -42,28 +43,33 @@ public class ZeroTunnelDivider
                         if (!MoveCoordinate(
                                 coordinates,
                                 i,
-                                _stepCharacteristic[m].countOfSteps,
-                                _stepCharacteristic[m].stepSize))
+                                _stepCharacteristic[stepNumber].countOfSteps,
+                                _stepCharacteristic[stepNumber].stepSize))
                         {
-                            if (m == _stepCharacteristic.Count - 1)
-                                problemCoordinates.AddFirst((coordinates[i], i, j));
+                            if (stepNumber == _stepCharacteristic.Count - 1)
+                                problemCoordinates.AddFirst(coordinates[i]);
                             else coordinates[i] = buff;
+                            stepNumberIterationHaveErrors = true;
                         }
+                        break;
                     }
                 }
             }
+
+            if (!stepNumberIterationHaveErrors)
+                break;
         }
 
         Coordinate[] newCoordinates = new Coordinate[oldCoordinates.Length];
         Array.Copy(coordinates, 0, newCoordinates, 0, coordinates.Length);
         newCoordinates[newCoordinates.Length - 1] = coordinates[0];
-        return (new LinearRing(newCoordinates), problemCoordinates);
+        resultRing = new LinearRing(newCoordinates);
     }
 
     // numbersOfEqualCoordsSecondCoord - номера координат, которые совпадают с координатой с номером secondCoordFirstTunnel
     // numbersOfEqualCoordsAdjacentCoord - номера координат, которые совпадают с координатой с номером coordAdjacentLine
     // в методе MoveCoordinate
-    // метод пытается передвинуть точку под номером firstCoordFirstTunnel по ступенькам. True в случае успеха, false иначе
+    // метод пытается передвинуть точку под номером firstCoord по ступенькам. True в случае успеха, false иначе
     private bool MoveCoordinate(Coordinate[] coordinates, int firstCoordinate, int countOfSteps, double stepSize)
     {
         LinkedList<int> numbersOfEqualCoordsSecondCoord = new LinkedList<int>();
@@ -113,7 +119,7 @@ public class ZeroTunnelDivider
     }
     
     // Проверяет, что линии с общей точкой с номером firstCoordFirstTunnel не пересекают другие линии в проверяемой геометрии
-    // Точка с координатой secondCoordFirstTunnel может совпадать с другими координатами в
+    // Точки с координатами secondCoord и coordAdjacentLine может совпадать с другими координатами в
     // геометрии(накладываться на координаты других нулевых тунелей)
     private bool CheckIntersects(Coordinate[] coordinates,
         int firstCoord, int secondCoord, int coordAdjacentLine,
