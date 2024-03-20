@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace GeoSlicer.Utils.Intersectors;
+namespace GeoSlicer.Utils.Intersectors.IntersectionTypes;
 
 [Flags]
 public enum AreasIntersectionType

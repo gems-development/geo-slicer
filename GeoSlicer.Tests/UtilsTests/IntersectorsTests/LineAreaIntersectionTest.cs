@@ -1,6 +1,7 @@
 ﻿using GeoSlicer.Utils;
 using GeoSlicer.Utils.Intersectors;
 using GeoSlicer.Utils.Intersectors.CoordinateComparators;
+using GeoSlicer.Utils.Intersectors.IntersectionTypes;
 using NetTopologySuite.Geometries;
 
 namespace GeoSlicer.Tests.UtilsTests.IntersectorsTests;
