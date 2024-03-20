@@ -6,7 +6,7 @@ using NetTopologySuite.Geometries;
 
 namespace GeoSlicer.NonConvexSlicer;
 
-public class NonConvexSlicer
+public class Slicer
 {
     private readonly GeometryFactory _gf;
     private readonly SegmentService _segmentService;
@@ -14,7 +14,7 @@ public class NonConvexSlicer
     private readonly NonConvexSlicerHelper _helper;
     private readonly TraverseDirection _traverseDirection;
 
-    public NonConvexSlicer(
+    public Slicer(
         GeometryFactory gf,
         SegmentService segmentService,
         NonConvexSlicerHelper helper,
@@ -93,12 +93,10 @@ public class NonConvexSlicer
                 c: pozNextPoint);
 
             if (_lineService.VectorProduct(
-                    new Coordinate(
-                        coordB.X - coordC.X,
-                        coordB.Y - coordC.Y),
-                    new Coordinate(
-                        coordM.X - coordB.X,
-                        coordM.Y - coordB.Y)
+                    coordB.X - coordC.X,
+                    coordB.Y - coordC.Y,
+                    coordM.X - coordB.X,
+                    coordM.Y - coordB.Y
                 ) < 0)
             {
                 //NextPoint не является особой точкой в новом кольце
@@ -255,12 +253,10 @@ public class NonConvexSlicer
                 //При этом кольцо не двуугольник
                 if (afterFirstIndex != beforeFirstIndex &&
                     _lineService.VectorProduct(
-                        new Coordinate(
-                            ringCoords[coordCurrent.C].X - ringCoords[coordPrev.C].X,
-                            ringCoords[coordCurrent.C].Y - ringCoords[coordPrev.C].Y),
-                        new Coordinate(
-                            ringCoords[coordNext.C].X - ringCoords[coordCurrent.C].X,
-                            ringCoords[coordNext.C].Y - ringCoords[coordCurrent.C].Y)
+                        ringCoords[coordCurrent.C].X - ringCoords[coordPrev.C].X, 
+                        ringCoords[coordCurrent.C].Y - ringCoords[coordPrev.C].Y, 
+                        ringCoords[coordNext.C].X - ringCoords[coordCurrent.C].X, 
+                        ringCoords[coordNext.C].Y - ringCoords[coordCurrent.C].Y
                     ) >= 0)
                 {
                     listSpecialPoints.Add(coordCurrent);
@@ -275,12 +271,10 @@ public class NonConvexSlicer
                     coordNext.C != beforeFirstIndex &&
                     afterFirstIndex != beforeFirstIndex &&
                     _lineService.VectorProduct(
-                        new Coordinate(
-                            ringCoords[coordNext.C].X - ringCoords[beforeFirstIndex].X,
-                            ringCoords[coordNext.C].Y - ringCoords[beforeFirstIndex].Y),
-                        new Coordinate(
-                            ringCoords[afterFirstIndex].X - ringCoords[coordNext.C].X,
-                            ringCoords[afterFirstIndex].Y - ringCoords[coordNext.C].Y)
+                        ringCoords[coordNext.C].X - ringCoords[beforeFirstIndex].X,
+                        ringCoords[coordNext.C].Y - ringCoords[beforeFirstIndex].Y,
+                        ringCoords[afterFirstIndex].X - ringCoords[coordNext.C].X,
+                        ringCoords[afterFirstIndex].Y - ringCoords[coordNext.C].Y
                     ) >= 0)
                 {
                     listSpecialPoints.Add(coordNext);

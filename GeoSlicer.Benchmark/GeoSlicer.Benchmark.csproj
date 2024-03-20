@@ -11,7 +11,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\GeoSlicer.GeoJsonFileService\GeoSlicer.GeoJsonFileService.csproj" />
       <ProjectReference Include="..\GeoSlicer.Utils\GeoSlicer.Utils.csproj" />
       <ProjectReference Include="..\GeoSlicer\GeoSlicer.csproj" />
     </ItemGroup>

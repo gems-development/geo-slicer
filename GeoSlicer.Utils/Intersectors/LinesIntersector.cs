@@ -4,7 +4,7 @@ using NetTopologySuite.Geometries;
 
 namespace GeoSlicer.Utils.Intersectors;
 
-public class LineLineIntersector
+public class LinesIntersector
 {
     private readonly double _epsilon;
 
@@ -12,7 +12,7 @@ public class LineLineIntersector
     private readonly EpsilonCoordinateComparator _epsilonCoordinateComparator;
     private readonly LineService _lineService;
 
-    public LineLineIntersector(ICoordinateComparator coordinateComparator, LineService lineService, double epsilon)
+    public LinesIntersector(ICoordinateComparator coordinateComparator, LineService lineService, double epsilon)
     {
         _coordinateComparator = coordinateComparator;
         _epsilonCoordinateComparator = new EpsilonCoordinateComparator(epsilon);
@@ -20,24 +20,24 @@ public class LineLineIntersector
         _lineService = lineService;
     }
 
-    public bool CheckIntersection(LineLineIntersectionType requiredType, LineSegment a, LineSegment b)
+    public bool CheckIntersection(LinesIntersectionType requiredType, LineSegment a, LineSegment b)
     {
         return CheckIntersection(requiredType, a.P0, a.P1, b.P0, b.P1);
     }
 
     public bool CheckIntersection(
-        LineLineIntersectionType requiredType,
+        LinesIntersectionType requiredType,
         Coordinate a1, Coordinate a2,
         Coordinate b1, Coordinate b2)
     {
-        LineLineIntersectionType actualType =
+        LinesIntersectionType actualType =
             GetIntersection(a1, a2, b1, b2, out Coordinate? _, out double _, out double _, out bool _);
         return (actualType & requiredType) != 0;
     }
 
-    public (LineLineIntersectionType, Coordinate?) GetIntersection(Coordinate a1, Coordinate a2, Coordinate b1, Coordinate b2)
+    public (LinesIntersectionType, Coordinate?) GetIntersection(Coordinate a1, Coordinate a2, Coordinate b1, Coordinate b2)
     {
-        LineLineIntersectionType lineLineIntersectionType =
+        LinesIntersectionType linesIntersectionType =
             GetIntersection(a1, a2, b1, b2,
                 out Coordinate? resultCoordinate,
                 out double x, out double y,
@@ -48,10 +48,10 @@ public class LineLineIntersector
             resultCoordinate = new Coordinate(x, y);
         }
 
-        return (lineLineIntersectionType, resultCoordinate);
+        return (linesIntersectionType, resultCoordinate);
     }
 
-    public (LineLineIntersectionType, Coordinate?) GetIntersection(LineSegment a, LineSegment b)
+    public (LinesIntersectionType, Coordinate?) GetIntersection(LineSegment a, LineSegment b)
     {
         return GetIntersection(a.P0, a.P1, b.P0, b.P1);
     }
@@ -59,7 +59,7 @@ public class LineLineIntersector
     // Возвращает тип пересечения.
     // Возвращает точку пересечения в out переменных. Если точка пересечения равна существующей, то возвращает Coordinate
     // в result, иначе x и y координаты точки
-    private LineLineIntersectionType GetIntersection(Coordinate a1, Coordinate a2, Coordinate b1, Coordinate b2,
+    private LinesIntersectionType GetIntersection(Coordinate a1, Coordinate a2, Coordinate b1, Coordinate b2,
         out Coordinate? result, out double x,
         out double y, out bool isIntersects)
     {
@@ -83,7 +83,7 @@ public class LineLineIntersector
                 return GetParallelIntersection(a1, a2, b1, b2, ref result);
             }
 
-            return LineLineIntersectionType.NoIntersection;
+            return LinesIntersectionType.NoIntersection;
         }
 
         // Есть точка пересечения, проверка на Corner, TyShaped, Inner, Outside
@@ -103,7 +103,7 @@ public class LineLineIntersector
                 result = a2;
             }
 
-            return LineLineIntersectionType.Corner;
+            return LinesIntersectionType.Corner;
         }
 
         // Проверка на TyShaped
@@ -114,79 +114,79 @@ public class LineLineIntersector
         if (CheckTyShaped(a1, a2, b1, x, y))
         {
             result = b1;
-            return LineLineIntersectionType.TyShaped;
+            return LinesIntersectionType.TyShaped;
         }
 
         if (CheckTyShaped(a1, a2, b2, x, y))
         {
             result = b2;
-            return LineLineIntersectionType.TyShaped;
+            return LinesIntersectionType.TyShaped;
         }
 
         if (CheckTyShaped(b1, b2, a1, x, y))
         {
             result = a1;
-            return LineLineIntersectionType.TyShaped;
+            return LinesIntersectionType.TyShaped;
         }
 
         if (CheckTyShaped(b1, b2, a2, x, y))
         {
             result = a2;
-            return LineLineIntersectionType.TyShaped;
+            return LinesIntersectionType.TyShaped;
         }
 
         // Если пересечение внутри одного отрезка, то оно и внутри другого
         if (_lineService.IsCoordinateInSegmentBorders(x, y, a1, a2) &&
             _lineService.IsCoordinateInSegmentBorders(x, y, b1, b2))
         {
-            return LineLineIntersectionType.Inner;
+            return LinesIntersectionType.Inner;
         }
 
-        return LineLineIntersectionType.Outside;
+        return LinesIntersectionType.Outside;
     }
 
     // Проверяет на типы пересечения Equal, Part, Extension, Contains, Overlay
-    private LineLineIntersectionType GetParallelIntersection(
+    private LinesIntersectionType GetParallelIntersection(
         Coordinate a1, Coordinate a2,
         Coordinate b1, Coordinate b2,
         ref Coordinate? resultCoordinate)
     {
-        LineLineIntersectionType? CheckEnds(Coordinate x1, Coordinate x2, Coordinate y1, Coordinate y2,
+        LinesIntersectionType? CheckEnds(Coordinate x1, Coordinate x2, Coordinate y1, Coordinate y2,
             ref Coordinate? resultInnerCoordinate)
         {
             if (_coordinateComparator.IsEquals(x1, y1))
             {
                 if (_coordinateComparator.IsEquals(x2, y2))
                 {
-                    return LineLineIntersectionType.Equals;
+                    return LinesIntersectionType.Equals;
                 }
 
                 if (_lineService.IsCoordinateInSegmentBorders(x2, y1, y2) ||
                     _lineService.IsCoordinateInSegmentBorders(y2, x1, x2))
                 {
-                    return LineLineIntersectionType.Part;
+                    return LinesIntersectionType.Part;
                 }
 
                 resultInnerCoordinate = x1;
-                return LineLineIntersectionType.Extension;
+                return LinesIntersectionType.Extension;
             }
 
             return null;
         }
 
         // Проверка на Extension, Part, Equals
-        LineLineIntersectionType? result = CheckEnds(a1, a2, b1, b2, ref resultCoordinate);
+        LinesIntersectionType? result = CheckEnds(a1, a2, b1, b2, ref resultCoordinate);
         if (result is not null)
-            return (LineLineIntersectionType)result;
+            return (LinesIntersectionType)result;
         result = CheckEnds(a1, a2, b2, b1, ref resultCoordinate);
         if (result is not null)
-            return (LineLineIntersectionType)result;
+            return (LinesIntersectionType)result;
         result = CheckEnds(a2, a1, b1, b2, ref resultCoordinate);
         if (result is not null)
-            return (LineLineIntersectionType)result;
+            return (LinesIntersectionType)result;
         result = CheckEnds(a2, a1, b2, b1, ref resultCoordinate);
         if (result is not null)
-            return (LineLineIntersectionType)result;
+            return (LinesIntersectionType)result;
 
         // Проверка на Contains
         if (_lineService.IsCoordinateInSegmentBorders(b1, a1, a2)
@@ -194,7 +194,7 @@ public class LineLineIntersector
             || _lineService.IsCoordinateInSegmentBorders(a1, b1, b2)
             && _lineService.IsCoordinateInSegmentBorders(a2, b1, b2))
         {
-            return LineLineIntersectionType.Contains;
+            return LinesIntersectionType.Contains;
         }
 
         //Проверка на Overlay
@@ -203,10 +203,10 @@ public class LineLineIntersector
             && (_lineService.IsCoordinateInSegment(a1, b1, b2)
                 || _lineService.IsCoordinateInSegment(a2, b1, b2)))
         {
-            return LineLineIntersectionType.Overlay;
+            return LinesIntersectionType.Overlay;
         }
 
-        return LineLineIntersectionType.Outside;
+        return LinesIntersectionType.Outside;
     }
 
     // Возвращает точку пересечения в out переменных

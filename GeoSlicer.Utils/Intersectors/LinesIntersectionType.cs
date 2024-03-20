@@ -3,7 +3,7 @@
 namespace GeoSlicer.Utils.Intersectors;
 
 [Flags]
-public enum LineLineIntersectionType
+public enum LinesIntersectionType
 {
     Inner = 1,
     Corner = 2,

@@ -1,5 +1,4 @@
-﻿using GeoSlicer.GeoJsonFileService;
-using GeoSlicer.NonConvexSlicer;
+﻿using GeoSlicer.NonConvexSlicer;
 using GeoSlicer.NonConvexSlicer.Helpers;
 using GeoSlicer.Utils;
 using GeoSlicer.Utils.Intersectors;
@@ -13,11 +12,11 @@ GeometryFactory gf =
 LineService lineService = new LineService(epsilon);
 SegmentService segmentService = new SegmentService(lineService);
 TraverseDirection traverseDirection = new TraverseDirection(lineService);
-NonConvexSlicer nonConvexSlicer =
+Slicer slicer =
     new(gf,
         segmentService,
         new NonConvexSlicerHelper(
-            new LineLineIntersector(new EpsilonCoordinateComparator(epsilon), lineService, epsilon),
+            new LinesIntersector(new EpsilonCoordinateComparator(epsilon), lineService, epsilon),
             lineService), traverseDirection, lineService);
 
 MultiPolygon multiPolygon =
@@ -34,7 +33,7 @@ var listSpecialPoints = new NonConvexSlicerHelper(
 GeoJsonFileService.WriteGeometryToFile(new LineString(listSpecialPoints.ToArray()), "TestFiles\\baikal_without_holes_part_123.geojson");
 */
 
-List<LinearRing> result = nonConvexSlicer.Slice(shell);
+List<LinearRing> result = slicer.Slice(shell);
 IEnumerable<Polygon> polygons = result.Select(ring => new Polygon(ring));
 
 MultiPolygon multiPolygonResult = new MultiPolygon(polygons.ToArray());
