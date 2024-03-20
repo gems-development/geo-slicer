@@ -25,33 +25,7 @@ public class Slicer
         _traverseDirection = traverseDirection;
         _lineService = lineService;
     }
-
     
-    // todo убедиться в рациональности такого разрезания
-    private List<LinearRing> SimpleSlice(LinearRing ring, int pozSpecialPoint)
-    {
-        int ringCount = ring.Count;
-        var listResult = new List<LinearRing>(ringCount -2);
-        var coordinates = ring.Coordinates;
-        var i = (pozSpecialPoint + 1) % (ringCount - 1);
-        var count = 0;
-        while (count < ringCount - 1 - 2)
-        {
-            var array = new Coordinate[4];
-            array[0] = coordinates[pozSpecialPoint];
-            array[1] = coordinates[(i + ringCount - 1) % (ringCount - 1)];
-            array[2] = coordinates[(i + 1 + ringCount - 1) % (ringCount - 1)];
-            array[3] = coordinates[pozSpecialPoint];
-
-            listResult.Add(new LinearRing(array));
-            count++;
-            i = (i + 1) % (ringCount - 1);
-        }
-
-        return listResult;
-    }
-
-
     public List<LinearRing> SliceFigureWithMinNumberOfSpecialPoints(LinearRing ring, Coordinate firstPoint, Coordinate? secondPoint = null)
     {
         var newRing = _segmentService.IgnoreInnerPointsOfSegment(ring);
@@ -102,7 +76,6 @@ public class Slicer
         var pozNextPoint = (specialPointIndex + 2) % (newRingCoordinatesLength - 1);
 
         var flag = true;
-        var k = 0;
 
         while (flag)
         {
@@ -164,13 +137,6 @@ public class Slicer
             else
             {
                 pozNextPoint = (pozNextPoint + 1) % (newRingCoordinatesLength - 1);
-
-                k++;
-
-                if (k == newRingCoordinatesLength - 1)
-                {
-                    return SimpleSlice(newRing, specialPointIndex);
-                }
             }
         }
 
