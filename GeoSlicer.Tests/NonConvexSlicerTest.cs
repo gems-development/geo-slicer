@@ -46,7 +46,7 @@ public class NonConvexSlicerTest
         };
 
         //Act
-        var geometries = _slicer.SliceFigureWithMinNumberOfSpecialPoints(lnr);
+        var geometries = _nonConvexSlicer.SliceFigureWithMinNumberOfSpecialPoints(lnr, new Coordinate(3, 5));
 
         //Assert
         Assert.Equal(2, geometries.Count);
@@ -74,7 +74,7 @@ public class NonConvexSlicerTest
         };
 
         //Act
-        var geometries = _slicer.SliceFigureWithMinNumberOfSpecialPoints(lnr);
+        var geometries = _nonConvexSlicer.SliceFigureWithMinNumberOfSpecialPoints(lnr, new Coordinate(3, 5));
 
         //Assert
         Assert.Equal(2, geometries.Count);
@@ -106,7 +106,7 @@ public class NonConvexSlicerTest
         };
 
         //Act
-        var geometries = _slicer.SliceFigureWithMinNumberOfSpecialPoints(lnr);
+        var geometries = _nonConvexSlicer.SliceFigureWithMinNumberOfSpecialPoints(lnr, new Coordinate(2, 9));
 
         //Assert
         Assert.Equal(3, geometries.Count);
@@ -141,7 +141,7 @@ public class NonConvexSlicerTest
         };
 
         //Act
-        var geometries = _slicer.SliceFigureWithMinNumberOfSpecialPoints(lnr);
+        var geometries = _nonConvexSlicer.SliceFigureWithMinNumberOfSpecialPoints(lnr, new Coordinate(2, 9));
 
         //Assert
         Assert.Equal(3, geometries.Count);

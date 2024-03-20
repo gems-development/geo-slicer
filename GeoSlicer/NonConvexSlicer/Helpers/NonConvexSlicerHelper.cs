@@ -24,6 +24,16 @@ public class NonConvexSlicerHelper
         _linesIntersector = linesIntersector;
         _lineService = lineService;
     }
+    
+    public bool CurrentPointIsSpecial(Coordinate previousPoint, Coordinate currentPoint, Coordinate nextPoint)
+    {
+        return _lineService.VectorProduct(
+            currentPoint.X - previousPoint.X,
+            currentPoint.Y - previousPoint.Y,
+            nextPoint.X - currentPoint.X,
+            nextPoint.Y - currentPoint.Y
+        ) >= 0;
+    }
 
     public List<CoordinatePcn> GetSpecialPoints(LinearRing ring)
     {

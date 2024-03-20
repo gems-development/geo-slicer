@@ -82,8 +82,7 @@ public class SegmentService
             _ => null
         };
     }
-
-    // todo поработать в каноническом виде
+    
     public static bool InsideTheAngle(
         Coordinate vectorPointA1,
         Coordinate vectorPointA2,
