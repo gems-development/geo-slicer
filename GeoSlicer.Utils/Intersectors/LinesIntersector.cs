@@ -65,7 +65,14 @@ public class LinesIntersector
         out double y, out bool isIntersects)
     {
         result = null;
-        
+        x = 0;
+        y = 0;
+        isIntersects = false;
+        if (_coordinateComparator.IsEquals(a1, a2) || _coordinateComparator.IsEquals(b1, b2))
+        {
+            return LinesIntersectionType.ZeroLenLine;
+        }
+
         LineService.ToCanonical(a1, a2, 
             out double canonical1A, out double canonical1B, out double canonical1C);
         LineService.ToCanonical(b1, b2, 

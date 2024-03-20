@@ -14,5 +14,6 @@ public enum LinesIntersectionType
     Equals = 64,
     Outside = 128,
     Extension = 256,
-    NoIntersection = 512
+    NoIntersection = 512,
+    ZeroLenLine = 1024
 }

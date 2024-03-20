@@ -72,6 +72,11 @@ public class GetSegmentIntersectionTests
     [InlineData(2, 1.5, 4, 2.5, 1, 1, 3, 2, LinesIntersectionType.Overlay)]
     [InlineData(1, 1, 4, 2.5, 2, 1.5, 3, 2, LinesIntersectionType.Contains)]
     [InlineData(2, 1.5, 3, 2, 1, 1, 4, 2.5, LinesIntersectionType.Contains)]
+    [InlineData(2, 1.5, 3, 2, 4, 2.5, 4, 2.5, LinesIntersectionType.ZeroLenLine)]
+    [InlineData(2.5, 2, 2.5, 2, 1, 1, 4, 3, LinesIntersectionType.ZeroLenLine)]
+    [InlineData(2.5, 2, 2.5, 2, 1, 1, 2, 1, LinesIntersectionType.ZeroLenLine)]
+    [InlineData(2.5, 2, 2.5, 2, 1, 1, 1, 2, LinesIntersectionType.ZeroLenLine)]
+    [InlineData(1, 1, 1, 2, 2.5, 2, 2.5, 2, LinesIntersectionType.ZeroLenLine)]
     private void TestWithoutIntersection(
         double a1X, double a1Y, double a2X, double a2Y,
         double b1X, double b1Y, double b2X, double b2Y,
@@ -86,4 +91,5 @@ public class GetSegmentIntersectionTests
 
         Assert.Equal(expectedType, result.Item1);
     }
+
 }
