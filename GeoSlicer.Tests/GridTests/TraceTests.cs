@@ -13,7 +13,7 @@ public class TraceTests
     private static readonly LineService LineService = new LineService(Epsilon);
 
     private static readonly GridSlicer.GridSlicer Slicer =
-        new(new LinesIntersector(new EpsilonCoordinateComparator(Epsilon), LineService, Epsilon), Epsilon, LineService);
+        new(new LinesIntersector(new EpsilonCoordinateComparator(Epsilon), LineService, Epsilon), Epsilon, LineService, new EpsilonCoordinateComparator());
 
     [Fact]
     public void TestIsPointInPolygon()
