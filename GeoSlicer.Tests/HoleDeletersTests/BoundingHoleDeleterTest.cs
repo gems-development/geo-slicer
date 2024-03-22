@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using GeoSlicer.HoleDeleters;
 using GeoSlicer.Utils;
@@ -13,7 +14,7 @@ public class BoundingHoleDeleterTest
     private static readonly TraverseDirection Traverse = new (new LineService(Epsilon));
 
     private static readonly BoundingHoleDeleter Deleter =
-        new BoundingHoleDeleter(Traverse);
+        new (Traverse);
     
     [Fact]
     public void TestSimplePolygon()
@@ -69,5 +70,21 @@ public class BoundingHoleDeleterTest
         Assert.IsEquals(0, newKazan.Holes.Length);
         Assert.IsEquals(0, problemCoordinatesKazan!.Count);
         Assert.IsTrue(extendedTunnelsKazan!.IsValid); 
+    }
+    [Fact]
+    public void TestFinalPolygon()
+    {
+        //Arrange
+        Polygon testFinal = ObjectsForTests.GetTestFinal();
+        ZeroTunnelDivider divider = ObjectsForTests.GetZeroTunnelDivider();
+        LinkedList<Coordinate> problemCoordinates;
+        LinearRing extendedTunnelsSample;
+        //Act
+        Polygon newTestFinal = Deleter.DeleteHoles(testFinal);
+        divider.DivideZeroTunnels(newTestFinal.Shell, out extendedTunnelsSample, out problemCoordinates);
+        //Assert
+        Assert.IsEquals(0, newTestFinal.Holes.Length);
+        Assert.IsEquals(0, problemCoordinates.Count);
+        Assert.IsTrue(extendedTunnelsSample.IsValid);
     }
 }

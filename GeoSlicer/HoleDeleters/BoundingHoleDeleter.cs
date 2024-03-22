@@ -478,7 +478,7 @@ public class BoundingHoleDeleter
         {
             while (currentFrameNode is not null)
             {
-                if (BoundRIntersectsChecker.IntersectOrContainFramesCheck(currentFrameNode.Value.Value, thisRing.Value))
+                if (BoundRIntersectsChecker.IntersectOrContainFrames(currentFrameNode.Value.Value, thisRing.Value))
                 {
                     break;
                 }
@@ -493,15 +493,19 @@ public class BoundingHoleDeleter
                 var startCurrentFrame = currentFrame.Value.Ring;
                 bool flagFirstCycle = false;
                 bool flagSecondCycle = false;
-                var intersectOfFrames =
-                    BoundRIntersectsChecker.GetIntersectionBoundRFrames(thisRing.Value, currentFrame.Value);
+                BoundRIntersectsChecker.GetIntersectionBoundRFrames(
+                    thisRing.Value, 
+                    currentFrame.Value,
+                    out var framesIntersectionPointMin,
+                    out var framesIntersectionPointMax);
                 do
                 {
                     if (!flagFirstCycle)
                     {
                         do
                         {
-                            if (BoundRIntersectsChecker.PointInsideFrameCheck(startThisRing.Elem, intersectOfFrames))
+                            if (BoundRIntersectsChecker.PointInsideFrameCheck(
+                                    startThisRing.Elem, framesIntersectionPointMin, framesIntersectionPointMax))
                             {
                                 flagFirstCycle = true;
                                 break;
@@ -515,8 +519,8 @@ public class BoundingHoleDeleter
                     {
                         do
                         {
-                            if (BoundRIntersectsChecker.PointInsideFrameCheck(startCurrentFrame.Elem,
-                                    intersectOfFrames))
+                            if (BoundRIntersectsChecker.PointInsideFrameCheck(
+                                    startCurrentFrame.Elem, framesIntersectionPointMin, framesIntersectionPointMax))
                             {
                                 flagSecondCycle = true;
                                 break;
@@ -528,14 +532,14 @@ public class BoundingHoleDeleter
 
                     if (flagFirstCycle && flagSecondCycle)
                     {
-                        if (BoundRIntersectsChecker.IntersectBoundRingNotExtPoints(thisRing, startThisRing.Elem,
+                        if (BoundRIntersectsChecker.IntersectRingWithSegmentNotExtPoints(thisRing, startThisRing.Elem,
                                 startCurrentFrame.Elem))
                         {
                             flagFirstCycle = false;
                             startThisRing = startThisRing.Next;
                         }
 
-                        if (BoundRIntersectsChecker.IntersectBoundRingNotExtPoints(currentFrameNode.Value,
+                        if (BoundRIntersectsChecker.IntersectRingWithSegmentNotExtPoints(currentFrameNode.Value,
                                 startThisRing.Elem,
                                 startCurrentFrame.Elem))
                         {
@@ -558,7 +562,7 @@ public class BoundingHoleDeleter
                                         || BoundRIntersectsChecker.PointInsideBoundRFrame
                                             (startCurrentFrame.Elem, frame.Value))
                                     {
-                                        if (BoundRIntersectsChecker.IntersectBoundRing(frame, startThisRing.Elem,
+                                        if (BoundRIntersectsChecker.IntersectBoundRingWithSegment(frame, startThisRing.Elem,
                                                 startCurrentFrame.Elem))
                                         {
                                             flagFirstCycle = false;
@@ -575,7 +579,7 @@ public class BoundingHoleDeleter
                         {
                             foreach (var frame in cache.FramesContainThis)
                             {
-                                if (BoundRIntersectsChecker.IntersectBoundRing(frame, startThisRing.Elem,
+                                if (BoundRIntersectsChecker.IntersectBoundRingWithSegment(frame, startThisRing.Elem,
                                         startCurrentFrame.Elem))
                                 {
                                     flagFirstCycle = false;
@@ -736,7 +740,7 @@ public class BoundingHoleDeleter
                 do
                 {
                     intersectSegment =
-                        BoundRIntersectsChecker.CheckIntersectRingWithSegmentNotExtPoint(frame, connectCoordThisR.Elem, coord.Elem);
+                        BoundRIntersectsChecker.GetIntersectRingWithSegmentNotExtPoint(frame, connectCoordThisR.Elem, coord.Elem);
                     if (intersectSegment is not null)
                     {
                         flag = true;

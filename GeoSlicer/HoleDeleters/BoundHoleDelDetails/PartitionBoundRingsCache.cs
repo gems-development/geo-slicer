@@ -95,7 +95,7 @@ internal class PartitionBoundRingsCache
                             IntersectFrames.AddFirst(thisRing);
                     }
                 }
-                else if (BoundRIntersectsChecker.NotIntersectCheck(boundRing.Value, thisRing.Value))
+                else if (BoundRIntersectsChecker.NotIntersect(boundRing.Value, thisRing.Value))
                 {
                     if (IntersectOrContainFrames(boundRing, thisRing))
                         DetectPartitingZone(boundRing, thisRing);
