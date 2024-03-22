@@ -5,12 +5,12 @@ namespace GeoSlicer.Utils.BoundRing;
 
 public class BoundingRing
 {
-    //Координаты левой снизу и правой сверху точек у прямоугольника
+    //Координаты левой снизу и правой сверху точек у рамки, которая содержит кольцо Ring
     public Coordinate PointMin { get; private set; }
     public Coordinate PointMax { get; private set; }
     
     
-    //Координаты точек кольца, которые касаются сторон прямоугольника
+    //Координаты точек кольца, которые касаются сторон рамки
     public LinkedNode<Coordinate> PointLeftNode { get; private set; }
     public LinkedNode<Coordinate> PointRightNode { get; private set; }
     public LinkedNode<Coordinate> PointUpNode { get; private set; }
@@ -99,6 +99,7 @@ public class BoundingRing
         }
         return new Polygon(shell, holes, factory);
     }
+    
     //Соединяет два BoundingRing нулевым туннелем. BoundingRing2 переходит в некорректное состояние после работы метода.
     public void ConnectBoundRings(
         BoundingRing boundRing2,

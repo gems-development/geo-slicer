@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading;
 using GeoSlicer.HoleDeleters;
 using GeoSlicer.Utils;
@@ -65,7 +64,7 @@ public class BoundingHoleDeleterTest
         //Assert
         Assert.IsEquals(0, newBaikal.Holes.Length);
         Assert.IsEquals(0, problemCoordinatesBaikal!.Count);
-        Assert.IsTrue(extendedTunnelsBaikal!.IsValid); 
+        Assert.IsTrue(extendedTunnelsBaikal!.IsValid);
         
         Assert.IsEquals(0, newKazan.Holes.Length);
         Assert.IsEquals(0, problemCoordinatesKazan!.Count);

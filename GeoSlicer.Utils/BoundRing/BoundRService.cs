@@ -136,26 +136,33 @@ internal class BoundRService
         //меняем ссылки у первого кольца
         if (ring1Node.AdditionalPrevious == null)
             ring1Node.AdditionalPrevious = ring1Node.Previous;
-        var oldRing1NodeNext2 = ring1Node.AdditionalNext;
+        var oldRing1NodeAdditionalNext = ring1Node.AdditionalNext;
         ring1Node.AdditionalNext = ring1NodeNext.Previous;
         
         ring1NodeNext.Previous.AdditionalPrevious = ring1Node;
-        if (oldRing1NodeNext2 == null)
+        if (oldRing1NodeAdditionalNext == null)
             ring1NodeNext.Previous.AdditionalNext = ring1NodeNext.Previous.Next;
-        else ring1NodeNext.Previous.AdditionalNext = oldRing1NodeNext2;
+        else
+        {
+            ring1NodeNext.Previous.AdditionalNext = oldRing1NodeAdditionalNext;
+            oldRing1NodeAdditionalNext.AdditionalPrevious = ring1NodeNext.Previous;
+        }
         
         //меняем ссылки у второго кольца
         if(ring2Node.AdditionalNext == null)
             ring2Node.AdditionalNext = ring2Node.Next;
-        var oldRing2NodePrevious2 = ring2Node.AdditionalPrevious;
+        var oldRing2NodeAdditionalPrevious = ring2Node.AdditionalPrevious;
         ring2Node.AdditionalPrevious = ring2NodePrevious.Next;
         
         ring2NodePrevious.Next.AdditionalNext = ring2Node;
-        if (oldRing2NodePrevious2 == null)
+        if (oldRing2NodeAdditionalPrevious == null)
             ring2NodePrevious.Next.AdditionalPrevious = ring2NodePrevious.Next.Previous;
         else
-            ring2NodePrevious.Next.AdditionalPrevious = oldRing2NodePrevious2;
-        
+        {
+            ring2NodePrevious.Next.AdditionalPrevious = oldRing2NodeAdditionalPrevious;
+            oldRing2NodeAdditionalPrevious.AdditionalNext = ring2NodePrevious.Next;
+        }
+
         return ring1Node;
     }
 }
