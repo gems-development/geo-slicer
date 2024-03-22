@@ -11,17 +11,17 @@ public class Normalizer
 
     public void Fit(IEnumerable<Coordinate> coordinates)
     {
-        double minX = Double.MinValue;
-        double minY = Double.MinValue;
-        double maxX = Double.MaxValue;
-        double maxY = Double.MaxValue;
+        double minX = Double.MaxValue;
+        double minY = Double.MaxValue;
+        double maxX = Double.MinValue;
+        double maxY = Double.MinValue;
 
         foreach (Coordinate coordinate in coordinates)
         {
             minX = Math.Min(coordinate.X, minX);
-            minY = Math.Min(coordinate.X, minY);
+            minY = Math.Min(coordinate.Y, minY);
             maxX = Math.Max(coordinate.X, maxX);
-            maxY = Math.Max(coordinate.X, maxY);
+            maxY = Math.Max(coordinate.Y, maxY);
         }
 
         _xShift = maxX / 2 + minX / 2;
