@@ -9,7 +9,7 @@ public class Normalizer
     private double _xShift;
     private double _yShift;
 
-    public void Fit(Coordinate[] coordinates)
+    public void Fit(IEnumerable<Coordinate> coordinates)
     {
         double minX = Double.MinValue;
         double minY = Double.MinValue;
