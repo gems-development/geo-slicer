@@ -128,6 +128,8 @@ public static class BoundRIntersectsChecker
         }
         return true;
     }
+    
+    //todo Переделать под out переменные
     public static (Coordinate pointMin, Coordinate pointMax) GetIntersectionBoundRFrames(BoundingRing ring1, BoundingRing ring2)
     {
         Coordinate pointMin = new Coordinate(
@@ -139,7 +141,7 @@ public static class BoundRIntersectsChecker
         return (pointMin, pointMax);
     }
     
-    
+    //todo Есть аналогичный метод в Intersector.AreasIntersector
     public static bool NotIntersectCheck(BoundingRing relativeBoundRing, BoundingRing boundingRing)
     {
         return boundingRing.PointMin.Y > relativeBoundRing.PointMax.Y

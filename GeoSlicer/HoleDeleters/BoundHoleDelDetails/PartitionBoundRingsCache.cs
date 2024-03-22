@@ -133,6 +133,7 @@ public class PartitionBoundRingsCache
         return true;
     }
     
+    //todo Переименовать Partiting в Separating
     //Возращает false если рамки пересекаются(не важно как).
     //Метод вычисляет местоположение рамки boundRing относительно relativeBoundRing
     //и запоминает это местоположение в кэше.
