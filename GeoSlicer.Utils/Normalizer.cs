@@ -50,11 +50,6 @@ public class Normalizer
         Shift(geometry.CoordinateSequence, isBack);
     }
 
-    public void Shift(LinearRing geometry, bool isBack = false)
-    {
-        Shift(geometry.CoordinateSequence, isBack);
-    }
-
     public void Shift(MultiLineString geometry, bool isBack = false)
     {
         foreach (var lineString in geometry)
