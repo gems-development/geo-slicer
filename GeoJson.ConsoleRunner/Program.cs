@@ -20,9 +20,9 @@ Slicer slicer =
             new LinesIntersector(new EpsilonCoordinateComparator(epsilon), lineService, epsilon),
             lineService), traverseDirection, lineService);
 
-var featureCollection = GeoJsonFileService.ReadGeometryFromFile<FeatureCollection>("TestFiles\\kazan.geojson");
+//var polygon = (Polygon)((MultiPolygon)GeoJsonFileService.ReadGeometryFromFile<FeatureCollection>("TestFiles\\kazan.geojson")[0].Geometry)[0];
 
-var polygon = (Polygon)((MultiPolygon)featureCollection[0].Geometry)[0];
+var polygon = (Polygon)((MultiPolygon)GeoJsonFileService.ReadGeometryFromFile<FeatureCollection>("TestFiles\\baikal.geojson")[0].Geometry)[0];
 
 LinearRing shell = polygon.Shell;
 
@@ -40,7 +40,7 @@ List<LinearRing> result = slicer.Slice(shell);
 IEnumerable<Polygon> polygons = result.Select(ring => new Polygon(ring));
 
 MultiPolygon multiPolygonResult = new MultiPolygon(polygons.ToArray());
-GeoJsonFileService.WriteGeometryToFile(multiPolygonResult, "TestFiles\\kazan_result.geojson");
+GeoJsonFileService.WriteGeometryToFile(multiPolygonResult, "TestFiles\\baikal_result_after_changes.geojson");
 
 
 // MultiPolygon baikalMultiPolygon =
