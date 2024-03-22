@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using NetTopologySuite.Geometries;
 
 namespace GeoSlicer.Utils;
@@ -78,6 +79,14 @@ public class Normalizer
             Shift((Polygon)polygon, isBack);
         }
     }
-    
+
+    public void Shift(IEnumerable<Coordinate> geometry, bool isBack = false)
+    {
+        foreach (Coordinate coordinate in geometry)
+        {
+            coordinate.X -= _xShift * (isBack ? -1 : 1);
+            coordinate.Y -= _yShift * (isBack ? -1 : 1);
+        }
+    }
     
 }
