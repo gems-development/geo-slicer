@@ -141,7 +141,7 @@ public class BoundingHoleDeleter
         Coordinate? firstCoordLineConnectNearAhg = null;
         Coordinate? secondCoordLineConnectNearAhg = null;
 
-        if (cache.NearABC is null)
+        if (cache.NearAbc is null)
             flagAbcCanConnect = false;
         else
         {
@@ -149,8 +149,8 @@ public class BoundingHoleDeleter
             bool flagB = false;
             bool flagC = false;
             firstCoordLineConnectNearAbc = thisRing.Value.PointUpNode.Elem;
-            secondCoordLineConnectNearAbc = cache.NearABC!.Value.boundRing.Value.PointDownNode.Elem;
-            foreach (var zone in cache.NearABC!.Value.zones)
+            secondCoordLineConnectNearAbc = cache.NearAbc!.Value.boundRing.Value.PointDownNode.Elem;
+            foreach (var zone in cache.NearAbc!.Value.zones)
             {
                 if (!flagA && zone == PartitioningZones.A)
                     flagA = true;
@@ -167,9 +167,9 @@ public class BoundingHoleDeleter
                         && frame.boundRing.Value.PointMin.Y < thisRing.Value.PointMax.Y
                         && BoundRIntersectsChecker.HasIntersectsBoundRFrame(frame.boundRing.Value, firstCoordLineConnectNearAbc,
                             secondCoordLineConnectNearAbc) &&
-                        !ReferenceEquals(frame.boundRing.Value, cache.NearABC.Value.boundRing.Value))
+                        !ReferenceEquals(frame.boundRing.Value, cache.NearAbc.Value.boundRing.Value))
                     {
-                        cache.NearABCintersect = frame;
+                        cache.NearAbcIntersect = frame;
                         flagAbcCanConnect = false;
                     }
                 }
@@ -183,9 +183,9 @@ public class BoundingHoleDeleter
                         && frame.boundRing.Value.PointMin.Y < thisRing.Value.PointMax.Y
                         && BoundRIntersectsChecker.HasIntersectsBoundRFrame(frame.boundRing.Value, firstCoordLineConnectNearAbc,
                             secondCoordLineConnectNearAbc) &&
-                        !ReferenceEquals(frame.boundRing.Value, cache.NearABC.Value.boundRing.Value))
+                        !ReferenceEquals(frame.boundRing.Value, cache.NearAbc.Value.boundRing.Value))
                     {
-                        cache.NearABCintersect = frame;
+                        cache.NearAbcIntersect = frame;
                         flagAbcCanConnect = false;
                     }
                 }
@@ -194,7 +194,7 @@ public class BoundingHoleDeleter
         }
 
 
-        if (cache.NearCDE is null)
+        if (cache.NearCde is null)
             flagCdeCanConnect = false;
         else
         {
@@ -202,9 +202,9 @@ public class BoundingHoleDeleter
             bool flagD = false;
             bool flagE = false;
             firstCoordLineConnectNearCde = thisRing.Value.PointLeftNode.Elem;
-            secondCoordLineConnectNearCde = cache.NearCDE!.Value.boundRing.Value.PointRightNode.Elem;
+            secondCoordLineConnectNearCde = cache.NearCde!.Value.boundRing.Value.PointRightNode.Elem;
 
-            foreach (var zone in cache.NearCDE!.Value.zones)
+            foreach (var zone in cache.NearCde!.Value.zones)
             {
                 if (!flagC && zone == PartitioningZones.C)
                     flagC = true;
@@ -221,9 +221,9 @@ public class BoundingHoleDeleter
                         && frame.boundRing.Value.PointMax.X > thisRing.Value.PointMin.X
                         && BoundRIntersectsChecker.HasIntersectsBoundRFrame(frame.boundRing.Value, firstCoordLineConnectNearCde,
                             secondCoordLineConnectNearCde) &&
-                        !ReferenceEquals(frame.boundRing.Value, cache.NearCDE.Value.boundRing.Value))
+                        !ReferenceEquals(frame.boundRing.Value, cache.NearCde.Value.boundRing.Value))
                     {
-                        cache.NearCDEintersect = frame;
+                        cache.NearCdeIntersect = frame;
                         flagCdeCanConnect = false;
                     }
                 }
@@ -238,9 +238,9 @@ public class BoundingHoleDeleter
                         && frame.boundRing.Value.PointMax.X > thisRing.Value.PointMin.X
                         && BoundRIntersectsChecker.HasIntersectsBoundRFrame(frame.boundRing.Value, firstCoordLineConnectNearCde,
                             secondCoordLineConnectNearCde) &&
-                        !ReferenceEquals(frame.boundRing.Value, cache.NearCDE.Value.boundRing.Value))
+                        !ReferenceEquals(frame.boundRing.Value, cache.NearCde.Value.boundRing.Value))
                     {
-                        cache.NearCDEintersect = frame;
+                        cache.NearCdeIntersect = frame;
                         flagCdeCanConnect = false;
                     }
                 }
@@ -250,7 +250,7 @@ public class BoundingHoleDeleter
 
 
 
-        if (cache.NearEFG is null)
+        if (cache.NearEfg is null)
             flagEfgCanConnect = false;
         else
         {
@@ -258,8 +258,8 @@ public class BoundingHoleDeleter
             bool flagF = false;
             bool flagG = false;
             firstCoordLineConnectNearEfg = thisRing.Value.PointDownNode.Elem;
-            secondCoordLineConnectNearEfg = cache.NearEFG!.Value.boundRing.Value.PointUpNode.Elem;
-            foreach (var zone in cache.NearEFG!.Value.zones)
+            secondCoordLineConnectNearEfg = cache.NearEfg!.Value.boundRing.Value.PointUpNode.Elem;
+            foreach (var zone in cache.NearEfg!.Value.zones)
             {
                 if (!flagE && zone == PartitioningZones.E)
                     flagE = true;
@@ -276,9 +276,9 @@ public class BoundingHoleDeleter
                         && frame.boundRing.Value.PointMax.Y > thisRing.Value.PointMin.Y
                         && BoundRIntersectsChecker.HasIntersectsBoundRFrame(frame.boundRing.Value, firstCoordLineConnectNearEfg,
                             secondCoordLineConnectNearEfg) &&
-                        !ReferenceEquals(frame.boundRing.Value, cache.NearEFG.Value.boundRing.Value))
+                        !ReferenceEquals(frame.boundRing.Value, cache.NearEfg.Value.boundRing.Value))
                     {
-                        cache.NearEFGintersect = frame;
+                        cache.NearEfgIntersect = frame;
                         flagEfgCanConnect = false;
                     }
                 }
@@ -292,9 +292,9 @@ public class BoundingHoleDeleter
                         && frame.boundRing.Value.PointMax.Y > thisRing.Value.PointMin.Y
                         && BoundRIntersectsChecker.HasIntersectsBoundRFrame(frame.boundRing.Value, firstCoordLineConnectNearEfg,
                             secondCoordLineConnectNearEfg) &&
-                        !ReferenceEquals(frame.boundRing.Value, cache.NearEFG.Value.boundRing.Value))
+                        !ReferenceEquals(frame.boundRing.Value, cache.NearEfg.Value.boundRing.Value))
                     {
-                        cache.NearEFGintersect = frame;
+                        cache.NearEfgIntersect = frame;
                         flagEfgCanConnect = false;
                     }
                 }
@@ -303,7 +303,7 @@ public class BoundingHoleDeleter
 
 
 
-        if (cache.NearAHG is null)
+        if (cache.NearAhg is null)
             flagAhgCanConnect = false;
         else
         {
@@ -311,8 +311,8 @@ public class BoundingHoleDeleter
             bool flagH = false;
             bool flagG = false;
             firstCoordLineConnectNearAhg = thisRing.Value.PointRightNode.Elem;
-            secondCoordLineConnectNearAhg = cache.NearAHG!.Value.boundRing.Value.PointLeftNode.Elem;
-            foreach (var zone in cache.NearAHG!.Value.zones)
+            secondCoordLineConnectNearAhg = cache.NearAhg!.Value.boundRing.Value.PointLeftNode.Elem;
+            foreach (var zone in cache.NearAhg!.Value.zones)
             {
                 if (!flagA && zone == PartitioningZones.A)
                     flagA = true;
@@ -329,9 +329,9 @@ public class BoundingHoleDeleter
                         && frame.boundRing.Value.PointMin.X < thisRing.Value.PointMax.X
                         && BoundRIntersectsChecker.HasIntersectsBoundRFrame(frame.boundRing.Value, firstCoordLineConnectNearAhg,
                             secondCoordLineConnectNearAhg) &&
-                        !ReferenceEquals(frame.boundRing.Value, cache.NearAHG.Value.boundRing.Value))
+                        !ReferenceEquals(frame.boundRing.Value, cache.NearAhg.Value.boundRing.Value))
                     {
-                        cache.NearAHGintersect = frame;
+                        cache.NearAhgIntersect = frame;
                         flagAhgCanConnect = false;
                     }
                 }
@@ -345,9 +345,9 @@ public class BoundingHoleDeleter
                         && frame.boundRing.Value.PointMin.X < thisRing.Value.PointMax.X
                         && BoundRIntersectsChecker.HasIntersectsBoundRFrame(frame.boundRing.Value, firstCoordLineConnectNearAhg,
                             secondCoordLineConnectNearAhg) &&
-                        !ReferenceEquals(frame.boundRing.Value, cache.NearAHG.Value.boundRing.Value))
+                        !ReferenceEquals(frame.boundRing.Value, cache.NearAhg.Value.boundRing.Value))
                     {
-                        cache.NearAHGintersect = frame;
+                        cache.NearAhgIntersect = frame;
                         flagAhgCanConnect = false;
                     }
                 }
@@ -373,7 +373,7 @@ public class BoundingHoleDeleter
                     if (BoundRIntersectsChecker.HasIntersectedSegments(firstCoordLineConnectNearAbc!, secondCoordLineConnectNearAbc!, buffer.Elem,
                             buffer.Next.Elem))
                     {
-                        cache.NearABCSegmentintersect = (frameWhoContainThis, buffer);
+                        cache.NearAbcSegmentIntersect = (frameWhoContainThis, buffer);
                         flagAbcCanConnect = false;
 
                     }
@@ -388,7 +388,7 @@ public class BoundingHoleDeleter
                     if (BoundRIntersectsChecker.HasIntersectedSegments(firstCoordLineConnectNearCde!, secondCoordLineConnectNearCde!, buffer.Elem,
                             buffer.Next.Elem))
                     {
-                        cache.NearCDESegmentintersect = (frameWhoContainThis, buffer);
+                        cache.NearCdeSegmentIntersect = (frameWhoContainThis, buffer);
                         flagCdeCanConnect = false;
                     }
                 }
@@ -402,7 +402,7 @@ public class BoundingHoleDeleter
                     if (BoundRIntersectsChecker.HasIntersectedSegments(firstCoordLineConnectNearEfg!, secondCoordLineConnectNearEfg!, buffer.Elem,
                             buffer.Next.Elem))
                     {
-                        cache.NearEFGSegmentintersect = (frameWhoContainThis, buffer);
+                        cache.NearEfgSegmentIntersect = (frameWhoContainThis, buffer);
                         flagEfgCanConnect = false;
                     }
                 }
@@ -416,7 +416,7 @@ public class BoundingHoleDeleter
                     if (BoundRIntersectsChecker.HasIntersectedSegments(firstCoordLineConnectNearAhg!, secondCoordLineConnectNearAhg!, buffer.Elem,
                             buffer.Next.Elem))
                     {
-                        cache.NearAHGSegmentintersect = (frameWhoContainThis, buffer);
+                        cache.NearAhgSegmentIntersect = (frameWhoContainThis, buffer);
                         flagAhgCanConnect = false;
                     }
                 }
@@ -431,39 +431,39 @@ public class BoundingHoleDeleter
         if (flagAbcCanConnect)
         {
             thisRing.Value.ConnectBoundRings(
-                cache.NearABC!.Value.boundRing.Value,
+                cache.NearAbc!.Value.boundRing.Value,
                 thisRing.Value.PointUpNode,
-                cache.NearABC.Value.boundRing.Value.PointDownNode);
+                cache.NearAbc.Value.boundRing.Value.PointDownNode);
             
-            listOfHoles.Remove(cache.NearABC.Value.boundRing);
+            listOfHoles.Remove(cache.NearAbc.Value.boundRing);
         }
 
         if (flagCdeCanConnect && oldPointMin.Equals(thisRing.Value.PointMin))
         {
             thisRing.Value.ConnectBoundRings(
-                cache.NearCDE!.Value.boundRing.Value,
+                cache.NearCde!.Value.boundRing.Value,
                 thisRing.Value.PointLeftNode,
-                cache.NearCDE.Value.boundRing.Value.PointRightNode);
+                cache.NearCde.Value.boundRing.Value.PointRightNode);
 
-            listOfHoles.Remove(cache.NearCDE.Value.boundRing);
+            listOfHoles.Remove(cache.NearCde.Value.boundRing);
         }
 
         if (flagEfgCanConnect && oldPointMin.Equals(thisRing.Value.PointMin))
         {
             thisRing.Value.ConnectBoundRings(
-                cache.NearEFG!.Value.boundRing.Value,
+                cache.NearEfg!.Value.boundRing.Value,
                 thisRing.Value.PointDownNode,
-                cache.NearEFG.Value.boundRing.Value.PointUpNode);
-            listOfHoles.Remove(cache.NearEFG.Value.boundRing);
+                cache.NearEfg.Value.boundRing.Value.PointUpNode);
+            listOfHoles.Remove(cache.NearEfg.Value.boundRing);
         }
 
         if (flagAhgCanConnect && oldPointMax.Equals(thisRing.Value.PointMax))
         {
             thisRing.Value.ConnectBoundRings(
-                cache.NearAHG!.Value.boundRing.Value,
+                cache.NearAhg!.Value.boundRing.Value,
                 thisRing.Value.PointRightNode,
-                cache.NearAHG.Value.boundRing.Value.PointLeftNode);
-            listOfHoles.Remove(cache.NearAHG.Value.boundRing);
+                cache.NearAhg.Value.boundRing.Value.PointLeftNode);
+            listOfHoles.Remove(cache.NearAhg.Value.boundRing);
         }
 
         return flagAbcCanConnect || flagCdeCanConnect || flagEfgCanConnect || flagAhgCanConnect;
@@ -658,27 +658,27 @@ public class BoundingHoleDeleter
                 }
             }
         }*/
-        if (cache.NearABCSegmentintersect is not null)
+        if (cache.NearAbcSegmentIntersect is not null)
         {
-            bool flag = ConnectWithBoundRFrameWhoContainThisRing(cache.NearABCSegmentintersect, thisRing, listOfHoles, PartitioningZones.ABC, cache);
+            bool flag = ConnectWithBoundRFrameWhoContainThisRing(cache.NearAbcSegmentIntersect, thisRing, listOfHoles, PartitioningZones.ABC, cache);
             if (flag)
                 return true;
         }
-        if (cache.NearCDESegmentintersect is not null)
+        if (cache.NearCdeSegmentIntersect is not null)
         {
-            bool flag = ConnectWithBoundRFrameWhoContainThisRing(cache.NearCDESegmentintersect, thisRing, listOfHoles, PartitioningZones.CDE, cache);
+            bool flag = ConnectWithBoundRFrameWhoContainThisRing(cache.NearCdeSegmentIntersect, thisRing, listOfHoles, PartitioningZones.CDE, cache);
             if (flag)
                 return true;
         }
-        if (cache.NearEFGSegmentintersect is not null)
+        if (cache.NearEfgSegmentIntersect is not null)
         {
-            bool flag = ConnectWithBoundRFrameWhoContainThisRing(cache.NearEFGSegmentintersect, thisRing, listOfHoles, PartitioningZones.EFG, cache);
+            bool flag = ConnectWithBoundRFrameWhoContainThisRing(cache.NearEfgSegmentIntersect, thisRing, listOfHoles, PartitioningZones.EFG, cache);
             if (flag)
                 return true;
         }
-        if (cache.NearAHGSegmentintersect is not null)
+        if (cache.NearAhgSegmentIntersect is not null)
         {
-            bool flag = ConnectWithBoundRFrameWhoContainThisRing(cache.NearAHGSegmentintersect, thisRing, listOfHoles, PartitioningZones.AHG, cache);
+            bool flag = ConnectWithBoundRFrameWhoContainThisRing(cache.NearAhgSegmentIntersect, thisRing, listOfHoles, PartitioningZones.AHG, cache);
             if (flag)
                 return true;
         }
