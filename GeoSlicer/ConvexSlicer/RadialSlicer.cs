@@ -1,6 +1,6 @@
 ﻿using NetTopologySuite.Geometries;
 
-namespace GeoSlicer.Slicers;
+namespace GeoSlicer.ConvexSlicer;
 
 public class RadialSlicer : ISlicer
 {

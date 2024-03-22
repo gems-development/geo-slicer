@@ -9,7 +9,7 @@ public static class MyIEnumerableExtensions
         using var it = source.GetEnumerator();
         if (!it.MoveNext())
             yield break;
-            
+
         T previous = it.Current;
 
         while (it.MoveNext())

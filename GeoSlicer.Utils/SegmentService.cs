@@ -11,7 +11,7 @@ public class SegmentService
     {
         _lineService = lineService;
     }
-    
+
     public LinearRing IgnoreInnerPointsOfSegment(LinearRing ring)
     {
         if (ring.Count < 4)
@@ -82,7 +82,7 @@ public class SegmentService
             _ => null
         };
     }
-    
+
     public static bool InsideTheAngle(
         Coordinate vectorPointA1,
         Coordinate vectorPointA2,

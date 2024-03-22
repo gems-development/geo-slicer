@@ -1,6 +1,6 @@
 ﻿using BenchmarkDotNet.Attributes;
+using GeoSlicer.ConvexSlicer;
 using NetTopologySuite.Geometries;
-using GeoSlicer.Slicers;
 using GeoSlicer.Utils;
 
 namespace GeoSlicer.Benchmark.Benchmarks;

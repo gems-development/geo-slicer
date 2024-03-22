@@ -35,7 +35,8 @@ public class LinesIntersector
         return (actualType & requiredType) != 0;
     }
 
-    public (LinesIntersectionType, Coordinate?) GetIntersection(Coordinate a1, Coordinate a2, Coordinate b1, Coordinate b2)
+    public (LinesIntersectionType, Coordinate?) GetIntersection(Coordinate a1, Coordinate a2, Coordinate b1,
+        Coordinate b2)
     {
         LinesIntersectionType linesIntersectionType =
             GetIntersection(a1, a2, b1, b2,
@@ -64,10 +65,10 @@ public class LinesIntersector
         out double y, out bool isIntersects)
     {
         result = null;
-        
-        LineService.ToCanonical(a1, a2, 
+
+        LineService.ToCanonical(a1, a2,
             out double canonical1A, out double canonical1B, out double canonical1C);
-        LineService.ToCanonical(b1, b2, 
+        LineService.ToCanonical(b1, b2,
             out double canonical2A, out double canonical2B, out double canonical2C);
         GetIntersectionCoordinate(canonical1A, canonical1B, canonical1C,
             canonical2A, canonical2B, canonical2C,

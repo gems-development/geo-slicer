@@ -22,7 +22,9 @@ Slicer slicer =
 
 //var polygon = (Polygon)((MultiPolygon)GeoJsonFileService.ReadGeometryFromFile<FeatureCollection>("TestFiles\\kazan.geojson")[0].Geometry)[0];
 
-var polygon = (Polygon)((MultiPolygon)GeoJsonFileService.ReadGeometryFromFile<FeatureCollection>("TestFiles\\baikal.geojson")[0].Geometry)[0];
+var polygon =
+    (Polygon)((MultiPolygon)GeoJsonFileService.ReadGeometryFromFile<FeatureCollection>("TestFiles\\baikal.geojson")[0]
+        .Geometry)[0];
 
 LinearRing shell = polygon.Shell;
 
@@ -66,4 +68,3 @@ GeoJsonFileService.WriteGeometryToFile(multiPolygonResult, "TestFiles\\baikal_re
 //     Console.WriteLine(coordinate);
 // }
 // Console.WriteLine(baikalSet);
-

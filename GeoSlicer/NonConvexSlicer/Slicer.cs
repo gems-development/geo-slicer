@@ -25,8 +25,9 @@ public class Slicer
         _traverseDirection = traverseDirection;
         _lineService = lineService;
     }
-    
-    public List<LinearRing> SliceFigureWithMinNumberOfSpecialPoints(LinearRing ring, Coordinate firstPoint, Coordinate? secondPoint = null)
+
+    public List<LinearRing> SliceFigureWithMinNumberOfSpecialPoints(LinearRing ring, Coordinate firstPoint,
+        Coordinate? secondPoint = null)
     {
         var newRing = _segmentService.IgnoreInnerPointsOfSegment(ring);
         var newRingCoordinates = newRing.Coordinates;
@@ -41,20 +42,22 @@ public class Slicer
 
         int secondPointIndex = -1;
         bool secondPointIsSpecial = false;
-        
-        
+
+
         if (secondPoint != null)
         {
             secondPointIndex = newRing.GetIndex(secondPoint) ?? -1;
             secondPointIsSpecial = _helper.CurrentPointIsSpecial(
-                newRingCoordinates[(secondPointIndex - 1 + newRingCoordinatesLength - 1) % (newRingCoordinatesLength - 1)],
+                newRingCoordinates[
+                    (secondPointIndex - 1 + newRingCoordinatesLength - 1) % (newRingCoordinatesLength - 1)],
                 secondPoint, newRingCoordinates[(secondPointIndex + 1) % (newRingCoordinatesLength - 1)]);
         }
+
         var listRingsWithoutSpecialPoints = new List<LinearRing>(newRingCoordinatesLength - 4);
 
         int specialPointIndex;
         Coordinate specialPoint;
-        
+
         if (firstPointIsSpecial && firstPointIndex != -1)
         {
             specialPointIndex = firstPointIndex;
@@ -87,7 +90,7 @@ public class Slicer
                 //и не лежит на одной прямой со старой особой точкой и предыдущей для старой особой
                 pozNextPoint = (pozNextPoint - 1 + newRingCoordinatesLength - 1) % (newRingCoordinatesLength - 1);
                 variablePoint = newRingCoordinates[pozNextPoint];
-                
+
                 int firstArraySize;
                 int secondArraySize;
                 if (specialPointIndex <= pozNextPoint)
@@ -106,16 +109,20 @@ public class Slicer
 
                 var firstArray = new Coordinate[firstArraySize];
                 var secondArray = new Coordinate[secondArraySize];
-                
-                for (int i = specialPointIndex, j = 0; i != pozNextPoint; i = (i + 1) % (newRingCoordinatesLength - 1), ++j)
+
+                for (int i = specialPointIndex, j = 0;
+                     i != pozNextPoint;
+                     i = (i + 1) % (newRingCoordinatesLength - 1), ++j)
                 {
                     firstArray[j] = newRingCoordinates[i];
                 }
 
                 firstArray[firstArraySize - 2] = variablePoint;
                 firstArray[firstArraySize - 1] = specialPoint;
-                
-                for (int i = pozNextPoint, j = 0; i != specialPointIndex; i = (i + 1) % (newRingCoordinatesLength - 1), ++j)
+
+                for (int i = pozNextPoint, j = 0;
+                     i != specialPointIndex;
+                     i = (i + 1) % (newRingCoordinatesLength - 1), ++j)
                 {
                     secondArray[j] = newRingCoordinates[i];
                 }
@@ -223,6 +230,7 @@ public class Slicer
                 wasIntersectionInIteration = true;
                 coordNext = ringCoords[nextIndex];
             }
+
             if (coordPrev.C == listSpecialPoints[beginSpecialPointIndex].C &&
                 coordCurrent.C != listSpecialPoints[beginSpecialPointIndex].C)
             {
@@ -241,9 +249,9 @@ public class Slicer
                 //При этом кольцо не двуугольник
                 if (afterFirstIndex != beforeFirstIndex &&
                     _lineService.VectorProduct(
-                        ringCoords[coordCurrent.C].X - ringCoords[coordPrev.C].X, 
-                        ringCoords[coordCurrent.C].Y - ringCoords[coordPrev.C].Y, 
-                        ringCoords[coordNext.C].X - ringCoords[coordCurrent.C].X, 
+                        ringCoords[coordCurrent.C].X - ringCoords[coordPrev.C].X,
+                        ringCoords[coordCurrent.C].Y - ringCoords[coordPrev.C].Y,
+                        ringCoords[coordNext.C].X - ringCoords[coordCurrent.C].X,
                         ringCoords[coordNext.C].Y - ringCoords[coordCurrent.C].Y
                     ) >= 0)
                 {
