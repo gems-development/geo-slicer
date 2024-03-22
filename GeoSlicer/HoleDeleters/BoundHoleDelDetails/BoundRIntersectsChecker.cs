@@ -8,8 +8,7 @@ namespace GeoSlicer.HoleDeleters.BoundHoleDelDetails;
 
 public static class BoundRIntersectsChecker
 {
-    public static
-        (LinkedListNode<BoundingRing> boundRing, LinkedNode<Coordinate> _start)?
+    public static (LinkedListNode<BoundingRing> boundRing, LinkedNode<Coordinate> _start)?
         CheckIntersectRingWithSegmentNotExtPoint(
             LinkedListNode<BoundingRing> ring, Coordinate a, Coordinate b)
     {

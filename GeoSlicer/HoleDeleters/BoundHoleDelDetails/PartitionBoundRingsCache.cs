@@ -7,47 +7,47 @@ namespace GeoSlicer.HoleDeleters.BoundHoleDelDetails;
 //Кэш алгоритма BoundingHoleDeleter.
 //Например в списке ListA хранятся рамки, расположенные севернее рамки,
 //относительно которой проводилось заполнение кэша. Соотвествие букв и сторон света описано в PartitioningZones.
-public class PartitionBoundRingsCache
+internal class PartitionBoundRingsCache
 {
-     public LinkedList<(LinkedListNode<BoundingRing> boundRing, List<PartitioningZones> zones)> 
+    internal LinkedList<(LinkedListNode<BoundingRing> boundRing, List<PartitioningZones> zones)> 
         ListA { get; private set; } = new ();
-    public LinkedList<(LinkedListNode<BoundingRing> boundRing, List<PartitioningZones> zones)>
+    internal LinkedList<(LinkedListNode<BoundingRing> boundRing, List<PartitioningZones> zones)>
         ListB { get; private set; } = new ();
-    public LinkedList<(LinkedListNode<BoundingRing> boundRing, List<PartitioningZones> zones)> 
+    internal LinkedList<(LinkedListNode<BoundingRing> boundRing, List<PartitioningZones> zones)> 
         ListC{ get; private set; } = new ();
-    public LinkedList<(LinkedListNode<BoundingRing> boundRing, List<PartitioningZones> zones)> 
+    internal LinkedList<(LinkedListNode<BoundingRing> boundRing, List<PartitioningZones> zones)> 
         ListD{ get; private set; } = new ();
-    public LinkedList<(LinkedListNode<BoundingRing> boundRing, List<PartitioningZones> zones)>
+    internal LinkedList<(LinkedListNode<BoundingRing> boundRing, List<PartitioningZones> zones)>
         ListE{ get; private set; } = new ();
-    public LinkedList<(LinkedListNode<BoundingRing> boundRing, List<PartitioningZones> zones)> 
+    internal LinkedList<(LinkedListNode<BoundingRing> boundRing, List<PartitioningZones> zones)> 
         ListF{ get; private set; } = new ();
 
-    public LinkedList<(LinkedListNode<BoundingRing> boundRing, List<PartitioningZones> zones)>
+    internal LinkedList<(LinkedListNode<BoundingRing> boundRing, List<PartitioningZones> zones)>
         ListG { get; private set; } = new();
 
-    public LinkedList<(LinkedListNode<BoundingRing> boundRing, List<PartitioningZones> zones)>
+    internal LinkedList<(LinkedListNode<BoundingRing> boundRing, List<PartitioningZones> zones)>
         ListH { get; private set; } = new();
 
-    public LinkedList<LinkedListNode<BoundingRing>>
+    internal LinkedList<LinkedListNode<BoundingRing>>
         IntersectFrames { get; private set; } = new();
 
-    public LinkedList<LinkedListNode<BoundingRing>> 
+    internal LinkedList<LinkedListNode<BoundingRing>> 
         FramesContainThis { get; private set; } = new();
     
-    public (LinkedListNode<BoundingRing> boundRing, List<PartitioningZones> zones)? NearAbc { get; private set; }
-    public (LinkedListNode<BoundingRing> boundRing, List<PartitioningZones> zones)? NearCde { get; private set; }
-    public (LinkedListNode<BoundingRing> boundRing, List<PartitioningZones> zones)? NearEfg { get; private set; }
-    public (LinkedListNode<BoundingRing> boundRing, List<PartitioningZones> zones)? NearAhg { get; private set; }
+    internal (LinkedListNode<BoundingRing> boundRing, List<PartitioningZones> zones)? NearAbc { get; private set; }
+    internal (LinkedListNode<BoundingRing> boundRing, List<PartitioningZones> zones)? NearCde { get; private set; }
+    internal (LinkedListNode<BoundingRing> boundRing, List<PartitioningZones> zones)? NearEfg { get; private set; }
+    internal (LinkedListNode<BoundingRing> boundRing, List<PartitioningZones> zones)? NearAhg { get; private set; }
 
 
-    public (LinkedListNode<BoundingRing> boundRing, List<PartitioningZones> zones)? NearAbcIntersect { get; set; }
-    public (LinkedListNode<BoundingRing> boundRing, List<PartitioningZones> zones)? NearCdeIntersect { get; set; }
-    public (LinkedListNode<BoundingRing> boundRing, List<PartitioningZones> zones)? NearEfgIntersect { get; set; }
-    public (LinkedListNode<BoundingRing> boundRing, List<PartitioningZones> zones)? NearAhgIntersect { get; set; }
-    public (LinkedListNode<BoundingRing> boundRing, LinkedNode<Coordinate> _start)? NearAbcSegmentIntersect { get; set; }
-    public (LinkedListNode<BoundingRing> boundRing, LinkedNode<Coordinate> _start)? NearCdeSegmentIntersect { get; set; }
-    public (LinkedListNode<BoundingRing> boundRing, LinkedNode<Coordinate> _start)? NearEfgSegmentIntersect { get; set; }
-    public (LinkedListNode<BoundingRing> boundRing, LinkedNode<Coordinate> _start)? NearAhgSegmentIntersect { get; set; }
+    internal (LinkedListNode<BoundingRing> boundRing, List<PartitioningZones> zones)? NearAbcIntersect { get; set; }
+    internal (LinkedListNode<BoundingRing> boundRing, List<PartitioningZones> zones)? NearCdeIntersect { get; set; }
+    internal (LinkedListNode<BoundingRing> boundRing, List<PartitioningZones> zones)? NearEfgIntersect { get; set; }
+    internal (LinkedListNode<BoundingRing> boundRing, List<PartitioningZones> zones)? NearAhgIntersect { get; set; }
+    internal (LinkedListNode<BoundingRing> boundRing, LinkedNode<Coordinate> _start)? NearAbcSegmentIntersect { get; set; }
+    internal (LinkedListNode<BoundingRing> boundRing, LinkedNode<Coordinate> _start)? NearCdeSegmentIntersect { get; set; }
+    internal (LinkedListNode<BoundingRing> boundRing, LinkedNode<Coordinate> _start)? NearEfgSegmentIntersect { get; set; }
+    internal (LinkedListNode<BoundingRing> boundRing, LinkedNode<Coordinate> _start)? NearAhgSegmentIntersect { get; set; }
 
     private void Clear()
     {
@@ -75,7 +75,7 @@ public class PartitionBoundRingsCache
         NearAhgSegmentIntersect = null;
     }
     //Метод вычисляет местоположение рамок из boundRings относительно boundRing и помещает информацию в кэш.
-    public bool FillListsRelativeRing(
+    internal bool FillListsRelativeRing(
         LinkedListNode<BoundingRing> boundRing,
         LinkedList<BoundingRing> boundRings)
     {
