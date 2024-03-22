@@ -1,7 +1,7 @@
 ﻿using System;
 using NetTopologySuite.Geometries;
 
-namespace GeoSlicer.Slicers;
+namespace GeoSlicer.ConvexSlicer;
 
 public class SpiralSlicer : ISlicer
 {

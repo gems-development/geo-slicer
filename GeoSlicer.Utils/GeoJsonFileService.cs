@@ -12,7 +12,7 @@ public static class GeoJsonFileService
         new GeoJsonReader();
 
     private static readonly string RootName = "geo-slicer";
-    
+
     private static string? _fullRootName;
 
     public static void WriteGeometryToFile<T>(T geometry, string path, bool flagOfGlobalPath = false) where T : class
