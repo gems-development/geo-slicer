@@ -86,4 +86,20 @@ public class BoundingHoleDeleterTest
         Assert.IsEquals(0, problemCoordinates.Count);
         Assert.IsTrue(extendedTunnelsSample.IsValid);
     }
+    [Fact]
+    public void Test2Polygon()
+    {
+        //Arrange
+        Polygon test2 = ObjectsForTests.GetTest2();
+        ZeroTunnelDivider divider = ObjectsForTests.GetZeroTunnelDivider();
+        LinkedList<Coordinate> problemCoordinates;
+        LinearRing extendedTunnelsSample;
+        //Act
+        Polygon newTest2 = Deleter.DeleteHoles(test2);
+        divider.DivideZeroTunnels(newTest2.Shell, out extendedTunnelsSample, out problemCoordinates);
+        //Assert
+        Assert.IsEquals(0, newTest2.Holes.Length);
+        Assert.IsEquals(0, problemCoordinates.Count);
+        Assert.IsTrue(extendedTunnelsSample.IsValid);
+    }
 }

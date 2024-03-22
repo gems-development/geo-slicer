@@ -63,4 +63,12 @@ public static class ObjectsForTests
                 ("TestFiles\\test_final_geojson.geojson");
         return (Polygon)((MultiPolygon)featureCollection[0].Geometry)[0];
     }
+    public static Polygon GetTest2()
+    {
+        var featureCollection = GeoJsonFileService
+            .GeoJsonFileService
+            .ReadGeometryFromFile<FeatureCollection>
+                ("TestFiles\\test2_geojson.geojson");
+        return (Polygon)((MultiPolygon)featureCollection[0].Geometry)[0];
+    }
 }
