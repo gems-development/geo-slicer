@@ -10,7 +10,10 @@ namespace GeoSlicer.Tests.HoleDeletersTests;
 public class BoundingHoleDeleterTest
 {
     private static readonly double Epsilon = 1e-15;
-    private static readonly TraverseDirection TraverseDirection = new TraverseDirection(new LineService(Epsilon));
+    private static readonly TraverseDirection Traverse = new (new LineService(Epsilon));
+
+    private static readonly BoundingHoleDeleter Deleter =
+        new BoundingHoleDeleter(Traverse);
     
     [Fact]
     public void TestSimplePolygon()
@@ -21,7 +24,7 @@ public class BoundingHoleDeleterTest
         LinkedList<Coordinate> problemCoordinates;
         LinearRing extendedTunnelsSample;
         //Act
-        Polygon newSample = BoundingHoleDeleter.DeleteHoles(sample, TraverseDirection);
+        Polygon newSample = Deleter.DeleteHoles(sample);
         divider.DivideZeroTunnels(newSample.Shell, out extendedTunnelsSample, out problemCoordinates);
         //Assert
         Assert.IsEquals(0, newSample.Holes.Length);
@@ -42,8 +45,8 @@ public class BoundingHoleDeleterTest
         LinkedList<Coordinate>? problemCoordinatesBaikal = null;
         LinkedList<Coordinate>? problemCoordinatesKazan = null;
         //Act
-        Polygon newBaikal = BoundingHoleDeleter.DeleteHoles(baikal, TraverseDirection);
-        Polygon newKazan = BoundingHoleDeleter.DeleteHoles(kazan, TraverseDirection);
+        Polygon newBaikal = Deleter.DeleteHoles(baikal);
+        Polygon newKazan = Deleter.DeleteHoles(kazan);
         Thread thread1 = new Thread(() =>
         {
             dividerThread1.DivideZeroTunnels

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using GeoSlicer.HoleDeleters.BoundingHoleDelDetails;
+using GeoSlicer.HoleDeleters.BoundHoleDelDetails;
 using GeoSlicer.Utils;
 using NetTopologySuite.Geometries;
 using GeoSlicer.Utils.BoundRing;
@@ -10,15 +10,23 @@ namespace GeoSlicer.HoleDeleters;
 
 public class BoundingHoleDeleter
 {
-    public static /*LinearRing*/ Polygon DeleteHoles(Polygon polygon, TraverseDirection direction)
+    private readonly TraverseDirection _direction;
+    private readonly PartitionBoundRingsCache _cache;
+
+    public BoundingHoleDeleter(TraverseDirection direction)
     {
-        LinkedList<BoundingRing> list = BoundingRing.PolygonToBoundRings(polygon, direction);
-        new BoundingHoleDeleter().DeleteHoles(list, new PartitionBoundRingsCache());
-        //return BoundRingService.BoundRingsToPolygon(list).Shell;
+        _direction = direction;
+        _cache = new PartitionBoundRingsCache();
+    }
+
+    public Polygon DeleteHoles(Polygon polygon)
+    {
+        LinkedList<BoundingRing> list = BoundingRing.PolygonToBoundRings(polygon, _direction);
+        DeleteHoles(list);
         return BoundingRing.BoundRingsToPolygon(list);
     }
     
-    private void DeleteHoles(LinkedList<BoundingRing> listOfHoles, PartitionBoundRingsCache cache)
+    private void DeleteHoles(LinkedList<BoundingRing> listOfHoles)
     {
         var thisRing = listOfHoles.First;
         var pointMinShell = thisRing!.Value.PointMin;
@@ -36,10 +44,10 @@ public class BoundingHoleDeleter
                 i = 0;
             }
             else if (i == count) return;*/
-            if (cache.FramesContainThis.Any())
+            if (_cache.FramesContainThis.Any())
             {
                 LinkedList<BoundingRing> list = new LinkedList<BoundingRing>();
-                foreach (var ring in cache.FramesContainThis)
+                foreach (var ring in _cache.FramesContainThis)
                 {
                     list.AddLast(ring.Value);
                 }
@@ -49,7 +57,7 @@ public class BoundingHoleDeleter
             if (thisRing.Next is null)
                 thisRing = listOfHoles.First.Next;
             else thisRing = thisRing.Next;
-            bool hasIntersectFrames = cache.FillListsRelativeRing(thisRing, listOfHoles);
+            bool hasIntersectFrames = _cache.FillListsRelativeRing(thisRing, listOfHoles);
             bool isConnected = false;
             if (!hasIntersectFrames)
             {
@@ -72,9 +80,9 @@ public class BoundingHoleDeleter
                 else
                 {
 
-                    if (!ConnectNoIntersectRectan(thisRing, listOfHoles, cache))
+                    if (!ConnectNoIntersectRectan(thisRing, listOfHoles, _cache))
                     {
-                        isConnected = BruteforceConnectWithIntersectRing(thisRing, listOfHoles, cache);
+                        isConnected = BruteforceConnectWithIntersectRing(thisRing, listOfHoles, _cache);
                     }
                     else isConnected = true;
 
@@ -89,7 +97,7 @@ public class BoundingHoleDeleter
             }
             else
             {
-                isConnected = BruteforceConnectIntersectionBoundRFrames(thisRing, listOfHoles, cache);
+                isConnected = BruteforceConnectIntersectionBoundRFrames(thisRing, listOfHoles, _cache);
                 if (thisRing.Value.PointMin.Equals(pointMinShell) && thisRing.Value.PointMax.Equals(pointMaxShell))
                 {
                     var buff = thisRing.Value;
@@ -101,7 +109,7 @@ public class BoundingHoleDeleter
 
             if (!isConnected)
             {
-                BruteforceConnect(thisRing, listOfHoles, cache);
+                BruteforceConnect(thisRing, listOfHoles, _cache);
                 if (thisRing.Value.PointMin.Equals(pointMinShell) && thisRing.Value.PointMax.Equals(pointMaxShell))
                 {
                     var buff = thisRing.Value;
