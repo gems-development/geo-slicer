@@ -9,7 +9,7 @@ namespace GeoSlicer.HoleDeleters.BoundHoleDelDetails;
 //относительно которой проводилось заполнение кэша. Соотвествие букв и сторон света описано в PartitioningZones.
 public class PartitionBoundRingsCache
 {
-    public LinkedList<(LinkedListNode<BoundingRing> boundRing, List<PartitioningZones> zones)> 
+     public LinkedList<(LinkedListNode<BoundingRing> boundRing, List<PartitioningZones> zones)> 
         ListA { get; private set; } = new ();
     public LinkedList<(LinkedListNode<BoundingRing> boundRing, List<PartitioningZones> zones)>
         ListB { get; private set; } = new ();
@@ -48,6 +48,7 @@ public class PartitionBoundRingsCache
     public (LinkedListNode<BoundingRing> boundRing, LinkedNode<Coordinate> _start)? NearCdeSegmentIntersect { get; set; }
     public (LinkedListNode<BoundingRing> boundRing, LinkedNode<Coordinate> _start)? NearEfgSegmentIntersect { get; set; }
     public (LinkedListNode<BoundingRing> boundRing, LinkedNode<Coordinate> _start)? NearAhgSegmentIntersect { get; set; }
+
     private void Clear()
     {
         ListA.Clear();
@@ -111,6 +112,7 @@ public class PartitionBoundRingsCache
     }
 
     //возращает false если рамка boundRing содержится в рамке relativeBoundRing
+    //или рамка relativeBoundRing содержится в boundRing.
     //true в противном случае(могут пересекаться и не пересекаться)
     private bool IntersectOrContainFrames(
         LinkedListNode<BoundingRing> relativeBoundRing,
@@ -139,6 +141,7 @@ public class PartitionBoundRingsCache
     }
     
     //todo Переименовать Partiting в Separating
+    //todo принять решение о разбиении этой функции
     //Возращает false если рамки пересекаются(не важно как).
     //Метод вычисляет местоположение рамки boundRing относительно relativeBoundRing
     //и запоминает это местоположение в кэше.
@@ -150,12 +153,11 @@ public class PartitionBoundRingsCache
         bool flagC = false;
         bool flagE = false;
         bool flagG = false;
-        bool flagABC = false;
-        bool flagCDE = false;
-        bool flagEFG = false;
-        bool flagAHG = false;
-        if (boundRing.Value.PointMin.Y > relativeBoundRing.Value.PointMax.Y
-            || Math.Abs(boundRing.Value.PointMin.Y - relativeBoundRing.Value.PointMax.Y) < 1e-9)
+        bool flagAbc = false;
+        bool flagCde = false;
+        bool flagEfg = false;
+        bool flagAhg = false;
+        if (boundRing.Value.PointMin.Y >= relativeBoundRing.Value.PointMax.Y)
         {
             if (boundRing.Value.PointMin.X < relativeBoundRing.Value.PointMin.X)
             {
@@ -181,12 +183,11 @@ public class PartitionBoundRingsCache
                 ListB.AddFirst((boundRing, list));
             }
 
-            flagABC = true;
+            flagAbc = true;
 
         }
 
-        else if (boundRing.Value.PointMax.X < relativeBoundRing.Value.PointMin.X
-            || Math.Abs(boundRing.Value.PointMax.X - relativeBoundRing.Value.PointMin.X) < 1e-9)
+        else if (boundRing.Value.PointMax.X <= relativeBoundRing.Value.PointMin.X)
         {
             if (boundRing.Value.PointMax.Y > relativeBoundRing.Value.PointMax.Y)
             {
@@ -212,12 +213,11 @@ public class PartitionBoundRingsCache
                 ListD.AddFirst((boundRing, list));
             }
 
-            flagCDE = true;
+            flagCde = true;
 
         }
 
-        else if (boundRing.Value.PointMax.Y < relativeBoundRing.Value.PointMin.Y
-            || Math.Abs(boundRing.Value.PointMax.Y - relativeBoundRing.Value.PointMin.Y) < 1e-9)
+        else if (boundRing.Value.PointMax.Y <= relativeBoundRing.Value.PointMin.Y)
         {
             if (boundRing.Value.PointMax.X > relativeBoundRing.Value.PointMax.X)
             {
@@ -243,11 +243,10 @@ public class PartitionBoundRingsCache
                 ListF.AddFirst((boundRing, list));
             }
 
-            flagEFG = true;
+            flagEfg = true;
         }
 
-        else if (boundRing.Value.PointMin.X > relativeBoundRing.Value.PointMax.X
-            || Math.Abs(boundRing.Value.PointMin.X - relativeBoundRing.Value.PointMax.X) < 1e-9)
+        else if (boundRing.Value.PointMin.X >= relativeBoundRing.Value.PointMax.X)
         {
             if (boundRing.Value.PointMin.Y < relativeBoundRing.Value.PointMin.Y)
             {
@@ -273,33 +272,33 @@ public class PartitionBoundRingsCache
                 ListH.AddFirst((boundRing, list));
             }
 
-            flagAHG = true;
+            flagAhg = true;
         }
         else return false;
         
         if ((NearAbc is null ||
              boundRing.Value.PointMin.Y < NearAbc.Value.boundRing.Value.PointMin.Y) &&
-            (flagABC || (list.Count == 1 && (flagA || flagC))))
+            (flagAbc || (list.Count == 1 && (flagA || flagC))))
         {
             NearAbc = (boundRing, list);
         }
         if ((NearCde is null ||
              boundRing.Value.PointMax.X > NearCde.Value.boundRing.Value.PointMax.X) &&
-            (flagCDE || (list.Count == 1 && (flagC || flagE))))
+            (flagCde || (list.Count == 1 && (flagC || flagE))))
         {
             NearCde = (boundRing, list);
         }
 
         if ((NearEfg is null ||
              boundRing.Value.PointMax.Y > NearEfg.Value.boundRing.Value.PointMax.Y) &&
-            (flagEFG || (list.Count == 1 && (flagE || flagG))))
+            (flagEfg || (list.Count == 1 && (flagE || flagG))))
         {
             NearEfg = (boundRing, list);
         }
 
         if ((NearAhg is null ||
              boundRing.Value.PointMin.X < NearAhg.Value.boundRing.Value.PointMin.X) &&
-            (flagAHG || (list.Count == 1 && (flagA || flagG))))
+            (flagAhg || (list.Count == 1 && (flagA || flagG))))
         {
             NearAhg = (boundRing, list);
         }
