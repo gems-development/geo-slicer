@@ -74,6 +74,7 @@ internal class BoundRService
         return new BoundingRing(pointMin, pointMax, pointLeftNode, pointRightNode,
             pointUpNode, pointDownNode, ringNode.Next, coordinates.Length - 1, counterClockwiseBypassBuff);
     }
+
     //Ищет точку, которая совпадает с point1Node, но соединение с ней не будет пересекать другие нулевые туннели.
     internal static LinkedNode<Coordinate> FindCorrectLinkedCoord(
         LinkedNode<Coordinate> point1Node, Coordinate point2, bool thisCounterClockwiseBypass)
@@ -116,6 +117,7 @@ internal class BoundRService
             point1Node = point1Node.AdditionalNext;
         }
     }
+
     internal static LinkedNode<Coordinate> ConnectRingsNodes(
         LinkedNode<Coordinate> ring1Node,
         LinkedNode<Coordinate> ring2Node)
@@ -128,6 +130,7 @@ internal class BoundRService
 
         ring2NodePrevious.Next = ring1NodeNext;
         ring1NodeNext.Previous = ring2NodePrevious;
+        
         new LinkedNode<Coordinate>(
             ring1Node.Elem,
             new LinkedNode<Coordinate>(ring2Node.Elem, ring2NodePrevious, ring1NodeNext),
@@ -141,11 +144,14 @@ internal class BoundRService
         
         ring1NodeNext.Previous.AdditionalPrevious = ring1Node;
         if (oldRing1NodeAdditionalNext == null)
+        {
             ring1NodeNext.Previous.AdditionalNext = ring1NodeNext.Previous.Next;
+        }
         else
         {
             ring1NodeNext.Previous.AdditionalNext = oldRing1NodeAdditionalNext;
-            oldRing1NodeAdditionalNext.AdditionalPrevious = ring1NodeNext.Previous;
+            if (ReferenceEquals(oldRing1NodeAdditionalNext.Elem, ring1Node.Elem)) 
+                oldRing1NodeAdditionalNext.AdditionalPrevious = ring1NodeNext.Previous;
         }
         
         //меняем ссылки у второго кольца
@@ -156,11 +162,14 @@ internal class BoundRService
         
         ring2NodePrevious.Next.AdditionalNext = ring2Node;
         if (oldRing2NodeAdditionalPrevious == null)
+        {
             ring2NodePrevious.Next.AdditionalPrevious = ring2NodePrevious.Next.Previous;
+        }
         else
         {
             ring2NodePrevious.Next.AdditionalPrevious = oldRing2NodeAdditionalPrevious;
-            oldRing2NodeAdditionalPrevious.AdditionalNext = ring2NodePrevious.Next;
+            if (ReferenceEquals(oldRing2NodeAdditionalPrevious.Elem, ring2Node.Elem))
+                oldRing2NodeAdditionalPrevious.AdditionalNext = ring2NodePrevious.Next;
         }
 
         return ring1Node;

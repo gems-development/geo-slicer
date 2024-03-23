@@ -16,7 +16,8 @@ public class BoundingRing
     public LinkedNode<Coordinate> PointUpNode { get; private set; }
     public LinkedNode<Coordinate> PointDownNode { get; private set; }
     
-    public LinkedNode<Coordinate> Ring { get; private set; }
+    //todo сеттер у Ring должен быть приватным.
+    public LinkedNode<Coordinate> Ring { get;  set; }
     public int PointsCount { get; private set; }
     
     //true - обход кольца по часовой стрелке

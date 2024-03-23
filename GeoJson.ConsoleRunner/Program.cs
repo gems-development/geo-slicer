@@ -2,6 +2,7 @@
 using GeoSlicer.HoleDeleters;
 using GeoSlicer.Tests.HoleDeletersTests;
 using GeoSlicer.Utils;
+using GeoSlicer.Utils.BoundRing;
 using GeoSlicer.Utils.Intersectors;
 using GeoSlicer.Utils.Intersectors.CoordinateComparators;
 using NetTopologySuite.Features;
@@ -11,7 +12,7 @@ string user = "Данил";
 string fileName = "C:\\Users\\" + user + "\\Downloads\\Telegram Desktop\\";
 var featureCollection = GeoJsonFileService
     .ReadGeometryFromFile<FeatureCollection>
-        ("TestFiles\\test_final_geojson.geojson");
+        ("TestFiles\\test2_geojson.geojson");
 var polygon = (Polygon)((MultiPolygon)featureCollection[0].Geometry)[0];
 
 
@@ -42,8 +43,17 @@ foreach (var point in problemCoordinates)
 {
     Console.WriteLine(point);
 }
-GeoJsonFileService.WriteGeometryToFile(res, fileName + "daniilTest");
-GeoJsonFileService.WriteGeometryToFile(resultRing, fileName + "daniilTestAfter");
+
+Coordinate[] resArr = new Coordinate[res.Coordinates.Length];
+Coordinate[] resArr2 = new Coordinate[res.Coordinates.Length];
+LinkedList<BoundingRing> list1 = GeoSlicer.Utils.BoundRing.BoundingRing.PolygonToBoundRings(res, Traverse);
+LinkedList<BoundingRing> list2 = GeoSlicer.Utils.BoundRing.BoundingRing.PolygonToBoundRings(new Polygon(resultRing, new LinearRing[0]), Traverse);
+list1.First.Value.Ring = list1.First.Value.Ring.Next.Next.Next.Next.Next.Next;
+list2.First.Value.Ring = list2.First.Value.Ring.Next.Next.Next.Next.Next.Next;
+GeoJsonFileService.WriteGeometryToFile(BoundingRing.BoundRingsToPolygon(list1), fileName + "daniilTest");
+GeoJsonFileService.WriteGeometryToFile(BoundingRing.BoundRingsToPolygon(list2), fileName + "daniilTestAfter");
+//GeoJsonFileService.WriteGeometryToFile(res, fileName + "daniilTest");
+//GeoJsonFileService.WriteGeometryToFile(resultRing, fileName + "daniilTestAfter");
 
 
 
