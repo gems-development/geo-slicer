@@ -1,6 +1,6 @@
 ﻿using BenchmarkDotNet.Attributes;
+using GeoSlicer.ConvexSlicer;
 using NetTopologySuite.Geometries;
-using GeoSlicer.Slicers;
 using GeoSlicer.Utils;
 
 namespace GeoSlicer.Benchmark.Benchmarks;
@@ -13,7 +13,7 @@ public class SlicersBench
     [Benchmark]
     public void TestRadialConvexSlicer()
     {
-        ISlicer slicer = new RadialConvexSlicer();
+        ISlicer slicer = new RadialSlicer();
         slicer.Slice(Ring, 3);
         slicer.Slice(Ring, 5);
         slicer.Slice(Ring, 10);
@@ -22,7 +22,7 @@ public class SlicersBench
     [Benchmark]
     public void TestSpiralConvexSlicer()
     {
-        ISlicer slicer = new SpiralConvexSlicer();
+        ISlicer slicer = new SpiralSlicer();
         slicer.Slice(Ring, 3);
         slicer.Slice(Ring, 5);
         slicer.Slice(Ring, 10);
@@ -31,7 +31,7 @@ public class SlicersBench
     [Benchmark]
     public void TestStepConvexSlicer()
     {
-        ISlicer slicer = new StepConvexSlicer();
+        ISlicer slicer = new StepSlicer();
         slicer.Slice(Ring, 3);
         slicer.Slice(Ring, 5);
         slicer.Slice(Ring, 10);

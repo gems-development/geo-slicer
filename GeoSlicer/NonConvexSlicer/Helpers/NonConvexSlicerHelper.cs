@@ -8,9 +8,10 @@ namespace GeoSlicer.NonConvexSlicer.Helpers;
 
 public class NonConvexSlicerHelper
 {
-    private const LinesIntersectionType SuitableLineLineIntersectionType = LinesIntersectionType.Inner | LinesIntersectionType.TyShaped |
-                                                              LinesIntersectionType.Contains | LinesIntersectionType.Part |
-                                                              LinesIntersectionType.Overlay;
+    private const LinesIntersectionType SuitableLineLineIntersectionType =
+        LinesIntersectionType.Inner | LinesIntersectionType.TyShaped |
+        LinesIntersectionType.Contains | LinesIntersectionType.Part |
+        LinesIntersectionType.Overlay;
 
     private const AreasIntersectionType SuitableAreaAreaIntersectionType = AreasIntersectionType.Inside;
     private readonly LinesIntersector _linesIntersector;
@@ -18,11 +19,21 @@ public class NonConvexSlicerHelper
     private readonly LineService _lineService;
 
     public NonConvexSlicerHelper(
-        LinesIntersector linesIntersector, 
+        LinesIntersector linesIntersector,
         LineService lineService)
     {
         _linesIntersector = linesIntersector;
         _lineService = lineService;
+    }
+
+    public bool CurrentPointIsSpecial(Coordinate previousPoint, Coordinate currentPoint, Coordinate nextPoint)
+    {
+        return _lineService.VectorProduct(
+            currentPoint.X - previousPoint.X,
+            currentPoint.Y - previousPoint.Y,
+            nextPoint.X - currentPoint.X,
+            nextPoint.Y - currentPoint.Y
+        ) >= 0;
     }
 
     public List<CoordinatePcn> GetSpecialPoints(LinearRing ring)
@@ -33,7 +44,7 @@ public class NonConvexSlicerHelper
         {
             if (_lineService.VectorProduct(
                     coordinates[i].X - coordinates[(i - 1 + coordinates.Length - 1) % (coordinates.Length - 1)].X,
-                    coordinates[i].Y - coordinates[(i - 1 + coordinates.Length - 1) % (coordinates.Length - 1)].Y, 
+                    coordinates[i].Y - coordinates[(i - 1 + coordinates.Length - 1) % (coordinates.Length - 1)].Y,
                     coordinates[(i + 1) % (coordinates.Length - 1)].X - coordinates[i].X,
                     coordinates[(i + 1) % (coordinates.Length - 1)].Y - coordinates[i].Y
                 ) >= 0)
@@ -83,7 +94,7 @@ public class NonConvexSlicerHelper
 
         return _areasIntersector.CheckIntersection(SuitableAreaAreaIntersectionType,
                    coordCurrent, coordNext, ring[index], coordCurrent) &&
-            _linesIntersector.CheckIntersection(SuitableLineLineIntersectionType,
-            coordCurrent, coordNext, ring[index], coordCurrent);
+               _linesIntersector.CheckIntersection(SuitableLineLineIntersectionType,
+                   coordCurrent, coordNext, ring[index], coordCurrent);
     }
 }

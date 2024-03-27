@@ -24,9 +24,9 @@ public class AreaAreaIntersectionTest
         Coordinate a2 = new Coordinate(a2X, a2Y);
         Coordinate b1 = new Coordinate(b1X, b1Y);
         Coordinate b2 = new Coordinate(b2X, b2Y);
-        Assert.True(AreasIntersector.CheckIntersection(expectedType,a1, a2, b1, b2));
+        Assert.True(AreasIntersector.CheckIntersection(expectedType, a1, a2, b1, b2));
     }
-    
+
     [Theory]
     [InlineData(0, 2, 2, 0, 4, 2, 6, 0, AreasIntersectionType.Outside)]
     private void TestOutside(
@@ -38,6 +38,6 @@ public class AreaAreaIntersectionTest
         Coordinate a2 = new Coordinate(a2X, a2Y);
         Coordinate b1 = new Coordinate(b1X, b1Y);
         Coordinate b2 = new Coordinate(b2X, b2Y);
-        Assert.True(AreasIntersector.CheckIntersection(expectedType,a1, a2, b1, b2));
+        Assert.True(AreasIntersector.CheckIntersection(expectedType, a1, a2, b1, b2));
     }
 }

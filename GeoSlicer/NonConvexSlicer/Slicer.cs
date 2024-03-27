@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using GeoSlicer.NonConvexSlicer.Helpers;
 using GeoSlicer.Utils;
 using NetTopologySuite.Geometries;
@@ -27,129 +26,124 @@ public class Slicer
         _lineService = lineService;
     }
 
-    
-    // todo убедиться в рациональности
-    private List<LinearRing> SimpleSlice(LinearRing ring, int pozSpecialPoint)
-    {
-        var listResult = new List<LinearRing>(ring.Count -2);
-        var coordinates = ring.Coordinates;
-        var i = (pozSpecialPoint + 1) % (ring.Count - 1);
-        var count = 0;
-        while (count < ring.Count - 1 - 2)
-        {
-            var array = new Coordinate[4];
-            array[0] = coordinates[pozSpecialPoint];
-            array[1] = coordinates[(i + ring.Count - 1) % (ring.Count - 1)];
-            array[2] = coordinates[(i + 1 + ring.Count - 1) % (ring.Count - 1)];
-            array[3] = coordinates[pozSpecialPoint];
-
-            listResult.Add(new LinearRing(array));
-            count++;
-            i = (i + 1) % (ring.Count - 1);
-        }
-
-        return listResult;
-    }
-
-
-    public List<LinearRing> SliceFigureWithMinNumberOfSpecialPoints(LinearRing ring)
+    public List<LinearRing> SliceFigureWithMinNumberOfSpecialPoints(LinearRing ring, Coordinate firstPoint,
+        Coordinate? secondPoint = null)
     {
         var newRing = _segmentService.IgnoreInnerPointsOfSegment(ring);
         var newRingCoordinates = newRing.Coordinates;
-        
-        // todo делать проверку только для нужных точек
-        var listSpecialPoints = _helper.GetSpecialPoints(newRing);
-        var listRingsWithoutSpecialPoints = new List<LinearRing>();
+        var newRingCoordinatesLength = newRingCoordinates.Length;
 
 
-        if (!listSpecialPoints.Any())
+        var firstPointIndex = newRing.GetIndex(firstPoint) ?? -1;
+        var firstPointIsSpecial = firstPointIndex != -1 && _helper.CurrentPointIsSpecial(
+            newRingCoordinates[(firstPointIndex - 1 + newRingCoordinatesLength - 1) % (newRingCoordinatesLength - 1)],
+            firstPoint, newRingCoordinates[(firstPointIndex + 1) % (newRingCoordinatesLength - 1)]);
+
+
+        int secondPointIndex = -1;
+        bool secondPointIsSpecial = false;
+
+
+        if (secondPoint != null)
+        {
+            secondPointIndex = newRing.GetIndex(secondPoint) ?? -1;
+            secondPointIsSpecial = _helper.CurrentPointIsSpecial(
+                newRingCoordinates[
+                    (secondPointIndex - 1 + newRingCoordinatesLength - 1) % (newRingCoordinatesLength - 1)],
+                secondPoint, newRingCoordinates[(secondPointIndex + 1) % (newRingCoordinatesLength - 1)]);
+        }
+
+        var listRingsWithoutSpecialPoints = new List<LinearRing>(newRingCoordinatesLength - 4);
+
+        int specialPointIndex;
+        Coordinate specialPoint;
+
+        if (firstPointIsSpecial && firstPointIndex != -1)
+        {
+            specialPointIndex = firstPointIndex;
+            specialPoint = firstPoint;
+        }
+        else if (secondPointIsSpecial && secondPointIndex != -1 && secondPoint != null)
+        {
+            specialPointIndex = secondPointIndex;
+            specialPoint = secondPoint;
+        }
+        else
         {
             listRingsWithoutSpecialPoints.Add(newRing);
             return listRingsWithoutSpecialPoints;
         }
 
-        CoordinatePcn firstSpecialPoint = listSpecialPoints[0];
-        
-        var coordB = new CoordinatePcn(
-            newRingCoordinates[firstSpecialPoint.C % (newRingCoordinates.Length - 1)].X,
-            newRingCoordinates[firstSpecialPoint.C % (newRingCoordinates.Length - 1)].Y,
-            c: firstSpecialPoint.C % (newRingCoordinates.Length - 1));
+        var afterSpecialPoint = newRingCoordinates[(specialPointIndex + 1) % (newRingCoordinatesLength - 1)];
 
-        var coordC = new CoordinatePcn(
-            newRingCoordinates[(firstSpecialPoint.C + 1) % (newRingCoordinates.Length - 1)].X,
-            newRingCoordinates[(firstSpecialPoint.C + 1) % (newRingCoordinates.Length - 1)].Y,
-            c: (firstSpecialPoint.C + 1) % (newRingCoordinates.Length - 1));
-
-        var pozNextPoint = (firstSpecialPoint.C + 2) % (newRingCoordinates.Length - 1);
+        var pozNextPoint = (specialPointIndex + 2) % (newRingCoordinatesLength - 1);
 
         var flag = true;
-        var k = 0;
 
         while (flag)
         {
-            var coordM = new CoordinatePcn(
-                newRingCoordinates[pozNextPoint].X,
-                newRingCoordinates[pozNextPoint].Y,
-                c: pozNextPoint);
+            var variablePoint = newRingCoordinates[pozNextPoint];
 
-            if (_lineService.VectorProduct(
-                    coordB.X - coordC.X,
-                    coordB.Y - coordC.Y,
-                    coordM.X - coordB.X,
-                    coordM.Y - coordB.Y
-                ) < 0)
+            if (!_helper.CurrentPointIsSpecial(afterSpecialPoint, specialPoint, variablePoint))
             {
                 //NextPoint не является особой точкой в новом кольце
                 //и не лежит на одной прямой со старой особой точкой и предыдущей для старой особой
-                pozNextPoint = (pozNextPoint - 1 + newRingCoordinates.Length - 1) % (newRingCoordinates.Length - 1);
-                coordM = new CoordinatePcn(
-                    newRingCoordinates[pozNextPoint].X,
-                    newRingCoordinates[pozNextPoint].Y,
-                    c: pozNextPoint);
-                
-                // todo Вычислить заранее количество точек (и ниже) (и убедиться, что вычисленно верно)
-                var listFirst = new List<Coordinate>();
+                pozNextPoint = (pozNextPoint - 1 + newRingCoordinatesLength - 1) % (newRingCoordinatesLength - 1);
+                variablePoint = newRingCoordinates[pozNextPoint];
 
-                for (var i = coordB.C; i != coordM.C; i = (i + 1) % (newRingCoordinates.Length - 1))
+                int firstArraySize;
+                int secondArraySize;
+                if (specialPointIndex <= pozNextPoint)
                 {
-                    listFirst.Add(newRingCoordinates[i]);
+                    firstArraySize = pozNextPoint - specialPointIndex;
+                    secondArraySize = newRingCoordinatesLength - 1 - firstArraySize;
+                }
+                else
+                {
+                    secondArraySize = specialPointIndex - pozNextPoint;
+                    firstArraySize = newRingCoordinatesLength - 1 - secondArraySize;
                 }
 
-                listFirst.Add(coordM);
-                listFirst.Add(coordB);
+                firstArraySize += 2;
+                secondArraySize += 2;
 
-                var listSecond = new List<Coordinate>();
+                var firstArray = new Coordinate[firstArraySize];
+                var secondArray = new Coordinate[secondArraySize];
 
-                for (var i = coordM.C; i != coordB.C; i = (i + 1) % (newRingCoordinates.Length - 1))
+                for (int i = specialPointIndex, j = 0;
+                     i != pozNextPoint;
+                     i = (i + 1) % (newRingCoordinatesLength - 1), ++j)
                 {
-                    listSecond.Add(newRingCoordinates[i]);
+                    firstArray[j] = newRingCoordinates[i];
                 }
 
-                listSecond.Add(coordB);
-                listSecond.Add(coordM);
+                firstArray[firstArraySize - 2] = variablePoint;
+                firstArray[firstArraySize - 1] = specialPoint;
 
+                for (int i = pozNextPoint, j = 0;
+                     i != specialPointIndex;
+                     i = (i + 1) % (newRingCoordinatesLength - 1), ++j)
+                {
+                    secondArray[j] = newRingCoordinates[i];
+                }
 
-                var ringFirst = _segmentService.IgnoreInnerPointsOfSegment(new LinearRing(listFirst.ToArray()));
-                var ringSecond = _segmentService.IgnoreInnerPointsOfSegment(new LinearRing(listSecond.ToArray()));
+                secondArray[secondArraySize - 2] = specialPoint;
+                secondArray[secondArraySize - 1] = variablePoint;
+
+                var ringFirst = _segmentService.IgnoreInnerPointsOfSegment(new LinearRing(firstArray));
+                var ringSecond = _segmentService.IgnoreInnerPointsOfSegment(new LinearRing(secondArray));
 
                 listRingsWithoutSpecialPoints.Add(ringFirst);
 
                 flag = false;
 
-                var listRec = SliceFigureWithMinNumberOfSpecialPoints(ringSecond);
+                var listRec = SliceFigureWithMinNumberOfSpecialPoints(ringSecond, firstPoint, secondPoint);
 
                 listRingsWithoutSpecialPoints.AddRange(listRec);
             }
             else
             {
-                pozNextPoint = (pozNextPoint + 1) % (newRingCoordinates.Length - 1);
-
-                k++;
-
-                if (k == newRingCoordinates.Length - 1)
-                {
-                    return SimpleSlice(newRing, firstSpecialPoint.C);
-                }
+                pozNextPoint = (pozNextPoint + 1) % (newRingCoordinatesLength - 1);
             }
         }
 
@@ -161,12 +155,13 @@ public class Slicer
         if (!_traverseDirection.IsClockwiseBypass(ring)) _traverseDirection.ChangeDirection(ring);
         //Список особых точек
         var listSpecialPoints = _helper.GetSpecialPoints(ring);
-        var ringCoords = new CoordinatePcn[ring.Count - 1];
-        for (var i = 0; i < ring.Count - 1; ++i)
+        int ringCount = ring.Count;
+        var ringCoords = new CoordinatePcn[ringCount - 1];
+        for (var i = 0; i < ringCount - 1; ++i)
         {
             ringCoords[i] = new CoordinatePcn(ring.Coordinates[i].X, ring.Coordinates[i].Y,
-                (i - 2 + ring.Count) % (ring.Count - 1),
-                i, (i + 1) % (ring.Count - 1));
+                (i - 2 + ringCount) % (ringCount - 1),
+                i, (i + 1) % (ringCount - 1));
         }
 
         //Список LinearRing для ответа
@@ -177,7 +172,7 @@ public class Slicer
             case 0:
                 return new List<LinearRing> { ring };
             case 1:
-                return SliceFigureWithMinNumberOfSpecialPoints(ring);
+                return SliceFigureWithMinNumberOfSpecialPoints(ring, listSpecialPoints[0]);
         }
 
         //coordCurrent, coordNext - координаты текущей и следующей точки, которые мы хотим соединить
@@ -235,6 +230,7 @@ public class Slicer
                 wasIntersectionInIteration = true;
                 coordNext = ringCoords[nextIndex];
             }
+
             if (coordPrev.C == listSpecialPoints[beginSpecialPointIndex].C &&
                 coordCurrent.C != listSpecialPoints[beginSpecialPointIndex].C)
             {
@@ -253,9 +249,9 @@ public class Slicer
                 //При этом кольцо не двуугольник
                 if (afterFirstIndex != beforeFirstIndex &&
                     _lineService.VectorProduct(
-                        ringCoords[coordCurrent.C].X - ringCoords[coordPrev.C].X, 
-                        ringCoords[coordCurrent.C].Y - ringCoords[coordPrev.C].Y, 
-                        ringCoords[coordNext.C].X - ringCoords[coordCurrent.C].X, 
+                        ringCoords[coordCurrent.C].X - ringCoords[coordPrev.C].X,
+                        ringCoords[coordCurrent.C].Y - ringCoords[coordPrev.C].Y,
+                        ringCoords[coordNext.C].X - ringCoords[coordCurrent.C].X,
                         ringCoords[coordNext.C].Y - ringCoords[coordCurrent.C].Y
                     ) >= 0)
                 {
@@ -287,8 +283,8 @@ public class Slicer
                 for (var j = coordCurrent.C; j != (coordCurrent.C == coordNext.C ? coordCurrent.P : coordNext.C);)
                 {
                     var coordIter = ringCoords[j];
-                    currentLinearRingCoords.Add(new Coordinate(ringCoords[j % ringCoords.Length].X,
-                        ringCoords[j % ringCoords.Length].Y));
+                    currentLinearRingCoords.Add(new Coordinate(ringCoords[j % ringCount].X,
+                        ringCoords[j % ringCount].Y));
                     j = coordIter.N;
                 }
 
@@ -297,7 +293,7 @@ public class Slicer
                     : ringCoords[coordNext.C]);
                 currentLinearRingCoords.Add(currentLinearRingCoords[0]);
                 var currentLinearRing = _gf.CreateLinearRing(currentLinearRingCoords.ToArray());
-                var convexLists = SliceFigureWithMinNumberOfSpecialPoints(currentLinearRing);
+                var convexLists = SliceFigureWithMinNumberOfSpecialPoints(currentLinearRing, coordCurrent, coordNext);
                 listLinearRing.AddRange(convexLists);
             }
 
@@ -319,8 +315,8 @@ public class Slicer
                 do
                 {
                     var coordIter = ringCoords[j];
-                    lastLinearRingCoords[t] = new Coordinate(ringCoords[j % ringCoords.Length].X,
-                        ringCoords[j % ringCoords.Length].Y);
+                    lastLinearRingCoords[t] = new Coordinate(ringCoords[j % ringCount].X,
+                        ringCoords[j % ringCount].Y);
                     j = coordIter.N;
                     ++t;
                 } while (j != listSpecialPoints[beginSpecialPointIndex].C);
