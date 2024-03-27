@@ -13,13 +13,14 @@ public class WeilerAthertonTests
     private static readonly LineService LineService = new LineService(Epsilon);
 
     private static readonly GridSlicer.GridSlicerHelper SlicerHelper =
-        new(new LinesIntersector(new EpsilonCoordinateComparator(Epsilon), LineService, Epsilon), Epsilon, LineService, new EpsilonCoordinateComparator());
+        new(new LinesIntersector(new EpsilonCoordinateComparator(Epsilon), LineService, Epsilon), Epsilon, LineService,
+            new EpsilonCoordinateComparator());
 
     [Fact]
     public void SimpleTest()
     {
         //Arrange
-        Coordinate[] clipped = 
+        Coordinate[] clipped =
         {
             new(-2, 1), new(-2, 7), new(4, 7), new(4, 1), new(-2, 1)
         };
@@ -30,12 +31,12 @@ public class WeilerAthertonTests
         };
         LinearRing cuttingRing = new LinearRing(cutting);
 
-        List<List<Coordinate>> expected = new List<List<Coordinate>>()
+        List<LinearRing> expected = new List<LinearRing>()
         {
-            new List<Coordinate>()
+            new LinearRing(new Coordinate[]
             {
                 new Coordinate(4, 4), new Coordinate(4, 2), new Coordinate(3, 2), new Coordinate(4, 4)
-            }
+            })
         };
 
         //Act
@@ -49,7 +50,7 @@ public class WeilerAthertonTests
     public void TestWhereNodeToENextEqualsNull()
     {
         //Arrange
-        Coordinate[] clipped = 
+        Coordinate[] clipped =
         {
             new(8, 2), new(2, -2), new(-1, 2), new(1, 6), new(8, 6), new(8, 2)
         };
@@ -60,12 +61,12 @@ public class WeilerAthertonTests
         };
         LinearRing cuttingRing = new LinearRing(cutting);
 
-        List<List<Coordinate>> expected = new List<List<Coordinate>>()
+        List<LinearRing> expected = new List<LinearRing>()
         {
-            new List<Coordinate>()
+            new LinearRing(new Coordinate[]
             {
                 new(8, 4), new(8, 2), new(5, 0), new(5, 4), new(8, 4)
-            }
+            })
         };
 
         //Act
@@ -79,27 +80,29 @@ public class WeilerAthertonTests
     public void TestTwoFiguresInResult()
     {
         //Arrange
-        Coordinate[] clipped = 
+        Coordinate[] clipped =
         {
-            new(-2,3), new(-4,3), new(-4,6), new(-2,9), new(6,9), new(6,4), new(1,4), new(1,6), new(-2,6), new(-2,3)
+            new(-2, 3), new(-4, 3), new(-4, 6), new(-2, 9), new(6, 9), new(6, 4), new(1, 4), new(1, 6), new(-2, 6),
+            new(-2, 3)
         };
         LinearRing clippedRing = new LinearRing(clipped);
         Coordinate[] cutting =
         {
-            new(-3,2), new(-3, 5), new(2, 5), new(2, 2), new(-3,2)
+            new(-3, 2), new(-3, 5), new(2, 5), new(2, 2), new(-3, 2)
         };
         LinearRing cuttingRing = new LinearRing(cutting);
-        
-        List<List<Coordinate>> expected = new List<List<Coordinate>>()
-        {
-            new List<Coordinate>() {
-                new(2, 4), new(1, 4), new(1, 5), new(2,5), new(2, 4)
-            },
 
-            new List<Coordinate>()
+        List<LinearRing> expected = new List<LinearRing>()
+        {
+            new LinearRing(new Coordinate[]
             {
-                new(-2,5), new(-2,3), new(-3,3), new(-3,5), new(-2,5)
-            }
+                new(2, 4), new(1, 4), new(1, 5), new(2, 5), new(2, 4)
+            }),
+
+            new LinearRing(new Coordinate[]
+            {
+                new(-2, 5), new(-2, 3), new(-3, 3), new(-3, 5), new(-2, 5)
+            })
         };
 
         //Act
@@ -113,7 +116,7 @@ public class WeilerAthertonTests
     public void SimpleTestWithFirstPodkovirka()
     {
         //Arrange
-        Coordinate[] clipped = 
+        Coordinate[] clipped =
         {
             new(3, 3), new(3, -3), new(-3, -3), new(-3, 3), new(3, 3)
         };
@@ -123,12 +126,13 @@ public class WeilerAthertonTests
             new(-1, -4), new(4, 1), new(4, -4), new(-1, -4)
         };
         LinearRing cuttingRing = new LinearRing(cutting);
-        
-        List<List<Coordinate>> expected = new List<List<Coordinate>>()
+
+        List<LinearRing> expected = new List<LinearRing>()
         {
-            new List<Coordinate>() {
+            new LinearRing(new Coordinate[]
+            {
                 new(3, 0), new(3, -3), new(0, -3), new(3, 0)
-            }
+            })
         };
 
         //Act
@@ -142,7 +146,7 @@ public class WeilerAthertonTests
     public void SimpleTestWithUltraPodkovirka()
     {
         //Arrange
-        Coordinate[] clipped = 
+        Coordinate[] clipped =
         {
             new(4, 1), new(-1, -2), new(-1, 4), new(3, 4), new(4, 1)
         };
@@ -152,12 +156,13 @@ public class WeilerAthertonTests
             new(4, 1), new(2, 1), new(2, 4), new(4, 4), new(4, 1)
         };
         LinearRing cuttingRing = new LinearRing(cutting);
-        
-        List<List<Coordinate>> expected = new List<List<Coordinate>>()
+
+        List<LinearRing> expected = new List<LinearRing>()
         {
-            new List<Coordinate>() {
-                new(2,4), new(3,4), new(4,1), new(2,1), new(2,4)
-            }
+            new LinearRing(new Coordinate[]
+            {
+                new(2, 4), new(3, 4), new(4, 1), new(2, 1), new(2, 4)
+            })
         };
 
         //Act
@@ -171,7 +176,7 @@ public class WeilerAthertonTests
     public void TestWithOnlyOneCommonPoints()
     {
         //Arrange
-        Coordinate[] clipped = 
+        Coordinate[] clipped =
         {
             new(-2, 2), new(0, 2), new(0, 0), new(-2, 0), new(-2, 2)
         };
@@ -181,11 +186,11 @@ public class WeilerAthertonTests
             new(0, 0), new(2, 0), new(2, -2), new(0, -2), new(0, 0)
         };
         LinearRing cuttingRing = new LinearRing(cutting);
-        
-        List<List<Coordinate>> expected = new List<List<Coordinate>>()
+
+        List<LinearRing> expected = new List<LinearRing>()
         {
-           /* new List<Coordinate>() {
-            }*/
+            /* new List<Coordinate>() {
+             }*/
         };
 
         //Act
@@ -199,7 +204,7 @@ public class WeilerAthertonTests
     public void TestWithoutCommonPoints()
     {
         //Arrange
-        Coordinate[] clipped = 
+        Coordinate[] clipped =
         {
             new(-2, 2), new(0, 2), new(0, 0), new(-2, 0), new(-2, 2)
         };
@@ -209,10 +214,9 @@ public class WeilerAthertonTests
             new(1, -1), new(2, -1), new(2, -2), new(1, -2), new(1, -1)
         };
         LinearRing cuttingRing = new LinearRing(cutting);
-        
-        List<List<Coordinate>> expected = new List<List<Coordinate>>()
+
+        List<LinearRing> expected = new List<LinearRing>()
         {
-            
         };
 
         //Act
@@ -226,7 +230,7 @@ public class WeilerAthertonTests
     public void TestCuttingInClippedWithCommonSegments()
     {
         //Arrange
-        Coordinate[] clipped = 
+        Coordinate[] clipped =
         {
             new(0, 0), new(2, 0), new(2, -2), new(0, -2), new(0, 0)
         };
@@ -237,11 +241,12 @@ public class WeilerAthertonTests
         };
         LinearRing cuttingRing = new LinearRing(cutting);
 
-        List<List<Coordinate>> expected = new List<List<Coordinate>>()
+        List<LinearRing> expected = new List<LinearRing>()
         {
-            new List<Coordinate>() {
+            new LinearRing(new Coordinate[]
+            {
                 new(2, -1), new(2, -2), new(1, -2), new(1, -1), new(2, -1)
-            }
+            })
         };
 
         //Act
@@ -255,7 +260,7 @@ public class WeilerAthertonTests
     public void TestCuttingInClippedWothoutIntersections()
     {
         //Arrange
-        Coordinate[] clipped = 
+        Coordinate[] clipped =
         {
             new(-1, -1), new(-1, 2), new(2, 2), new(2, -1), new(-1, -1)
         };
@@ -265,12 +270,13 @@ public class WeilerAthertonTests
             new(0, 0), new(0, 1), new(1, 1), new(1, 0), new(0, 0)
         };
         LinearRing cuttingRing = new LinearRing(cutting);
-        
-        List<List<Coordinate>> expected = new List<List<Coordinate>>()
+
+        List<LinearRing> expected = new List<LinearRing>()
         {
-            new List<Coordinate>() {
+            new LinearRing(new Coordinate[]
+            {
                 new(0, 0), new(0, 1), new(1, 1), new(1, 0), new(0, 0)
-            }
+            })
         };
 
         //Act
@@ -284,24 +290,26 @@ public class WeilerAthertonTests
     public void CornerCornerTest()
     {
         //Arrange
-        Coordinate[] clipped = 
+        Coordinate[] clipped =
         {
-            new(-2,0), new(0,0), new(0,3), new(2,3), new(2,-4), new(-2,0)
+            new(-2, 0), new(0, 0), new(0, 3), new(2, 3), new(2, -4), new(-2, 0)
         };
         LinearRing clippedRing = new LinearRing(clipped);
 
-        Coordinate[] cutting = 
+        Coordinate[] cutting =
         {
-            new(-2,-2), new(0,0), new(-2,2),new(3,2), new(3,-2), new(-2,-2)
+            new(-2, -2), new(0, 0), new(-2, 2), new(3, 2), new(3, -2), new(-2, -2)
         };
         LinearRing cuttingRing = new LinearRing(cutting);
 
-        List<IEnumerable<Coordinate>> expected = new List<IEnumerable<Coordinate>>()
+        List<LinearRing> expected = new List<LinearRing>()
         {
-            new List<Coordinate>() {
-                new(0, 0), new(0, 2), new(2, 2), new(2, -2), new(-1, -1), new(0,0)
-            }
+            new LinearRing(new Coordinate[]
+            {
+                new(0, 0), new(0, 2), new(2, 2), new(2, -2), new(-1, -1), new(0, 0)
+            })
         };
+
 
         //Act
         var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);

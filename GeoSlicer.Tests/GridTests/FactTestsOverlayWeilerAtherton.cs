@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using GeoSlicer.Utils;
 using GeoSlicer.Utils.Intersectors;
 using GeoSlicer.Utils.Intersectors.CoordinateComparators;
@@ -20,64 +21,67 @@ public class FactTestsOverlayWeilerAtherton
     public void CuttingInClippedByClock()
     {
         //Arrange
-        Coordinate[] clipped = 
+        Coordinate[] clipped =
         {
-            new (-4, 2), new (0, 2), new (4, 4), new (2, 0),
-            new (2, -4), new (-2, -4), new (-2, 0), new (-4, 2)
+            new(-4, 2), new(0, 2), new(4, 4), new(2, 0),
+            new(2, -4), new(-2, -4), new(-2, 0), new(-4, 2)
         };
         LinearRing clippedRing = new LinearRing(clipped);
         Coordinate[] cutting =
         {
-            new (-2, 2), new (2, 2), new (2, -2), new (-2, -2), new (-2, 2)
+            new(-2, 2), new(2, 2), new(2, -2), new(-2, -2), new(-2, 2)
         };
         LinearRing cuttingRing = new LinearRing(cutting);
-        List<List<Coordinate>> expected = new List<List<Coordinate>>()
+        List<LinearRing> expected = new List<LinearRing>()
         {
-            new List<Coordinate>(){
-                new (-2, 2), new (0, 2), new (2, 2), new (2, 0),
-                new (2, -2), new (-2, -2), new (-2, 0), new (-2, 2)
-            }
+            new LinearRing(new Coordinate[]
+                {
+                    new(-2, 2), new(0, 2), new(2, 2), new(2, 0),
+                    new(2, -2), new(-2, -2), new(-2, 0), new(-2, 2)
+                }
+            )
         };
-        
-        
+
+
         //Act
         var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
 
         //Assert
-        Assert.Equal(expected,actual);
+        Assert.Equal(expected, actual);
         Assert.Single(actual);
-       // Assert.True(actual[0].IsEqualsRing(expected));
+        // Assert.True(actual[0].IsEqualsRing(expected));
     }
 
     [Fact]
     public void ClippedInCuttingByClock()
     {
         //Arrange
-        Coordinate[] clipped = 
+        Coordinate[] clipped =
         {
-            new (-2, 2), new (2, 2), new (2, -2), new (-2, -2), new (-2, 2)
+            new(-2, 2), new(2, 2), new(2, -2), new(-2, -2), new(-2, 2)
         };
         LinearRing clippedRing = new LinearRing(clipped);
         Coordinate[] cutting =
         {
-            new (-4, 2), new (0, 2), new (4, 4), new (2, 0),
-            new (2, -4), new (-2, -4), new (-2, 0), new (-4, 2)
+            new(-4, 2), new(0, 2), new(4, 4), new(2, 0),
+            new(2, -4), new(-2, -4), new(-2, 0), new(-4, 2)
         };
         LinearRing cuttingRing = new LinearRing(cutting);
-        
-        List<List<Coordinate>> expected = new List<List<Coordinate>>()
+
+        List<LinearRing> expected = new List<LinearRing>()
         {
-            new List<Coordinate>(){
-                new (-2, 2), new (0, 2), new (2, 2), new (2, 0),
-                new (2, -2), new (-2, -2), new (-2, 0), new (-2, 2)
-            }
+            new LinearRing(new Coordinate[]
+            {
+                new(-2, 2), new(0, 2), new(2, 2), new(2, 0),
+                new(2, -2), new(-2, -2), new(-2, 0), new(-2, 2)
+            })
         };
-        
+
         //Act
         var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
 
         //Assert
-        Assert.Equal(expected,actual);
+        Assert.Equal(expected, actual);
         Assert.Single(actual);
         //Assert.True(actual[0].IsEqualsRing(expected));
     }
@@ -86,31 +90,32 @@ public class FactTestsOverlayWeilerAtherton
     public void CuttingInClippedNoByClock()
     {
         //Arrange
-        Coordinate[] clipped = 
+        Coordinate[] clipped =
         {
-            new (2, -4), new (2, 0), new (4, 4), new (0, 2),
-            new (-4, 2), new (-4, -2), new (0, -2), new (2, -4)
+            new(2, -4), new(2, 0), new(4, 4), new(0, 2),
+            new(-4, 2), new(-4, -2), new(0, -2), new(2, -4)
         };
         LinearRing clippedRing = new LinearRing(clipped);
         Coordinate[] cutting =
         {
-            new (2, -2), new (2, 2), new (-2, 2), new (-2, -2), new (2, -2)
+            new(2, -2), new(2, 2), new(-2, 2), new(-2, -2), new(2, -2)
         };
         LinearRing cuttingRing = new LinearRing(cutting);
-        
-        List<List<Coordinate>> expected = new List<List<Coordinate>>()
+
+        List<LinearRing> expected = new List<LinearRing>()
         {
-            new List<Coordinate>(){
-                new (2, -2), new (2, 0), new (2, 2), new (0, 2),
-                new (-2, 2), new (-2, -2), new (0, -2), new (2, -2)
-            }
+            new LinearRing(new Coordinate[]
+            {
+                new(2, -2), new(2, 0), new(2, 2), new(0, 2),
+                new(-2, 2), new(-2, -2), new(0, -2), new(2, -2)
+            })
         };
-        
+
         //Act
         var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
 
         //Assert
-        Assert.Equal(expected,actual);
+        Assert.Equal(expected, actual);
         Assert.Single(actual);
         //Assert.True(actual[0].IsEqualsRing(expected));
     }
@@ -119,31 +124,32 @@ public class FactTestsOverlayWeilerAtherton
     public void ClippedInCuttingNoByClock()
     {
         //Arrange
-        Coordinate[] clipped = 
+        Coordinate[] clipped =
         {
-            new (2, -2), new (2, 2), new (-2, 2), new (-2, -2), new (2, -2)
+            new(2, -2), new(2, 2), new(-2, 2), new(-2, -2), new(2, -2)
         };
         LinearRing clippedRing = new LinearRing(clipped);
         Coordinate[] cutting =
         {
-            new (2, -4), new (2, 0), new (4, 4), new (0, 2),
-                        new (-4, 2), new (-4, -2), new (0, -2), new (2, -4)
+            new(2, -4), new(2, 0), new(4, 4), new(0, 2),
+            new(-4, 2), new(-4, -2), new(0, -2), new(2, -4)
         };
         LinearRing cuttingRing = new LinearRing(cutting);
-        
-        List<List<Coordinate>> expected = new List<List<Coordinate>>()
+
+        List<LinearRing> expected = new List<LinearRing>()
         {
-            new List<Coordinate>(){
-                new (2, -2), new (2, 0), new (2, 2), new (0, 2),
-                new (-2, 2), new (-2, -2), new (0, -2), new (2, -2)
-            }
+            new LinearRing(new Coordinate[]
+            {
+                new(2, -2), new(2, 0), new(2, 2), new(0, 2),
+                new(-2, 2), new(-2, -2), new(0, -2), new(2, -2)
+            })
         };
-        
+
         //Act
         var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
 
         //Assert
-        Assert.Equal(expected,actual);
+        Assert.Equal(expected, actual);
         Assert.Single(actual);
         //Assert.True(actual[0].IsEqualsRing(expected));
     }
@@ -152,123 +158,127 @@ public class FactTestsOverlayWeilerAtherton
     public void TangentClippedUnderAndRighterThanCutting()
     {
         //Arrange
-        Coordinate[] clipped = 
+        Coordinate[] clipped =
         {
-            new (-2, 1), new (-1, 2), new (0, 1), new (-2, 1)
+            new(-2, 1), new(-1, 2), new(0, 1), new(-2, 1)
         };
         LinearRing clippedRing = new LinearRing(clipped);
         Coordinate[] cutting =
         {
-            new (-1, 1), new (1, 1), new (0, 0), new (-1, 1)
+            new(-1, 1), new(1, 1), new(0, 0), new(-1, 1)
         };
         LinearRing cuttingRing = new LinearRing(cutting);
-        
+
         List<List<Coordinate>> expected = new List<List<Coordinate>>()
         {
-            new List<Coordinate>(){
-                new (-1, 1), new (0, 1), new (-1, 1)
+            new List<Coordinate>()
+            {
+                new(-1, 1), new(0, 1), new(-1, 1)
             }
         };
-        
+
         //Act
         var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
 
         //Assert
         //Assert.Equal(expected,actual);
         Assert.Single(actual);
-        Assert.True(actual[0].IsEqualsRing(expected[0]));
+        Assert.True(actual.First().Coordinates.IsEqualsRing(expected[0]));
     }
 
     [Fact]
     public void TangentCuttingUnderAndRighterThanClipped()
     {
         //Arrange
-        Coordinate[] clipped = 
+        Coordinate[] clipped =
         {
-            new (-1, 1), new (1, 1), new (0, 0), new (-1, 1)
+            new(-1, 1), new(1, 1), new(0, 0), new(-1, 1)
         };
         LinearRing clippedRing = new LinearRing(clipped);
         Coordinate[] cutting =
         {
-            new (-2, 1), new (-1, 2), new (0, 1), new (-2, 1)
+            new(-2, 1), new(-1, 2), new(0, 1), new(-2, 1)
         };
         LinearRing cuttingRing = new LinearRing(cutting);
-        
+
         List<List<Coordinate>> expected = new List<List<Coordinate>>()
         {
-            new List<Coordinate>(){
-                new (-1, 1), new (0, 1), new (-1, 1)
+            new List<Coordinate>()
+            {
+                new(-1, 1), new(0, 1), new(-1, 1)
             }
         };
-        
+
         //Act
         var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
 
         //Assert
         //Assert.Equal(expected,actual);
         Assert.Single(actual);
-        Assert.True(actual[0].IsEqualsRing(expected[0]));
+        Assert.True(actual.First().Coordinates.IsEqualsRing(expected[0]));
     }
 
     [Fact]
     public void TangentClippedUnderAndLefterThanCutting()
     {
         //Arrange
-        Coordinate[] clipped = 
+        Coordinate[] clipped =
         {
-            new (-1, 1), new (1, 1), new (0, 0), new (-1, 1)
+            new(-1, 1), new(1, 1), new(0, 0), new(-1, 1)
         };
         LinearRing clippedRing = new LinearRing(clipped);
         Coordinate[] cutting =
         {
-            new (0, 1), new (1, 2), new (2, 1), new (0, 1)
+            new(0, 1), new(1, 2), new(2, 1), new(0, 1)
         };
         LinearRing cuttingRing = new LinearRing(cutting);
-        
+
         List<List<Coordinate>> expected = new List<List<Coordinate>>()
         {
-            new List<Coordinate>(){
-                new (1, 1), new (0, 1), new (1, 1)
+            new List<Coordinate>()
+            {
+                new(1, 1), new(0, 1), new(1, 1)
             }
         };
-        
+
         //Act
         var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
 
         //Assert
         //Assert.Equal(expected,actual);
         Assert.Single(actual);
-        Assert.True(actual[0].IsEqualsRing(expected[0]));
+        Assert.True(actual.First().Coordinates.IsEqualsRing(expected[0]));
     }
 
     [Fact]
     public void TangentCuttingUnderAndLefterThanClipped()
     {
         //Arrange
-        Coordinate[] clipped = 
+        Coordinate[] clipped =
         {
-            new (0, 1), new (1, 2), new (2, 1), new (0, 1)
+            new(0, 1), new(1, 2), new(2, 1), new(0, 1)
         };
         LinearRing clippedRing = new LinearRing(clipped);
         Coordinate[] cutting =
         {
-            new (-1, 1), new (1, 1), new (0, 0), new (-1, 1)
+            new(-1, 1), new(1, 1), new(0, 0), new(-1, 1)
         };
         LinearRing cuttingRing = new LinearRing(cutting);
-        
+
         List<List<Coordinate>> expected = new List<List<Coordinate>>()
         {
-            new List<Coordinate>(){
-                new (1, 1), new (0, 1), new (1, 1)
+            new List<Coordinate>()
+            {
+                new(1, 1), new(0, 1), new(1, 1)
             }
         };
-        
+
         //Act
         var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
 
         //Assert
         //Assert.Equal(expected,actual);
         Assert.Single(actual);
-        Assert.True(actual[0].IsEqualsRing(expected[0]));
+        Assert.True(actual.First().Coordinates.IsEqualsRing(expected[0]));
     }
 }

@@ -5,6 +5,7 @@ using NetTopologySuite.Geometries;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace GeoSlicer.GridSlicer;
 
@@ -91,7 +92,7 @@ public class GridSlicerHelper
 
 
     //На вход передаются координаты колец
-    public List<IEnumerable<Coordinate>> WeilerAtherton(
+    public IEnumerable<LinearRing> WeilerAtherton(
         LinearRing clippedCoordinates, LinearRing cuttingCoordinates)
     {
         //нужно, чтобы обход clipped и cutting был по часовой
@@ -292,9 +293,9 @@ public class GridSlicerHelper
         {
             if(IsPointInPolygon(clipped.First!.Value, cuttingCoordinates))
             {
-                return new List<IEnumerable<Coordinate>>() { clipped };
+                return new List<LinearRing>() { new (clipped.Select(support => (Coordinate)support).ToArray()) };
             }
-            return new List<IEnumerable<Coordinate>>() { cutting };
+            return new List<LinearRing>() { new (cutting.Select(support => (Coordinate)support).ToArray()) };
         }
 
         Print(clipped, cutting);
@@ -361,8 +362,7 @@ public class GridSlicerHelper
                 result.Add(figure);
             }
         }
-
-        return result;
+        return result.Select(enumerable => new LinearRing(enumerable.ToArray()));
     }
 
     void Print(LinkedList<CoordinateSupport> clipped, LinkedList<CoordinateSupport> cutting)
