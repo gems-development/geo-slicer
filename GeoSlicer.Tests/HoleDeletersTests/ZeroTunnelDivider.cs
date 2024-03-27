@@ -24,9 +24,7 @@ public class ZeroTunnelDivider
     
     public void DivideZeroTunnels(LinearRing ring, out LinearRing resultRing, out LinkedList<Coordinate> problemCoordinates)
     {
-        Coordinate[] oldCoordinates = ring.Coordinates;
-        Coordinate[] coordinates = new Coordinate[oldCoordinates.Length - 1];
-        Array.Copy(oldCoordinates, 0, coordinates, 0, coordinates.Length);
+        Coordinate[] coordinates = LinearRingToCoordinates(ring);
         problemCoordinates
             = new LinkedList<Coordinate>();
         for (int stepNumber = 0; stepNumber < _stepCharacteristic.Count; stepNumber++)
@@ -47,7 +45,8 @@ public class ZeroTunnelDivider
                                 _stepCharacteristic[stepNumber].stepSize))
                         {
                             if (stepNumber == _stepCharacteristic.Count - 1)
-                                problemCoordinates.AddFirst(coordinates[i]);
+                                //problemCoordinates.AddFirst(coordinates[i]);
+                                problemCoordinates.AddFirst(buff);
                             else coordinates[i] = buff;
                             stepNumberIterationHaveErrors = true;
                         }
@@ -60,44 +59,77 @@ public class ZeroTunnelDivider
                 break;
         }
 
-        Coordinate[] newCoordinates = new Coordinate[oldCoordinates.Length];
-        Array.Copy(coordinates, 0, newCoordinates, 0, coordinates.Length);
-        newCoordinates[newCoordinates.Length - 1] = coordinates[0];
-        resultRing = new LinearRing(newCoordinates);
+        resultRing = CoordinatesToLinearRing(coordinates);
     }
 
     // numbersOfEqualCoordsSecondCoord - номера координат, которые совпадают с координатой с номером secondCoordFirstTunnel
     // numbersOfEqualCoordsAdjacentCoord - номера координат, которые совпадают с координатой с номером coordAdjacentLine
     // в методе MoveCoordinate
     // метод пытается передвинуть точку под номером firstCoord по ступенькам. True в случае успеха, false иначе
+    private int b = 0;
+    int g = 0;
     private bool MoveCoordinate(Coordinate[] coordinates, int firstCoordinate, int countOfSteps, double stepSize)
     {
+        string user = "User";
+        string fileName = "C:\\Users\\" + user + "\\Downloads\\Telegram Desktop\\";
         LinkedList<int> numbersOfEqualCoordsSecondCoord = new LinkedList<int>();
         LinkedList<int> numbersOfEqualCoordsAdjacentCoord = new LinkedList<int>();
         int secondCoord = firstCoordinate + 1;
         FillNumbersOfEqualCoordinates(coordinates, secondCoord, numbersOfEqualCoordsSecondCoord);
         // номер второй координаты линии, смежной к проверяемой линии-(firstCoordFirstTunnel, secondCoordFirstTunnel)
-        int coordAdjacentLine = (2 * firstCoordinate - secondCoord + coordinates.Length - 1) %
-                                (coordinates.Length - 1);
+        int coordAdjacentLine = (firstCoordinate - 1 + coordinates.Length) % coordinates.Length;
         FillNumbersOfEqualCoordinates(coordinates, coordAdjacentLine, numbersOfEqualCoordsAdjacentCoord);
         
         var originalCoord = coordinates[firstCoordinate];
         bool correctMove = false;
+        bool thisFlag = false;
+        Coordinate debugСoordinate = new Coordinate(0.976076555023924, 1.210526315789474);
+        if (originalCoord.Equals2D(debugСoordinate, 1e-10))
+        {
+            b++;
+            Console.WriteLine(b);
+            thisFlag = true;
+        }
         // quarterNumber = номер четверти на координатной оси
         for (int quarterNumber = 1; quarterNumber <= 4; quarterNumber++)
         {
             Coordinate buffer = coordinates[firstCoordinate];
-            
             // stepNumber = номер ступеньки на которую передвигаем текущую координату
             for (int stepNumber = 0; stepNumber < countOfSteps; stepNumber++)
             {
                 MovePointUpTheStairs(coordinates, quarterNumber, stepNumber, firstCoordinate, stepSize);
+                if (b == 1 && thisFlag)
+                {
+                    var newArr = new Coordinate[coordinates.Length];
+                    Array.Copy(coordinates, newArr, coordinates.Length);
+                    ShiftArray(newArr, 10);
+                    GeoJsonFileService.GeoJsonFileService.WriteGeometryToFile(
+                        CoordinatesToLinearRing(newArr), fileName + "daniilTestAfter" + b + "_" + ++g);
+                    if (b == 1 && g == 2)
+                        Console.WriteLine("debug");
+                }
                 if (CheckIntersects(coordinates, firstCoordinate, secondCoord, coordAdjacentLine,
                         numbersOfEqualCoordsSecondCoord, numbersOfEqualCoordsAdjacentCoord))
                 {
+                    if (thisFlag)
+                    {
+                        var newArr = new Coordinate[coordinates.Length];
+                        Array.Copy(coordinates, newArr, coordinates.Length);
+                        ShiftArray(newArr, 10);
+                        GeoJsonFileService.GeoJsonFileService.WriteGeometryToFile(
+                            CoordinatesToLinearRing(newArr), fileName + "daniilTestAfter" + b);
+                    }
                     if (correctMove)
                     {
                         coordinates[firstCoordinate] = buffer;
+                        if (thisFlag)
+                        {
+                            var newArr = new Coordinate[coordinates.Length];
+                            Array.Copy(coordinates, newArr, coordinates.Length);
+                            ShiftArray(newArr, 10);
+                            GeoJsonFileService.GeoJsonFileService.WriteGeometryToFile(
+                                CoordinatesToLinearRing(newArr), fileName + "daniilTestAfter" + b);
+                        }
                         return true;
                     }
                 }
@@ -110,6 +142,14 @@ public class ZeroTunnelDivider
 
             if (correctMove)
             {
+                if (thisFlag)
+                {
+                    var newArr = new Coordinate[coordinates.Length];
+                    Array.Copy(coordinates, newArr, coordinates.Length);
+                    ShiftArray(newArr, 10);
+                    GeoJsonFileService.GeoJsonFileService.WriteGeometryToFile(
+                        CoordinatesToLinearRing(newArr), fileName + "daniilTestAfter" + b);
+                }
                 return true;
             }
             if (quarterNumber != 4) 
@@ -126,39 +166,49 @@ public class ZeroTunnelDivider
         LinkedList<int> numbersOfEqualCoordsSecondCoord,
         LinkedList<int> numbersOfEqualCoordsAdjacentCoord)
     {
-        for (int i = 0; i < coordinates.Length - 1; i++)
+        for (int i = 0; i < coordinates.Length; i++)
         {
+            if (b == 1 && g == 1 && i == 42)
+                Console.WriteLine("bug");
             if (!EqualLines(
                     i, 
-                    i + 1, 
+                    (i + 1) % coordinates.Length, 
                     firstCoord, 
                     secondCoord) &&
                 !EqualLines(
                     i, 
-                    i + 1, 
+                    (i + 1) % coordinates.Length, 
                     coordAdjacentLine, 
                     firstCoord))
             {
-                bool res1 = CheckIntersectsLine(i, firstCoord, secondCoord, coordinates,
+                bool res1 = CheckIntersectsLine(
+                    i, (i + 1) % coordinates.Length,
+                    firstCoord, secondCoord,
+                    coordinates,
                     numbersOfEqualCoordsSecondCoord);
                 
-                bool res2 = CheckIntersectsLine(i, firstCoord, coordAdjacentLine, coordinates,
+                bool res2 = CheckIntersectsLine(
+                    i, (i + 1) % coordinates.Length,
+                    firstCoord, coordAdjacentLine,
+                    coordinates,
                     numbersOfEqualCoordsAdjacentCoord);
-                
+
                 if (res1 || res2)
+                {
                     return true;
+                }
             }
         }
         return false;
     }
 
     private bool CheckIntersectsLine(
-        int coordLineChecked, int firstCoordFirstTunnel, int secondCoordFirstTunnel,
+        int firstCoordLineChecked, int secondCoordLineChecked, int firstCoordFirstTunnel, int secondCoordFirstTunnel,
         Coordinate[] coordinates, LinkedList<int> numberOfEqualCoordinates)
     {
         var intersectionType = _intersector.GetIntersection(
-                        coordinates[coordLineChecked],
-                        coordinates[coordLineChecked + 1],
+                        coordinates[firstCoordLineChecked],
+                        coordinates[secondCoordLineChecked],
                         coordinates[firstCoordFirstTunnel], 
                         coordinates[secondCoordFirstTunnel]);
         var intersection = intersectionType.Item1;
@@ -172,8 +222,8 @@ public class ZeroTunnelDivider
             }
             // Дальше пересечение либо corner, либо extension
             if (!LinesFollowEachOther(
-                    coordLineChecked, 
-                    coordLineChecked + 1, 
+                    firstCoordLineChecked, 
+                    secondCoordLineChecked, 
                     firstCoordFirstTunnel, 
                     secondCoordFirstTunnel))
                     
@@ -183,7 +233,10 @@ public class ZeroTunnelDivider
                 foreach (var number in numberOfEqualCoordinates)
                 {
                     if (coordinates[number].Equals2D(intersectionPoint, _tolerance))
+                    {
                         flag = true;
+                        break;
+                    }
                 }
                 if (!flag)
                 {
@@ -245,6 +298,43 @@ public class ZeroTunnelDivider
             else if (quarterNumber == 3 || quarterNumber == 4)
                 coordinates[firstCoordFirstTunnel] = new Coordinate(
                     coordinates[firstCoordFirstTunnel].X,coordinates[firstCoordFirstTunnel].Y - stepSize);
+        }
+    }
+    //Метод принимается массив координат, в котором последний элемент не равен первой координате.
+    //Преобразует его в LinearRing.
+    private LinearRing CoordinatesToLinearRing(Coordinate[] coordinates)
+    {
+        Coordinate[] newCoordinates = new Coordinate[coordinates.Length + 1];
+        Array.Copy(coordinates, 0, newCoordinates, 0, coordinates.Length);
+        newCoordinates[newCoordinates.Length - 1] = coordinates[0];
+        return new LinearRing(newCoordinates);
+    }
+    //Метод преобразует ring в массив координат, в котором последняя координата не равна первой.
+    private Coordinate[] LinearRingToCoordinates(LinearRing ring)
+    {
+        Coordinate[] oldCoordinates = ring.Coordinates;
+        Coordinate[] coordinates = new Coordinate[oldCoordinates.Length - 1];
+        Array.Copy(oldCoordinates, 0, coordinates, 0, coordinates.Length);
+        return coordinates;
+    }
+
+    private void ShiftArray<T>(T[] array, int diff)
+    {
+        if (diff > 0) 
+        {
+            //Сдвигаем влево
+            var temp = new T[diff];
+            Array.Copy(array, temp, diff);
+            Array.Copy(array, diff, array, 0, array.Length - diff);
+            Array.Copy(temp, 0, array, array.Length - diff, temp.Length);
+        } else
+        {
+            //Сдвигаем вправо
+            diff = -diff;
+            var temp = new T[diff];
+            Array.Copy(array, array.Length - diff, temp, 0, diff);
+            Array.Copy(array, 0, array, diff, array.Length - diff);
+            Array.Copy(temp, 0, array, 0, temp.Length);
         }
     }
 }
