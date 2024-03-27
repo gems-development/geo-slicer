@@ -12,7 +12,7 @@ public class WeilerAthertonTests
 
     private static readonly LineService LineService = new LineService(Epsilon);
 
-    private static readonly GridSlicer.GridSlicer Slicer =
+    private static readonly GridSlicer.GridSlicerHelper SlicerHelper =
         new(new LinesIntersector(new EpsilonCoordinateComparator(Epsilon), LineService, Epsilon), Epsilon, LineService, new EpsilonCoordinateComparator());
 
     [Fact]
@@ -38,7 +38,7 @@ public class WeilerAthertonTests
         };
 
         //Act
-        var figures = Slicer.WeilerAtherton(clipped, cutting);
+        var figures = SlicerHelper.WeilerAtherton(clipped, cutting);
 
         //Assert
         Assert.Equal(expected, figures);
@@ -67,7 +67,7 @@ public class WeilerAthertonTests
         };
 
         //Act
-        var figures = Slicer.WeilerAtherton(clipped, cutting);
+        var figures = SlicerHelper.WeilerAtherton(clipped, cutting);
 
         //Assert
         Assert.Equal(expected, figures);
@@ -100,7 +100,7 @@ public class WeilerAthertonTests
         };
 
         //Act
-        var figures = Slicer.WeilerAtherton(clipped, cutting);
+        var figures = SlicerHelper.WeilerAtherton(clipped, cutting);
 
         //Assert
         Assert.Equal(expected, figures);
@@ -128,7 +128,7 @@ public class WeilerAthertonTests
         };
 
         //Act
-        var figures = Slicer.WeilerAtherton(clipped, cutting);
+        var figures = SlicerHelper.WeilerAtherton(clipped, cutting);
 
         //Assert
         Assert.Equal(expected, figures);
@@ -156,7 +156,7 @@ public class WeilerAthertonTests
         };
 
         //Act
-        var figures = Slicer.WeilerAtherton(clipped, cutting);
+        var figures = SlicerHelper.WeilerAtherton(clipped, cutting);
 
         //Assert
         Assert.Equal(expected, figures);
@@ -183,7 +183,7 @@ public class WeilerAthertonTests
         };
 
         //Act
-        var figures = Slicer.WeilerAtherton(clipped, cutting);
+        var figures = SlicerHelper.WeilerAtherton(clipped, cutting);
 
         //Assert
         Assert.Equal(expected, figures);
@@ -209,7 +209,7 @@ public class WeilerAthertonTests
         };
 
         //Act
-        var figures = Slicer.WeilerAtherton(clipped, cutting);
+        var figures = SlicerHelper.WeilerAtherton(clipped, cutting);
 
         //Assert
         Assert.Equal(expected, figures);
@@ -237,7 +237,7 @@ public class WeilerAthertonTests
         };
 
         //Act
-        var figures = Slicer.WeilerAtherton(clipped, cutting);
+        var figures = SlicerHelper.WeilerAtherton(clipped, cutting);
 
         //Assert
         Assert.Equal(expected, figures);
@@ -265,9 +265,39 @@ public class WeilerAthertonTests
         };
 
         //Act
-        var figures = Slicer.WeilerAtherton(clipped, cutting);
+        var figures = SlicerHelper.WeilerAtherton(clipped, cutting);
 
         //Assert
         Assert.Equal(expected, figures);
+    }
+
+    [Fact]
+    public void CornerCornerTest()
+    {
+        //Arrange
+        Coordinate[] clipped = 
+        {
+            new(-2,0), new(0,0), new(0,3), new(2,3), new(2,-4), new(-2,0)
+        };
+        LinearRing clippedRing = new LinearRing(clipped);
+
+        Coordinate[] cutting = 
+        {
+            new(-2,-2), new(0,0), new(-2,2),new(3,2), new(3,-2), new(-2,-2)
+        };
+        LinearRing cuttingRing = new LinearRing(cutting);
+
+        List<IEnumerable<Coordinate>> expected = new List<IEnumerable<Coordinate>>()
+        {
+            new List<Coordinate>() {
+                new(0, 0), new(0, 2), new(2, 2), new(2, -2), new(-1, -1), new(0,0)
+            }
+        };
+
+        //Act
+        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+
+        //Assert
+        Assert.Equal(expected, actual);
     }
 }
