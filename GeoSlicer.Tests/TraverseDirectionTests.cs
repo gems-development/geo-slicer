@@ -80,7 +80,7 @@ public class TraverseDirectionTests
 
         LinearRing expectedRing = new LinearRing(expectedCoordinates);
 
-        TraverseDirection.ChangeDirection(ring);
+        _traverseDirection.ChangeDirection(ring);
 
         Assert.Equal(expectedRing, ring);
     }
@@ -104,7 +104,7 @@ public class TraverseDirectionTests
 
         LinearRing expectedRing = new LinearRing(expectedCoordinates);
 
-        TraverseDirection.ChangeDirection(ring);
+        _traverseDirection.ChangeDirection(ring);
 
         Assert.Equal(expectedRing, ring);
     }
