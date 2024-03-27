@@ -152,7 +152,7 @@ public class Slicer
 
     public List<LinearRing> Slice(LinearRing ring)
     {
-        if (!_traverseDirection.IsClockwiseBypass(ring)) TraverseDirection.ChangeDirection(ring);
+        if (!_traverseDirection.IsClockwiseBypass(ring)) _traverseDirection.ChangeDirection(ring);
         //Список особых точек
         var listSpecialPoints = _helper.GetSpecialPoints(ring);
         int ringCount = ring.Count;
