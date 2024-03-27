@@ -1,5 +1,4 @@
 ﻿using System;
-using GeoSlicer.Utils.Intersectors.CoordinateComparators;
 using NetTopologySuite.Geometries;
 
 namespace GeoSlicer.Utils.Intersectors;

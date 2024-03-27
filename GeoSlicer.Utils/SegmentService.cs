@@ -11,7 +11,7 @@ public class SegmentService
     {
         _lineService = lineService;
     }
-    
+
     public LinearRing IgnoreInnerPointsOfSegment(LinearRing ring)
     {
         if (ring.Count < 4)
@@ -52,7 +52,7 @@ public class SegmentService
 
         res[j] = res[0];
 
-        return new LinearRing(res);
+        return res.Length <= 3 ? ring : new LinearRing(res);
     }
 
     private static double? CalculatePhiFromZeroTo2Pi(double x, double y)
@@ -83,7 +83,6 @@ public class SegmentService
         };
     }
 
-    // todo поработать в каноническом виде
     public static bool InsideTheAngle(
         Coordinate vectorPointA1,
         Coordinate vectorPointA2,

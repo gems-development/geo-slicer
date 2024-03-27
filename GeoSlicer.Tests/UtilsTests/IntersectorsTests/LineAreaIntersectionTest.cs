@@ -11,7 +11,7 @@ public class LineAreaIntersectionTest
     private static readonly EpsilonCoordinateComparator EpsilonCoordinateComparator = new(Epsilon);
 
     private static readonly LineAreaIntersector LineAreaIntersector =
-        new(EpsilonCoordinateComparator, new LineService(1E-5), Epsilon);
+        new(new LineService(1E-5), Epsilon);
 
     [Theory]
     [InlineData(0, 2, 2, 0, 0, 2, 2, 0, LineAreaIntersectionType.Inside)]
@@ -28,7 +28,7 @@ public class LineAreaIntersectionTest
         Coordinate b2 = new Coordinate(b2X, b2Y);
         Assert.True(LineAreaIntersector.CheckIntersection(expectedType, a1, a2, b1, b2));
     }
-    
+
     [Theory]
     [InlineData(0, 2, 2, 0, 1, 1, 2, 5, LineAreaIntersectionType.PartlyInside)]
     [InlineData(0, 2, 2, 0, 1, 1, 3, 1, LineAreaIntersectionType.PartlyInside)]
@@ -43,7 +43,7 @@ public class LineAreaIntersectionTest
         Coordinate b2 = new Coordinate(b2X, b2Y);
         Assert.True(LineAreaIntersector.CheckIntersection(expectedType, a1, a2, b1, b2));
     }
-    
+
     [Theory]
     [InlineData(0, 2, 2, 0, -1, 1, 3, 1, LineAreaIntersectionType.Overlay)]
     [InlineData(0, 3, 2, 0, -2, 4, 4, -1, LineAreaIntersectionType.Overlay)]

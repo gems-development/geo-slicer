@@ -1,5 +1,4 @@
 ﻿using System;
-using GeoSlicer.Utils.Intersectors.CoordinateComparators;
 using NetTopologySuite.Geometries;
 
 namespace GeoSlicer.Utils.Intersectors;
@@ -8,14 +7,10 @@ public class LineAreaIntersector
 {
     private readonly double _epsilon;
 
-    private readonly ICoordinateComparator _coordinateComparator;
-    private readonly EpsilonCoordinateComparator _epsilonCoordinateComparator;
     private readonly LineService _lineService;
 
-    public LineAreaIntersector(ICoordinateComparator coordinateComparator, LineService lineService, double epsilon)
+    public LineAreaIntersector(LineService lineService, double epsilon)
     {
-        _coordinateComparator = coordinateComparator;
-        _epsilonCoordinateComparator = new EpsilonCoordinateComparator(epsilon);
         _epsilon = epsilon;
         _lineService = lineService;
     }
@@ -59,20 +54,29 @@ public class LineAreaIntersector
 
         if (_lineService.IsCoordinateInSegmentBorders(areaLinePoint1, currentLinePoint1, currentLinePoint2)
             || _lineService.IsCoordinateInSegmentBorders(areaLinePoint2, currentLinePoint1, currentLinePoint2)
-            || _lineService.IsCoordinateInSegmentBorders(areaLinePoint1.X, areaLinePoint2.Y, currentLinePoint1, currentLinePoint2)
-            || _lineService.IsCoordinateInSegmentBorders(areaLinePoint2.X, areaLinePoint1.Y, currentLinePoint1, currentLinePoint2))
+            || _lineService.IsCoordinateInSegmentBorders(areaLinePoint1.X, areaLinePoint2.Y, currentLinePoint1,
+                currentLinePoint2)
+            || _lineService.IsCoordinateInSegmentBorders(areaLinePoint2.X, areaLinePoint1.Y, currentLinePoint1,
+                currentLinePoint2))
         {
-            return !_lineService.IsRectangleOnOneSideOfLine(currentLinePoint1, currentLinePoint2, 
-                areaLinePoint1, areaLinePoint2) ? LineAreaIntersectionType.Overlay : LineAreaIntersectionType.Outside;
+            return !_lineService.IsRectangleOnOneSideOfLine(currentLinePoint1, currentLinePoint2,
+                areaLinePoint1, areaLinePoint2)
+                ? LineAreaIntersectionType.Overlay
+                : LineAreaIntersectionType.Outside;
         }
 
-        if (Math.Min(currentLinePoint1.X, currentLinePoint2.X) <= Math.Min(areaLinePoint1.X, areaLinePoint2.X) + _epsilon
-            && Math.Max(currentLinePoint1.X, currentLinePoint2.X) >= Math.Max(areaLinePoint1.X, areaLinePoint2.X) - _epsilon
-            && Math.Min(currentLinePoint1.Y, currentLinePoint2.Y) >= Math.Min(areaLinePoint1.Y, areaLinePoint2.Y) - _epsilon
-            && Math.Max(currentLinePoint1.Y, currentLinePoint2.Y) <= Math.Max(areaLinePoint1.Y, areaLinePoint2.Y) + _epsilon)
+        if (Math.Min(currentLinePoint1.X, currentLinePoint2.X) <=
+            Math.Min(areaLinePoint1.X, areaLinePoint2.X) + _epsilon
+            && Math.Max(currentLinePoint1.X, currentLinePoint2.X) >=
+            Math.Max(areaLinePoint1.X, areaLinePoint2.X) - _epsilon
+            && Math.Min(currentLinePoint1.Y, currentLinePoint2.Y) >=
+            Math.Min(areaLinePoint1.Y, areaLinePoint2.Y) - _epsilon
+            && Math.Max(currentLinePoint1.Y, currentLinePoint2.Y) <=
+            Math.Max(areaLinePoint1.Y, areaLinePoint2.Y) + _epsilon)
         {
             return LineAreaIntersectionType.Overlay;
         }
+
         return LineAreaIntersectionType.Outside;
     }
 }
