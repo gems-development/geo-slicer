@@ -66,12 +66,8 @@ public class ZeroTunnelDivider
     // numbersOfEqualCoordsAdjacentCoord - номера координат, которые совпадают с координатой с номером coordAdjacentLine
     // в методе MoveCoordinate
     // метод пытается передвинуть точку под номером firstCoord по ступенькам. True в случае успеха, false иначе
-    private int b = 0;
-    int g = 0;
     private bool MoveCoordinate(Coordinate[] coordinates, int firstCoordinate, int countOfSteps, double stepSize)
     {
-        string user = "User";
-        string fileName = "C:\\Users\\" + user + "\\Downloads\\Telegram Desktop\\";
         LinkedList<int> numbersOfEqualCoordsSecondCoord = new LinkedList<int>();
         LinkedList<int> numbersOfEqualCoordsAdjacentCoord = new LinkedList<int>();
         int secondCoord = firstCoordinate + 1;
@@ -82,14 +78,6 @@ public class ZeroTunnelDivider
         
         var originalCoord = coordinates[firstCoordinate];
         bool correctMove = false;
-        bool thisFlag = false;
-        Coordinate debugСoordinate = new Coordinate(0.976076555023924, 1.210526315789474);
-        if (originalCoord.Equals2D(debugСoordinate, 1e-10))
-        {
-            b++;
-            Console.WriteLine(b);
-            thisFlag = true;
-        }
         // quarterNumber = номер четверти на координатной оси
         for (int quarterNumber = 1; quarterNumber <= 4; quarterNumber++)
         {
@@ -98,38 +86,12 @@ public class ZeroTunnelDivider
             for (int stepNumber = 0; stepNumber < countOfSteps; stepNumber++)
             {
                 MovePointUpTheStairs(coordinates, quarterNumber, stepNumber, firstCoordinate, stepSize);
-                if (b == 1 && thisFlag)
-                {
-                    var newArr = new Coordinate[coordinates.Length];
-                    Array.Copy(coordinates, newArr, coordinates.Length);
-                    ShiftArray(newArr, 10);
-                    GeoJsonFileService.GeoJsonFileService.WriteGeometryToFile(
-                        CoordinatesToLinearRing(newArr), fileName + "daniilTestAfter" + b + "_" + ++g);
-                    if (b == 1 && g == 2)
-                        Console.WriteLine("debug");
-                }
                 if (CheckIntersects(coordinates, firstCoordinate, secondCoord, coordAdjacentLine,
                         numbersOfEqualCoordsSecondCoord, numbersOfEqualCoordsAdjacentCoord))
                 {
-                    if (thisFlag)
-                    {
-                        var newArr = new Coordinate[coordinates.Length];
-                        Array.Copy(coordinates, newArr, coordinates.Length);
-                        ShiftArray(newArr, 10);
-                        GeoJsonFileService.GeoJsonFileService.WriteGeometryToFile(
-                            CoordinatesToLinearRing(newArr), fileName + "daniilTestAfter" + b);
-                    }
                     if (correctMove)
                     {
                         coordinates[firstCoordinate] = buffer;
-                        if (thisFlag)
-                        {
-                            var newArr = new Coordinate[coordinates.Length];
-                            Array.Copy(coordinates, newArr, coordinates.Length);
-                            ShiftArray(newArr, 10);
-                            GeoJsonFileService.GeoJsonFileService.WriteGeometryToFile(
-                                CoordinatesToLinearRing(newArr), fileName + "daniilTestAfter" + b);
-                        }
                         return true;
                     }
                 }
@@ -142,14 +104,6 @@ public class ZeroTunnelDivider
 
             if (correctMove)
             {
-                if (thisFlag)
-                {
-                    var newArr = new Coordinate[coordinates.Length];
-                    Array.Copy(coordinates, newArr, coordinates.Length);
-                    ShiftArray(newArr, 10);
-                    GeoJsonFileService.GeoJsonFileService.WriteGeometryToFile(
-                        CoordinatesToLinearRing(newArr), fileName + "daniilTestAfter" + b);
-                }
                 return true;
             }
             if (quarterNumber != 4) 
@@ -168,8 +122,6 @@ public class ZeroTunnelDivider
     {
         for (int i = 0; i < coordinates.Length; i++)
         {
-            if (b == 1 && g == 1 && i == 42)
-                Console.WriteLine("bug");
             if (!EqualLines(
                     i, 
                     (i + 1) % coordinates.Length, 

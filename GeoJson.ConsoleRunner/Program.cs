@@ -12,7 +12,7 @@ string user = "User";
 string fileName = "C:\\Users\\" + user + "\\Downloads\\Telegram Desktop\\";
 var featureCollection = GeoJsonFileService
     .ReadGeometryFromFile<FeatureCollection>
-        ("TestFiles\\test2_geojson.geojson");
+        ("TestFiles\\test_final_geojson.geojson");
 var polygon = (Polygon)((MultiPolygon)featureCollection[0].Geometry)[0];
 
 
@@ -20,11 +20,13 @@ TraverseDirection Traverse = new (new LineService(1e-15));
 BoundingHoleDeleter Deleter = new (Traverse);
 
 IList<(int countOfSteps, double stepSize)> stepCharacteristic = new List<(int countOfSteps, double stepSize)>();
-int countOfSteps = 3;
+int countOfSteps = 15;
 stepCharacteristic.Add((countOfSteps, 0.000_1));
 stepCharacteristic.Add((countOfSteps, 0.000_001));
 stepCharacteristic.Add((countOfSteps, 0.000_000_1));
 stepCharacteristic.Add((countOfSteps, 0.000_000_01));
+stepCharacteristic.Add((countOfSteps, 0.000_000_001));
+stepCharacteristic.Add((countOfSteps, 0.000_000_000_1));
         
 double epsilon = 1e-15;
 var zeroDivider = new ZeroTunnelDivider(
@@ -49,6 +51,7 @@ list1.First.Value.Ring = list1.First.Value.Ring.Next.Next.Next.Next.Next.Next;
 list2.First.Value.Ring = list2.First.Value.Ring.Next.Next.Next.Next.Next.Next;
 GeoJsonFileService.WriteGeometryToFile(BoundingRing.BoundRingsToPolygon(list1), fileName + "daniilTest");
 GeoJsonFileService.WriteGeometryToFile(BoundingRing.BoundRingsToPolygon(list2), fileName + "daniilTestAfter");
+Console.WriteLine(BoundingRing.BoundRingsToPolygon(list2).IsValid);
 //GeoJsonFileService.WriteGeometryToFile(res, fileName + "daniilTest");
 //GeoJsonFileService.WriteGeometryToFile(resultRing, fileName + "daniilTestAfter");
 
