@@ -20,6 +20,7 @@ public class IsCoordinateInSegmentTests
         bool actual = _lineService.IsCoordinateInSegment(a, b, c);
         Assert.True(actual);
     }
+
     [Theory]
     [InlineData(0, 0, -1.5, -1, 1, 1)]
     [InlineData(2, 2, -1, -1, 1, 1)]
@@ -38,7 +39,6 @@ public class IsCoordinateInSegmentTests
     [InlineData(2, 2, -1, -1, 1, 1)]
     [InlineData(1.2, 0.9, -1, 2, 1, 1)]
     [InlineData(0, 0, -1, -1, 1, 1)]
-
     private void AtLine(double ax, double ay, double bx, double by, double cx, double cy)
     {
         Coordinate a = new Coordinate(ax, ay);
@@ -47,14 +47,12 @@ public class IsCoordinateInSegmentTests
 
         bool actual = _lineService.IsCoordinateAtLine(a, b, c);
         Assert.True(actual);
-        
     }
 
     [Theory]
     [InlineData(2, 1, -1, -1, 1, 1)]
     [InlineData(1.2, 0.8, -1, 2, 1.1, 1)]
     [InlineData(0, 0, -1.1, -1, 1, 1)]
-
     private void NotAtLine(double ax, double ay, double bx, double by, double cx, double cy)
     {
         Coordinate a = new Coordinate(ax, ay);
@@ -63,7 +61,5 @@ public class IsCoordinateInSegmentTests
 
         bool actual = _lineService.IsCoordinateAtLine(a, b, c);
         Assert.False(actual);
-        
     }
-
 }

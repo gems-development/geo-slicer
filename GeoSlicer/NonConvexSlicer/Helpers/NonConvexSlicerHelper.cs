@@ -3,25 +3,37 @@ using GeoSlicer.Utils;
 using GeoSlicer.Utils.Intersectors;
 using NetTopologySuite.Geometries;
 using static GeoSlicer.Utils.SegmentService;
-using LineIntersector = GeoSlicer.Utils.Intersectors.LineIntersector;
 
 namespace GeoSlicer.NonConvexSlicer.Helpers;
 
 public class NonConvexSlicerHelper
 {
-    private const IntersectionType SuitableIntersectionType = IntersectionType.Inner | IntersectionType.TyShaped |
-                                                              IntersectionType.Contains | IntersectionType.Part |
-                                                              IntersectionType.Overlay;
+    private const LinesIntersectionType SuitableLineLineIntersectionType =
+        LinesIntersectionType.Inner | LinesIntersectionType.TyShaped |
+        LinesIntersectionType.Contains | LinesIntersectionType.Part |
+        LinesIntersectionType.Overlay;
 
-    private readonly LineIntersector _lineIntersector;
+    private const AreasIntersectionType SuitableAreaAreaIntersectionType = AreasIntersectionType.Inside;
+    private readonly LinesIntersector _linesIntersector;
+    private readonly AreasIntersector _areasIntersector = new();
     private readonly LineService _lineService;
 
     public NonConvexSlicerHelper(
-        LineIntersector lineIntersector, 
+        LinesIntersector linesIntersector,
         LineService lineService)
     {
-        _lineIntersector = lineIntersector;
+        _linesIntersector = linesIntersector;
         _lineService = lineService;
+    }
+
+    public bool CurrentPointIsSpecial(Coordinate previousPoint, Coordinate currentPoint, Coordinate nextPoint)
+    {
+        return _lineService.VectorProduct(
+            currentPoint.X - previousPoint.X,
+            currentPoint.Y - previousPoint.Y,
+            nextPoint.X - currentPoint.X,
+            nextPoint.Y - currentPoint.Y
+        ) >= 0;
     }
 
     public List<CoordinatePcn> GetSpecialPoints(LinearRing ring)
@@ -31,13 +43,10 @@ public class NonConvexSlicerHelper
         for (var i = 0; i < coordinates.Length - 1; ++i)
         {
             if (_lineService.VectorProduct(
-                    new Coordinate(
-                        coordinates[i].X -
-                        coordinates[(i - 1 + coordinates.Length - 1) % (coordinates.Length - 1)].X,
-                        coordinates[i].Y -
-                        coordinates[(i - 1 + coordinates.Length - 1) % (coordinates.Length - 1)].Y),
-                    new Coordinate(coordinates[(i + 1) % (coordinates.Length - 1)].X - coordinates[i].X,
-                        coordinates[(i + 1) % (coordinates.Length - 1)].Y - coordinates[i].Y)
+                    coordinates[i].X - coordinates[(i - 1 + coordinates.Length - 1) % (coordinates.Length - 1)].X,
+                    coordinates[i].Y - coordinates[(i - 1 + coordinates.Length - 1) % (coordinates.Length - 1)].Y,
+                    coordinates[(i + 1) % (coordinates.Length - 1)].X - coordinates[i].X,
+                    coordinates[(i + 1) % (coordinates.Length - 1)].Y - coordinates[i].Y
                 ) >= 0)
             {
                 list.Add(new CoordinatePcn(coordinates[i].X, coordinates[i].Y, c: i));
@@ -70,16 +79,22 @@ public class NonConvexSlicerHelper
         {
             var firstCoord = ring[index];
             var secondCoord = ring[firstCoord.Nl];
-            if (_lineIntersector.CheckIntersection(SuitableIntersectionType,
+            if (_areasIntersector.CheckIntersection(SuitableAreaAreaIntersectionType,
                     coordCurrent, coordNext, firstCoord, secondCoord))
             {
-                return true;
+                if (_linesIntersector.CheckIntersection(SuitableLineLineIntersectionType,
+                        coordCurrent, coordNext, firstCoord, secondCoord))
+                {
+                    return true;
+                }
             }
 
             index = secondCoord.C;
         }
 
-        return _lineIntersector.CheckIntersection(SuitableIntersectionType,
-            coordCurrent, coordNext, ring[index], coordCurrent);
+        return _areasIntersector.CheckIntersection(SuitableAreaAreaIntersectionType,
+                   coordCurrent, coordNext, ring[index], coordCurrent) &&
+               _linesIntersector.CheckIntersection(SuitableLineLineIntersectionType,
+                   coordCurrent, coordNext, ring[index], coordCurrent);
     }
 }

@@ -44,12 +44,13 @@ public class TraverseDirection
         return _lineService.VectorProduct(vecAb, vecBc) < 0;
     }
 
-    public static void ChangeDirection(LinearRing ring)
+    public void ChangeDirection(LinearRing ring)
     {
         Coordinate[] coordinates = ring.Coordinates;
         for (var i = 1; i < (coordinates.Length - 2) / 2 + 1; i++)
         {
-            (coordinates[i], coordinates[coordinates.Length - 1 - i]) = (coordinates[coordinates.Length - 1 - i], coordinates[i]);
+            (coordinates[i], coordinates[coordinates.Length - 1 - i]) =
+                (coordinates[coordinates.Length - 1 - i], coordinates[i]);
         }
     }
 }
