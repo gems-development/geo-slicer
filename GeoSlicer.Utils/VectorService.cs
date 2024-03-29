@@ -7,17 +7,15 @@ public static class VectorService
 {
     //Перемещает координату firstCoord по биссектрисе угла, образуемого прямыми (coordAdjacentLine, firstCoord)
     //и (firstCoord, secondCoord), на длинну stepSize.
-    //Направление перемещения не определено(например метод может сдвинуть точку не внутрь угла).
-    //Чтобы переместить в другом направлении, поменяйте флаг direction на false.
+    //Возвращает массив из двух координат - сдвинутую координату внутрь угла и за угол, либо наоборот.
     //С погрешностью tolerance сравнивается угол между  прямыми (coordAdjacentLine, firstCoord) и (firstCoord, secondCoord)
     //на равенство со 180°.
-    public static Coordinate ShiftPointAlongBisector(
+    public static Coordinate[] ShiftPointAlongBisector(
         Coordinate coordAdjacentLine,
         Coordinate firstCoord, 
         Coordinate secondCoord,
         double stepSize,
-        double tolerance, 
-        bool direction = true)
+        double tolerance)
     {
         double x1 = firstCoord.X - coordAdjacentLine.X;
         double y1 = firstCoord.Y - coordAdjacentLine.Y;
@@ -42,13 +40,11 @@ public static class VectorService
         OrthonormalizeVector(ref shearVectorX, ref shearVectorY);
         shearVectorX *= stepSize;
         shearVectorY *= stepSize;
-        if (!direction)
-        {
-            shearVectorX *= -1;
-            shearVectorY *= -1;
-        }
 
-        return new Coordinate(firstCoord.X + shearVectorX, firstCoord.Y+ shearVectorY);
+        Coordinate[] res = new Coordinate[2];
+        res[0] = new Coordinate(firstCoord.X + shearVectorX, firstCoord.Y + shearVectorY);
+        res[1] = new Coordinate(firstCoord.X - shearVectorX, firstCoord.Y - shearVectorY);
+        return res;
     }
 
     public static void RotateVector90Degrees(double x1, double y1, out double x2, out double y2)

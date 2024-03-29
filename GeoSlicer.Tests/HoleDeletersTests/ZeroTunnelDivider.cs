@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using GeoSlicer.Utils;
 using GeoSlicer.Utils.Intersectors;
 using NetTopologySuite.Geometries;
 
@@ -67,49 +68,50 @@ public class ZeroTunnelDivider
     // numbersOfEqualCoordsAdjacentCoord - номера координат, которые совпадают с координатой с номером coordAdjacentLine
     // в методе MoveCoordinate
     // метод пытается передвинуть точку под номером firstCoord по ступенькам. True в случае успеха, false иначе
-    private bool MoveCoordinate(Coordinate[] coordinates, int firstCoordinate, int countOfSteps, double stepSize)
+    private bool MoveCoordinate(Coordinate[] coordinates, int firstCoord, int countOfSteps, double stepSize)
     {
         LinkedList<int> numbersOfEqualCoordsSecondCoord = new LinkedList<int>();
         LinkedList<int> numbersOfEqualCoordsAdjacentCoord = new LinkedList<int>();
-        int secondCoord = firstCoordinate + 1;
+        int secondCoord = firstCoord + 1;
         FillNumbersOfEqualCoordinates(coordinates, secondCoord, numbersOfEqualCoordsSecondCoord);
         // номер второй координаты линии, смежной к проверяемой линии-(firstCoordFirstTunnel, secondCoordFirstTunnel)
-        int coordAdjacentLine = (firstCoordinate - 1 + coordinates.Length) % coordinates.Length;
+        int coordAdjacentLine = (firstCoord - 1 + coordinates.Length) % coordinates.Length;
+        
+        if (coordinates[coordAdjacentLine].Equals(coordinates[firstCoord]) ||
+            coordinates[coordAdjacentLine].Equals(coordinates[secondCoord]) ||
+            coordinates[firstCoord].Equals(coordinates[secondCoord]))
+            throw new ArgumentException("переданные точки совпадают");
+        
         FillNumbersOfEqualCoordinates(coordinates, coordAdjacentLine, numbersOfEqualCoordsAdjacentCoord);
         
-        var originalCoord = coordinates[firstCoordinate];
-        bool correctMove = false;
-        // quarterNumber = номер четверти на координатной оси
-        for (int quarterNumber = 1; quarterNumber <= 4; quarterNumber++)
+        for (int i = countOfSteps; i >= 1; i--)
         {
-            Coordinate buffer = coordinates[firstCoordinate];
-            // stepNumber = номер ступеньки на которую передвигаем текущую координату
-            for (int stepNumber = 0; stepNumber < countOfSteps; stepNumber++)
-            {
-                MovePointUpTheStairs(coordinates, quarterNumber, stepNumber, firstCoordinate, stepSize);
-                if (CheckIntersects(coordinates, firstCoordinate, secondCoord, coordAdjacentLine,
-                        numbersOfEqualCoordsSecondCoord, numbersOfEqualCoordsAdjacentCoord))
-                {
-                    if (correctMove)
-                    {
-                        coordinates[firstCoordinate] = buffer;
-                        return true;
-                    }
-                }
-                else
-                {
-                    correctMove = true;
-                }
-                buffer = coordinates[firstCoordinate];
-            }
-
-            if (correctMove)
+            var originalCoord = coordinates[firstCoord];
+            var res 
+                = VectorService.ShiftPointAlongBisector(
+                    coordinates[coordAdjacentLine],
+                coordinates[firstCoord], 
+                    coordinates[secondCoord], 
+                    stepSize * i, 
+                    _tolerance);
+            
+            coordinates[firstCoord] = res[0];
+            if (!CheckIntersects(coordinates, firstCoord, secondCoord, coordAdjacentLine,
+                    numbersOfEqualCoordsSecondCoord, numbersOfEqualCoordsAdjacentCoord))
             {
                 return true;
             }
-            if (quarterNumber != 4) 
-                coordinates[firstCoordinate] = originalCoord;
+
+            coordinates[firstCoord] = res[1];
+            if (!CheckIntersects(coordinates, firstCoord, secondCoord, coordAdjacentLine,
+                    numbersOfEqualCoordsSecondCoord, numbersOfEqualCoordsAdjacentCoord))
+            {
+                return true;
+            }
+
+            coordinates[firstCoord] = originalCoord;
         }
+
         return false;
     }
     

@@ -7,12 +7,13 @@ using GeoSlicer.Utils.Intersectors;
 using GeoSlicer.Utils.Intersectors.CoordinateComparators;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
+using NetTopologySuite.Operation.Valid;
 
 string user = "User";
 string fileName = "C:\\Users\\" + user + "\\Downloads\\Telegram Desktop\\";
 var featureCollection = GeoJsonFileService
     .ReadGeometryFromFile<FeatureCollection>
-        ("TestFiles\\test_final_geojson.geojson");
+        ("TestFiles\\baikal.geojson");
 var polygon = (Polygon)((MultiPolygon)featureCollection[0].Geometry)[0];
 
 
@@ -20,13 +21,12 @@ TraverseDirection Traverse = new (new LineService(1e-15));
 BoundingHoleDeleter Deleter = new (Traverse);
 
 IList<(int countOfSteps, double stepSize)> stepCharacteristic = new List<(int countOfSteps, double stepSize)>();
-int countOfSteps = 15;
-stepCharacteristic.Add((countOfSteps, 0.000_1));
+int countOfSteps = 3;
 stepCharacteristic.Add((countOfSteps, 0.000_001));
 stepCharacteristic.Add((countOfSteps, 0.000_000_1));
 stepCharacteristic.Add((countOfSteps, 0.000_000_01));
-stepCharacteristic.Add((countOfSteps, 0.000_000_001));
-stepCharacteristic.Add((countOfSteps, 0.000_000_000_1));
+stepCharacteristic.Add((countOfSteps, 0.000_000_005));
+stepCharacteristic.Add((countOfSteps, 0.000_000_000_3));
         
 double epsilon = 1e-15;
 var zeroDivider = new ZeroTunnelDivider(
@@ -47,11 +47,13 @@ Coordinate[] resArr = new Coordinate[res.Coordinates.Length];
 Coordinate[] resArr2 = new Coordinate[res.Coordinates.Length];
 LinkedList<BoundingRing> list1 = GeoSlicer.Utils.BoundRing.BoundingRing.PolygonToBoundRings(res, Traverse);
 LinkedList<BoundingRing> list2 = GeoSlicer.Utils.BoundRing.BoundingRing.PolygonToBoundRings(new Polygon(resultRing, new LinearRing[0]), Traverse);
-list1.First.Value.Ring = list1.First.Value.Ring.Next.Next.Next.Next.Next.Next;
-list2.First.Value.Ring = list2.First.Value.Ring.Next.Next.Next.Next.Next.Next;
+//list1.First.Value.Ring = list1.First.Value.Ring.Next.Next.Next.Next.Next.Next;
+//list2.First.Value.Ring = list2.First.Value.Ring.Next.Next.Next.Next.Next.Next;
 GeoJsonFileService.WriteGeometryToFile(BoundingRing.BoundRingsToPolygon(list1), fileName + "daniilTest");
-GeoJsonFileService.WriteGeometryToFile(BoundingRing.BoundRingsToPolygon(list2), fileName + "daniilTestAfter");
+GeoJsonFileService.WriteGeometryToFile(BoundingRing.BoundRingsToPolygon(list2), fileName + "daniilTestAfter.geojson");
 Console.WriteLine(BoundingRing.BoundRingsToPolygon(list2).IsValid);
+IsValidOp validator = new IsValidOp(BoundingRing.BoundRingsToPolygon(list2));
+Console.WriteLine(validator.ValidationError);
 //GeoJsonFileService.WriteGeometryToFile(res, fileName + "daniilTest");
 //GeoJsonFileService.WriteGeometryToFile(resultRing, fileName + "daniilTestAfter");
 

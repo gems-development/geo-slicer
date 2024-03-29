@@ -16,30 +16,21 @@ public class VectorServiceTest
         double stepSize = 2.567;
         double tolerance = 1e-15;
         //Act
-        Coordinate result1 = 
+        Coordinate[] res = 
             VectorService.ShiftPointAlongBisector(
                 coordAdjacentLine, 
                 firstCoord,
                 secondCoord, 
                 stepSize, 
                 tolerance);
-        
-        Coordinate result2 = 
-            VectorService.ShiftPointAlongBisector(
-                coordAdjacentLine, 
-                firstCoord,
-                secondCoord, 
-                stepSize, 
-                tolerance,
-                false);
         //Assert
         Assert.True(
-            result1.Equals2D(new Coordinate(8.567, 2), tolerance) ||
-            result1.Equals2D(new Coordinate(3.433, 2), tolerance));
+            res[0].Equals2D(new Coordinate(8.567, 2), tolerance) ||
+            res[0].Equals2D(new Coordinate(3.433, 2), tolerance));
         Assert.True(
-            result2.Equals2D(new Coordinate(8.567, 2), tolerance) ||
-            result2.Equals2D(new Coordinate(3.433, 2), tolerance));
-        Assert.False(result1.Equals2D(result2, tolerance));
+            res[1].Equals2D(new Coordinate(8.567, 2), tolerance) ||
+            res[1].Equals2D(new Coordinate(3.433, 2), tolerance));
+        Assert.False(res[0].Equals2D(res[1], tolerance));
     }
     
     [Fact]
@@ -52,30 +43,21 @@ public class VectorServiceTest
         double stepSize = Math.Sqrt(2);
         double tolerance = 1e-15;
         //Act
-        Coordinate result1 = 
+        Coordinate[] res = 
             VectorService.ShiftPointAlongBisector(
                 coordAdjacentLine, 
                 firstCoord,
                 secondCoord, 
                 stepSize, 
                 tolerance);
-        
-        Coordinate result2 = 
-            VectorService.ShiftPointAlongBisector(
-                coordAdjacentLine, 
-                firstCoord,
-                secondCoord, 
-                stepSize, 
-                tolerance,
-                false);
         //Assert
         Assert.True(
-            result1.Equals2D(new Coordinate(5, 3), tolerance) ||
-            result1.Equals2D(new Coordinate(7, 1), tolerance));
+            res[0].Equals2D(new Coordinate(5, 3), tolerance) ||
+            res[0].Equals2D(new Coordinate(7, 1), tolerance));
         Assert.True(
-            result2.Equals2D(new Coordinate(5, 3), tolerance) ||
-            result2.Equals2D(new Coordinate(7, 1), tolerance));
-        Assert.False(result1.Equals2D(result2, tolerance));
+            res[1].Equals2D(new Coordinate(5, 3), tolerance) ||
+            res[1].Equals2D(new Coordinate(7, 1), tolerance));
+        Assert.False(res[0].Equals2D(res[1], tolerance));
     }
     
     [Fact]
@@ -88,29 +70,19 @@ public class VectorServiceTest
         double stepSize = 0.4;
         double tolerance = 1e-15;
         //Act
-        Coordinate result1 = 
+        Coordinate[] res = 
             VectorService.ShiftPointAlongBisector(
                 coordAdjacentLine, 
                 firstCoord,
                 secondCoord, 
                 stepSize, 
                 tolerance);
-        
-        Coordinate result2 = 
-            VectorService.ShiftPointAlongBisector(
-                coordAdjacentLine, 
-                firstCoord,
-                secondCoord, 
-                stepSize, 
-                tolerance,
-                false);
-        //Assert
         Assert.True(
-            result1.Equals2D(new Coordinate(5.708426649628981, 2.273833857208014), tolerance) ||
-            result1.Equals2D(new Coordinate(6.291573350371019, 1.7261661427919859), tolerance));
+            res[0].Equals2D(new Coordinate(5.708426649628981, 2.273833857208014), tolerance) ||
+            res[0].Equals2D(new Coordinate(6.291573350371019, 1.7261661427919859), tolerance));
         Assert.True(
-            result2.Equals2D(new Coordinate(5.708426649628981, 2.273833857208014), tolerance) ||
-            result2.Equals2D(new Coordinate(6.291573350371019, 1.7261661427919859), tolerance));
-        Assert.False(result1.Equals2D(result2, tolerance));
+            res[1].Equals2D(new Coordinate(5.708426649628981, 2.273833857208014), tolerance) ||
+            res[1].Equals2D(new Coordinate(6.291573350371019, 1.7261661427919859), tolerance));
+        Assert.False(res[0].Equals2D(res[1], tolerance));
     }
 }
