@@ -17,7 +17,8 @@ public class GridSlicerHelper
     private readonly ICoordinateComparator _coordinateComparator;
     private readonly TraverseDirection _traverseDirection;
 
-    public GridSlicerHelper(LinesIntersector linesIntersector, double epsilon, LineService lineService, ICoordinateComparator coordinateComparator)
+    public GridSlicerHelper(LinesIntersector linesIntersector, double epsilon, LineService lineService,
+        ICoordinateComparator coordinateComparator)
     {
         _linesIntersector = linesIntersector;
         _epsilon = epsilon;
@@ -79,11 +80,12 @@ public class GridSlicerHelper
         LinkedList<CoordinateSupport> result = new LinkedList<CoordinateSupport>();
 
         Coordinate[] coordinates = ring.Coordinates;
-        
+
         foreach (Coordinate coord in coordinates)
         {
             result.AddLast(new CoordinateSupport(coord));
         }
+
         result.RemoveLast();
 
         return result;
@@ -93,8 +95,49 @@ public class GridSlicerHelper
     public IntersectionType WeilerAtherton(
         LinearRing clipped, double xDown, double xUp, double yDown, double yUp, out IEnumerable<LinearRing> result)
     {
-        result = null;
-        return IntersectionType.BoxOutsideGeometry;
+        Coordinate[] boxCoordinated =
+        {
+            new(xDown, yDown),
+            new(xDown, yUp),
+            new(xUp, yUp),
+            new(xUp, yDown),
+            new(xDown, yDown)
+        };
+        LinearRing boxLinearRing = new LinearRing(boxCoordinated);
+        
+        result = Array.Empty<LinearRing>();
+
+        
+        if (boxCoordinated.All(coordinate => IsPointInPolygon(coordinate, clipped)) 
+            && !boxLinearRing.Intersects(clipped))
+        {
+            return IntersectionType.BoxInGeometry;
+        }
+
+        if (clipped.Coordinates.All(coordinate => IsPointInPolygon(coordinate, boxLinearRing)))
+        {
+            return IntersectionType.GeometryInBox;
+        }
+
+        
+        var intersection = new Polygon(clipped).Intersection(new Polygon(boxLinearRing));
+
+        if (intersection is null || intersection.IsEmpty)
+        {
+            return IntersectionType.BoxOutsideGeometry;
+        }
+
+        if (intersection is Polygon polygon)
+        {
+            result = new[] { polygon.Shell };
+        }
+
+        if (intersection is MultiPolygon multiPolygon)
+        {
+            result = multiPolygon.Select(geometry => ((Polygon)geometry).Shell);
+        }
+
+        return IntersectionType.IntersectionWithEdge;
     }
 
     //На вход передаются координаты колец
@@ -102,24 +145,24 @@ public class GridSlicerHelper
         LinearRing clippedCoordinates, LinearRing cuttingCoordinates)
     {
         //нужно, чтобы обход clipped и cutting был по часовой
-        
+
         if (!_traverseDirection.IsClockwiseBypass(clippedCoordinates))
         {
             _traverseDirection.ChangeDirection(clippedCoordinates);
         }
+
         if (!_traverseDirection.IsClockwiseBypass(cuttingCoordinates))
         {
             _traverseDirection.ChangeDirection(cuttingCoordinates);
         }
-        
+
         LinkedList<CoordinateSupport> clipped = CoordinateToCoordinateSupport(clippedCoordinates);
         LinkedList<CoordinateSupport> cutting = CoordinateToCoordinateSupport(cuttingCoordinates);
-        
+
         bool flagWereIntersection = false;
         // Создание двух списков с помеченными точками
         for (LinkedListNode<CoordinateSupport>? nodeI = clipped.First!; nodeI != null; nodeI = nodeI.Next)
         {
-            
             for (LinkedListNode<CoordinateSupport>? nodeJ = cutting.First!; nodeJ != null; nodeJ = nodeJ.Next)
             {
                 LinkedListNode<CoordinateSupport> numberOne = nodeI;
@@ -291,17 +334,18 @@ public class GridSlicerHelper
 
                 else if (intersection is { Item2: not null, Item1: LinesIntersectionType.Corner })
                 {
-                    
                 }
             }
         }
+
         if (!flagWereIntersection)
         {
-            if(IsPointInPolygon(clipped.First!.Value, cuttingCoordinates))
+            if (IsPointInPolygon(clipped.First!.Value, cuttingCoordinates))
             {
-                return new List<LinearRing>() { new (clipped.Select(support => (Coordinate)support).ToArray()) };
+                return new List<LinearRing>() { new(clipped.Select(support => (Coordinate)support).ToArray()) };
             }
-            return new List<LinearRing>() { new (cutting.Select(support => (Coordinate)support).ToArray()) };
+
+            return new List<LinearRing>() { new(cutting.Select(support => (Coordinate)support).ToArray()) };
         }
 
         Print(clipped, cutting);
@@ -330,13 +374,13 @@ public class GridSlicerHelper
                     if (nodeFromEToL.Next == null)
                     {
                         nodeFromEToL = clipped.First;
-                        
+
                         if (nodeFromEToL!.Value.Type == PointType.Living)
                         {
                             startInCutting = nodeFromEToL.Value.Coord;
                             break;
                         }
-                        
+
                         figure.Add(nodeFromEToL.Value);
                     }
 
@@ -368,6 +412,7 @@ public class GridSlicerHelper
                 result.Add(figure);
             }
         }
+
         return result.Select(enumerable => new LinearRing(enumerable.ToArray()));
     }
 
@@ -376,7 +421,9 @@ public class GridSlicerHelper
         try
         {
             //Pass the filepath and filename to the StreamWriter Constructor
-            StreamWriter sw = new StreamWriter("C:\\Users\\micha\\Desktop\\Миша\\work\\C#\\Geo\\geo-slicer\\GeoSlicer\\GridSlicer\\Bad.txt");
+            StreamWriter sw =
+                new StreamWriter(
+                    "C:\\Users\\micha\\Desktop\\Миша\\work\\C#\\Geo\\geo-slicer\\GeoSlicer\\GridSlicer\\Bad.txt");
             //Write a line of text
             sw.WriteLine("clipped\n");
             for (LinkedListNode<CoordinateSupport>? i = clipped.First; i != null; i = i.Next)
@@ -390,11 +437,13 @@ public class GridSlicerHelper
                 {
                     sw.WriteLine();
                 }
+
                 if (i.Value.Coord is { Next: not null })
                 {
                     sw.WriteLine("Value.Coord.Next = " + i.Value.Coord.Next.Value);
                 }
             }
+
             sw.WriteLine("\n\n\ncutting\n");
             for (LinkedListNode<CoordinateSupport>? i = cutting.First; i != null; i = i.Next)
             {
@@ -407,11 +456,13 @@ public class GridSlicerHelper
                 {
                     sw.WriteLine();
                 }
+
                 if (i.Value.Coord is { Next: not null })
                 {
                     sw.WriteLine("Value.Coord.Next = " + i.Value.Coord.Next.Value);
                 }
             }
+
             //Close the file
             sw.Close();
         }
