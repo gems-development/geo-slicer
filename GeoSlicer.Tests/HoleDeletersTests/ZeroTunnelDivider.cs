@@ -9,13 +9,13 @@ namespace GeoSlicer.Tests.HoleDeletersTests;
 public class ZeroTunnelDivider
 {
     private readonly IList<(int countOfSteps, double stepSize)> _stepCharacteristic;
-    private LineIntersector _intersector;
+    private LinesIntersector _intersector;
 
     private readonly double _tolerance;
 
     public ZeroTunnelDivider(
         IList<(int countOfSteps, double stepSize)> stepCharacteristic,
-        LineIntersector intersector, double tolerance)
+        LinesIntersector intersector, double tolerance)
     {
         _intersector = intersector;
         _tolerance = tolerance;
@@ -168,10 +168,10 @@ public class ZeroTunnelDivider
                         coordinates[secondCoordFirstTunnel]);
         var intersection = intersectionType.Item1;
         var intersectionPoint = intersectionType.Item2;
-        if (intersection != IntersectionType.NoIntersection && intersection != IntersectionType.Outside)
+        if (intersection != LinesIntersectionType.NoIntersection && intersection != LinesIntersectionType.Outside)
         {
-            if ((IntersectionType.Overlay <= intersection && IntersectionType.Equals >= intersection)
-                || IntersectionType.Inner == intersection || IntersectionType.TyShaped == intersection)
+            if ((LinesIntersectionType.Overlay <= intersection && LinesIntersectionType.Equals >= intersection)
+                || LinesIntersectionType.Inner == intersection || LinesIntersectionType.TyShaped == intersection)
             {
                 return true;
             }

@@ -22,7 +22,7 @@ public static class ObjectsForTests
         double epsilon = 1e-15;
         var zeroDivider = new ZeroTunnelDivider(
             stepCharacteristic, 
-            new LineIntersector(
+            new LinesIntersector(
                 new EpsilonCoordinateComparator(epsilon),
                 new LineService(epsilon), epsilon),
             epsilon);
@@ -32,7 +32,6 @@ public static class ObjectsForTests
     public static Polygon GetSample()
     {
         return GeoJsonFileService
-            .GeoJsonFileService
             .ReadGeometryFromFile<Polygon>
                 ("TestFiles\\sample.geojson");
     }
@@ -40,16 +39,14 @@ public static class ObjectsForTests
     public static Polygon GetKazan()
     { 
         var featureCollection = GeoJsonFileService
-            .GeoJsonFileService
             .ReadGeometryFromFile<FeatureCollection>
-                ("TestFiles\\kazan_fix_2.geojson");
+                ("TestFiles\\kazan.geojson");
         return (Polygon)((MultiPolygon)featureCollection[0].Geometry)[0];
     }
 
     public static Polygon GetBaikal()
     {
         var featureCollection = GeoJsonFileService
-            .GeoJsonFileService
             .ReadGeometryFromFile<FeatureCollection>
                 ("TestFiles\\baikal.geojson");
         return (Polygon)((MultiPolygon)featureCollection[0].Geometry)[0];
@@ -58,7 +55,6 @@ public static class ObjectsForTests
     public static Polygon GetTestFinal()
     {
         var featureCollection = GeoJsonFileService
-            .GeoJsonFileService
             .ReadGeometryFromFile<FeatureCollection>
                 ("TestFiles\\test_final_geojson.geojson");
         return (Polygon)((MultiPolygon)featureCollection[0].Geometry)[0];
@@ -66,7 +62,6 @@ public static class ObjectsForTests
     public static Polygon GetTest2()
     {
         var featureCollection = GeoJsonFileService
-            .GeoJsonFileService
             .ReadGeometryFromFile<FeatureCollection>
                 ("TestFiles\\test2_geojson.geojson");
         return (Polygon)((MultiPolygon)featureCollection[0].Geometry)[0];

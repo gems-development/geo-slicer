@@ -1,73 +1,61 @@
-﻿using GeoSlicer.NonConvexSlicer;
-using GeoSlicer.NonConvexSlicer.Helpers;
+﻿using GeoSlicer.HoleDeleters;
+using GeoSlicer.Tests.HoleDeletersTests;
 using GeoSlicer.Utils;
+using GeoSlicer.Utils.BoundRing;
 using GeoSlicer.Utils.Intersectors;
 using GeoSlicer.Utils.Intersectors.CoordinateComparators;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
+using NetTopologySuite.Operation.Valid;
+using GeoJsonFileService = GeoSlicer.Utils.GeoJsonFileService;
+
+string user = "User";
+string fileName = "C:\\Users\\" + user + "\\Downloads\\Telegram Desktop\\";
+var featureCollection = GeoJsonFileService
+    .ReadGeometryFromFile<FeatureCollection>
+        ("TestFiles\\baikal.geojson");
+var polygon = (Polygon)((MultiPolygon)featureCollection[0].Geometry)[0];
 
 
-const double epsilon = 1E-19;
-GeometryFactory gf =
-    NetTopologySuite.NtsGeometryServices.Instance.CreateGeometryFactory(4326);
-LineService lineService = new LineService(epsilon);
-SegmentService segmentService = new SegmentService(lineService);
-TraverseDirection traverseDirection = new TraverseDirection(lineService);
-Slicer slicer =
-    new(gf,
-        segmentService,
-        new NonConvexSlicerHelper(
-            new LinesIntersector(new EpsilonCoordinateComparator(epsilon), lineService, epsilon),
-            lineService), traverseDirection, lineService);
+TraverseDirection Traverse = new (new LineService(1e-15));
+BoundingHoleDeleter Deleter = new (Traverse);
 
-//var polygon = (Polygon)((MultiPolygon)GeoJsonFileService.ReadGeometryFromFile<FeatureCollection>("TestFiles\\kazan.geojson")[0].Geometry)[0];
+IList<(int countOfSteps, double stepSize)> stepCharacteristic = new List<(int countOfSteps, double stepSize)>();
+int countOfSteps = 3;
+stepCharacteristic.Add((countOfSteps, 0.000_001));
+stepCharacteristic.Add((countOfSteps, 0.000_000_1));
+stepCharacteristic.Add((countOfSteps, 0.000_000_01));
+stepCharacteristic.Add((countOfSteps, 0.000_000_005));
+stepCharacteristic.Add((countOfSteps, 0.000_000_000_3));
+        
+double epsilon = 1e-15;
+var zeroDivider = new ZeroTunnelDivider(
+    stepCharacteristic, 
+    new LinesIntersector(
+        new EpsilonCoordinateComparator(epsilon),
+        new LineService(epsilon), epsilon),
+    epsilon);
+Console.WriteLine(polygon.IsValid);
+var res = Deleter.DeleteHoles(polygon);
+zeroDivider.DivideZeroTunnels(res.Shell, out var resultRing, out var problemCoordinates);
+foreach (var point in problemCoordinates)
+{
+    Console.WriteLine(point);
+}
 
-var polygon =
-    (Polygon)((MultiPolygon)GeoJsonFileService.ReadGeometryFromFile<FeatureCollection>("TestFiles\\baikal.geojson")[0]
-        .Geometry)[0];
-
-LinearRing shell = polygon.Shell;
-
-
-/*//Для нахождения особых точек
-if (!traverseDirection.IsClockwiseBypass(shell)) TraverseDirection.ChangeDirection(shell);
-
-var listSpecialPoints = new NonConvexSlicerHelper(
-    new LineIntersector(new EpsilonCoordinateComparator(epsilon), lineService, epsilon), traverseDirection,
-    lineService).GetSpecialPoints(shell);
-GeoJsonFileService.WriteGeometryToFile(new LineString(listSpecialPoints.ToArray()), "TestFiles\\baikal_without_holes_part_123.geojson");
-*/
-
-List<LinearRing> result = slicer.Slice(shell);
-IEnumerable<Polygon> polygons = result.Select(ring => new Polygon(ring));
-
-MultiPolygon multiPolygonResult = new MultiPolygon(polygons.ToArray());
-GeoJsonFileService.WriteGeometryToFile(multiPolygonResult, "TestFiles\\baikal_result_after_changes.geojson");
-
-
-// MultiPolygon baikalMultiPolygon =
-//     GeoJsonFileService.ReadGeometryFromFile<MultiPolygon>("TestFiles\\baikal_multy_polygon.geojson");
-// MultiPolygon resultMultiPolygon =
-//     GeoJsonFileService.ReadGeometryFromFile<MultiPolygon>("TestFiles\\baikal_result.geojson");
-//
-// HashSet<Coordinate> baikalSet = new HashSet<Coordinate>(((Polygon)baikalMultiPolygon[0]).Shell.Coordinates);
-//
-// var resultCoordinateArrays = resultMultiPolygon.Select(geometry => ((Polygon)geometry).Coordinates);
-//
-// HashSet<Coordinate> resultSet = new HashSet<Coordinate>();
-// foreach (Coordinate[] coordinateArray in resultCoordinateArrays)
-// {
-//     resultSet.UnionWith(coordinateArray);
-// }
-// Console.WriteLine(baikalSet.Count);
-// Console.WriteLine(resultSet.Count);
-//
-// baikalSet.ExceptWith(resultSet);
-// foreach (Coordinate coordinate in baikalSet)
-// {
-//     Console.WriteLine(coordinate);
-// }
-// Console.WriteLine(baikalSet);
+Coordinate[] resArr = new Coordinate[res.Coordinates.Length];
+Coordinate[] resArr2 = new Coordinate[res.Coordinates.Length];
+LinkedList<BoundingRing> list1 = GeoSlicer.Utils.BoundRing.BoundingRing.PolygonToBoundRings(res, Traverse);
+LinkedList<BoundingRing> list2 = GeoSlicer.Utils.BoundRing.BoundingRing.PolygonToBoundRings(new Polygon(resultRing, new LinearRing[0]), Traverse);
+//list1.First.Value.Ring = list1.First.Value.Ring.Next.Next.Next.Next.Next.Next;
+//list2.First.Value.Ring = list2.First.Value.Ring.Next.Next.Next.Next.Next.Next;
+GeoJsonFileService.WriteGeometryToFile(BoundingRing.BoundRingsToPolygon(list1), fileName + "daniilTest");
+GeoJsonFileService.WriteGeometryToFile(BoundingRing.BoundRingsToPolygon(list2), fileName + "daniilTestAfter.geojson");
+Console.WriteLine(BoundingRing.BoundRingsToPolygon(list2).IsValid);
+IsValidOp validator = new IsValidOp(BoundingRing.BoundRingsToPolygon(list2));
+Console.WriteLine(validator.ValidationError);
+//GeoJsonFileService.WriteGeometryToFile(res, fileName + "daniilTest");
+//GeoJsonFileService.WriteGeometryToFile(resultRing, fileName + "daniilTestAfter");
 
 
 
