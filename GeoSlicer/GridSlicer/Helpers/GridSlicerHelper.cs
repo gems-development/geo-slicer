@@ -90,6 +90,12 @@ public class GridSlicerHelper
         //Вернёт LinkedList с координатами всех точек кольца без последней (равной первой)
     }
 
+    public IntersectionType WeilerAtherton(
+        LinearRing clipped, double xDown, double xUp, double yDown, double yUp, out IEnumerable<LinearRing> result)
+    {
+        result = null;
+        return IntersectionType.BoxOutsideGeometry;
+    }
 
     //На вход передаются координаты колец
     public IEnumerable<LinearRing> WeilerAtherton(
