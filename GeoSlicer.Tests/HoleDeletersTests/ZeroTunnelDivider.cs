@@ -47,7 +47,8 @@ public class ZeroTunnelDivider
                             if (stepNumber == _stepCharacteristic.Count - 1)
                                 //problemCoordinates.AddFirst(coordinates[i]);
                                 problemCoordinates.AddFirst(buff);
-                            else coordinates[i] = buff;
+                            //else coordinates[i] = buff;
+                            coordinates[i] = buff;
                             stepNumberIterationHaveErrors = true;
                         }
                         break;
@@ -269,7 +270,7 @@ public class ZeroTunnelDivider
         Array.Copy(oldCoordinates, 0, coordinates, 0, coordinates.Length);
         return coordinates;
     }
-
+    //todo удалить этот метод или переместить в другое место
     private void ShiftArray<T>(T[] array, int diff)
     {
         if (diff > 0) 
