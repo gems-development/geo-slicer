@@ -3,7 +3,7 @@ using NetTopologySuite.Geometries;
 
 namespace GeoSlicer.Utils;
 
-public class VectorService
+public static class VectorService
 {
     private static double? CalculatePhiFromZeroTo2Pi(double x, double y)
     {
