@@ -35,7 +35,7 @@ public class BoundingHoleDeleter
 
 
         //int count = listOfHoles.Count;
-        int r = 0;
+        //int r = 0;
         while (listOfHoles.First!.Next is not null)
         {
             /*i++;
@@ -119,11 +119,11 @@ public class BoundingHoleDeleter
                     thisRing = listOfHoles.First;
                 }
             }
-            string user = "User";
+            /*string user = "User";
             string fileName = "C:\\Users\\" + user + "\\Downloads\\Telegram Desktop\\";
             
             r++;
-            GeoJsonFileService.WriteGeometryToFile(BoundingRing.BoundRingsToPolygon(listOfHoles), fileName + "new" + r);
+            GeoJsonFileService.WriteGeometryToFile(BoundingRing.BoundRingsToPolygon(listOfHoles), fileName + "new" + r);*/
         }
     }
     
