@@ -19,7 +19,10 @@ public class Slicer
         _helper = helper;
     }
 
-    public IEnumerable<LinearRing>?[,] Slice(LinearRing inputRing, double xScale, double yScale)
+    public IEnumerable<LinearRing>?[,] Slice(
+        LinearRing inputRing,
+        double xScale, double yScale,
+        bool uniqueOnly = false)
     {
         // SetUp
 
@@ -131,21 +134,26 @@ public class Slicer
         }
 
         ProcessInner(result,
-            (xStart, xEnd, yStart, yEnd) => new []{new LinearRing(new Coordinate[]
+            (xStart, xEnd, yStart, yEnd) => new[]
             {
-                new Coordinate(xDown + xStart * xScale, yDown + yStart * yScale),
-                new Coordinate(xDown + xEnd * xScale, yDown + yStart * yScale),
-                new Coordinate(xDown + xEnd * xScale, yDown + yEnd * yScale),
-                new Coordinate(xDown + xStart * xScale, yDown + yEnd * yScale),
-                new Coordinate(xDown + xStart * xScale, yDown + yStart * yScale),
-            })});
+                new LinearRing(new Coordinate[]
+                {
+                    new Coordinate(xDown + xStart * xScale, yDown + yStart * yScale),
+                    new Coordinate(xDown + xEnd * xScale, yDown + yStart * yScale),
+                    new Coordinate(xDown + xEnd * xScale, yDown + yEnd * yScale),
+                    new Coordinate(xDown + xStart * xScale, yDown + yEnd * yScale),
+                    new Coordinate(xDown + xStart * xScale, yDown + yStart * yScale),
+                })
+            },
+            uniqueOnly);
 
         return result;
     }
 
     // rectangleCreator принимает xStart, xEnd, yStart, yEnd
     private void ProcessInner(IEnumerable<LinearRing>?[,] grid,
-        Func<int, int, int, int, IEnumerable<LinearRing>> rectangleCreator)
+        Func<int, int, int, int, IEnumerable<LinearRing>> rectangleCreator,
+        bool uniqueOnly)
     {
         int xLen = grid.GetLength(0);
         int yLen = grid.GetLength(1);
@@ -184,12 +192,18 @@ public class Slicer
 
                 IEnumerable<LinearRing> rectangle = rectangleCreator.Invoke(x, x + xSide + 1, y, y + ySide + 1);
 
+
                 for (int i = 0; i <= xSide; i++)
                 {
                     for (int j = 0; j <= ySide; j++)
                     {
-                        grid[x + i, y + j] = rectangle;
+                        grid[x + i, y + j] = uniqueOnly ? null : rectangle;
                     }
+                }
+
+                if (uniqueOnly)
+                {
+                    grid[x, y] = rectangle;
                 }
 
                 y += ySide;
