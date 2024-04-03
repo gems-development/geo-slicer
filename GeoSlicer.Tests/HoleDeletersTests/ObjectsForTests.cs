@@ -66,4 +66,67 @@ public static class ObjectsForTests
                 ("TestFiles\\test2_geojson.geojson");
         return (Polygon)((MultiPolygon)featureCollection[0].Geometry)[0];
     }
+
+    public static Polygon? GetTest3(double step)
+    {
+        Coordinate firstRingCoord = new Coordinate(0.3, 0.4 + step);
+        LinearRing ring1 = new(
+            new[]
+            {
+                new Coordinate(0, 0.3),
+                firstRingCoord,
+                new Coordinate(0.6, 0.3),
+                new Coordinate(0, 0.3)
+            });
+
+        Coordinate secondRingFirstCoord = new Coordinate(0.4, 0.4 - step);
+        Coordinate secondRingSecondCoord = new Coordinate(0.6 + step, 0.5);
+        LinearRing ring2 = new(
+            new[]
+            {
+                new Coordinate(0, 0.5),
+                new Coordinate(0.5, 1),
+                secondRingSecondCoord,
+                secondRingFirstCoord,
+                new Coordinate(0, 0.5)
+            });
+
+        Coordinate thirdRingFirstCoord = new Coordinate(0.6 - step, 0.6);
+        Coordinate thirdRingSecondCoord = new Coordinate(0.7, 0.3 - step);
+        LinearRing ring3 = new(
+            new[]
+            {
+                thirdRingFirstCoord,
+                new Coordinate(0.7, 1),
+                new Coordinate(1, 0.5),
+                thirdRingSecondCoord,
+                thirdRingFirstCoord
+            });
+        
+        Coordinate fourthRingCoord = new Coordinate(0.8, 0.3 + step);
+        LinearRing ring4 = new(
+            new[]
+            {
+                new Coordinate(0, 0),
+                fourthRingCoord,
+                new Coordinate(1, 0.2),
+                new Coordinate(1, 0),
+                new Coordinate(0, 0)
+            });
+        LinearRing shell = new(
+            new[]
+            {
+                new Coordinate(-2, -2),
+                new Coordinate(-2, 2),
+                new Coordinate(2, 2),
+                new Coordinate(2, -2),
+                new Coordinate(-2, -2)
+            });
+        Polygon testPolygon = new Polygon(shell,  new []{ring1, ring2, ring3, ring4});
+        
+        if (testPolygon.IsValid)
+            return testPolygon;
+        
+        return null;
+    }
 }
