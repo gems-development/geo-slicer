@@ -57,54 +57,17 @@ Console.WriteLine(validator.ValidationError);
 //GeoJsonFileService.WriteGeometryToFile(res, fileName + "daniilTest");
 //GeoJsonFileService.WriteGeometryToFile(resultRing, fileName + "daniilTestAfter");*/
 
-LinearRing ring1 = new(
-    new[]
-    {
-        new Coordinate(0, 0.3),
-        new Coordinate(0.3, 0.4),
-        new Coordinate(0.6, 0.3),
-        new Coordinate(0, 0.3)
-    });
-LinearRing ring2 = new(
-    new[]
-    {
-        new Coordinate(0, 0.5),
-        new Coordinate(0.5, 1),
-        new Coordinate(0.6, 0.5),
-        new Coordinate(0.4, 0.4),
-        new Coordinate(0, 0.5)
-    });
-LinearRing ring3 = new(
-    new[]
-    {
-        new Coordinate(0.6, 0.6),
-        new Coordinate(0.7, 1),
-        new Coordinate(1, 0.5),
-        new Coordinate(0.7, 0.3),
-        new Coordinate(0.6, 0.6)
-    });
-LinearRing ring4 = new(
-    new[]
-    {
-        new Coordinate(0, 0),
-        new Coordinate(0.8, 0.3),
-        new Coordinate(1, 0.2),
-        new Coordinate(1, 0),
-        new Coordinate(0, 0)
-    });
-LinearRing shell = new(
-    new[]
-    {
-        new Coordinate(-2, -2),
-        new Coordinate(-2, 2),
-        new Coordinate(2, 2),
-        new Coordinate(2, -2),
-        new Coordinate(-2, -2)
-    });
-Polygon? testPolygon = ObjectsForTests.GetTest3(-0.01);
 
-GeoJsonFileService.WriteGeometryToFile(testPolygon!, fileName + "daniilTest");
+var polygon = GeoJsonFileService
+    .ReadGeometryFromFile<Polygon>
+        (fileName + "daniilTestBefore");
 
+double Epsilon = 1e-15;
+ TraverseDirection Traverse = new (new LineService(Epsilon));
+BoundingHoleDeleter Deleter =
+    new (Traverse, 1e-15);
+
+Deleter.DeleteHoles(polygon);
 
 
 

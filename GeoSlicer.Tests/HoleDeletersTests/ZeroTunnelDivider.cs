@@ -228,33 +228,7 @@ public class ZeroTunnelDivider
              || secondCoordSecondLine == firstCoordFirstLine
              || secondCoordSecondLine == secondCoordFirstLine;
     }
-
-    private void MovePointUpTheStairs(
-        Coordinate[] coordinates,
-        int quarterNumber,
-        int numberOfIteration,
-        int firstCoordFirstTunnel,
-        double stepSize)
-    {
-        if (numberOfIteration % 2 == 0)
-        {
-            if (quarterNumber == 1 || quarterNumber == 4)
-                coordinates[firstCoordFirstTunnel] = new Coordinate(
-                    coordinates[firstCoordFirstTunnel].X + stepSize, coordinates[firstCoordFirstTunnel].Y);
-            else if (quarterNumber == 2 || quarterNumber == 3)
-                coordinates[firstCoordFirstTunnel] = new Coordinate(
-                    coordinates[firstCoordFirstTunnel].X - stepSize, coordinates[firstCoordFirstTunnel].Y);
-        }
-        else
-        {
-            if (quarterNumber == 1 || quarterNumber == 2)
-                coordinates[firstCoordFirstTunnel] = new Coordinate(
-                    coordinates[firstCoordFirstTunnel].X, coordinates[firstCoordFirstTunnel].Y + stepSize);
-            else if (quarterNumber == 3 || quarterNumber == 4)
-                coordinates[firstCoordFirstTunnel] = new Coordinate(
-                    coordinates[firstCoordFirstTunnel].X,coordinates[firstCoordFirstTunnel].Y - stepSize);
-        }
-    }
+    
     //Метод принимается массив координат, в котором последний элемент не равен первой координате.
     //Преобразует его в LinearRing.
     private LinearRing CoordinatesToLinearRing(Coordinate[] coordinates)

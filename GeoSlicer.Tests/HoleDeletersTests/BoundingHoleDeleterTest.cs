@@ -13,7 +13,7 @@ public class BoundingHoleDeleterTest
     private static readonly TraverseDirection Traverse = new (new LineService(Epsilon));
 
     private static readonly BoundingHoleDeleter Deleter =
-        new (Traverse);
+        new (Traverse, Epsilon);
     
     [Fact]
     public void TestSimplePolygon()
@@ -106,8 +106,6 @@ public class BoundingHoleDeleterTest
     [Fact]
     public void Test3Polygon()
     {
-        string user = "User";
-        string fileName = "C:\\Users\\" + user + "\\Downloads\\Telegram Desktop\\";
         //Arrange
         ZeroTunnelDivider divider = ObjectsForTests.GetZeroTunnelDivider();
         LinkedList<Coordinate> problemCoordinates;
@@ -120,8 +118,6 @@ public class BoundingHoleDeleterTest
             //Act
             Polygon newTest3 = Deleter.DeleteHoles(test3!);
             divider.DivideZeroTunnels(newTest3.Shell, out extendedTunnelsTest3, out problemCoordinates);
-            GeoJsonFileService.WriteGeometryToFile(newTest3!, fileName + "daniilTest");
-            GeoJsonFileService.WriteGeometryToFile(extendedTunnelsTest3!, fileName + "daniilTestAfter");
             //Assert
             Assert.IsEquals(0, newTest3.Holes.Length);
             Assert.IsEquals(0, problemCoordinates.Count);

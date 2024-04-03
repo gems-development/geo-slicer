@@ -12,11 +12,12 @@ public class BoundingHoleDeleter
 {
     private readonly TraverseDirection _direction;
     private readonly PartitionBoundRingsCache _cache;
+    private readonly double _epsilon;
 
-    public BoundingHoleDeleter(TraverseDirection direction)
+    public BoundingHoleDeleter(TraverseDirection direction, double epsilon)
     {
         _direction = direction;
-        _cache = new PartitionBoundRingsCache();
+        _cache = new PartitionBoundRingsCache(epsilon);
     }
 
     public Polygon DeleteHoles(Polygon polygon)
@@ -34,7 +35,6 @@ public class BoundingHoleDeleter
 
 
         //int count = listOfHoles.Count;
-        
         while (listOfHoles.First!.Next is not null)
         {
             /*i++;
@@ -118,7 +118,6 @@ public class BoundingHoleDeleter
                     thisRing = listOfHoles.First;
                 }
             }
-                
         }
     }
     
