@@ -1,70 +1,40 @@
-﻿using GeoSlicer.NonConvexSlicer;
-using GeoSlicer.NonConvexSlicer.Helpers;
+﻿using GeoSlicer.GridSlicer;
 using GeoSlicer.Utils;
 using GeoSlicer.Utils.Intersectors;
 using GeoSlicer.Utils.Intersectors.CoordinateComparators;
-using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 
 
 const double epsilon = 1E-19;
+
 GeometryFactory gf =
     NetTopologySuite.NtsGeometryServices.Instance.CreateGeometryFactory(4326);
+
 LineService lineService = new LineService(epsilon);
-SegmentService segmentService = new SegmentService(lineService);
-TraverseDirection traverseDirection = new TraverseDirection(lineService);
-Slicer slicer =
-    new(gf,
-        segmentService,
-        new NonConvexSlicerHelper(
-            new LinesIntersector(new EpsilonCoordinateComparator(epsilon), lineService, epsilon),
-            lineService), traverseDirection, lineService);
+ICoordinateComparator coordinateComparator = new EpsilonCoordinateComparator(epsilon);
 
-//var polygon = (Polygon)((MultiPolygon)GeoJsonFileService.ReadGeometryFromFile<FeatureCollection>("TestFiles\\kazan.geojson")[0].Geometry)[0];
+Slicer slicer = new Slicer(new GridSlicerHelper(new LinesIntersector(coordinateComparator, lineService, epsilon),
+    epsilon, lineService, coordinateComparator));
 
-var polygon =
-    (Polygon)((MultiPolygon)GeoJsonFileService.ReadGeometryFromFile<FeatureCollection>("TestFiles\\baikal.geojson")[0]
-        .Geometry)[0];
-
-LinearRing shell = polygon.Shell;
+LinearRing linearRing = new LinearRing(
+    GeoJsonFileService.ReadGeometryFromFile<LineString>("TestFiles\\maloeOzeroLinearRing.geojson").Coordinates);
 
 
-/*//Для нахождения особых точек
-if (!traverseDirection.IsClockwiseBypass(shell)) TraverseDirection.ChangeDirection(shell);
+IEnumerable<LinearRing>?[,] result = slicer.Slice(linearRing, 0.0001, 0.0001, true);
 
-var listSpecialPoints = new NonConvexSlicerHelper(
-    new LineIntersector(new EpsilonCoordinateComparator(epsilon), lineService, epsilon), traverseDirection,
-    lineService).GetSpecialPoints(shell);
-GeoJsonFileService.WriteGeometryToFile(new LineString(listSpecialPoints.ToArray()), "TestFiles\\baikal_without_holes_part_123.geojson");
-*/
+LinkedList<LineString> lineStrings = new LinkedList<LineString>();
 
-List<LinearRing> result = slicer.Slice(shell);
-IEnumerable<Polygon> polygons = result.Select(ring => new Polygon(ring));
+foreach (IEnumerable<LinearRing>? linearRings in result)
+{
+    if (linearRings is null) continue;
+    foreach (LinearRing ring in linearRings)
+    {
+        lineStrings.AddLast(ring);
+    }
+}
 
-MultiPolygon multiPolygonResult = new MultiPolygon(polygons.ToArray());
-GeoJsonFileService.WriteGeometryToFile(multiPolygonResult, "TestFiles\\baikal_result_after_changes.geojson");
+MultiLineString multiLineString = new MultiLineString(lineStrings.ToArray());
+
+GeoJsonFileService.WriteGeometryToFile(multiLineString, "TestFiles\\moGrid00001.geojson.ignore");
 
 
-// MultiPolygon baikalMultiPolygon =
-//     GeoJsonFileService.ReadGeometryFromFile<MultiPolygon>("TestFiles\\baikal_multy_polygon.geojson");
-// MultiPolygon resultMultiPolygon =
-//     GeoJsonFileService.ReadGeometryFromFile<MultiPolygon>("TestFiles\\baikal_result.geojson");
-//
-// HashSet<Coordinate> baikalSet = new HashSet<Coordinate>(((Polygon)baikalMultiPolygon[0]).Shell.Coordinates);
-//
-// var resultCoordinateArrays = resultMultiPolygon.Select(geometry => ((Polygon)geometry).Coordinates);
-//
-// HashSet<Coordinate> resultSet = new HashSet<Coordinate>();
-// foreach (Coordinate[] coordinateArray in resultCoordinateArrays)
-// {
-//     resultSet.UnionWith(coordinateArray);
-// }
-// Console.WriteLine(baikalSet.Count);
-// Console.WriteLine(resultSet.Count);
-//
-// baikalSet.ExceptWith(resultSet);
-// foreach (Coordinate coordinate in baikalSet)
-// {
-//     Console.WriteLine(coordinate);
-// }
-// Console.WriteLine(baikalSet);
