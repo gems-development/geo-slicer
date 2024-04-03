@@ -57,7 +57,7 @@ public static class VectorService
         var phiB2 = CalculatePhiFromZeroTo2Pi(rotatedVectorB2X, rotatedVectorB2Y);
         return phiA < phiB2;
     }
-}
+    
     //Перемещает координату firstCoord по биссектрисе угла, образуемого прямыми (coordAdjacentLine, firstCoord)
     //и (firstCoord, secondCoord), на длинну stepSize.
     //Возвращает массив из двух координат - сдвинутую координату внутрь угла и за угол, либо наоборот.
