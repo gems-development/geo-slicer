@@ -10,11 +10,11 @@ namespace GeoSlicer.Tests.HoleDeletersTests;
 public class BoundingHoleDeleterTest
 {
     private static readonly double Epsilon = 1e-15;
-    private static readonly TraverseDirection Traverse = new (new LineService(Epsilon));
+    private static readonly TraverseDirection Traverse = new(new LineService(Epsilon));
 
     private static readonly BoundingHoleDeleter Deleter =
-        new (Traverse, Epsilon);
-    
+        new(Traverse, Epsilon);
+
     [Fact]
     public void TestSimplePolygon()
     {
@@ -31,7 +31,7 @@ public class BoundingHoleDeleterTest
         Assert.IsEquals(0, problemCoordinates.Count);
         Assert.IsTrue(extendedTunnelsSample.IsValid);
     }
-    
+
     [Fact]
     public void TestBaikalAndKazanPolygons()
     {
@@ -65,11 +65,12 @@ public class BoundingHoleDeleterTest
         Assert.IsEquals(0, newBaikal.Holes.Length);
         Assert.IsEquals(0, problemCoordinatesBaikal!.Count);
         Assert.IsTrue(extendedTunnelsBaikal!.IsValid);
-        
+
         Assert.IsEquals(0, newKazan.Holes.Length);
         Assert.IsEquals(0, problemCoordinatesKazan!.Count);
-        Assert.IsTrue(extendedTunnelsKazan!.IsValid); 
+        Assert.IsTrue(extendedTunnelsKazan!.IsValid);
     }
+
     [Fact]
     public void TestFinalPolygon()
     {
@@ -86,6 +87,7 @@ public class BoundingHoleDeleterTest
         Assert.IsEquals(0, problemCoordinates.Count);
         Assert.IsTrue(extendedTunnelsTestFinal.IsValid);
     }
+
     [Fact]
     public void Test2Polygon()
     {
@@ -102,16 +104,19 @@ public class BoundingHoleDeleterTest
         Assert.IsEquals(0, problemCoordinates.Count);
         Assert.IsTrue(extendedTunnelsTest2.IsValid);
     }
-    
+
     [Fact]
     public void Test3Polygon()
     {
+        
+        //string user = "User";
+        //string fileName = "C:\\Users\\" + user + "\\Downloads\\Telegram Desktop\\";
         //Arrange
         ZeroTunnelDivider divider = ObjectsForTests.GetZeroTunnelDivider();
         LinkedList<Coordinate> problemCoordinates;
         LinearRing extendedTunnelsTest3;
         double initialStep = -0.01;
-        double stepSize = 1e-3;
+        double stepSize = 1e-6;
         Polygon? test3 = ObjectsForTests.GetTest3(initialStep);
         while (test3 is not null)
         {
@@ -119,6 +124,10 @@ public class BoundingHoleDeleterTest
             Polygon newTest3 = Deleter.DeleteHoles(test3!);
             divider.DivideZeroTunnels(newTest3.Shell, out extendedTunnelsTest3, out problemCoordinates);
             //Assert
+            /*GeoJsonFileService.WriteGeometryToFile(test3, fileName + "original");
+            GeoJsonFileService.WriteGeometryToFile(newTest3, fileName + "algorithm");
+            GeoJsonFileService.WriteGeometryToFile(extendedTunnelsTest3, fileName + "extendedTunnels");*/
+
             Assert.IsEquals(0, newTest3.Holes.Length);
             Assert.IsEquals(0, problemCoordinates.Count);
             Assert.IsTrue(extendedTunnelsTest3.IsValid);

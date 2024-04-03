@@ -35,6 +35,7 @@ public class BoundingHoleDeleter
 
 
         //int count = listOfHoles.Count;
+        int r = 0;
         while (listOfHoles.First!.Next is not null)
         {
             /*i++;
@@ -44,7 +45,7 @@ public class BoundingHoleDeleter
                 i = 0;
             }
             else if (i == count) return;*/
-            if (_cache.FramesContainThis.Any())
+            /*if (_cache.FramesContainThis.Any())
             {
                 LinkedList<BoundingRing> list = new LinkedList<BoundingRing>();
                 foreach (var ring in _cache.FramesContainThis)
@@ -52,7 +53,7 @@ public class BoundingHoleDeleter
                     list.AddLast(ring.Value);
                 }
                 
-            }
+            }*/
             
             if (thisRing.Next is null)
                 thisRing = listOfHoles.First.Next;
@@ -118,6 +119,11 @@ public class BoundingHoleDeleter
                     thisRing = listOfHoles.First;
                 }
             }
+            string user = "User";
+            string fileName = "C:\\Users\\" + user + "\\Downloads\\Telegram Desktop\\";
+            
+            r++;
+            GeoJsonFileService.WriteGeometryToFile(BoundingRing.BoundRingsToPolygon(listOfHoles), fileName + "new" + r);
         }
     }
     

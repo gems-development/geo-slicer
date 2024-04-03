@@ -60,7 +60,7 @@ Console.WriteLine(validator.ValidationError);
 
 var polygon = GeoJsonFileService
     .ReadGeometryFromFile<Polygon>
-        (fileName + "daniilTestBefore");
+        (fileName + "original");
 
 double Epsilon = 1e-15;
  TraverseDirection Traverse = new (new LineService(Epsilon));

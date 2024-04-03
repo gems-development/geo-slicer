@@ -164,7 +164,8 @@ internal class PartitionBoundRingsCache
         bool flagCde = false;
         bool flagEfg = false;
         bool flagAhg = false;
-        if (boundRing.Value.PointMin.Y >= relativeBoundRing.Value.PointMax.Y)
+        if (boundRing.Value.PointMin.Y > relativeBoundRing.Value.PointMax.Y &&
+            !CompareEquality(boundRing.Value.PointMin.Y, relativeBoundRing.Value.PointMax.Y, _epsilon))
         {
             if (boundRing.Value.PointMin.X < relativeBoundRing.Value.PointMin.X ||
                 CompareEquality(relativeBoundRing.Value.PointMin.X, boundRing.Value.PointMin.X, _epsilon))
@@ -196,7 +197,8 @@ internal class PartitionBoundRingsCache
 
         }
 
-        else if (boundRing.Value.PointMax.X <= relativeBoundRing.Value.PointMin.X)
+        else if (boundRing.Value.PointMax.X < relativeBoundRing.Value.PointMin.X &&
+                 !CompareEquality(relativeBoundRing.Value.PointMin.X, boundRing.Value.PointMax.X, _epsilon))
         {
             if (boundRing.Value.PointMax.Y > relativeBoundRing.Value.PointMax.Y ||
                 CompareEquality(boundRing.Value.PointMax.Y, relativeBoundRing.Value.PointMax.Y, _epsilon))
@@ -228,7 +230,8 @@ internal class PartitionBoundRingsCache
 
         }
 
-        else if (boundRing.Value.PointMax.Y <= relativeBoundRing.Value.PointMin.Y)
+        else if (boundRing.Value.PointMax.Y < relativeBoundRing.Value.PointMin.Y &&
+                 !CompareEquality(relativeBoundRing.Value.PointMin.Y, boundRing.Value.PointMax.Y, _epsilon))
         {
             if (boundRing.Value.PointMax.X > relativeBoundRing.Value.PointMax.X ||
                 CompareEquality(boundRing.Value.PointMax.X, relativeBoundRing.Value.PointMax.X, _epsilon))
@@ -259,7 +262,8 @@ internal class PartitionBoundRingsCache
             flagEfg = true;
         }
 
-        else if (boundRing.Value.PointMin.X >= relativeBoundRing.Value.PointMax.X)
+        else if (boundRing.Value.PointMin.X > relativeBoundRing.Value.PointMax.X && 
+                 !CompareEquality(boundRing.Value.PointMin.X, relativeBoundRing.Value.PointMax.X, _epsilon))
         {
             if (boundRing.Value.PointMin.Y < relativeBoundRing.Value.PointMin.Y ||
                 CompareEquality(relativeBoundRing.Value.PointMin.Y, boundRing.Value.PointMin.Y, _epsilon))

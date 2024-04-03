@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using GeoSlicer.Utils;
 using GeoSlicer.Utils.Intersectors;
 using GeoSlicer.Utils.Intersectors.CoordinateComparators;
@@ -122,7 +124,11 @@ public static class ObjectsForTests
                 new Coordinate(2, -2),
                 new Coordinate(-2, -2)
             });
-        Polygon testPolygon = new Polygon(shell,  new []{ring1, ring2, ring3, ring4});
+        
+        Random random = new Random(1);
+        LinearRing[] rings = { ring1, ring2, ring3, ring4 };
+        rings = rings.OrderBy(a => random.NextDouble()).ToArray();
+        Polygon testPolygon = new Polygon(shell,  rings);
         
         if (testPolygon.IsValid)
             return testPolygon;
