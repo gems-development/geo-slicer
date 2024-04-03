@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using GeoSlicer.Utils;
 using NetTopologySuite.Geometries;
 
 // ReSharper disable UseArrayEmptyMethod
@@ -132,35 +130,70 @@ public class Slicer
             }
         }
 
-        // todo Добавить метод на внутреннюю область
-        for (int x = 0; x < xCount; x++)
-        {
-            for (int y = 0; y < yCount; y++)
+        ProcessInner(result,
+            (xStart, xEnd, yStart, yEnd) => new []{new LinearRing(new Coordinate[]
             {
-                if (ReferenceEquals(result[x, y], _inner))
-                {
-                    result[x, y] = new LinearRing[]
-                    {
-                        new(new[]
-                        {
-                            new Coordinate(xDown + x * xScale, yDown + y * yScale),
-                            new Coordinate(xDown + x * xScale, yDown + (y + 1) * yScale),
-                            new Coordinate(xDown + (x + 1) * xScale, yDown + (y + 1) * yScale),
-                            new Coordinate(xDown + x * xScale, yDown + y * yScale)
-                        }),
-                        new(new[]
-                        {
-                            new Coordinate(xDown + x * xScale, yDown + y * yScale),
-                            new Coordinate(xDown + (x + 1) * xScale, yDown + (y + 1) * yScale),
-                            new Coordinate(xDown + (x + 1) * xScale, yDown + y * yScale),
-                            new Coordinate(xDown + x * xScale, yDown + y * yScale)
-                        })
-                    };
-                }
-            }
-        }
+                new Coordinate(xDown + xStart * xScale, yDown + yStart * yScale),
+                new Coordinate(xDown + xEnd * xScale, yDown + yStart * yScale),
+                new Coordinate(xDown + xEnd * xScale, yDown + yEnd * yScale),
+                new Coordinate(xDown + xStart * xScale, yDown + yEnd * yScale),
+                new Coordinate(xDown + xStart * xScale, yDown + yStart * yScale),
+            })});
 
         return result;
     }
-    
+
+    // rectangleCreator принимает xStart, xEnd, yStart, yEnd
+    private void ProcessInner(IEnumerable<LinearRing>?[,] grid,
+        Func<int, int, int, int, IEnumerable<LinearRing>> rectangleCreator)
+    {
+        int xLen = grid.GetLength(0);
+        int yLen = grid.GetLength(1);
+
+        for (int x = 0; x < xLen; x++)
+        {
+            for (int y = 0; y < yLen; y++)
+            {
+                if (!ReferenceEquals(grid[x, y], _inner))
+                {
+                    continue;
+                }
+
+                int xSide = 0;
+                int ySide = 0;
+                while (xSide + x < xLen && ReferenceEquals(grid[x + xSide + 1, y], _inner)) xSide++;
+                while (ySide + y < yLen)
+                {
+                    bool isInnerLine = true;
+                    for (int i = x; i <= x + xSide; i++)
+                    {
+                        if (!ReferenceEquals(grid[i, y + ySide + 1], _inner))
+                        {
+                            isInnerLine = false;
+                            break;
+                        }
+                    }
+
+                    if (!isInnerLine)
+                    {
+                        break;
+                    }
+
+                    ySide++;
+                }
+
+                IEnumerable<LinearRing> rectangle = rectangleCreator.Invoke(x, x + xSide + 1, y, y + ySide + 1);
+
+                for (int i = 0; i <= xSide; i++)
+                {
+                    for (int j = 0; j <= ySide; j++)
+                    {
+                        grid[x + i, y + j] = rectangle;
+                    }
+                }
+
+                y += ySide;
+            }
+        }
+    }
 }
