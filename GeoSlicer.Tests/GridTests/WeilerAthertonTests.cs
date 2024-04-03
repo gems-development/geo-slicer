@@ -257,7 +257,7 @@ public class WeilerAthertonTests
     }
 
     [Fact]
-    public void TestCuttingInClippedWothoutIntersections()
+    public void TestCuttingInClippedWithoutIntersections()
     {
         //Arrange
         Coordinate[] clipped =

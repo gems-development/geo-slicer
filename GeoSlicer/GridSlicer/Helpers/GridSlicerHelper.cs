@@ -195,7 +195,7 @@ public class GridSlicerHelper
                         new LinkedListNode<CoordinateSupport>(new CoordinateSupport(intersection.Item2));
                     LinkedListNode<CoordinateSupport> intersectionNodeInCut =
                         new LinkedListNode<CoordinateSupport>(new CoordinateSupport(intersection.Item2));
-
+/*
                     intersectionNodeInClip.Value.Coord = intersectionNodeInCut;
                     intersectionNodeInCut.Value.Coord = intersectionNodeInClip;
                     
@@ -216,20 +216,20 @@ public class GridSlicerHelper
                         intersectionNodeInClip.Value.Type = PointType.Living;
                         intersectionNodeInCut.Value.Type = PointType.Living;
                     }
-                    
+                    */
                     clipped.AddAfter(nodeI, intersectionNodeInClip);
                     cutting.AddAfter(nodeJ, intersectionNodeInCut);
                 }
 
                 //TyShaped
                 
-                else if (intersection is { Item2: not null, Item1: LinesIntersectionType.Corner })
+                else if (intersection is { Item2: not null, Item1: LinesIntersectionType.TyShaped })
                 {
                     flagWereIntersection = true;
 
                     LinkedListNode<CoordinateSupport> intersectionNode =
                         new LinkedListNode<CoordinateSupport>(new CoordinateSupport(intersection.Item2));
-                    
+              /*      
                     double product = _lineService.VectorProduct(
                         numberOne.Value, numberTwo.Value, 
                         numberThree.Value, numberFour.Value);
@@ -243,14 +243,25 @@ public class GridSlicerHelper
                     {
                         intersectionNode.Value.Type = PointType.Living;
                     }
-
-                    if (_coordinateComparator.IsEquals(intersectionNode.Value, numberOne.Value) ||
-                        _coordinateComparator.IsEquals(intersectionNode.Value, numberTwo.Value))
+*/
+                    if(_coordinateComparator.IsEquals(intersectionNode.Value, numberOne.Value))
                     {
+                        //numberOne.Value.Type = intersectionNode.Value.Type;
                         cutting.AddAfter(numberThree, intersectionNode);
+                    }
+                    else if (_coordinateComparator.IsEquals(intersectionNode.Value, numberTwo.Value))
+                    {
+                     //   numberTwo.Value.Type = intersectionNode.Value.Type;
+                        cutting.AddAfter(numberThree, intersectionNode);
+                    }
+                    else if (_coordinateComparator.IsEquals(intersectionNode.Value, numberThree.Value))
+                    {
+                        //numberThree.Value.Type = intersectionNode.Value.Type;
+                        clipped.AddAfter(numberOne, intersectionNode);
                     }
                     else
                     {
+                       // numberFour.Value.Type = intersectionNode.Value.Type;
                         clipped.AddAfter(numberOne, intersectionNode);
                     }
                 }
@@ -406,22 +417,22 @@ public class GridSlicerHelper
                     LinkedListNode<CoordinateSupport>? intersectionNodeInClip = null;
                     LinkedListNode<CoordinateSupport>? intersectionNodeInCut = null;
 
-                    if (_lineService.IsCoordinateInSegmentBorders(numberOne.Value, numberThree.Value, numberFour.Value))
+                    if (_lineService.IsCoordinateInIntervalBorders(numberOne.Value, numberThree.Value, numberFour.Value))
                     {
                         intersectionNodeInCut = 
                             new LinkedListNode<CoordinateSupport>(new CoordinateSupport(numberOne.Value));
                     }
-                    else if (_lineService.IsCoordinateInSegmentBorders(numberFour.Value, numberOne.Value, numberTwo.Value))
+                    else if (_lineService.IsCoordinateInIntervalBorders(numberFour.Value, numberOne.Value, numberTwo.Value))
                     {
                         intersectionNodeInClip = 
                             new LinkedListNode<CoordinateSupport>(new CoordinateSupport(numberFour.Value));
                     }
-                    else if (_lineService.IsCoordinateInSegmentBorders(numberTwo.Value, numberThree.Value, numberFour.Value))
+                    else if (_lineService.IsCoordinateInIntervalBorders(numberTwo.Value, numberThree.Value, numberFour.Value))
                     {
                         intersectionNodeInCut = 
                             new LinkedListNode<CoordinateSupport>(new CoordinateSupport(numberTwo.Value));
                     }
-                    else if (_lineService.IsCoordinateInSegmentBorders(numberThree.Value, numberOne.Value, numberTwo.Value))
+                    else if (_lineService.IsCoordinateInIntervalBorders(numberThree.Value, numberOne.Value, numberTwo.Value))
                     {
                         intersectionNodeInClip =
                             new LinkedListNode<CoordinateSupport>(new CoordinateSupport(numberThree.Value));
@@ -570,7 +581,7 @@ public class GridSlicerHelper
         try
         {
             //Pass the filepath and filename to the StreamWriter Constructor
-            StreamWriter sw = new StreamWriter("C:\\Users\\micha\\Desktop\\Миша\\work\\C#\\Geo\\geo-slicer\\GeoSlicer\\GridSlicer\\Bad.txt");
+            StreamWriter sw = new StreamWriter("C:\\Users\\micha\\Desktop\\Миша\\work\\C#\\Geo\\geo-slicer\\GeoSlicer\\GridSlicer\\Helpers\\Bad.txt");
             //Write a line of text
             sw.WriteLine("clipped\n");
             for (LinkedListNode<CoordinateSupport>? i = clipped.First; i != null; i = i.Next)
