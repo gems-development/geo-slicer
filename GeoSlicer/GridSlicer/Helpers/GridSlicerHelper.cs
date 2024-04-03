@@ -325,9 +325,9 @@ public class GridSlicerHelper
 
                     else if (_coordinateComparator.IsEquals(numberTwo.Value, numberFour.Value))
                     {
-                        if (!(SegmentService.InsideTheAngle(numberFour.Value,numberThree.Value,
+                        if (!(VectorService.InsideTheAngle(numberFour.Value,numberThree.Value,
                                 nextTwo!.Value,numberTwo.Value,numberOne.Value) &&
-                            SegmentService.InsideTheAngle(numberFour.Value,nextFour!.Value,
+                              VectorService.InsideTheAngle(numberFour.Value,nextFour!.Value,
                                 nextTwo.Value,numberTwo.Value,numberOne.Value)))
                         {
                             double product = _lineService.VectorProduct(
@@ -361,9 +361,9 @@ public class GridSlicerHelper
 
                     else if(_coordinateComparator.IsEquals(numberOne.Value, numberThree.Value))
                     {
-                        if (!(SegmentService.InsideTheAngle(numberThree.Value,numberFour.Value,
+                        if (!(VectorService.InsideTheAngle(numberThree.Value,numberFour.Value,
                                   numberTwo.Value,numberOne.Value,prevOne.Value) &&
-                              SegmentService.InsideTheAngle(numberThree.Value,prevThree!.Value,
+                              VectorService.InsideTheAngle(numberThree.Value,prevThree!.Value,
                                   numberTwo.Value,numberOne.Value,prevOne.Value)))
                         {
                             double product = _lineService.VectorProduct(
@@ -631,7 +631,7 @@ public class GridSlicerHelper
             //Pass the filepath and filename to the StreamWriter Constructor
             StreamWriter sw =
                 new StreamWriter(
-                    "C:\\Users\\micha\\Desktop\\Миша\\work\\C#\\Geo\\geo-slicer\\GeoSlicer\\GridSlicer\\Bad.txt");
+                    "C:\\Users\\micha\\Desktop\\Миша\\work\\C#\\Geo\\geo-slicer\\GeoSlicer\\GridSlicer\\Helpers\\Bad.txt");
             //Write a line of text
             sw.WriteLine("clipped\n");
             for (LinkedListNode<CoordinateSupport>? i = clipped.First; i != null; i = i.Next)
