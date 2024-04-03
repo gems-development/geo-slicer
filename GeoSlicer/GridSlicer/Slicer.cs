@@ -11,7 +11,7 @@ namespace GeoSlicer.GridSlicer;
 public class Slicer
 {
     private readonly IEnumerable<LinearRing> _outside = new LinearRing[0];
-    private readonly IEnumerable<LinearRing> _fullIntersects = new LinearRing[0];
+    private readonly IEnumerable<LinearRing> _inner = new LinearRing[0];
     private readonly IEnumerable<LinearRing> _inQueue = new LinearRing[0];
 
     private readonly GridSlicerHelper _helper;
@@ -41,7 +41,7 @@ public class Slicer
 
         int xCount = (int)Math.Ceiling((xUp - xDown) / xScale);
         int yCount = (int)Math.Ceiling((yUp - yDown) / yScale);
-        
+
         /*
         LinkedList<LineString> grid = new LinkedList<LineString>();
         for (int x = 0; x < xCount; x++)
@@ -69,8 +69,8 @@ public class Slicer
 
         Queue<int> xQueue = new Queue<int>();
         Queue<int> yQueue = new Queue<int>();
-        
-        // Добавляет индексы в очереди, если клетка не за пределами сетки и она еще не была назначена на проверку
+
+        // Добавление индексов в очереди, если клетка не за пределами сетки и она еще не была назначена на проверку
         void CheckAndAdd(int x, int y)
         {
             if (x < 0 || x >= xCount || y < 0 || y >= yCount)
@@ -89,11 +89,11 @@ public class Slicer
         xQueue.Enqueue(GetXIndex(inputRing.Coordinate));
         yQueue.Enqueue(GetYIndex(inputRing.Coordinate));
 
-        
+
         Console.WriteLine($"xCount: {xCount}, yCount: {yCount}");
         int total = xCount * yCount;
         int current = 0;
-        
+
         // Начало итеративного алгоритма
         while (xQueue.Count > 0)
         {
@@ -105,7 +105,7 @@ public class Slicer
                 xDown + x * xScale, xDown + (x + 1) * xScale,
                 yDown + y * yScale, yDown + (y + 1) * yScale, out IEnumerable<LinearRing> weilerResult);
 
-            // Заполнить текущую клетку
+            // Заполнение текущей клетки
             switch (intersectionType)
             {
                 case IntersectionType.BoxOutsideGeometry:
@@ -115,16 +115,15 @@ public class Slicer
                     result[x, y] = weilerResult;
                     break;
                 case IntersectionType.BoxInGeometry:
-                    result[x, y] = _fullIntersects;
+                    result[x, y] = _inner;
                     break;
                 case IntersectionType.GeometryInBox:
                     result[x, y] = new[] { inputRing };
                     break;
             }
 
-            // Добавить нужные окружающие клетки в очередь
-            if (intersectionType == IntersectionType.IntersectionWithEdge ||
-                intersectionType == IntersectionType.BoxInGeometry)
+            // Добавление нужных окружающих клеток в очередь
+            if (intersectionType is IntersectionType.IntersectionWithEdge or IntersectionType.BoxInGeometry)
             {
                 CheckAndAdd(x - 1, y);
                 CheckAndAdd(x + 1, y);
@@ -138,18 +137,18 @@ public class Slicer
         {
             for (int y = 0; y < yCount; y++)
             {
-                if (ReferenceEquals(result[x, y], _fullIntersects))
+                if (ReferenceEquals(result[x, y], _inner))
                 {
                     result[x, y] = new LinearRing[]
                     {
-                        new LinearRing(new[]
+                        new(new[]
                         {
                             new Coordinate(xDown + x * xScale, yDown + y * yScale),
                             new Coordinate(xDown + x * xScale, yDown + (y + 1) * yScale),
                             new Coordinate(xDown + (x + 1) * xScale, yDown + (y + 1) * yScale),
                             new Coordinate(xDown + x * xScale, yDown + y * yScale)
                         }),
-                        new LinearRing(new[]
+                        new(new[]
                         {
                             new Coordinate(xDown + x * xScale, yDown + y * yScale),
                             new Coordinate(xDown + (x + 1) * xScale, yDown + (y + 1) * yScale),
@@ -160,6 +159,8 @@ public class Slicer
                 }
             }
         }
+
         return result;
     }
+    
 }
