@@ -100,12 +100,12 @@ internal class BoundRService
             bool res;
             if (thisCounterClockwiseBypass)
             {
-                res = SegmentService.InsideTheAngle(
+                res = VectorService.InsideTheAngle(
                     point1Node.Elem, point2, b3, b2, b1);
             }
             else
             {
-                res = SegmentService.InsideTheAngle(
+                res = VectorService.InsideTheAngle(
                     point1Node.Elem, point2, b1, b2, b3);
             }
             
