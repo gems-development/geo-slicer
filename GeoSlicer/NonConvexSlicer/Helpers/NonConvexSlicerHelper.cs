@@ -59,7 +59,7 @@ public class NonConvexSlicerHelper
     private bool FirstPointCanSeeSecond(CoordinatePcn[] ring, CoordinatePcn pointA, CoordinatePcn pointB)
     {
         return pointA.Equals2D(pointB) ||
-               InsideTheAngle(pointA, pointB, ring[pointA.Nl],
+               VectorService.InsideTheAngle(pointA, pointB, ring[pointA.Nl],
                    pointA, ring[pointA.Pl]) ||
                (ring[pointA.Nl].Equals2D(pointB) && pointA.Nl == pointB.C) ||
                (ring[pointA.Pl].Equals2D(pointB) && pointA.Pl == pointB.C);
