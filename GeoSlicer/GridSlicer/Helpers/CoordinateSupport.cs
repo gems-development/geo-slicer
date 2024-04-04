@@ -1,11 +1,7 @@
-﻿using NetTopologySuite.Geometries;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using NetTopologySuite.Geometries;
 
-namespace GeoSlicer.GridSlicer;
+namespace GeoSlicer.GridSlicer.Helpers;
 
 public class CoordinateSupport : Coordinate
 {
