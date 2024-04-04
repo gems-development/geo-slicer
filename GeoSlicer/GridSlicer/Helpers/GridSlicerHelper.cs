@@ -1,13 +1,13 @@
-﻿using GeoSlicer.Utils;
-using GeoSlicer.Utils.Intersectors;
-using GeoSlicer.Utils.Intersectors.CoordinateComparators;
-using NetTopologySuite.Geometries;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using GeoSlicer.Utils;
+using GeoSlicer.Utils.Intersectors;
+using GeoSlicer.Utils.Intersectors.CoordinateComparators;
+using NetTopologySuite.Geometries;
 
-namespace GeoSlicer.GridSlicer;
+namespace GeoSlicer.GridSlicer.Helpers;
 
 public class GridSlicerHelper
 {

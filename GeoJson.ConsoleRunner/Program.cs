@@ -1,4 +1,5 @@
 ﻿using GeoSlicer.GridSlicer;
+using GeoSlicer.GridSlicer.Helpers;
 using GeoSlicer.Utils;
 using GeoSlicer.Utils.Intersectors;
 using GeoSlicer.Utils.Intersectors.CoordinateComparators;

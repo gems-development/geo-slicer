@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using GeoSlicer.GridSlicer.Helpers;
 using GeoSlicer.Utils;
 using GeoSlicer.Utils.Intersectors;
 using GeoSlicer.Utils.Intersectors.CoordinateComparators;
@@ -12,7 +13,7 @@ public class OverlayInWeilerAthertonTests
 
     private static readonly LineService LineService = new LineService(Epsilon);
 
-    private static readonly GridSlicer.GridSlicerHelper SlicerHelper =
+    private static readonly GridSlicerHelper SlicerHelper =
         new(new LinesIntersector(new EpsilonCoordinateComparator(Epsilon), LineService, Epsilon), Epsilon, LineService, new EpsilonCoordinateComparator());
 
 /*
