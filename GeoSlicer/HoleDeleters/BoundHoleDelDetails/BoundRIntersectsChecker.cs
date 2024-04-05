@@ -123,15 +123,21 @@ public static class BoundRIntersectsChecker
             Math.Min(ring1.PointMax.Y, ring2.PointMax.Y));
     }
     
-    //todo Есть аналогичный метод в Intersector.AreasIntersector
     //Проверяет, не пересекает ли рамка кольца boundingRing рамку кольца relativeBoundRing
-    //Считается, что если рамка касается другой рамки, то пересечения нет.
-    public static bool NotIntersect(BoundingRing relativeBoundRing, BoundingRing boundingRing)
+    //Если рамка касается другой рамки(или близка к ней с учетом epsilon), то пересечение есть.
+    public static bool NotIntersect(BoundingRing relativeBoundRing, BoundingRing boundingRing, double epsilon)
     {
-        return boundingRing.PointMin.Y >= relativeBoundRing.PointMax.Y ||
-               boundingRing.PointMax.X <= relativeBoundRing.PointMin.X ||
-               boundingRing.PointMax.Y <= relativeBoundRing.PointMin.Y ||
-               boundingRing.PointMin.X >= relativeBoundRing.PointMax.X;
+        return (boundingRing.PointMin.Y >= relativeBoundRing.PointMax.Y &&
+               !CompareEquality(boundingRing.PointMin.Y, relativeBoundRing.PointMax.Y, epsilon))
+               ||
+               (boundingRing.PointMax.X <= relativeBoundRing.PointMin.X &&
+               !CompareEquality(relativeBoundRing.PointMin.X, boundingRing.PointMax.X, epsilon))
+               ||
+               (boundingRing.PointMax.Y <= relativeBoundRing.PointMin.Y &&
+               !CompareEquality(relativeBoundRing.PointMin.Y, boundingRing.PointMax.Y, epsilon))
+               ||
+               (boundingRing.PointMin.X >= relativeBoundRing.PointMax.X &&
+               !CompareEquality(boundingRing.PointMin.X, relativeBoundRing.PointMax.X, epsilon));
     }
     
     //Проверяет, лежит ли хотя бы одно значение из массива arr в отрезке ab
@@ -158,6 +164,12 @@ public static class BoundRIntersectsChecker
     public static bool PointInsideFrameCheck(Coordinate point, Coordinate pointMin, Coordinate pointMax)
     {
         return point.X < pointMax.X && point.X > pointMin.X && point.Y < pointMax.Y && point.Y > pointMin.Y;
+    }
+    
+    public static bool CompareEquality(double a, double b, double epsilon)
+    {
+        double difference = a - b;
+        return difference >= 0 && difference < epsilon;
     }
     
 }

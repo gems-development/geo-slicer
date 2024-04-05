@@ -26,7 +26,6 @@ public class BoundingHoleDeleter
         DeleteHoles(list);
         return BoundingRing.BoundRingsToPolygon(list);
     }
-    
     private void DeleteHoles(LinkedList<BoundingRing> listOfHoles)
     {
         var thisRing = listOfHoles.First;
@@ -35,7 +34,6 @@ public class BoundingHoleDeleter
 
 
         //int count = listOfHoles.Count;
-        //int r = 0;
         while (listOfHoles.First!.Next is not null)
         {
             /*i++;
@@ -119,11 +117,6 @@ public class BoundingHoleDeleter
                     thisRing = listOfHoles.First;
                 }
             }
-            /*string user = "User";
-            string fileName = "C:\\Users\\" + user + "\\Downloads\\Telegram Desktop\\";
-            
-            r++;
-            GeoJsonFileService.WriteGeometryToFile(BoundingRing.BoundRingsToPolygon(listOfHoles), fileName + "new" + r);*/
         }
     }
     
@@ -814,6 +807,7 @@ public class BoundingHoleDeleter
     {
         LinkedListNode<BoundingRing> connectedFrame;
         LinkedNode<Coordinate> connectedPoint;
+        //todo сделать объединение этих спискков без повторяющихся элементов
         var collectionABC = cache.ListA.Concat(cache.ListB).Concat(cache.ListC);
         if (collectionABC.Any())
         {
@@ -823,11 +817,9 @@ public class BoundingHoleDeleter
         else
         {
             var start = cache.FramesContainThis.First!.Value.Value.Ring;
-
             while(true)
             {
-                if (start.Elem.Y > thisRing.Value.PointMax.Y
-                    || (Math.Abs(start.Elem.Y - thisRing.Value.PointMax.Y) < 1e-9))
+                if (start.Elem.Y >= thisRing.Value.PointMax.Y)
                 {
                     connectedPoint = start;
                     connectedFrame = cache.FramesContainThis.First!.Value;
@@ -837,13 +829,14 @@ public class BoundingHoleDeleter
                 start = start.Next;
             }
         }
-        bool flag;
-        do
+        
+        bool flag = true;
+        while (flag)
         {
             flag = false;
 
-            bool flagFirstCycle;
-            do
+            bool flagFirstCycle = true;
+            while (flagFirstCycle)
             {
                 flagFirstCycle = false;
                 foreach (var frame in cache.IntersectFrames)
@@ -880,10 +873,10 @@ public class BoundingHoleDeleter
                         } while (!ReferenceEquals(start, frame.Value.PointUpNode));
                     }
                 }
-            } while (flagFirstCycle);
+            }
 
-            bool flagSecondCycle;
-            do
+            bool flagSecondCycle = true;
+            while (flagSecondCycle)
             {
                 flagSecondCycle = false;
                 foreach (var frame in collectionABC)
@@ -917,10 +910,10 @@ public class BoundingHoleDeleter
                         } while (!ReferenceEquals(start, frame.boundRing.Value.PointUpNode));
                     }
                 }
-            } while (flagSecondCycle);
+            }
 
-            bool flagThirdCycle;
-            do
+            bool flagThirdCycle = true;
+            while (flagThirdCycle)
             {
                 flagThirdCycle = false;
                 foreach (var shell in cache.FramesContainThis)
@@ -959,8 +952,8 @@ public class BoundingHoleDeleter
                         start = start.Next;
                     } while (!ReferenceEquals(start, shell.Value.Ring));
                 }
-            } while (flagThirdCycle);
-        } while (flag);
+            }
+        }
         
         thisRing.Value.ConnectBoundRings(
             connectedFrame.Value,

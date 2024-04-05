@@ -58,16 +58,63 @@ Console.WriteLine(validator.ValidationError);
 //GeoJsonFileService.WriteGeometryToFile(resultRing, fileName + "daniilTestAfter");*/
 
 
-var polygon = GeoJsonFileService
+/*var polygon = GeoJsonFileService
     .ReadGeometryFromFile<Polygon>
-        (fileName + "original");
+        (fileName + "original");*/
+var step = 0.1;
+Coordinate firstRingCoord = new Coordinate(5, 3 + step);
+LinearRing ring1 = new(
+    new[]
+    {
+        new Coordinate(0, 0),
+        firstRingCoord,
+        new Coordinate(10, 0),
+        new Coordinate(0, 0)
+    });
 
+Coordinate secondRingCoord = new Coordinate(1, 3 - step);
+LinearRing ring2 = new(
+    new[]
+    {
+        secondRingCoord,
+        new Coordinate(1.5, 4),
+        new Coordinate(2, 3),
+        secondRingCoord
+    });
+
+Coordinate thirdRingCoord = new Coordinate(3, 3 - step);
+LinearRing ring3 = new(
+    new[]
+    {
+        thirdRingCoord,
+        new Coordinate(3, 4),
+        new Coordinate(4, 4),
+        new Coordinate(4, 3),
+        thirdRingCoord
+    });
+LinearRing shell = new(
+    new[]
+    {
+        new Coordinate(-11, -11),
+        new Coordinate(-11, 11),
+        new Coordinate(11, 11),
+        new Coordinate(11, -11),
+        new Coordinate(-11, -11)
+    });
+        
+Random random = new Random(1);
+LinearRing[] rings = { ring1, ring2, ring3};
+rings = rings.OrderBy(a => random.NextDouble()).ToArray();
+Polygon polygon = new Polygon(shell, rings);
+polygon = GeoJsonFileService.ReadGeometryFromFile<Polygon>( fileName + "test4");
 double Epsilon = 1e-15;
  TraverseDirection Traverse = new (new LineService(Epsilon));
 BoundingHoleDeleter Deleter =
     new (Traverse, 1e-15);
 
-Deleter.DeleteHoles(polygon);
+var res = Deleter.DeleteHoles(polygon);
+
+GeoJsonFileService.WriteGeometryToFile(res, fileName + "test4_res");
 
 
 

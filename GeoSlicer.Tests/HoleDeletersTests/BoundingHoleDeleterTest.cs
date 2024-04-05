@@ -108,9 +108,6 @@ public class BoundingHoleDeleterTest
     [Fact]
     public void Test3Polygon()
     {
-        
-        //string user = "User";
-        //string fileName = "C:\\Users\\" + user + "\\Downloads\\Telegram Desktop\\";
         //Arrange
         ZeroTunnelDivider divider = ObjectsForTests.GetZeroTunnelDivider();
         LinkedList<Coordinate> problemCoordinates;
@@ -121,19 +118,43 @@ public class BoundingHoleDeleterTest
         while (test3 is not null)
         {
             //Act
-            Polygon newTest3 = Deleter.DeleteHoles(test3!);
+            Polygon newTest3 = Deleter.DeleteHoles(test3);
             divider.DivideZeroTunnels(newTest3.Shell, out extendedTunnelsTest3, out problemCoordinates);
             //Assert
-            /*GeoJsonFileService.WriteGeometryToFile(test3, fileName + "original");
-            GeoJsonFileService.WriteGeometryToFile(newTest3, fileName + "algorithm");
-            GeoJsonFileService.WriteGeometryToFile(extendedTunnelsTest3, fileName + "extendedTunnels");*/
-
             Assert.IsEquals(0, newTest3.Holes.Length);
             Assert.IsEquals(0, problemCoordinates.Count);
             Assert.IsTrue(extendedTunnelsTest3.IsValid);
 
             initialStep += stepSize;
             test3 = ObjectsForTests.GetTest3(initialStep);
+        }
+    }
+    
+    [Fact]
+    public void Test4Polygon()
+    {
+        //Arrange
+        ZeroTunnelDivider divider = ObjectsForTests.GetZeroTunnelDivider();
+        LinkedList<Coordinate> problemCoordinates;
+        LinearRing extendedTunnelsTest4;
+        for (int permutationNumber = 1; permutationNumber <= 6; permutationNumber++)
+        {
+            double step = -0.01;
+            double stepSize = 1e-4;
+            Polygon? test4 = ObjectsForTests.GetTest4(step, permutationNumber);
+            while (test4 is not null)
+            {
+                //Act
+                Polygon newTest4 = Deleter.DeleteHoles(test4);
+                divider.DivideZeroTunnels(newTest4.Shell, out extendedTunnelsTest4, out problemCoordinates);
+                //Assert
+                Assert.IsEquals(0, newTest4.Holes.Length);
+                Assert.IsEquals(0, problemCoordinates.Count);
+                Assert.IsTrue(extendedTunnelsTest4.IsValid);
+
+                step += stepSize;
+                test4 = ObjectsForTests.GetTest4(step, permutationNumber);
+            }
         }
     }
 }

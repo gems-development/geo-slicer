@@ -14,9 +14,10 @@ public static class ObjectsForTests
     public static ZeroTunnelDivider GetZeroTunnelDivider()
     {
         IList<(int countOfSteps, double stepSize)> stepCharacteristic = new List<(int countOfSteps, double stepSize)>();
-        int countOfSteps = 3;
-        stepCharacteristic.Add((countOfSteps, 0.000_001));
-        stepCharacteristic.Add((countOfSteps, 0.000_000_1));
+        int countOfSteps = 2;
+        //stepCharacteristic.Add((countOfSteps, 0.001));
+        //stepCharacteristic.Add((countOfSteps, 0.000_001));
+        //stepCharacteristic.Add((countOfSteps, 0.000_000_1));
         stepCharacteristic.Add((countOfSteps, 0.000_000_01));
         stepCharacteristic.Add((countOfSteps, 0.000_000_005));
         stepCharacteristic.Add((countOfSteps, 0.000_000_000_3));
@@ -134,5 +135,87 @@ public static class ObjectsForTests
             return testPolygon;
         
         return null;
+    }
+    
+    public static Polygon? GetTest4(double step, int permutationNumber)
+    {
+        Coordinate firstRingCoord = new Coordinate(5, 3 + step);
+        LinearRing ring1 = new(
+            new[]
+            {
+                new Coordinate(0, 0),
+                firstRingCoord,
+                new Coordinate(10, 0),
+                new Coordinate(0, 0)
+            });
+
+        Coordinate secondRingCoord = new Coordinate(1, 3 - step);
+        LinearRing ring2 = new(
+            new[]
+            {
+                secondRingCoord,
+                new Coordinate(1.5, 4),
+                new Coordinate(2, 3),
+                secondRingCoord
+            });
+
+        Coordinate thirdRingCoord = new Coordinate(3, 3 - step);
+        LinearRing ring3 = new(
+            new[]
+            {
+                thirdRingCoord,
+                new Coordinate(3, 4),
+                new Coordinate(4, 4),
+                new Coordinate(4, 3),
+                thirdRingCoord
+            });
+        
+        LinearRing shell = new(
+            new[]
+            {
+                new Coordinate(-11, -11),
+                new Coordinate(-11, 11),
+                new Coordinate(11, 11),
+                new Coordinate(11, -11),
+                new Coordinate(-11, -11)
+            });
+
+        LinearRing[] rings = GetPermutationArray(ring1, ring2, ring3, permutationNumber);
+        Polygon testPolygon = new Polygon(shell,  rings);
+        
+        if (testPolygon.IsValid)
+            return testPolygon;
+        
+        return null;
+    }
+
+    private static LinearRing[] GetPermutationArray(LinearRing a, LinearRing b, LinearRing c, int permutationNumber)
+    {
+        if (permutationNumber == 1)
+        {
+            return new []{a, b, c};
+        }
+        if (permutationNumber == 2)
+        {
+            return new []{a, c, b};
+        }
+        if (permutationNumber == 3)
+        {
+            return new []{b, c, a};
+        }
+        if (permutationNumber == 4)
+        {
+           return new []{b, a, c};
+        }
+        if (permutationNumber == 5)
+        {
+            return new []{c, a, b};
+        }
+        if (permutationNumber == 6)
+        {
+            return new []{c, b, a};
+        }
+
+        throw new ArgumentException("permutationNumber belongs to the range from 1 to 6");
     }
 }

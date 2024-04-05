@@ -102,7 +102,7 @@ internal class PartitionBoundRingsCache
                             IntersectFrames.AddFirst(thisRing);
                     }
                 }
-                else if (BoundRIntersectsChecker.NotIntersect(boundRing.Value, thisRing.Value))
+                else if (BoundRIntersectsChecker.NotIntersect(boundRing.Value, thisRing.Value, _epsilon))
                 {
                     if (IntersectOrContainFrames(boundRing, thisRing))
                         DetectPartitingZone(boundRing, thisRing);
@@ -165,10 +165,12 @@ internal class PartitionBoundRingsCache
         bool flagEfg = false;
         bool flagAhg = false;
         if (boundRing.Value.PointMin.Y > relativeBoundRing.Value.PointMax.Y &&
-            !CompareEquality(boundRing.Value.PointMin.Y, relativeBoundRing.Value.PointMax.Y, _epsilon))
+            !BoundRIntersectsChecker
+                .CompareEquality(boundRing.Value.PointMin.Y, relativeBoundRing.Value.PointMax.Y, _epsilon))
         {
             if (boundRing.Value.PointMin.X < relativeBoundRing.Value.PointMin.X ||
-                CompareEquality(relativeBoundRing.Value.PointMin.X, boundRing.Value.PointMin.X, _epsilon))
+                BoundRIntersectsChecker
+                    .CompareEquality(relativeBoundRing.Value.PointMin.X, boundRing.Value.PointMin.X, _epsilon))
             {
                 list.Add(PartitioningZones.C);
                 ListC.AddFirst((boundRing, list));
@@ -176,7 +178,8 @@ internal class PartitionBoundRingsCache
             }
 
             if (boundRing.Value.PointMax.X > relativeBoundRing.Value.PointMax.X ||
-                CompareEquality(boundRing.Value.PointMax.X, relativeBoundRing.Value.PointMax.X, _epsilon))
+                BoundRIntersectsChecker
+                    .CompareEquality(boundRing.Value.PointMax.X, relativeBoundRing.Value.PointMax.X, _epsilon))
             {
                 list.Add(PartitioningZones.A);
                 ListA.AddFirst((boundRing, list));
@@ -198,10 +201,12 @@ internal class PartitionBoundRingsCache
         }
 
         else if (boundRing.Value.PointMax.X < relativeBoundRing.Value.PointMin.X &&
-                 !CompareEquality(relativeBoundRing.Value.PointMin.X, boundRing.Value.PointMax.X, _epsilon))
+                 !BoundRIntersectsChecker
+                     .CompareEquality(relativeBoundRing.Value.PointMin.X, boundRing.Value.PointMax.X, _epsilon))
         {
             if (boundRing.Value.PointMax.Y > relativeBoundRing.Value.PointMax.Y ||
-                CompareEquality(boundRing.Value.PointMax.Y, relativeBoundRing.Value.PointMax.Y, _epsilon))
+                BoundRIntersectsChecker
+                    .CompareEquality(boundRing.Value.PointMax.Y, relativeBoundRing.Value.PointMax.Y, _epsilon))
             {
                 list.Add(PartitioningZones.C); 
                 ListC.AddFirst((boundRing, list));
@@ -209,7 +214,8 @@ internal class PartitionBoundRingsCache
             }
 
             if (boundRing.Value.PointMin.Y < relativeBoundRing.Value.PointMin.Y ||
-                CompareEquality(relativeBoundRing.Value.PointMin.Y, boundRing.Value.PointMin.Y, _epsilon))
+                BoundRIntersectsChecker
+                    .CompareEquality(relativeBoundRing.Value.PointMin.Y, boundRing.Value.PointMin.Y, _epsilon))
             {
                 list.Add(PartitioningZones.E);
                 ListE.AddFirst((boundRing, list));
@@ -231,10 +237,12 @@ internal class PartitionBoundRingsCache
         }
 
         else if (boundRing.Value.PointMax.Y < relativeBoundRing.Value.PointMin.Y &&
-                 !CompareEquality(relativeBoundRing.Value.PointMin.Y, boundRing.Value.PointMax.Y, _epsilon))
+                 !BoundRIntersectsChecker
+                     .CompareEquality(relativeBoundRing.Value.PointMin.Y, boundRing.Value.PointMax.Y, _epsilon))
         {
             if (boundRing.Value.PointMax.X > relativeBoundRing.Value.PointMax.X ||
-                CompareEquality(boundRing.Value.PointMax.X, relativeBoundRing.Value.PointMax.X, _epsilon))
+                BoundRIntersectsChecker
+                    .CompareEquality(boundRing.Value.PointMax.X, relativeBoundRing.Value.PointMax.X, _epsilon))
             {
                 list.Add(PartitioningZones.G);
                 ListG.AddFirst((boundRing, list));
@@ -242,7 +250,8 @@ internal class PartitionBoundRingsCache
             }
 
             if (boundRing.Value.PointMin.X < relativeBoundRing.Value.PointMin.X ||
-                CompareEquality(relativeBoundRing.Value.PointMin.X, boundRing.Value.PointMin.X, _epsilon))
+                BoundRIntersectsChecker
+                    .CompareEquality(relativeBoundRing.Value.PointMin.X, boundRing.Value.PointMin.X, _epsilon))
             {
                 list.Add(PartitioningZones.E);
                 ListE.AddFirst((boundRing, list));
@@ -263,10 +272,12 @@ internal class PartitionBoundRingsCache
         }
 
         else if (boundRing.Value.PointMin.X > relativeBoundRing.Value.PointMax.X && 
-                 !CompareEquality(boundRing.Value.PointMin.X, relativeBoundRing.Value.PointMax.X, _epsilon))
+                 !BoundRIntersectsChecker
+                     .CompareEquality(boundRing.Value.PointMin.X, relativeBoundRing.Value.PointMax.X, _epsilon))
         {
             if (boundRing.Value.PointMin.Y < relativeBoundRing.Value.PointMin.Y ||
-                CompareEquality(relativeBoundRing.Value.PointMin.Y, boundRing.Value.PointMin.Y, _epsilon))
+                BoundRIntersectsChecker
+                    .CompareEquality(relativeBoundRing.Value.PointMin.Y, boundRing.Value.PointMin.Y, _epsilon))
             {
                 list.Add(PartitioningZones.G);
                 ListG.AddFirst((boundRing, list));
@@ -274,7 +285,8 @@ internal class PartitionBoundRingsCache
             }
 
             if (boundRing.Value.PointMax.Y > relativeBoundRing.Value.PointMax.Y ||
-                CompareEquality(boundRing.Value.PointMax.Y, relativeBoundRing.Value.PointMax.Y, _epsilon))
+                BoundRIntersectsChecker
+                    .CompareEquality(boundRing.Value.PointMax.Y, relativeBoundRing.Value.PointMax.Y, _epsilon))
             {
                 list.Add(PartitioningZones.A);
                 ListA.AddFirst((boundRing, list));
@@ -323,11 +335,5 @@ internal class PartitionBoundRingsCache
         }
         
         return true;
-    }
-
-    private static bool CompareEquality(double a, double b, double epsilon)
-    {
-        double difference = a - b;
-        return difference >= 0 && difference < epsilon;
     }
 }
