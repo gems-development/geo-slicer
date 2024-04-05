@@ -162,7 +162,7 @@ public class WeilerAthertonTests
         {
             new LinearRing(new Coordinate[]
             {
-                new(2, 4), new(3, 4), new(4, 1), new(2, 1), new(2, 4)
+                new(3, 4), new(4, 1), new(2, 1), new(2, 4), new(3, 4)
             })
         };
 
@@ -246,7 +246,7 @@ public class WeilerAthertonTests
         {
             new LinearRing(new Coordinate[]
             {
-                new(2, -1), new(2, -2), new(1, -2), new(1, -1), new(2, -1)
+                new(1, -1), new( 2, -1), new(2, -2), new(1, -2), new(1, -1)
             })
         };
 
@@ -307,7 +307,7 @@ public class WeilerAthertonTests
         {
             new LinearRing(new Coordinate[]
             {
-                new(0, 0), new(0, 2), new(2, 2), new(2, -2), new(-1, -1), new(0, 0)
+                new(0, 0), new(0, 2), new(2, 2), new(2, -2), new(0, -2), new(-1, -1), new(0, 0)
             })
         };
 
