@@ -8,7 +8,7 @@
 //G - Юго-восток
 //H - Восток
 //ABC - объединение северо-запада, севера, севера-востока. Остальные аналогично.
-public enum PartitioningZones
+public enum SeparatingZones
 { 
     A, B, C, D, E, F, G, H, ABC, CDE, EFG, AHG
 }

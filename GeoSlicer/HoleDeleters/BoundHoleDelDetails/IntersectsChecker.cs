@@ -6,7 +6,7 @@ using NetTopologySuite.Geometries;
 
 namespace GeoSlicer.HoleDeleters.BoundHoleDelDetails;
 
-public static class BoundRIntersectsChecker
+public static class IntersectsChecker
 {
     //Проверяет, что прямая ab пересекает кольцо ring, игнорируя особый случай пересечения.
     //Особый случай пересечения - прямая ab касается точкой a или b кольца ring в какой-нибудь его вершине.
