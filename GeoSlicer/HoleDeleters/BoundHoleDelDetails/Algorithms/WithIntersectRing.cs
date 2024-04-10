@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using GeoSlicer.HoleDeleters.BoundHoleDelDetails.Structures;
 using GeoSlicer.Utils.BoundRing;
 using NetTopologySuite.Geometries;
@@ -58,27 +59,27 @@ internal static class WithIntersectRing
                 }
             }
         }*/
-        if (cache.NearAbcSegmentIntersect is not null)
+        if (cache.NearSegmentIntersect.TryGetValue(Zones.Abc, out var ringAndPoint))
         {
-            bool flag = ConnectWithBoundRFrameWhoContainThisRing(cache.NearAbcSegmentIntersect, thisRing, listOfHoles, SeparatingZones.ABC, cache);
+            bool flag = ConnectWithBoundRFrameWhoContainThisRing(ringAndPoint, thisRing, listOfHoles, Zones.Abc, cache);
             if (flag)
                 return true;
         }
-        if (cache.NearCdeSegmentIntersect is not null)
+        if (cache.NearSegmentIntersect.TryGetValue(Zones.Cde, out ringAndPoint))
         {
-            bool flag = ConnectWithBoundRFrameWhoContainThisRing(cache.NearCdeSegmentIntersect, thisRing, listOfHoles, SeparatingZones.CDE, cache);
+            bool flag = ConnectWithBoundRFrameWhoContainThisRing(ringAndPoint, thisRing, listOfHoles, Zones.Cde, cache);
             if (flag)
                 return true;
         }
-        if (cache.NearEfgSegmentIntersect is not null)
+        if (cache.NearSegmentIntersect.TryGetValue(Zones.Efg, out ringAndPoint))
         {
-            bool flag = ConnectWithBoundRFrameWhoContainThisRing(cache.NearEfgSegmentIntersect, thisRing, listOfHoles, SeparatingZones.EFG, cache);
+            bool flag = ConnectWithBoundRFrameWhoContainThisRing(ringAndPoint, thisRing, listOfHoles, Zones.Efg, cache);
             if (flag)
                 return true;
         }
-        if (cache.NearAhgSegmentIntersect is not null)
+        if (cache.NearSegmentIntersect.TryGetValue(Zones.Ahg, out ringAndPoint))
         {
-            bool flag = ConnectWithBoundRFrameWhoContainThisRing(cache.NearAhgSegmentIntersect, thisRing, listOfHoles, SeparatingZones.AHG, cache);
+            bool flag = ConnectWithBoundRFrameWhoContainThisRing(ringAndPoint, thisRing, listOfHoles, Zones.Ahg, cache);
             if (flag)
                 return true;
         }
@@ -94,7 +95,7 @@ internal static class WithIntersectRing
         RingAndPoint? nearSegmentIntersect,
         LinkedListNode<BoundingRing> thisRing,
         LinkedList<BoundingRing> listOfHoles, 
-        SeparatingZones zones, 
+        Zones zones, 
         Cache cache)
     {
         var coord = nearSegmentIntersect!.Start;
@@ -115,11 +116,11 @@ internal static class WithIntersectRing
         } while (startFrameContainThis is not null);
 
         LinkedNode<Coordinate> connectCoordThisR;
-        if (zones == SeparatingZones.ABC)
+        if (zones == Zones.Abc)
             connectCoordThisR = thisRing.Value.PointUpNode;
-        else if (zones == SeparatingZones.CDE)
+        else if (zones == Zones.Cde)
             connectCoordThisR = thisRing.Value.PointLeftNode;
-        else if (zones == SeparatingZones.EFG)
+        else if (zones == Zones.Efg)
             connectCoordThisR = thisRing.Value.PointDownNode;
         else
             connectCoordThisR = thisRing.Value.PointRightNode;
@@ -162,24 +163,24 @@ internal static class WithIntersectRing
     
     private static LinkedNode<Coordinate> RearrangePoints(
         LinkedNode<Coordinate> coord,
-        SeparatingZones zones,
+        Zones zones,
         LinkedListNode<BoundingRing> thisRing)
     {
-        if (zones == SeparatingZones.ABC)
+        if (zones == Zones.Abc)
         {
             if (coord.Elem.Y < thisRing.Value.PointUpNode.Elem.Y)
             {
                 coord = coord.Next;
             }
         }
-        else if (zones == SeparatingZones.CDE)
+        else if (zones == Zones.Cde)
         {
             if (coord.Elem.X > thisRing.Value.PointLeftNode.Elem.X)
             {
                 coord = coord.Next;
             }
         }
-        else if (zones == SeparatingZones.EFG)
+        else if (zones == Zones.Efg)
         {
             if (coord.Elem.Y > thisRing.Value.PointDownNode.Elem.Y)
             {

@@ -27,7 +27,7 @@ internal static class NoIntersectRectangles
         Coordinate? firstCoordLineConnectNearAhg = null;
         Coordinate? secondCoordLineConnectNearAhg = null;
 
-        if (cache.NearAbc is null)
+        if (!cache.NearRing.ContainsKey(Zones.Abc))
             flagAbcCanConnect = false;
         else
         {
@@ -35,27 +35,26 @@ internal static class NoIntersectRectangles
             bool flagB = false;
             bool flagC = false;
             firstCoordLineConnectNearAbc = thisRing.Value.PointUpNode.Elem;
-            secondCoordLineConnectNearAbc = cache.NearAbc!.BoundRing.Value.PointDownNode.Elem;
-            foreach (var zone in cache.NearAbc!.Zones)
+            secondCoordLineConnectNearAbc = cache.NearRing[Zones.Abc].BoundRing.Value.PointDownNode.Elem;
+            foreach (var zone in cache.NearRing[Zones.Abc].Zones)
             {
-                if (!flagA && zone == SeparatingZones.A)
+                if (!flagA && zone == Zones.A)
                     flagA = true;
-                else if (!flagB && zone == SeparatingZones.B)
+                else if (!flagB && zone == Zones.B)
                     flagB = true;
                 else flagC = true;
             }
 
             if (flagC)
             {
-                foreach (var frame in cache.ListC)
+                foreach (var frame in cache.RingsInZone[Zones.C])
                 {
-                    if (!frame.Zones.Contains(SeparatingZones.B)
+                    if (!frame.Zones.Contains(Zones.B)
                         && frame.BoundRing.Value.PointMin.Y < thisRing.Value.PointMax.Y
                         && IntersectsChecker.HasIntersectsBoundRFrame(frame.BoundRing.Value, firstCoordLineConnectNearAbc,
                             secondCoordLineConnectNearAbc) &&
-                        !ReferenceEquals(frame.BoundRing.Value, cache.NearAbc.BoundRing.Value))
+                        !ReferenceEquals(frame.BoundRing.Value, cache.NearRing[Zones.Abc].BoundRing.Value))
                     {
-                        cache.NearAbcIntersect = frame;
                         flagAbcCanConnect = false;
                     }
                 }
@@ -63,15 +62,14 @@ internal static class NoIntersectRectangles
 
             if (flagA && flagAbcCanConnect)
             {
-                foreach (var frame in cache.ListA)
+                foreach (var frame in cache.RingsInZone[Zones.A])
                 {
-                    if (!frame.Zones.Contains(SeparatingZones.B)
+                    if (!frame.Zones.Contains(Zones.B)
                         && frame.BoundRing.Value.PointMin.Y < thisRing.Value.PointMax.Y
                         && IntersectsChecker.HasIntersectsBoundRFrame(frame.BoundRing.Value, firstCoordLineConnectNearAbc,
                             secondCoordLineConnectNearAbc) &&
-                        !ReferenceEquals(frame.BoundRing.Value, cache.NearAbc.BoundRing.Value))
+                        !ReferenceEquals(frame.BoundRing.Value, cache.NearRing[Zones.Abc].BoundRing.Value))
                     {
-                        cache.NearAbcIntersect = frame;
                         flagAbcCanConnect = false;
                     }
                 }
@@ -80,7 +78,7 @@ internal static class NoIntersectRectangles
         }
 
 
-        if (cache.NearCde is null)
+        if (!cache.NearRing.ContainsKey(Zones.Cde))
             flagCdeCanConnect = false;
         else
         {
@@ -88,28 +86,27 @@ internal static class NoIntersectRectangles
             bool flagD = false;
             bool flagE = false;
             firstCoordLineConnectNearCde = thisRing.Value.PointLeftNode.Elem;
-            secondCoordLineConnectNearCde = cache.NearCde!.BoundRing.Value.PointRightNode.Elem;
+            secondCoordLineConnectNearCde = cache.NearRing[Zones.Cde].BoundRing.Value.PointRightNode.Elem;
 
-            foreach (var zone in cache.NearCde!.Zones)
+            foreach (var zone in cache.NearRing[Zones.Cde].Zones)
             {
-                if (!flagC && zone == SeparatingZones.C)
+                if (!flagC && zone == Zones.C)
                     flagC = true;
-                else if (!flagD && zone == SeparatingZones.D)
+                else if (!flagD && zone == Zones.D)
                     flagD = true;
                 else flagE = true;
             }
 
             if (flagC)
             {
-                foreach (var frame in cache.ListC)
+                foreach (var frame in cache.RingsInZone[Zones.C])
                 {
-                    if (!frame.Zones.Contains(SeparatingZones.D)
+                    if (!frame.Zones.Contains(Zones.D)
                         && frame.BoundRing.Value.PointMax.X > thisRing.Value.PointMin.X
                         && IntersectsChecker.HasIntersectsBoundRFrame(frame.BoundRing.Value, firstCoordLineConnectNearCde,
                             secondCoordLineConnectNearCde) &&
-                        !ReferenceEquals(frame.BoundRing.Value, cache.NearCde.BoundRing.Value))
+                        !ReferenceEquals(frame.BoundRing.Value, cache.NearRing[Zones.Cde].BoundRing.Value))
                     {
-                        cache.NearCdeIntersect = frame;
                         flagCdeCanConnect = false;
                     }
                 }
@@ -118,15 +115,14 @@ internal static class NoIntersectRectangles
 
             if (flagE && flagCdeCanConnect)
             {
-                foreach (var frame in cache.ListE)
+                foreach (var frame in cache.RingsInZone[Zones.E])
                 {
-                    if (!frame.Zones.Contains(SeparatingZones.D)
+                    if (!frame.Zones.Contains(Zones.D)
                         && frame.BoundRing.Value.PointMax.X > thisRing.Value.PointMin.X
                         && IntersectsChecker.HasIntersectsBoundRFrame(frame.BoundRing.Value, firstCoordLineConnectNearCde,
                             secondCoordLineConnectNearCde) &&
-                        !ReferenceEquals(frame.BoundRing.Value, cache.NearCde.BoundRing.Value))
+                        !ReferenceEquals(frame.BoundRing.Value, cache.NearRing[Zones.Cde].BoundRing.Value))
                     {
-                        cache.NearCdeIntersect = frame;
                         flagCdeCanConnect = false;
                     }
                 }
@@ -136,7 +132,7 @@ internal static class NoIntersectRectangles
 
 
 
-        if (cache.NearEfg is null)
+        if (!cache.NearRing.ContainsKey(Zones.Efg))
             flagEfgCanConnect = false;
         else
         {
@@ -144,27 +140,26 @@ internal static class NoIntersectRectangles
             bool flagF = false;
             bool flagG = false;
             firstCoordLineConnectNearEfg = thisRing.Value.PointDownNode.Elem;
-            secondCoordLineConnectNearEfg = cache.NearEfg!.BoundRing.Value.PointUpNode.Elem;
-            foreach (var zone in cache.NearEfg!.Zones)
+            secondCoordLineConnectNearEfg = cache.NearRing[Zones.Efg].BoundRing.Value.PointUpNode.Elem;
+            foreach (var zone in cache.NearRing[Zones.Efg].Zones)
             {
-                if (!flagE && zone == SeparatingZones.E)
+                if (!flagE && zone == Zones.E)
                     flagE = true;
-                else if (!flagF && zone == SeparatingZones.F)
+                else if (!flagF && zone == Zones.F)
                     flagF = true;
                 else flagG = true;
             }
 
             if (flagE)
             {
-                foreach (var frame in cache.ListE)
+                foreach (var frame in cache.RingsInZone[Zones.E])
                 {
-                    if (!frame.Zones.Contains(SeparatingZones.F)
+                    if (!frame.Zones.Contains(Zones.F)
                         && frame.BoundRing.Value.PointMax.Y > thisRing.Value.PointMin.Y
                         && IntersectsChecker.HasIntersectsBoundRFrame(frame.BoundRing.Value, firstCoordLineConnectNearEfg,
                             secondCoordLineConnectNearEfg) &&
-                        !ReferenceEquals(frame.BoundRing.Value, cache.NearEfg.BoundRing.Value))
+                        !ReferenceEquals(frame.BoundRing.Value, cache.NearRing[Zones.Efg].BoundRing.Value))
                     {
-                        cache.NearEfgIntersect = frame;
                         flagEfgCanConnect = false;
                     }
                 }
@@ -172,15 +167,14 @@ internal static class NoIntersectRectangles
 
             if (flagG && flagEfgCanConnect)
             {
-                foreach (var frame in cache.ListG)
+                foreach (var frame in cache.RingsInZone[Zones.G])
                 {
-                    if (!frame.Zones.Contains(SeparatingZones.F)
+                    if (!frame.Zones.Contains(Zones.F)
                         && frame.BoundRing.Value.PointMax.Y > thisRing.Value.PointMin.Y
                         && IntersectsChecker.HasIntersectsBoundRFrame(frame.BoundRing.Value, firstCoordLineConnectNearEfg,
                             secondCoordLineConnectNearEfg) &&
-                        !ReferenceEquals(frame.BoundRing.Value, cache.NearEfg.BoundRing.Value))
+                        !ReferenceEquals(frame.BoundRing.Value, cache.NearRing[Zones.Efg].BoundRing.Value))
                     {
-                        cache.NearEfgIntersect = frame;
                         flagEfgCanConnect = false;
                     }
                 }
@@ -189,7 +183,7 @@ internal static class NoIntersectRectangles
 
 
 
-        if (cache.NearAhg is null)
+        if (!cache.NearRing.ContainsKey(Zones.Ahg))
             flagAhgCanConnect = false;
         else
         {
@@ -197,27 +191,26 @@ internal static class NoIntersectRectangles
             bool flagH = false;
             bool flagG = false;
             firstCoordLineConnectNearAhg = thisRing.Value.PointRightNode.Elem;
-            secondCoordLineConnectNearAhg = cache.NearAhg!.BoundRing.Value.PointLeftNode.Elem;
-            foreach (var zone in cache.NearAhg!.Zones)
+            secondCoordLineConnectNearAhg = cache.NearRing[Zones.Ahg].BoundRing.Value.PointLeftNode.Elem;
+            foreach (var zone in cache.NearRing[Zones.Ahg].Zones)
             {
-                if (!flagA && zone == SeparatingZones.A)
+                if (!flagA && zone == Zones.A)
                     flagA = true;
-                else if (!flagH && zone == SeparatingZones.H)
+                else if (!flagH && zone == Zones.H)
                     flagH = true;
                 else flagG = true;
             }
 
             if (flagA)
             {
-                foreach (var frame in cache.ListA)
+                foreach (var frame in cache.RingsInZone[Zones.A])
                 {
-                    if (!frame.Zones.Contains(SeparatingZones.H)
+                    if (!frame.Zones.Contains(Zones.H)
                         && frame.BoundRing.Value.PointMin.X < thisRing.Value.PointMax.X
                         && IntersectsChecker.HasIntersectsBoundRFrame(frame.BoundRing.Value, firstCoordLineConnectNearAhg,
                             secondCoordLineConnectNearAhg) &&
-                        !ReferenceEquals(frame.BoundRing.Value, cache.NearAhg.BoundRing.Value))
+                        !ReferenceEquals(frame.BoundRing.Value, cache.NearRing[Zones.Ahg].BoundRing.Value))
                     {
-                        cache.NearAhgIntersect = frame;
                         flagAhgCanConnect = false;
                     }
                 }
@@ -225,15 +218,14 @@ internal static class NoIntersectRectangles
 
             if (flagG && flagAhgCanConnect)
             {
-                foreach (var frame in cache.ListG)
+                foreach (var frame in cache.RingsInZone[Zones.G])
                 {
-                    if (!frame.Zones.Contains(SeparatingZones.H)
+                    if (!frame.Zones.Contains(Zones.H)
                         && frame.BoundRing.Value.PointMin.X < thisRing.Value.PointMax.X
                         && IntersectsChecker.HasIntersectsBoundRFrame(frame.BoundRing.Value, firstCoordLineConnectNearAhg,
                             secondCoordLineConnectNearAhg) &&
-                        !ReferenceEquals(frame.BoundRing.Value, cache.NearAhg.BoundRing.Value))
+                        !ReferenceEquals(frame.BoundRing.Value, cache.NearRing[Zones.Ahg].BoundRing.Value))
                     {
-                        cache.NearAhgIntersect = frame;
                         flagAhgCanConnect = false;
                     }
                 }
@@ -259,7 +251,8 @@ internal static class NoIntersectRectangles
                     if (IntersectsChecker.HasIntersectedSegments(firstCoordLineConnectNearAbc!, secondCoordLineConnectNearAbc!, buffer.Elem,
                             buffer.Next.Elem))
                     {
-                        cache.NearAbcSegmentIntersect = new RingAndPoint(frameWhoContainThis, buffer);
+                        cache.NearSegmentIntersect.Remove(Zones.Abc);
+                        cache.NearSegmentIntersect.Add(Zones.Abc, new RingAndPoint(frameWhoContainThis, buffer));
                         flagAbcCanConnect = false;
 
                     }
@@ -274,7 +267,8 @@ internal static class NoIntersectRectangles
                     if (IntersectsChecker.HasIntersectedSegments(firstCoordLineConnectNearCde!, secondCoordLineConnectNearCde!, buffer.Elem,
                             buffer.Next.Elem))
                     {
-                        cache.NearCdeSegmentIntersect = new RingAndPoint(frameWhoContainThis, buffer);
+                        cache.NearSegmentIntersect.Remove(Zones.Cde);
+                        cache.NearSegmentIntersect.Add(Zones.Cde, new RingAndPoint(frameWhoContainThis, buffer));
                         flagCdeCanConnect = false;
                     }
                 }
@@ -288,7 +282,8 @@ internal static class NoIntersectRectangles
                     if (IntersectsChecker.HasIntersectedSegments(firstCoordLineConnectNearEfg!, secondCoordLineConnectNearEfg!, buffer.Elem,
                             buffer.Next.Elem))
                     {
-                        cache.NearEfgSegmentIntersect = new RingAndPoint(frameWhoContainThis, buffer);
+                        cache.NearSegmentIntersect.Remove(Zones.Efg);
+                        cache.NearSegmentIntersect.Add(Zones.Efg, new RingAndPoint(frameWhoContainThis, buffer));
                         flagEfgCanConnect = false;
                     }
                 }
@@ -302,7 +297,8 @@ internal static class NoIntersectRectangles
                     if (IntersectsChecker.HasIntersectedSegments(firstCoordLineConnectNearAhg!, secondCoordLineConnectNearAhg!, buffer.Elem,
                             buffer.Next.Elem))
                     {
-                        cache.NearAhgSegmentIntersect = new RingAndPoint(frameWhoContainThis, buffer);
+                        cache.NearSegmentIntersect.Remove(Zones.Ahg);
+                        cache.NearSegmentIntersect.Add(Zones.Ahg, new RingAndPoint(frameWhoContainThis, buffer));
                         flagAhgCanConnect = false;
                     }
                 }
@@ -317,39 +313,39 @@ internal static class NoIntersectRectangles
         if (flagAbcCanConnect)
         {
             thisRing.Value.ConnectBoundRings(
-                cache.NearAbc!.BoundRing.Value,
+                cache.NearRing[Zones.Abc].BoundRing.Value,
                 thisRing.Value.PointUpNode,
-                cache.NearAbc.BoundRing.Value.PointDownNode);
+                cache.NearRing[Zones.Abc].BoundRing.Value.PointDownNode);
             
-            listOfHoles.Remove(cache.NearAbc.BoundRing);
+            listOfHoles.Remove(cache.NearRing[Zones.Abc].BoundRing);
         }
 
         if (flagCdeCanConnect && oldPointMin.Equals(thisRing.Value.PointMin))
         {
             thisRing.Value.ConnectBoundRings(
-                cache.NearCde!.BoundRing.Value,
+                cache.NearRing[Zones.Cde].BoundRing.Value,
                 thisRing.Value.PointLeftNode,
-                cache.NearCde.BoundRing.Value.PointRightNode);
+                cache.NearRing[Zones.Cde].BoundRing.Value.PointRightNode);
 
-            listOfHoles.Remove(cache.NearCde.BoundRing);
+            listOfHoles.Remove(cache.NearRing[Zones.Cde].BoundRing);
         }
 
         if (flagEfgCanConnect && oldPointMin.Equals(thisRing.Value.PointMin))
         {
             thisRing.Value.ConnectBoundRings(
-                cache.NearEfg!.BoundRing.Value,
+                cache.NearRing[Zones.Efg].BoundRing.Value,
                 thisRing.Value.PointDownNode,
-                cache.NearEfg.BoundRing.Value.PointUpNode);
-            listOfHoles.Remove(cache.NearEfg.BoundRing);
+                cache.NearRing[Zones.Efg].BoundRing.Value.PointUpNode);
+            listOfHoles.Remove(cache.NearRing[Zones.Efg].BoundRing);
         }
 
         if (flagAhgCanConnect && oldPointMax.Equals(thisRing.Value.PointMax))
         {
             thisRing.Value.ConnectBoundRings(
-                cache.NearAhg!.BoundRing.Value,
+                cache.NearRing[Zones.Ahg].BoundRing.Value,
                 thisRing.Value.PointRightNode,
-                cache.NearAhg.BoundRing.Value.PointLeftNode);
-            listOfHoles.Remove(cache.NearAhg.BoundRing);
+                cache.NearRing[Zones.Ahg].BoundRing.Value.PointLeftNode);
+            listOfHoles.Remove(cache.NearRing[Zones.Ahg].BoundRing);
         }
 
         return flagAbcCanConnect || flagCdeCanConnect || flagEfgCanConnect || flagAhgCanConnect;

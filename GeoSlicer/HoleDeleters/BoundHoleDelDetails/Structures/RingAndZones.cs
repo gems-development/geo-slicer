@@ -6,9 +6,9 @@ namespace GeoSlicer.HoleDeleters.BoundHoleDelDetails.Structures;
 internal class RingAndZones
 {
     internal readonly LinkedListNode<BoundingRing> BoundRing;
-    internal readonly List<SeparatingZones> Zones;
+    internal readonly List<Zones> Zones;
 
-    internal RingAndZones(LinkedListNode<BoundingRing> boundRing, List<SeparatingZones> zones)
+    internal RingAndZones(LinkedListNode<BoundingRing> boundRing, List<Zones> zones)
     {
         BoundRing = boundRing;
         Zones = zones;

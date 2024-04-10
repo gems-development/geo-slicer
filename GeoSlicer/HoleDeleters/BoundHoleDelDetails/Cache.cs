@@ -11,63 +11,43 @@ namespace GeoSlicer.HoleDeleters.BoundHoleDelDetails;
 internal class Cache
 {
     private readonly double _epsilon;
-    
-    internal LinkedList<RingAndZones> ListA { get; private set; } = new ();
-    internal LinkedList<RingAndZones> ListB { get; private set; } = new ();
-    internal LinkedList<RingAndZones> ListC{ get; private set; } = new ();
-    internal LinkedList<RingAndZones> ListD{ get; private set; } = new ();
-    internal LinkedList<RingAndZones> ListE{ get; private set; } = new ();
-    internal LinkedList<RingAndZones> ListF{ get; private set; } = new ();
-    internal LinkedList<RingAndZones> ListG { get; private set; } = new();
-    internal LinkedList<RingAndZones> ListH { get; private set; } = new();
 
-    internal LinkedList<LinkedListNode<BoundingRing>>IntersectFrames { get; private set; } = new();
-    internal LinkedList<LinkedListNode<BoundingRing>> FramesContainThis { get; private set; } = new();
+    internal readonly IReadOnlyDictionary<Zones, LinkedList<RingAndZones>> RingsInZone;
     
-    internal RingAndZones? NearAbc { get; private set; }
-    internal RingAndZones? NearCde { get; private set; }
-    internal RingAndZones? NearEfg { get; private set; }
-    internal RingAndZones? NearAhg { get; private set; }
-    
-    internal RingAndZones? NearAbcIntersect { get; set; }
-    internal RingAndZones? NearCdeIntersect { get; set; }
-    internal RingAndZones? NearEfgIntersect { get; set; }
-    internal RingAndZones? NearAhgIntersect { get; set; }
-    internal RingAndPoint? NearAbcSegmentIntersect { get; set; }
-    internal RingAndPoint? NearCdeSegmentIntersect { get; set; }
-    internal RingAndPoint? NearEfgSegmentIntersect { get; set; }
-    internal RingAndPoint? NearAhgSegmentIntersect { get; set; }
+    internal readonly LinkedList<LinkedListNode<BoundingRing>>IntersectFrames = new();
+    internal readonly LinkedList<LinkedListNode<BoundingRing>> FramesContainThis = new();
+
+    internal readonly Dictionary<Zones, RingAndZones> NearRing = new();
+    internal readonly Dictionary<Zones, RingAndPoint> NearSegmentIntersect = new();
 
     internal Cache(double epsilon)
     {
         _epsilon = epsilon;
+        var thisRingsInZone = new Dictionary<Zones, LinkedList<RingAndZones>>();
+        thisRingsInZone.Add(Zones.A, new LinkedList<RingAndZones>());
+        thisRingsInZone.Add(Zones.B, new LinkedList<RingAndZones>());
+        thisRingsInZone.Add(Zones.C, new LinkedList<RingAndZones>());
+        thisRingsInZone.Add(Zones.D, new LinkedList<RingAndZones>());
+        thisRingsInZone.Add(Zones.E, new LinkedList<RingAndZones>());
+        thisRingsInZone.Add(Zones.F, new LinkedList<RingAndZones>());
+        thisRingsInZone.Add(Zones.G, new LinkedList<RingAndZones>());
+        thisRingsInZone.Add(Zones.H, new LinkedList<RingAndZones>());
+        RingsInZone = thisRingsInZone;
     }
-    
+
     private void Clear()
     {
-        ListA.Clear();
-        ListB.Clear();
-        ListC.Clear();
-        ListD.Clear();
-        ListE.Clear();
-        ListF.Clear();
-        ListG.Clear();
-        ListH.Clear();
+        foreach (var rings in RingsInZone.Values)
+        {
+            rings.Clear();
+        }
+
         IntersectFrames.Clear();
         FramesContainThis.Clear();
-        NearAbc = null;
-        NearCde = null;
-        NearEfg = null;
-        NearAhg = null;
-        NearAbcIntersect = null;
-        NearCdeIntersect = null;
-        NearEfgIntersect = null;
-        NearAhgIntersect = null;
-        NearAbcSegmentIntersect = null;
-        NearCdeSegmentIntersect = null;
-        NearEfgSegmentIntersect = null;
-        NearAhgSegmentIntersect = null;
+        NearRing.Clear();
+        NearSegmentIntersect.Clear();
     }
+
     //Метод вычисляет местоположение рамок из boundRings относительно boundRing и помещает информацию в кэш.
     internal bool FillListsRelativeRing(
         LinkedListNode<BoundingRing> boundRing,
@@ -140,7 +120,7 @@ internal class Cache
     private bool DetectSeparatingZone(LinkedListNode<BoundingRing> relativeBoundRing,
         LinkedListNode<BoundingRing> boundRing)
     {
-        List<SeparatingZones> list = new List<SeparatingZones>(3);
+        List<Zones> list = new List<Zones>(3);
         bool flagA = false;
         bool flagC = false;
         bool flagE = false;
@@ -160,14 +140,11 @@ internal class Cache
                 boundRing.Value.PointMax.X,
                 relativeBoundRing.Value.PointMin.X,
                 relativeBoundRing.Value.PointMax.X,
-                SeparatingZones.C,
-                SeparatingZones.A, 
-                SeparatingZones.B,
+                Zones.C,
+                Zones.A, 
+                Zones.B,
                 ref flagC,
                 ref flagA,
-                ListC, 
-                ListA,
-                ListB,
                 list);
         }
 
@@ -182,14 +159,11 @@ internal class Cache
                 boundRing.Value.PointMax.Y,
                 relativeBoundRing.Value.PointMin.Y,
                 relativeBoundRing.Value.PointMax.Y,
-                SeparatingZones.E,
-                SeparatingZones.C, 
-                SeparatingZones.D,
+                Zones.E,
+                Zones.C, 
+                Zones.D,
                 ref flagE,
                 ref flagC,
-                ListE, 
-                ListC,
-                ListD,
                 list);
         }
 
@@ -204,14 +178,11 @@ internal class Cache
                 boundRing.Value.PointMax.X,
                 relativeBoundRing.Value.PointMin.X,
                 relativeBoundRing.Value.PointMax.X,
-                SeparatingZones.E,
-                SeparatingZones.G, 
-                SeparatingZones.F,
+                Zones.E,
+                Zones.G, 
+                Zones.F,
                 ref flagE,
                 ref flagG,
-                ListE, 
-                ListG,
-                ListF,
                 list);
         }
 
@@ -226,43 +197,44 @@ internal class Cache
                 boundRing.Value.PointMax.Y,
                 relativeBoundRing.Value.PointMin.Y,
                 relativeBoundRing.Value.PointMax.Y,
-                SeparatingZones.G,
-                SeparatingZones.A, 
-                SeparatingZones.H,
+                Zones.G,
+                Zones.A, 
+                Zones.H,
                 ref flagG,
                 ref flagA,
-                ListG, 
-                ListA,
-                ListH,
                 list);
         }
         else return false;
         
-        if ((NearAbc is null ||
-             boundRing.Value.PointMin.Y < NearAbc.BoundRing.Value.PointMin.Y) &&
+        if ((!NearRing.ContainsKey(Zones.Abc) ||
+             boundRing.Value.PointMin.Y < NearRing[Zones.Abc].BoundRing.Value.PointMin.Y) &&
             (flagAbc || (list.Count == 1 && (flagA || flagC))))
         {
-            NearAbc = new RingAndZones(boundRing, list);
+            NearRing.Remove(Zones.Abc);
+            NearRing.Add(Zones.Abc, new RingAndZones(boundRing, list));
         }
-        if ((NearCde is null ||
-             boundRing.Value.PointMax.X > NearCde.BoundRing.Value.PointMax.X) &&
+        if ((!NearRing.ContainsKey(Zones.Cde) ||
+             boundRing.Value.PointMax.X > NearRing[Zones.Cde].BoundRing.Value.PointMax.X) &&
             (flagCde || (list.Count == 1 && (flagC || flagE))))
         {
-            NearCde = new RingAndZones(boundRing, list);
+            NearRing.Remove(Zones.Cde);
+            NearRing.Add(Zones.Cde, new RingAndZones(boundRing, list));
         }
 
-        if ((NearEfg is null ||
-             boundRing.Value.PointMax.Y > NearEfg.BoundRing.Value.PointMax.Y) &&
+        if ((!NearRing.ContainsKey(Zones.Efg) ||
+             boundRing.Value.PointMax.Y > NearRing[Zones.Efg].BoundRing.Value.PointMax.Y) &&
             (flagEfg || (list.Count == 1 && (flagE || flagG))))
         {
-            NearEfg = new RingAndZones(boundRing, list);
+            NearRing.Remove(Zones.Efg);
+            NearRing.Add(Zones.Efg, new RingAndZones(boundRing, list));
         }
 
-        if ((NearAhg is null ||
-             boundRing.Value.PointMin.X < NearAhg.BoundRing.Value.PointMin.X) &&
+        if ((!NearRing.ContainsKey(Zones.Ahg) ||
+             boundRing.Value.PointMin.X < NearRing[Zones.Ahg].BoundRing.Value.PointMin.X) &&
             (flagAhg || (list.Count == 1 && (flagA || flagG))))
         {
-            NearAhg = new RingAndZones(boundRing, list);
+            NearRing.Remove(Zones.Ahg);
+            NearRing.Add(Zones.Ahg, new RingAndZones(boundRing, list));
         }
         
         return true;
@@ -274,15 +246,12 @@ internal class Cache
         double boundMax,
         double relativeMin, 
         double relativeMax,
-        SeparatingZones first,
-        SeparatingZones second,
-        SeparatingZones arrangeZone,
+        Zones first,
+        Zones second,
+        Zones arrangeZone,
         ref bool firstFlag,
         ref bool secondFlag,
-        LinkedList<RingAndZones> firstList,
-        LinkedList<RingAndZones> secondList,
-        LinkedList<RingAndZones> arrangeZoneList,
-        List<SeparatingZones> list
+        List<Zones> list
         )
     {
         if (boundMin < relativeMin ||
@@ -290,7 +259,7 @@ internal class Cache
                 .CompareEquality(relativeMin, boundMin, _epsilon))
         {
             list.Add(first);
-            firstList.AddFirst(new RingAndZones(boundRing, list));
+            RingsInZone[first].AddFirst(new RingAndZones(boundRing, list));
             firstFlag = true;
         }
 
@@ -299,7 +268,7 @@ internal class Cache
                 .CompareEquality(boundMax, relativeMax, _epsilon))
         {
             list.Add(second);
-            secondList.AddFirst(new RingAndZones(boundRing, list));
+            RingsInZone[second].AddFirst(new RingAndZones(boundRing, list));
             secondFlag = true;
         }
 
@@ -310,7 +279,7 @@ internal class Cache
                 new[] { boundMin, boundMax }))
         {
             list.Add(arrangeZone);
-            arrangeZoneList.AddFirst(new RingAndZones(boundRing, list));
+            RingsInZone[arrangeZone].AddFirst(new RingAndZones(boundRing, list));
         }
     }
 }

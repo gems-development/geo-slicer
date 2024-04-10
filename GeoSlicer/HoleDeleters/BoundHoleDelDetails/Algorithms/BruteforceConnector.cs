@@ -16,7 +16,10 @@ internal static class BruteforceConnector
         LinkedListNode<BoundingRing> connectedFrame;
         LinkedNode<Coordinate> connectedPoint;
         //todo сделать объединение этих спискков без повторяющихся элементов
-        var collectionABC = cache.ListA.Concat(cache.ListB).Concat(cache.ListC);
+        var collectionABC = 
+            cache.RingsInZone[Zones.A]
+                .Concat(cache.RingsInZone[Zones.B])
+                .Concat(cache.RingsInZone[Zones.C]);
         if (collectionABC.Any())
         {
             connectedFrame = collectionABC.First().BoundRing;
