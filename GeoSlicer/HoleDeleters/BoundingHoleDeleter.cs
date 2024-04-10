@@ -33,91 +33,37 @@ public class BoundingHoleDeleter
         var thisRing = listOfHoles.First;
         var pointMinShell = thisRing!.Value.PointMin;
         var pointMaxShell = thisRing.Value.PointMax;
-
-
-        //int count = listOfHoles.Count;
+        
         while (listOfHoles.First!.Next is not null)
-        {
-            /*i++;
-            if (count != listOfHoles.Count)
-            {
-                count = listOfHoles.Count;
-                i = 0;
-            }
-            else if (i == count) return;*/
-            /*if (_cache.FramesContainThis.Any())
-            {
-                LinkedList<BoundingRing> list = new LinkedList<BoundingRing>();
-                foreach (var ring in _cache.FramesContainThis)
-                {
-                    list.AddLast(ring.Value);
-                }
-                
-            }*/
-            
+        { 
             if (thisRing.Next is null)
                 thisRing = listOfHoles.First.Next;
             else thisRing = thisRing.Next;
-            bool hasIntersectFrames = _cache.FillListsRelativeRing(thisRing, listOfHoles);
-            bool isConnected = false;
-            if (!hasIntersectFrames)
+            
+            bool isConnected;
+            
+            if (!_cache.FillListsRelativeRing(thisRing, listOfHoles))
             {
-                bool frameOfThisChanged = false;
-                /*if (cache.IntersectFrames.Any())
-                {
-                    //frameOfThisChanged = ConnectContainsRingsInThis(thisRing);
-                }*/
-
-                if (frameOfThisChanged)
-                {
-                    if (thisRing.Value.PointMin.Equals(pointMinShell) && thisRing.Value.PointMax.Equals(pointMaxShell))
-                    {
-                        var buff = thisRing.Value;
-                        listOfHoles.Remove(thisRing);
-                        listOfHoles.AddFirst(buff);
-                        thisRing = listOfHoles.First;
-                    }
-                }
-                else
-                {
-
-                    if (!ConnectNoIntersectRectan(thisRing, listOfHoles, _cache))
-                    {
-                        isConnected = BruteforceConnectWithIntersectRing(thisRing, listOfHoles, _cache);
-                    }
-                    else isConnected = true;
-
-                    if (thisRing.Value.PointMin.Equals(pointMinShell) && thisRing.Value.PointMax.Equals(pointMaxShell))
-                    {
-                        var buff = thisRing.Value;
-                        listOfHoles.Remove(thisRing);
-                        listOfHoles.AddFirst(buff);
-                        thisRing = listOfHoles.First;
-                    }
-                }
+                isConnected = 
+                    ConnectNoIntersectRectan(thisRing, listOfHoles, _cache) ||
+                    BruteforceConnectWithIntersectRing(thisRing, listOfHoles, _cache);
             }
             else
             {
                 isConnected = BruteforceConnectIntersectionBoundRFrames(thisRing, listOfHoles, _cache);
-                if (thisRing.Value.PointMin.Equals(pointMinShell) && thisRing.Value.PointMax.Equals(pointMaxShell))
-                {
-                    var buff = thisRing.Value;
-                    listOfHoles.Remove(thisRing);
-                    listOfHoles.AddFirst(buff);
-                    thisRing = listOfHoles.First;
-                }
             }
 
             if (!isConnected)
             {
                 BruteforceConnect(thisRing, listOfHoles, _cache);
-                if (thisRing.Value.PointMin.Equals(pointMinShell) && thisRing.Value.PointMax.Equals(pointMaxShell))
-                {
-                    var buff = thisRing.Value;
-                    listOfHoles.Remove(thisRing);
-                    listOfHoles.AddFirst(buff);
-                    thisRing = listOfHoles.First;
-                }
+            }
+            
+            if (thisRing.Value.PointMin.Equals(pointMinShell) && thisRing.Value.PointMax.Equals(pointMaxShell))
+            {
+                var buff = thisRing.Value;
+                listOfHoles.Remove(thisRing);
+                listOfHoles.AddFirst(buff);
+                thisRing = listOfHoles.First;
             }
         }
     }
