@@ -27,8 +27,8 @@ public class OverlayInWeilerAthertonTests
         
         Assert.Single(actual);
         Assert.True(actual[0].IsEqualsRing(expected));
-    }*/
-
+    }
+*/
     private static class Data
     {
         public static IEnumerable<IEnumerable<List<Coordinate>>> DataInner =>

@@ -166,12 +166,17 @@ public class GridSlicerHelper
         LinkedList<CoordinateSupport> cutting = CoordinateToCoordinateSupport(cuttingCoordinates);
 
         bool flagWereIntersection = false;
+        bool flagWereIntersectionOnCurrentIteration = false;
         
         // Создание двух списков с помеченными точками
-        for (LinkedListNode<CoordinateSupport>? nodeI = clipped.First!; nodeI != null; nodeI = nodeI.Next)
+        for (LinkedListNode<CoordinateSupport>? nodeI = clipped.First!; nodeI != null; 
+             nodeI = flagWereIntersectionOnCurrentIteration ? nodeI : nodeI.Next)
         {
-            for (LinkedListNode<CoordinateSupport>? nodeJ = cutting.First!; nodeJ != null; nodeJ = nodeJ.Next)
+            for (LinkedListNode<CoordinateSupport>? nodeJ = cutting.First!; nodeJ != null; 
+                 nodeJ = flagWereIntersectionOnCurrentIteration ? nodeJ : nodeJ.Next)
             {
+                flagWereIntersectionOnCurrentIteration = false;
+                
                 LinkedListNode<CoordinateSupport> numberOne = nodeI;
                 LinkedListNode<CoordinateSupport>? numberTwo = nodeI.Next;
                 LinkedListNode<CoordinateSupport> numberThree = nodeJ;
@@ -205,7 +210,6 @@ public class GridSlicerHelper
                     numberTwo = clipped.First;
                     numberFour = cutting.First;
                 }
-                
                 
                 //Inner
 
@@ -244,6 +248,7 @@ public class GridSlicerHelper
                     */
                     clipped.AddAfter(nodeI, intersectionNodeInClip);
                     cutting.AddAfter(nodeJ, intersectionNodeInCut);
+                    flagWereIntersectionOnCurrentIteration = true;
                 }
 
                 //TyShaped
@@ -277,27 +282,31 @@ public class GridSlicerHelper
                     {
                         //numberOne.Value.Type = intersectionNode.Value.Type;
                         cutting.AddAfter(numberThree, intersectionNode);
+                        flagWereIntersectionOnCurrentIteration = true;
                     }
                     else if (_coordinateComparator.IsEquals(intersectionNode.Value, numberTwo!.Value))
                     {
                      //   numberTwo.Value.Type = intersectionNode.Value.Type;
                         cutting.AddAfter(numberThree, intersectionNode);
+                        flagWereIntersectionOnCurrentIteration = true;
                     }
                     else if (_coordinateComparator.IsEquals(intersectionNode.Value, numberThree.Value))
                     {
                         //numberThree.Value.Type = intersectionNode.Value.Type;
                         clipped.AddAfter(numberOne, intersectionNode);
+                        flagWereIntersectionOnCurrentIteration = true;
                     }
                     else
                     {
                        // numberFour.Value.Type = intersectionNode.Value.Type;
                         clipped.AddAfter(numberOne, intersectionNode);
+                        flagWereIntersectionOnCurrentIteration = true;
                     }
                 }
                 
                 //Corner
                 
-                else if (intersection is { Item2: not null, Item1: LinesIntersectionType.Corner })
+                else if (intersection is { Item2: not null, Item1: LinesIntersectionType.Corner } or {Item2: not null, Item1: LinesIntersectionType.Extension})
                 {
                     //flagWereIntersection = true;
                     
@@ -343,7 +352,7 @@ public class GridSlicerHelper
                             double product = _lineService.VectorProduct(
                                 numberOne.Value, numberTwo.Value, 
                                 numberThree.Value, numberFour.Value);
-                            if (product > 0 && 
+                            /*if (product > 0 && 
                                 numberTwo.Value.Type == PointType.Useless && 
                                 numberFour.Value.Type == PointType.Useless)
                             {
@@ -352,7 +361,7 @@ public class GridSlicerHelper
                                 numberTwo.Value.Type = PointType.Entering;
                                 numberFour.Value.Type = PointType.Entering;
                             }
-                            else if (product < 0 && 
+                            else */if (product < 0 && 
                                      numberTwo.Value.Type == PointType.Useless && 
                                      numberFour.Value.Type == PointType.Useless)
                             {
@@ -391,6 +400,7 @@ public class GridSlicerHelper
                                 numberOne.Value.Type = PointType.Entering;
                                 numberThree.Value.Type = PointType.Entering;
                             }
+                            /*
                             else if (product < 0 && 
                                      numberOne.Value.Type == PointType.Useless && 
                                      numberThree.Value.Type == PointType.Useless)
@@ -398,7 +408,7 @@ public class GridSlicerHelper
                                 flagWereIntersection = true;
                                 numberOne.Value.Type = PointType.Living;
                                 numberThree.Value.Type = PointType.Living;
-                            }
+                            }*/
                         }
                         numberOne.Value.Coord = numberThree;
                         numberThree.Value.Coord = numberOne;
@@ -469,6 +479,8 @@ public class GridSlicerHelper
                     //добавление двух новых нод в листы
                     clipped.AddAfter(nodeI, intersectionNodeInClip!);
                     cutting.AddAfter(nodeJ, intersectionNodeInCut!);
+                    
+                    flagWereIntersectionOnCurrentIteration = true;
                 }
 
                 //Part
@@ -502,11 +514,13 @@ public class GridSlicerHelper
                     if (intersectionNodeInClip != null)
                     {
                         clipped.AddAfter(nodeI, intersectionNodeInClip);
+                        flagWereIntersectionOnCurrentIteration = true;
                     }
 
                     if (intersectionNodeInCut != null)
                     {
                         cutting.AddAfter(nodeJ, intersectionNodeInCut);
+                        flagWereIntersectionOnCurrentIteration = true;
                     }
                 }
                 
@@ -526,6 +540,8 @@ public class GridSlicerHelper
                         
                         cutting.AddAfter(numberThree, intersectionNodeFirst);
                         cutting.AddAfter(intersectionNodeFirst, intersectionNodeSecond);
+                        
+                        flagWereIntersectionOnCurrentIteration = true;
                     }
                     else if (_lineService.IsCoordinateInSegmentBorders(numberOne.Value, numberFour!.Value, numberTwo.Value))
                     {
@@ -536,6 +552,8 @@ public class GridSlicerHelper
                         
                         cutting.AddAfter(numberThree, intersectionNodeFirst);
                         cutting.AddAfter(intersectionNodeFirst, intersectionNodeSecond);
+                        
+                        flagWereIntersectionOnCurrentIteration = true;
                     }
                     else if(_lineService.IsCoordinateInSegmentBorders(numberThree.Value, numberOne.Value, numberFour.Value))
                     {
@@ -546,6 +564,8 @@ public class GridSlicerHelper
 
                         clipped.AddAfter(numberOne, intersectionNodeFirst);
                         clipped.AddAfter(intersectionNodeFirst, intersectionNodeSecond);
+                        
+                        flagWereIntersectionOnCurrentIteration = true;
                     }
                     else if (_lineService.IsCoordinateInSegmentBorders(numberThree.Value, numberTwo.Value, numberFour.Value))
                     {
@@ -556,6 +576,8 @@ public class GridSlicerHelper
 
                         clipped.AddAfter(numberOne, intersectionNodeFirst);
                         clipped.AddAfter(intersectionNodeFirst, intersectionNodeSecond);
+                        
+                        flagWereIntersectionOnCurrentIteration = true;
                     }
                 }
             }

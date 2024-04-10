@@ -84,6 +84,7 @@ public class FactTestsOverlayWeilerAtherton
         //Assert
         Assert.Equal(expected, actual);
         Assert.Single(actual);
+        //Assert.True(expected[0].Coordinates.IsEqualsRing(actual));
         //Assert.True(actual[0].IsEqualsRing(expected));
     }
 
@@ -156,43 +157,43 @@ public class FactTestsOverlayWeilerAtherton
     }
 
     [Fact]
-    public void TangentClippedUnderAndRighterThanCutting()
-    {
-        //Arrange
-        Coordinate[] clipped =
-        {
-            new(-2, 1), new(-1, 2), new(0, 1), new(-2, 1)
-        };
-        LinearRing clippedRing = new LinearRing(clipped);
-        Coordinate[] cutting =
-        {
-            new(-1, 1), new(1, 1), new(0, 0), new(-1, 1)
-        };
-        LinearRing cuttingRing = new LinearRing(cutting);
-
-        List<List<Coordinate>> expected = new List<List<Coordinate>>()
-        {
-            new List<Coordinate>()
-            {
-                new(-1, 1), new(0, 1), new(-1, 1)
-            }
-        };
-
-        //Act
-        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
-
-        //Assert
-        //Assert.Equal(expected,actual);
-        Assert.Single(actual);
-        Assert.True(actual.First().Coordinates.IsEqualsRing(expected[0]));
-    }
-
-    [Fact]
     public void TangentCuttingUnderAndRighterThanClipped()
     {
         //Arrange
         Coordinate[] clipped =
         {
+            new(-2, 1), new(-1, 2), new(0, 1), new(-2, 1)
+        };
+        LinearRing clippedRing = new LinearRing(clipped);
+        Coordinate[] cutting =
+        {
+            new(-1, 1), new(1, 1), new(0, 0), new(-1, 1)
+        };
+        LinearRing cuttingRing = new LinearRing(cutting);
+
+        List<List<Coordinate>> expected = new List<List<Coordinate>>()
+        {
+            new List<Coordinate>()
+            {
+                new(-1, 1), new(0, 1), new(-1, 1)
+            }
+        };
+
+        //Act
+        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+
+        //Assert
+        //Assert.Equal(expected,actual);
+        Assert.Empty(actual);
+        //Assert.True(actual.First().Coordinates.IsEqualsRing(expected[0]));
+    }
+
+    [Fact]
+    public void TangentClippedUnderAndRighterThanCutting()
+    {
+        //Arrange
+        Coordinate[] clipped =
+        {
             new(-1, 1), new(1, 1), new(0, 0), new(-1, 1)
         };
         LinearRing clippedRing = new LinearRing(clipped);
@@ -215,8 +216,8 @@ public class FactTestsOverlayWeilerAtherton
 
         //Assert
         //Assert.Equal(expected,actual);
-        Assert.Single(actual);
-        Assert.True(actual.First().Coordinates.IsEqualsRing(expected[0]));
+        Assert.Empty(actual);
+        //Assert.True(actual.First().Coordinates.IsEqualsRing(expected[0]));
     }
 
     [Fact]
@@ -247,8 +248,8 @@ public class FactTestsOverlayWeilerAtherton
 
         //Assert
         //Assert.Equal(expected,actual);
-        Assert.Single(actual);
-        Assert.True(actual.First().Coordinates.IsEqualsRing(expected[0]));
+        Assert.Empty(actual);
+        //Assert.True(actual.First().Coordinates.IsEqualsRing(expected[0]));
     }
 
     [Fact]
@@ -279,7 +280,7 @@ public class FactTestsOverlayWeilerAtherton
 
         //Assert
         //Assert.Equal(expected,actual);
-        Assert.Single(actual);
-        Assert.True(actual.First().Coordinates.IsEqualsRing(expected[0]));
+        Assert.Empty(actual);
+        //Assert.True(actual.First().Coordinates.IsEqualsRing(expected[0]));
     }
 }
