@@ -12,6 +12,7 @@ public class BoundingHoleDeleter
     private readonly TraverseDirection _direction;
     private readonly Cache _cache;
     private readonly double _epsilon;
+    private readonly NoIntersectRectangles _noIntersectRectangles = new ();
 
     public BoundingHoleDeleter(TraverseDirection direction, double epsilon)
     {
@@ -43,7 +44,7 @@ public class BoundingHoleDeleter
             if (!_cache.FillListsRelativeRing(thisRing, listOfHoles))
             {
                 isConnected = 
-                    NoIntersectRectangles.Connect(thisRing, listOfHoles, _cache, _epsilon) ||
+                    _noIntersectRectangles.Connect(thisRing, listOfHoles, _cache, _epsilon) ||
                     WithIntersectRing.BruteforceConnect(thisRing, listOfHoles, _cache);
             }
             else
