@@ -4,9 +4,9 @@ using System.Linq;
 using GeoSlicer.Utils.BoundRing;
 using NetTopologySuite.Geometries;
 
-namespace GeoSlicer.HoleDeleters.BoundHoleDelDetails.Algorithms;
+namespace GeoSlicer.HoleDeleters.BoundHoleDelDetails.Connectors;
 
-internal static class BruteforceConnector
+internal static class Bruteforce
 {
     internal static void Connect(
         LinkedListNode<BoundingRing> thisRing,

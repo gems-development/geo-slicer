@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using GeoSlicer.Utils.BoundRing;
 
-namespace GeoSlicer.HoleDeleters.BoundHoleDelDetails.Algorithms;
+namespace GeoSlicer.HoleDeleters.BoundHoleDelDetails.Connectors;
 
 internal static class IntersectionBoundRFrames
 {

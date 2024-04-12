@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using GeoSlicer.HoleDeleters.BoundHoleDelDetails;
-using GeoSlicer.HoleDeleters.BoundHoleDelDetails.Algorithms;
+using GeoSlicer.HoleDeleters.BoundHoleDelDetails.Connectors;
 using GeoSlicer.Utils;
 using NetTopologySuite.Geometries;
 using GeoSlicer.Utils.BoundRing;
@@ -54,7 +54,7 @@ public class BoundingHoleDeleter
 
             if (!isConnected)
             {
-                BruteforceConnector.Connect(thisRing, listOfHoles, _cache);
+                Bruteforce.Connect(thisRing, listOfHoles, _cache);
             }
             
             if (thisRing.Value.PointMin.Equals(pointMinShell) && thisRing.Value.PointMax.Equals(pointMaxShell))

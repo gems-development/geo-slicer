@@ -4,7 +4,7 @@ using GeoSlicer.HoleDeleters.BoundHoleDelDetails.Structures;
 using GeoSlicer.Utils.BoundRing;
 using NetTopologySuite.Geometries;
 
-namespace GeoSlicer.HoleDeleters.BoundHoleDelDetails.Algorithms;
+namespace GeoSlicer.HoleDeleters.BoundHoleDelDetails.Connectors;
 
 internal static class WithIntersectRing
 {
