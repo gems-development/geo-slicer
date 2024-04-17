@@ -15,7 +15,7 @@ public class WeilerAthertonTests
 
     private static readonly GridSlicerHelper SlicerHelper =
         new(new LinesIntersector(new EpsilonCoordinateComparator(Epsilon), LineService, Epsilon), Epsilon, LineService,
-            new EpsilonCoordinateComparator());
+            new EpsilonCoordinateComparator(), new ContainsChecker(LineService, Epsilon));
 
     [Fact]
     public void SimpleTest()

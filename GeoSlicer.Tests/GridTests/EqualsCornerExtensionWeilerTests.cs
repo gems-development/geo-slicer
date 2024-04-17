@@ -15,7 +15,7 @@ public class EqualsCornerExtensionWeilerTests
 
     private static readonly GridSlicerHelper SlicerHelper =
         new(new LinesIntersector(new EpsilonCoordinateComparator(Epsilon), LineService, Epsilon), Epsilon, LineService,
-            new EpsilonCoordinateComparator());
+            new EpsilonCoordinateComparator(), new ContainsChecker(LineService, Epsilon));
 
     [Fact]
     public void RectangleEdgeRectangle()
@@ -23,12 +23,12 @@ public class EqualsCornerExtensionWeilerTests
         //Arrange
         Coordinate[] clipped =
         {
-            new(-2,4), new(2,4), new(2,0), new(-2,0), new(-2,4)
+            new(-2, 4), new(2, 4), new(2, 0), new(-2, 0), new(-2, 4)
         };
         LinearRing clippedRing = new LinearRing(clipped);
         Coordinate[] cutting =
         {
-            new(2,4), new(-2,4), new(-2,6), new(2,6), new(2,4)
+            new(2, 4), new(-2, 4), new(-2, 6), new(2, 6), new(2, 4)
         };
         LinearRing cuttingRing = new LinearRing(cutting);
 

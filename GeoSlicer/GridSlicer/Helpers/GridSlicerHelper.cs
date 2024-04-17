@@ -17,64 +17,18 @@ public class GridSlicerHelper
     private readonly SegmentService _segmentService;
     private readonly ICoordinateComparator _coordinateComparator;
     private readonly TraverseDirection _traverseDirection;
+    private readonly ContainsChecker _containsChecker;
 
     public GridSlicerHelper(LinesIntersector linesIntersector, double epsilon, LineService lineService,
-        ICoordinateComparator coordinateComparator)
+        ICoordinateComparator coordinateComparator, ContainsChecker containsChecker)
     {
         _linesIntersector = linesIntersector;
         _epsilon = epsilon;
         _lineService = lineService;
         _coordinateComparator = coordinateComparator;
+        _containsChecker = containsChecker;
         _traverseDirection = new TraverseDirection(_lineService);
-
         _segmentService = new SegmentService(_lineService);
-    }
-
-    private bool IsIntersectHorizontalRayWithSegment(Coordinate point, Coordinate l1, Coordinate l2)
-    {
-        Coordinate maxCoord;
-        Coordinate minCoord;
-
-        if (l1.Y > l2.Y)
-        {
-            maxCoord = new Coordinate(l1.X, l1.Y);
-            minCoord = new Coordinate(l2.X, l2.Y);
-        }
-        else
-        {
-            maxCoord = new Coordinate(l2.X, l2.Y);
-            minCoord = new Coordinate(l1.X, l1.Y);
-        }
-
-        Coordinate vec1 = new Coordinate(minCoord.X - point.X, minCoord.Y - point.Y);
-        Coordinate vec2 = new Coordinate(point.X - maxCoord.X, point.Y - maxCoord.Y);
-
-        double product = _lineService.VectorProduct(vec1, vec2);
-
-        return minCoord.Y < point.Y - _epsilon && maxCoord.Y >= point.Y && product < 0;
-    }
-
-    public bool IsPointInPolygon(Coordinate point, LinearRing ring)
-    {
-        // Метод трассировки луча
-        int count = 0;
-        for (int i = 0; i < ring.Count - 1; i++)
-        {
-            if (_lineService.IsCoordinateInSegment(point, ring[(i + ring.Count) % ring.Count],
-                    ring[(i + 1 + ring.Count) % ring.Count]))
-            {
-                count = 1;
-                break;
-            }
-
-            if (IsIntersectHorizontalRayWithSegment(point, ring[(i + ring.Count) % ring.Count],
-                    ring[(i + 1 + ring.Count) % ring.Count]))
-            {
-                count++;
-            }
-        }
-
-        return count % 2 != 0;
     }
 
     // todo Переделать на массивы
@@ -111,13 +65,13 @@ public class GridSlicerHelper
         result = Array.Empty<LinearRing>();
 
         
-        if (boxCoordinated.All(coordinate => IsPointInPolygon(coordinate, clipped)) 
+        if (boxCoordinated.All(coordinate => _containsChecker.IsPointInLinearRing(coordinate, clipped)) 
             && !boxLinearRing.Intersects(clipped))
         {
             return IntersectionType.BoxInGeometry;
         }
 
-        if (clipped.Coordinates.All(coordinate => IsPointInPolygon(coordinate, boxLinearRing)))
+        if (clipped.Coordinates.All(coordinate => _containsChecker.IsPointInLinearRing(coordinate, boxLinearRing)))
         {
             return IntersectionType.GeometryInBox;
         }
@@ -603,7 +557,7 @@ public class GridSlicerHelper
             bool flagCuttingInClipped = true;
             foreach (Coordinate coordinate in cutting)
             {
-                if (!IsPointInPolygon(coordinate, clippedCoordinates))
+                if (!_containsChecker.IsPointInLinearRing(coordinate, clippedCoordinates))
                 {
                     flagCuttingInClipped = false;
                     break;
@@ -613,7 +567,7 @@ public class GridSlicerHelper
             bool flagClippedInCutting = true;
             foreach (Coordinate coordinate in clipped)
             {
-                if (!IsPointInPolygon(coordinate, cuttingCoordinates))
+                if (!_containsChecker.IsPointInLinearRing(coordinate, cuttingCoordinates))
                 {
                     flagClippedInCutting = false;
                     break;

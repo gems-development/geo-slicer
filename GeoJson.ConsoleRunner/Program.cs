@@ -15,7 +15,7 @@ LineService lineService = new LineService(epsilon);
 ICoordinateComparator coordinateComparator = new EpsilonCoordinateComparator(epsilon);
 
 Slicer slicer = new Slicer(new GridSlicerHelper(new LinesIntersector(coordinateComparator, lineService, epsilon),
-    epsilon, lineService, coordinateComparator));
+    epsilon, lineService, coordinateComparator, new ContainsChecker(lineService, epsilon)));
 
 LinearRing linearRing = new LinearRing(
     GeoJsonFileService.ReadGeometryFromFile<LineString>("TestFiles\\maloeOzeroLinearRing.geojson").Coordinates);
