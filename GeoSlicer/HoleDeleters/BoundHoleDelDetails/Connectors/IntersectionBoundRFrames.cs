@@ -15,6 +15,9 @@ internal class IntersectionBoundRFrames
     private Coordinate? _framesIntersectionPointMin;
     private Coordinate? _framesIntersectionPointMax;
     private LinkedListNode<LinkedListNode<BoundingRing>>? _intersectFrameNode;
+    
+    // Метод пытается соединить thisRing с каким-либо кольцом, рамка которого пересекается с рамкой кольца thisRing.
+    // Возвращает true в случае успеха.
     internal bool BruteforceConnect(
         LinkedListNode<BoundingRing> thisRing,
         LinkedList<BoundingRing> listOfHoles,

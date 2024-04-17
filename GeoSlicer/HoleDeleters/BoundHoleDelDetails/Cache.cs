@@ -48,7 +48,8 @@ internal class Cache
         NearSegmentIntersect.Clear();
     }
 
-    //Метод вычисляет местоположение рамок из boundRings относительно boundRing и помещает информацию в кэш.
+    // Метод вычисляет местоположение рамок из boundRings относительно boundRing и помещает информацию в кэш.
+    // Возвращает true, если были обнаружены кольца, рамки которых пересекают рамку кольца boundRing.
     internal bool FillListsRelativeRing(
         LinkedListNode<BoundingRing> boundRing,
         LinkedList<BoundingRing> boundRings)
@@ -117,7 +118,8 @@ internal class Cache
     //Возращает false если рамки пересекаются(не важно как).
     //Метод вычисляет местоположение рамки boundRing относительно relativeBoundRing
     //и запоминает это местоположение в кэше.
-    private bool DetectSeparatingZone(LinkedListNode<BoundingRing> relativeBoundRing,
+    private bool DetectSeparatingZone(
+        LinkedListNode<BoundingRing> relativeBoundRing,
         LinkedListNode<BoundingRing> boundRing)
     {
         List<Zones> list = new List<Zones>(3);
@@ -239,7 +241,7 @@ internal class Cache
         
         return true;
     }
-
+    
     private void SetFlags(
         LinkedListNode<BoundingRing> boundRing,
         double boundMin,
