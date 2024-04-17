@@ -50,11 +50,14 @@ public static class IntersectsChecker
     
     //Проверяет, что прямая ab пересекает кольцо ring(касания считаются пересечением).
     //В случае пересечения возвращает true, false - иначе.
-    public static bool IntersectBoundRingWithSegment(
+    public static bool IntersectBoundRingWithLine(
         LinkedListNode<BoundingRing> boundRing, 
         Coordinate a,
         Coordinate b)
     {
+        if (!LineIntersectsOrContainsInBoundRFrame(boundRing.Value, a, b))
+            return false;
+        
         LinkedNode<Coordinate> start = boundRing.Value.Ring;
         do
         {
@@ -64,6 +67,14 @@ public static class IntersectsChecker
         } while (!ReferenceEquals(start, boundRing.Value.Ring));
 
         return false;
+    }
+    
+    //Проверяет, пересекает ли отрезок ab рамку кольца ring, или содержится ли отрезок в этой рамке.
+    private static bool LineIntersectsOrContainsInBoundRFrame(BoundingRing ring, Coordinate a, Coordinate b)
+    {
+        return HasIntersectsBoundRFrame(ring, a, b)
+               || PointInsideBoundRFrame(a, ring)
+               || PointInsideBoundRFrame(b, ring);
     }
     
     //Метод проверяет, пересекает ли отрезок ab рамку кольца ring.

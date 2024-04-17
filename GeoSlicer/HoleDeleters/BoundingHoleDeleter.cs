@@ -13,6 +13,7 @@ public class BoundingHoleDeleter
     private readonly Cache _cache;
     private readonly double _epsilon;
     private readonly NoIntersectRectangles _noIntersectRectangles = new ();
+    private readonly IntersectionBoundRFrames _intersectionBoundRFrames = new();
 
     public BoundingHoleDeleter(TraverseDirection direction, double epsilon)
     {
@@ -49,7 +50,7 @@ public class BoundingHoleDeleter
             }
             else
             {
-                isConnected = IntersectionBoundRFrames.BruteforceConnect(thisRing, listOfHoles, _cache);
+                isConnected = _intersectionBoundRFrames.BruteforceConnect(thisRing, listOfHoles, _cache);
             }
 
             if (!isConnected)
