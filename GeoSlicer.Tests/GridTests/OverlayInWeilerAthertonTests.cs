@@ -14,7 +14,8 @@ public class OverlayInWeilerAthertonTests
     private static readonly LineService LineService = new LineService(Epsilon);
 
     private static readonly GridSlicerHelper SlicerHelper =
-        new(new LinesIntersector(new EpsilonCoordinateComparator(Epsilon), LineService, Epsilon), Epsilon, LineService, new EpsilonCoordinateComparator());
+        new(new LinesIntersector(new EpsilonCoordinateComparator(Epsilon), LineService, Epsilon), Epsilon, LineService,
+            new EpsilonCoordinateComparator(), new ContainsChecker(LineService, Epsilon));
 
 /*
     [Theory]
@@ -24,7 +25,7 @@ public class OverlayInWeilerAthertonTests
     private void Test(List<Coordinate> clipped, List<Coordinate> cutting, List<Coordinate> expected)
     {
         List<List<Coordinate>> actual = Slicer.WeilerAtherton(clipped, cutting);
-        
+
         Assert.Single(actual);
         Assert.True(actual[0].IsEqualsRing(expected));
     }
@@ -310,7 +311,7 @@ public class OverlayInWeilerAthertonTests
                     }
                 }
             };
-        
+
 
         public static IEnumerable<IEnumerable<List<Coordinate>>> DataResRectangle =>
             new[]
@@ -424,6 +425,5 @@ public class OverlayInWeilerAthertonTests
                     }
                 },
             };
-        
     }
 }
