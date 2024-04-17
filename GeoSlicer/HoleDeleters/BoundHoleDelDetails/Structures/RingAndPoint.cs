@@ -6,10 +6,12 @@ namespace GeoSlicer.HoleDeleters.BoundHoleDelDetails.Structures;
 
 internal class RingAndPoint
 {
-    internal readonly LinkedListNode<BoundingRing> BoundRing;
+    internal LinkedListNode<LinkedListNode<BoundingRing>> BoundRing;
     internal readonly LinkedNode<Coordinate> Start;
 
-    public RingAndPoint(LinkedListNode<BoundingRing> boundRing, LinkedNode<Coordinate> start)
+    public RingAndPoint(
+        LinkedListNode<LinkedListNode<BoundingRing>> boundRing,
+        LinkedNode<Coordinate> start)
     {
         BoundRing = boundRing;
         Start = start;

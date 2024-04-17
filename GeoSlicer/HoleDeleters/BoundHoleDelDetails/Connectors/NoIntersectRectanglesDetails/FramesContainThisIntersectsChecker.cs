@@ -11,7 +11,7 @@ internal static class FramesContainThisIntersectsChecker
     private class Values
     {
         public LinkedNode<Coordinate>? CurrentCoord;
-        public LinkedListNode<BoundingRing>? FrameWhoContainsThis;
+        public LinkedListNode<LinkedListNode<BoundingRing>>? FrameWhoContainsThis;
         public readonly LinkedListNode<BoundingRing> ThisRing;
         public readonly Cache Cache;
         public readonly double Epsilon;
@@ -37,11 +37,12 @@ internal static class FramesContainThisIntersectsChecker
         cache.FramesContainThis.AddLast(shell);
 
         Values values = new Values(thisRing, cache, epsilon);
-        foreach (var frameWhoContainThis in cache.FramesContainThis)
+        var frameWhoContainThis = cache.FramesContainThis.First;
+        while (frameWhoContainThis is not null)
         {
             values.FrameWhoContainsThis = frameWhoContainThis;
             
-            var startCoord = frameWhoContainThis.Value.PointUpNode;
+            var startCoord = frameWhoContainThis.Value.Value.PointUpNode;
             values.CurrentCoord = startCoord;
             do
             {
@@ -72,6 +73,8 @@ internal static class FramesContainThisIntersectsChecker
                 values.CurrentCoord = values.CurrentCoord.Next;
             } while (!ReferenceEquals(values.CurrentCoord, startCoord)
                      && (data.AbcCanConnect || data.CdeCanConnect || data.EfgCanConnect || data.AhgCanConnect));
+
+            frameWhoContainThis = frameWhoContainThis.Next;
         }
     }
 

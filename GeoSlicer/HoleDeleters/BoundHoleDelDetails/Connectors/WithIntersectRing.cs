@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using GeoSlicer.HoleDeleters.BoundHoleDelDetails.Structures;
 using GeoSlicer.Utils.BoundRing;
 using NetTopologySuite.Geometries;
@@ -8,80 +7,33 @@ namespace GeoSlicer.HoleDeleters.BoundHoleDelDetails.Connectors;
 
 internal static class WithIntersectRing
 {
-    //todo нахождение прямоугольника, соединение с которым не пересекает другие 
+    // Метод пытается соединить кольцо thisRing с каким-либо кольцом из списка cache.FramesContainThis.
+    // Перебор начинается с какого-либо кольца из cache.NearSegmentIntersect.
+    // возвращает True в случае успеха.
     internal static bool BruteforceConnect(
         LinkedListNode<BoundingRing> thisRing,
         LinkedList<BoundingRing> listOfHoles,
         Cache cache)
     {
-        
-        /*if (_nearABC is not null)
-        {
-            if (_nearABCintersect is not null)
-            {
-                var listAbc =
-                    new LinkedList<
-                        (LinkedListNode<BoundingRing> boundRing,
-                        List<PartitioningZones> zones)>();
-                int listAbcCount = 0;
-                foreach (var frame in _listA)
-                {
-                    listAbc.AddFirst(frame);
-                    listAbcCount++;
-                }
-                foreach (var frame in _listB)
-                {
-                    listAbc.AddFirst(frame);
-                    listAbcCount++;
-                }
-                foreach (var frame in _listC)
-                {
-                    listAbc.AddFirst(frame);
-                    listAbcCount++;
-                }
-                LinkedListNode<BoundingRing>? testingRing = null;
-                foreach (var frame in listAbc)
-                {
-                    if (!(frame.boundRing.Value.PointMin.Y < thisRing.Value.PointMax.Y))
-                    {
-                        testingRing = frame.boundRing;
-                        break;
-                    }
-                }
-                
-                for (int i = 0; i < listAbcCount; i++)
-                {
-                    var res = CheckIntersectFramesWithoutThisFrame(listAbc, thisRing.Value.PointUpNode.Elem,
-                        testingRing.Value.PointDownNode.Elem, testingRing);
-                    if (res is null)
-                        break;
-                    testingRing = res;
-                }
-            }
-        }*/
         if (cache.NearSegmentIntersect.TryGetValue(Zones.Abc, out var ringAndPoint))
         {
-            bool flag = ConnectWithBoundRFrameWhoContainThisRing(ringAndPoint, thisRing, listOfHoles, Zones.Abc, cache);
-            if (flag)
-                return true;
+           ConnectWithBoundRFrameWhoContainThisRing(ringAndPoint, thisRing, listOfHoles, Zones.Abc, cache); 
+           return true;
         }
         if (cache.NearSegmentIntersect.TryGetValue(Zones.Cde, out ringAndPoint))
         {
-            bool flag = ConnectWithBoundRFrameWhoContainThisRing(ringAndPoint, thisRing, listOfHoles, Zones.Cde, cache);
-            if (flag)
-                return true;
+            ConnectWithBoundRFrameWhoContainThisRing(ringAndPoint, thisRing, listOfHoles, Zones.Cde, cache);
+            return true;
         }
         if (cache.NearSegmentIntersect.TryGetValue(Zones.Efg, out ringAndPoint))
         {
-            bool flag = ConnectWithBoundRFrameWhoContainThisRing(ringAndPoint, thisRing, listOfHoles, Zones.Efg, cache);
-            if (flag)
-                return true;
+            ConnectWithBoundRFrameWhoContainThisRing(ringAndPoint, thisRing, listOfHoles, Zones.Efg, cache);
+            return true;
         }
         if (cache.NearSegmentIntersect.TryGetValue(Zones.Ahg, out ringAndPoint))
         {
-            bool flag = ConnectWithBoundRFrameWhoContainThisRing(ringAndPoint, thisRing, listOfHoles, Zones.Ahg, cache);
-            if (flag)
-                return true;
+            ConnectWithBoundRFrameWhoContainThisRing(ringAndPoint, thisRing, listOfHoles, Zones.Ahg, cache);
+            return true;
         }
 
         return false;
@@ -90,73 +42,49 @@ internal static class WithIntersectRing
     
     
     //todo добавить проверку на пересечение соединения с прямоугольниками
-    //todo рассмотреть ситуацию когда все ближайшие треугольники равны null (_nearAbc и другие подобные)
-    private static bool ConnectWithBoundRFrameWhoContainThisRing(
+    private static void ConnectWithBoundRFrameWhoContainThisRing(
         RingAndPoint? nearSegmentIntersect,
         LinkedListNode<BoundingRing> thisRing,
         LinkedList<BoundingRing> listOfHoles, 
-        Zones zones, 
+        Zones zonesUnion, 
         Cache cache)
     {
-        var coord = nearSegmentIntersect!.Start;
-        coord = RearrangePoints(coord, zones, thisRing);
-        //todo изменить nearSegmentIntersect так чтобы он содержал узел в списке _framesContainThis
-        var startFrameContainThis = cache.FramesContainThis.First;
-        do
-        {
-            if (ReferenceEquals(startFrameContainThis!.Value.Value, nearSegmentIntersect.BoundRing.Value))
-            {
-                var buff = startFrameContainThis.Value;
-                cache.FramesContainThis.Remove(startFrameContainThis);
-                cache.FramesContainThis.AddFirst(buff);
-                break;
-            }
-
-            startFrameContainThis = startFrameContainThis.Next;
-        } while (startFrameContainThis is not null);
-
-        LinkedNode<Coordinate> connectCoordThisR;
-        if (zones == Zones.Abc)
-            connectCoordThisR = thisRing.Value.PointUpNode;
-        else if (zones == Zones.Cde)
-            connectCoordThisR = thisRing.Value.PointLeftNode;
-        else if (zones == Zones.Efg)
-            connectCoordThisR = thisRing.Value.PointDownNode;
-        else
-            connectCoordThisR = thisRing.Value.PointRightNode;
+        LinkedNode<Coordinate> connectCoordFrameContainThis =
+            RearrangePoints(nearSegmentIntersect!.Start, zonesUnion, thisRing);
+        SwapValuesInFramesContainThis(cache, nearSegmentIntersect);
+        LinkedNode<Coordinate> connectCoordThisR = FindConnectCoordThisR(zonesUnion, thisRing);
         
-        
-        bool flag;
-        var correctNode = cache.FramesContainThis.First!.Value;
-        do
+        var frameContainThis = cache.FramesContainThis.First!.Value;
+        bool findFrameContainThisIntersectsLine = true;
+        while(findFrameContainThisIntersectsLine)
         {
-            flag = false;
+            findFrameContainThisIntersectsLine = false;
             foreach (var frame in cache.FramesContainThis)
             {
                 (LinkedListNode<BoundingRing> boundRing, LinkedNode<Coordinate> _start)? intersectSegment;
                 do
                 {
-                    intersectSegment =
-                        IntersectsChecker.GetIntersectRingWithSegmentNotExtPoint(frame, connectCoordThisR.Elem, coord.Elem);
+                    intersectSegment = IntersectsChecker.GetIntersectRingWithSegmentNotExtPoint(
+                        frame, 
+                        connectCoordThisR.Elem, connectCoordFrameContainThis.Elem);
+                    
                     if (intersectSegment is not null)
                     {
-                        flag = true;
-                        coord = intersectSegment.Value._start;
-                        coord = RearrangePoints(coord, zones, thisRing);
-
-                        correctNode = frame;
+                        findFrameContainThisIntersectsLine = true;
+                        connectCoordFrameContainThis =
+                            RearrangePoints(intersectSegment.Value._start, zonesUnion, thisRing);
+                        
+                        frameContainThis = frame;
                     }
                     
                 } while (intersectSegment is not null);
-                
             }
-            
-        } while (flag);
+        }
 
-        thisRing.Value.ConnectBoundRings(correctNode.Value,
-            connectCoordThisR, coord);
-        listOfHoles.Remove(correctNode);
-        return true;
+        thisRing.Value.ConnectBoundRings(
+            frameContainThis.Value,
+            connectCoordThisR, connectCoordFrameContainThis);
+        listOfHoles.Remove(frameContainThis);
     }
     
     
@@ -196,5 +124,29 @@ internal static class WithIntersectRing
         }
 
         return coord;
+    }
+
+    private static LinkedNode<Coordinate> FindConnectCoordThisR(
+        Zones zonesUnion,
+        LinkedListNode<BoundingRing> thisRing)
+    {
+        if (zonesUnion == Zones.Abc)
+            return thisRing.Value.PointUpNode;
+        
+        if (zonesUnion == Zones.Cde)
+            return thisRing.Value.PointLeftNode;
+        
+        if (zonesUnion == Zones.Efg)
+            return thisRing.Value.PointDownNode; 
+        
+        return thisRing.Value.PointRightNode;
+    }
+
+    private static void SwapValuesInFramesContainThis(Cache cache, RingAndPoint nearSegmentIntersect)
+    {
+        var buff = nearSegmentIntersect.BoundRing.Value;
+        cache.FramesContainThis.Remove(nearSegmentIntersect.BoundRing);
+        cache.FramesContainThis.AddFirst(buff);
+        nearSegmentIntersect.BoundRing = cache.FramesContainThis.First!;
     }
 }
