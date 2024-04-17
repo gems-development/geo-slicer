@@ -344,10 +344,17 @@ public class GridSlicerHelper
 
                     else if (_coordinateComparator.IsEquals(numberTwo.Value, numberFour.Value))
                     {
-                        if (!(VectorService.InsideTheAngle(numberFour.Value,numberThree.Value,
+                        if ((VectorService.InsideTheAngle(numberFour.Value,numberThree.Value,
                                 nextTwo!.Value,numberTwo.Value,numberOne.Value) &&
+                             
+                              !VectorService.InsideTheAngle(numberFour.Value,nextFour!.Value,
+                                nextTwo.Value,numberTwo.Value,numberOne.Value))
+                            ||
+                            !VectorService.InsideTheAngle(numberFour.Value,numberThree.Value,
+                                  nextTwo.Value,numberTwo.Value,numberOne.Value) &&
+                              
                               VectorService.InsideTheAngle(numberFour.Value,nextFour!.Value,
-                                nextTwo.Value,numberTwo.Value,numberOne.Value)))
+                                  nextTwo.Value,numberTwo.Value,numberOne.Value))
                         {
                             double product = _lineService.VectorProduct(
                                 numberOne.Value, numberTwo.Value, 
@@ -361,7 +368,7 @@ public class GridSlicerHelper
                                 numberTwo.Value.Type = PointType.Entering;
                                 numberFour.Value.Type = PointType.Entering;
                             }
-                            else */if (product < 0 && 
+                            else */if ((product < 0 || Math.Abs(product) < _epsilon)&& 
                                      numberTwo.Value.Type == PointType.Useless && 
                                      numberFour.Value.Type == PointType.Useless)
                             {
@@ -369,6 +376,7 @@ public class GridSlicerHelper
                                 numberTwo.Value.Type = PointType.Living;
                                 numberFour.Value.Type = PointType.Living;
                             }
+                            
                         }
                         
                         numberTwo.Value.Coord = numberFour;
@@ -383,15 +391,22 @@ public class GridSlicerHelper
 
                     else if(_coordinateComparator.IsEquals(numberOne.Value, numberThree.Value))
                     {
-                        if (!(VectorService.InsideTheAngle(numberThree.Value,numberFour.Value,
+                        if (!VectorService.InsideTheAngle(numberThree.Value,numberFour.Value,
                                   numberTwo.Value,numberOne.Value,prevOne.Value) &&
+                              
                               VectorService.InsideTheAngle(numberThree.Value,prevThree!.Value,
-                                  numberTwo.Value,numberOne.Value,prevOne.Value)))
+                                  numberTwo.Value,numberOne.Value,prevOne.Value)
+                                ||
+                              VectorService.InsideTheAngle(numberThree.Value,numberFour.Value,
+                                   numberTwo.Value,numberOne.Value,prevOne.Value) &&
+                              
+                               !VectorService.InsideTheAngle(numberThree.Value,prevThree!.Value,
+                                   numberTwo.Value,numberOne.Value,prevOne.Value))
                         {
                             double product = _lineService.VectorProduct(
                                 numberOne.Value, numberTwo.Value, 
                                 numberThree.Value, numberFour.Value);
-                            if (product > 0 && 
+                            if ((product > 0  || Math.Abs(product) < _epsilon) && 
                                 numberOne.Value.Type == PointType.Useless && 
                                 numberThree.Value.Type == PointType.Useless)
                             {
