@@ -1,4 +1,5 @@
 ﻿using System;
+using GeoSlicer.Utils.Intersectors.CoordinateComparators;
 using NetTopologySuite.Geometries;
 
 namespace GeoSlicer.Utils;
@@ -74,6 +75,18 @@ public class LineService
                && y <= Math.Max(first.Y, second.Y) + _epsilon
                && x >= Math.Min(first.X, second.X) - _epsilon
                && x <= Math.Max(first.X, second.X) + _epsilon;
+    }
+    
+    public bool IsCoordinateInIntervalBorders(Coordinate coordinate, Coordinate first, Coordinate second)
+    {
+        ICoordinateComparator coordinateComparator = new EpsilonCoordinateComparator();
+
+        if (coordinateComparator.IsEquals(coordinate, first) || coordinateComparator.IsEquals(coordinate, second))
+        {
+            return false;
+        }
+
+        return IsCoordinateInSegmentBorders(coordinate.X, coordinate.Y, first, second);
     }
 
 

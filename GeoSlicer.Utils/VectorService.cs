@@ -55,6 +55,6 @@ public static class VectorService
         var rotatedVectorB2Y = (anglePointB1.X - anglePointB2.X) * Math.Sin(sign * (double)phiB1) +
                                (anglePointB1.Y - anglePointB2.Y) * Math.Cos(sign * (double)phiB1);
         var phiB2 = CalculatePhiFromZeroTo2Pi(rotatedVectorB2X, rotatedVectorB2Y);
-        return phiA < phiB2;
+        return phiA <= phiB2;
     }
 }
