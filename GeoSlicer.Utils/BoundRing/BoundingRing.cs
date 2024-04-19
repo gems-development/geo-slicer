@@ -5,6 +5,7 @@ namespace GeoSlicer.Utils.BoundRing;
 
 public class BoundingRing
 {
+    private LineService _lineService;
     //Координаты левой снизу и правой сверху точек у рамки, которая содержит кольцо Ring
     public Coordinate PointMin { get; private set; }
     public Coordinate PointMax { get; private set; }
@@ -29,7 +30,8 @@ public class BoundingRing
         LinkedNode<Coordinate> pointRightNode,
         LinkedNode<Coordinate> pointUpNode,
         LinkedNode<Coordinate> pointDownNode,
-        LinkedNode<Coordinate> ring, int pointsCount, bool counterClockwiseBypass)
+        LinkedNode<Coordinate> ring, int pointsCount, bool counterClockwiseBypass,
+        LineService lineService)
     {
         PointMin = pointMin;
         PointMax = pointMax;
@@ -40,6 +42,7 @@ public class BoundingRing
         Ring = ring;
         PointsCount = pointsCount;
         _counterClockwiseBypass = counterClockwiseBypass;
+        _lineService = lineService;
     }
 
     protected bool Equals(BoundingRing other)
@@ -68,13 +71,16 @@ public class BoundingRing
     }
     //Преобразует Polygon в список из BoundingRing, в котором первый элемент - оболочка полигона,
     //остальные элементы - дыры полигона
-    public static LinkedList<BoundingRing> PolygonToBoundRings(Polygon polygon, TraverseDirection direction)
+    public static LinkedList<BoundingRing> PolygonToBoundRings(
+        Polygon polygon, TraverseDirection direction, LineService lineService)
     {
         LinkedList<BoundingRing> boundRings = new LinkedList<BoundingRing>();
-        boundRings.AddFirst(BoundRService.LinearRingToBoundingRing(polygon.Shell, true, direction));
+        boundRings.AddFirst(
+            BoundRService.LinearRingToBoundingRing(polygon.Shell, true, direction, lineService));
         foreach(LinearRing ring in polygon.Holes)
         {
-            boundRings.AddLast(BoundRService.LinearRingToBoundingRing(ring, false, direction));
+            boundRings.AddLast(
+                BoundRService.LinearRingToBoundingRing(ring, false, direction, lineService));
         }
         return boundRings;
     }
@@ -106,8 +112,10 @@ public class BoundingRing
         BoundingRing boundRing2,
         LinkedNode<Coordinate> point1Node, LinkedNode<Coordinate> point2Node)
     {
-        point1Node = BoundRService.FindCorrectLinkedCoord(point1Node, point2Node.Elem, this._counterClockwiseBypass);
-        point2Node = BoundRService.FindCorrectLinkedCoord(point2Node, point1Node.Elem, boundRing2._counterClockwiseBypass);
+        point1Node = BoundRService.FindCorrectLinkedCoord(
+            point1Node, point2Node.Elem, this._counterClockwiseBypass, _lineService);
+        point2Node = BoundRService.FindCorrectLinkedCoord(
+            point2Node, point1Node.Elem, boundRing2._counterClockwiseBypass, _lineService);
         Ring = BoundRService.ConnectRingsNodes(point1Node, point2Node);
 
         PointRightNode = CoordinateNodeService.MaxByX(

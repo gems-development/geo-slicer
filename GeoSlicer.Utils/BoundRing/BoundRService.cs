@@ -23,8 +23,8 @@ internal class BoundRService
         return new LinearRing(points);
     }
 
-    internal static BoundingRing
-        LinearRingToBoundingRing(LinearRing ring, bool counterClockwiseBypass, TraverseDirection direction)
+    internal static BoundingRing LinearRingToBoundingRing(
+        LinearRing ring, bool counterClockwiseBypass, TraverseDirection direction, LineService lineService)
     {
         Coordinate[] coordinates = ring.Coordinates;
         LinkedNode <Coordinate> ringNode = new LinkedNode<Coordinate>(coordinates[0]);
@@ -72,12 +72,12 @@ internal class BoundRService
             Math.Min(pointDownNode.Elem.Y, pointLeftNode.Elem.Y));
         
         return new BoundingRing(pointMin, pointMax, pointLeftNode, pointRightNode,
-            pointUpNode, pointDownNode, ringNode.Next, coordinates.Length - 1, counterClockwiseBypassBuff);
+            pointUpNode, pointDownNode, ringNode.Next, coordinates.Length - 1, counterClockwiseBypassBuff, lineService);
     }
 
     //Ищет точку, которая совпадает с point1Node, но соединение с ней не будет пересекать другие нулевые туннели.
     internal static LinkedNode<Coordinate> FindCorrectLinkedCoord(
-        LinkedNode<Coordinate> point1Node, Coordinate point2, bool thisCounterClockwiseBypass)
+        LinkedNode<Coordinate> point1Node, Coordinate point2, bool thisCounterClockwiseBypass, LineService lineService)
     {
         if (point1Node.AdditionalNext is null)
             return point1Node;
@@ -100,12 +100,12 @@ internal class BoundRService
             bool res;
             if (thisCounterClockwiseBypass)
             {
-                res = VectorService.InsideTheAngle(
+                res = lineService.InsideTheAngle(
                     point1Node.Elem, point2, b3, b2, b1);
             }
             else
             {
-                res = VectorService.InsideTheAngle(
+                res = lineService.InsideTheAngle(
                     point1Node.Elem, point2, b1, b2, b3);
             }
             

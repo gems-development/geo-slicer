@@ -24,7 +24,7 @@ public class BoundingHoleDeleter
 
     public Polygon DeleteHoles(Polygon polygon)
     {
-        LinkedList<BoundingRing> list = BoundingRing.PolygonToBoundRings(polygon, _direction);
+        LinkedList<BoundingRing> list = BoundingRing.PolygonToBoundRings(polygon, _direction, new LineService(_epsilon));
         DeleteHoles(list);
         return BoundingRing.BoundRingsToPolygon(list);
     }
