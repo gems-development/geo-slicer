@@ -124,10 +124,10 @@ public class GridSlicerHelper
         
         // Создание двух списков с помеченными точками
         for (LinkedListNode<CoordinateSupport>? nodeI = clipped.First!; nodeI != null; 
-             nodeI = flagWereIntersectionOnCurrentIteration ? nodeI : nodeI.Next)
+             nodeI = nodeI.Next)
         {
             for (LinkedListNode<CoordinateSupport>? nodeJ = cutting.First!; nodeJ != null; 
-                 nodeJ = flagWereIntersectionOnCurrentIteration ? nodeJ : nodeJ.Next)
+                 nodeJ = nodeJ.Next)
             {
                 flagWereIntersectionOnCurrentIteration = false;
                 
@@ -240,30 +240,37 @@ public class GridSlicerHelper
                         nextFour = numberFour.Next;
                     }
 
-                    if (_lineService.InsideTheAngleWithoutBorders(numberOne.Value, numberTwo.Value,
-                            numberFour.Value, numberThree.Value, prevThree.Value) &&
-                        !_lineService.InsideTheAngleWithoutBorders(numberOne.Value, prevOne.Value,
-                            numberFour.Value, numberThree.Value, prevThree.Value))
+                    if (_coordinateComparator.IsEquals(numberOne.Value, numberThree.Value) || 
+                        _coordinateComparator.IsEquals(numberTwo.Value, numberFour.Value))
                     {
-                        flagWereIntersection = true;
-                        numberOfEnteringMarks++;
-                        numberOne.Value.Type = PointType.Entering;
-                        numberThree.Value.Type = PointType.Entering;
-                        numberOne.Value.Coord = numberThree;
-                        numberThree.Value.Coord = numberOne;
+                        if (_lineService.InsideTheAngleWithoutBorders(numberOne.Value, numberTwo.Value,
+                                numberFour.Value, numberThree.Value, prevThree.Value) &&
+                            !_lineService.InsideTheAngleWithoutBorders(numberOne.Value, prevOne.Value,
+                                numberFour.Value, numberThree.Value, prevThree.Value) &&
+                            numberOne.Value.Type == PointType.Useless)
+                        {
+                            flagWereIntersection = true;
+                            numberOfEnteringMarks++;
+                            numberOne.Value.Type = PointType.Entering;
+                            numberThree.Value.Type = PointType.Entering;
+                            numberOne.Value.Coord = numberThree;
+                            numberThree.Value.Coord = numberOne;
+                        }
+
+                        else if (!_lineService.InsideTheAngleWithoutBorders(numberOne.Value, numberTwo.Value,
+                                     numberFour.Value, numberThree.Value, prevThree.Value) &&
+                                 _lineService.InsideTheAngleWithoutBorders(numberOne.Value, prevOne.Value,
+                                     numberFour.Value, numberThree.Value, prevThree.Value) &&
+                                 numberOne.Value.Type == PointType.Useless)
+                        {
+                            flagWereIntersection = true;
+                            numberOne.Value.Type = PointType.Living;
+                            numberThree.Value.Type = PointType.Living;
+                            numberOne.Value.Coord = numberThree;
+                            numberThree.Value.Coord = numberOne;
+                        }
                     }
-                    
-                    else if (!_lineService.InsideTheAngleWithoutBorders(numberOne.Value, numberTwo.Value,
-                                 numberFour.Value, numberThree.Value, prevThree.Value) &&
-                             _lineService.InsideTheAngleWithoutBorders(numberOne.Value, prevOne.Value,
-                                 numberFour.Value, numberThree.Value, prevThree.Value))
-                    {
-                        flagWereIntersection = true;
-                        numberOne.Value.Type = PointType.Living;
-                        numberThree.Value.Type = PointType.Living;
-                        numberOne.Value.Coord = numberThree;
-                        numberThree.Value.Coord = numberOne;
-                    }
+
                     
                     /*
                     if (_coordinateComparator.IsEquals(numberOne.Value, numberFour.Value))
@@ -276,21 +283,21 @@ public class GridSlicerHelper
                     {
                         if ((_lineService.InsideTheAngle(numberFour.Value,numberThree.Value,
                                 nextTwo!.Value,numberTwo.Value,numberOne.Value) &&
-                             
+
                               !_lineService.InsideTheAngle(numberFour.Value,nextFour!.Value,
                                 nextTwo.Value,numberTwo.Value,numberOne.Value))
                             ||
                             !_lineService.InsideTheAngle(numberFour.Value,numberThree.Value,
                                   nextTwo.Value,numberTwo.Value,numberOne.Value) &&
-                              
+
                             _lineService.InsideTheAngle(numberFour.Value,nextFour!.Value,
                                   nextTwo.Value,numberTwo.Value,numberOne.Value))
                         {
                             double product = _lineService.VectorProduct(
-                                numberOne.Value, numberTwo.Value, 
+                                numberOne.Value, numberTwo.Value,
                                 numberThree.Value, numberFour.Value);
-                            /*if (product > 0 && 
-                                numberTwo.Value.Type == PointType.Useless && 
+                            /*if (product > 0 &&
+                                numberTwo.Value.Type == PointType.Useless &&
                                 numberFour.Value.Type == PointType.Useless)
                             {
                                 flagWereIntersection = true;
@@ -298,21 +305,21 @@ public class GridSlicerHelper
                                 numberTwo.Value.Type = PointType.Entering;
                                 numberFour.Value.Type = PointType.Entering;
                             }
-                            else *if ((product < 0 || Math.Abs(product) < _epsilon)&& 
-                                     numberTwo.Value.Type == PointType.Useless && 
+                            else *if ((product < 0 || Math.Abs(product) < _epsilon)&&
+                                     numberTwo.Value.Type == PointType.Useless &&
                                      numberFour.Value.Type == PointType.Useless)
                             {
                                 flagWereIntersection = true;
                                 numberTwo.Value.Type = PointType.Living;
                                 numberFour.Value.Type = PointType.Living;
                             }
-                            
+
                         }
-                        
+
                         numberTwo.Value.Coord = numberFour;
                         numberFour.Value.Coord = numberTwo;
                     }
-                    
+
                     else if (_coordinateComparator.IsEquals(numberTwo.Value, numberThree.Value))
                     {
                         numberTwo.Value.Coord = numberThree;
@@ -323,21 +330,21 @@ public class GridSlicerHelper
                     {
                         if (!_lineService.InsideTheAngle(numberThree.Value,numberFour.Value,
                                   numberTwo.Value,numberOne.Value,prevOne.Value) &&
-                              
+
                             _lineService.InsideTheAngle(numberThree.Value,prevThree!.Value,
                                   numberTwo.Value,numberOne.Value,prevOne.Value)
                                 ||
                             _lineService.InsideTheAngle(numberThree.Value,numberFour.Value,
                                    numberTwo.Value,numberOne.Value,prevOne.Value) &&
-                              
+
                                !_lineService.InsideTheAngle(numberThree.Value,prevThree!.Value,
                                    numberTwo.Value,numberOne.Value,prevOne.Value))
                         {
                             double product = _lineService.VectorProduct(
-                                numberOne.Value, numberTwo.Value, 
+                                numberOne.Value, numberTwo.Value,
                                 numberThree.Value, numberFour.Value);
-                            if ((product > 0  || Math.Abs(product) < _epsilon) && 
-                                numberOne.Value.Type == PointType.Useless && 
+                            if ((product > 0  || Math.Abs(product) < _epsilon) &&
+                                numberOne.Value.Type == PointType.Useless &&
                                 numberThree.Value.Type == PointType.Useless)
                             {
                                 flagWereIntersection = true;
@@ -346,8 +353,8 @@ public class GridSlicerHelper
                                 numberThree.Value.Type = PointType.Entering;
                             }
                             /*
-                            else if (product < 0 && 
-                                     numberOne.Value.Type == PointType.Useless && 
+                            else if (product < 0 &&
+                                     numberOne.Value.Type == PointType.Useless &&
                                      numberThree.Value.Type == PointType.Useless)
                             {
                                 flagWereIntersection = true;
