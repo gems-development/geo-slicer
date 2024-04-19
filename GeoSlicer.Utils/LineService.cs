@@ -1,4 +1,5 @@
 ﻿using System;
+using GeoSlicer.Utils.Intersectors.CoordinateComparators;
 using NetTopologySuite.Geometries;
 
 namespace GeoSlicer.Utils;
@@ -75,6 +76,18 @@ public class LineService
                && x >= Math.Min(first.X, second.X) - _epsilon
                && x <= Math.Max(first.X, second.X) + _epsilon;
     }
+    
+    public bool IsCoordinateInIntervalBorders(Coordinate coordinate, Coordinate first, Coordinate second)
+    {
+        ICoordinateComparator coordinateComparator = new EpsilonCoordinateComparator();
+
+        if (coordinateComparator.IsEquals(coordinate, first) || coordinateComparator.IsEquals(coordinate, second))
+        {
+            return false;
+        }
+
+        return IsCoordinateInSegmentBorders(coordinate.X, coordinate.Y, first, second);
+    }
 
 
     public bool IsLineEquals(double a1, double b1, double c1, double a2, double b2, double c2)
@@ -97,5 +110,83 @@ public class LineService
                && VectorProduct(linePoint1, linePoint2, linePoint2, currentPoint2) > 0
                && VectorProduct(linePoint1, linePoint2, linePoint2, currentPoint1.X, currentPoint2.Y) > 0
                && VectorProduct(linePoint1, linePoint2, linePoint2, currentPoint2.X, currentPoint1.Y) > 0;
+    }
+    
+    private double? CalculatePhiFromZeroTo2Pi(double x, double y)
+    {
+        return x switch
+        {
+            > 0 when y >= 0 => Math.Atan(y / x),
+            > 0 when y < 0 => Math.Atan(y / x) + 2 * Math.PI,
+            < 0 => Math.Atan(y / x) + Math.PI,
+            0 when y > 0 => Math.PI / 2,
+            0 when y < 0 => 3 * Math.PI / 2,
+            0 when y == 0 => null,
+            _ => null
+        };
+    }
+
+    private double? CalculatePhiFromMinusPiToPlusPi(double x, double y)
+    {
+        return x switch
+        {
+            > 0 => Math.Atan(y / x),
+            < 0 when y >= 0 => Math.Atan(y / x) + Math.PI,
+            < 0 when y < 0 => Math.Atan(y / x) - Math.PI,
+            0 when y > 0 => Math.PI / 2,
+            0 when y < 0 => -Math.PI / 2,
+            0 when y == 0 => null,
+            _ => null
+        };
+    }
+
+    public bool InsideTheAngle(
+        Coordinate vectorPointA1,
+        Coordinate vectorPointA2,
+        Coordinate anglePointB1,
+        Coordinate anglePointB2,
+        Coordinate anglePointB3)
+    {
+        var vectorB1 = new Coordinate(anglePointB3.X - anglePointB2.X,
+            anglePointB3.Y - anglePointB2.Y);
+        var phiB1 = CalculatePhiFromMinusPiToPlusPi(vectorB1.X, vectorB1.Y);
+        if (phiB1 == null) return true;
+        const int sign = -1;
+        var rotatedVectorAx = (vectorPointA2.X - vectorPointA1.X) * Math.Cos(sign * (double)phiB1) -
+                              (vectorPointA2.Y - vectorPointA1.Y) * Math.Sin(sign * (double)phiB1);
+        var rotatedVectorAy = (vectorPointA2.X - vectorPointA1.X) * Math.Sin(sign * (double)phiB1) +
+                              (vectorPointA2.Y - vectorPointA1.Y) * Math.Cos(sign * (double)phiB1);
+        var phiA = CalculatePhiFromZeroTo2Pi(rotatedVectorAx, rotatedVectorAy);
+        var rotatedVectorB2X = (anglePointB1.X - anglePointB2.X) * Math.Cos(sign * (double)phiB1) -
+                               (anglePointB1.Y - anglePointB2.Y) * Math.Sin(sign * (double)phiB1);
+        var rotatedVectorB2Y = (anglePointB1.X - anglePointB2.X) * Math.Sin(sign * (double)phiB1) +
+                               (anglePointB1.Y - anglePointB2.Y) * Math.Cos(sign * (double)phiB1);
+        var phiB2 = CalculatePhiFromZeroTo2Pi(rotatedVectorB2X, rotatedVectorB2Y);
+        return phiA <= phiB2 + _epsilon;
+    }
+    
+    public bool InsideTheAngleWithoutBorders(
+        Coordinate vectorPointA1,
+        Coordinate vectorPointA2,
+        Coordinate anglePointB1,
+        Coordinate anglePointB2,
+        Coordinate anglePointB3)
+    {
+        var vectorB1 = new Coordinate(anglePointB3.X - anglePointB2.X,
+            anglePointB3.Y - anglePointB2.Y);
+        var phiB1 = CalculatePhiFromMinusPiToPlusPi(vectorB1.X, vectorB1.Y);
+        if (phiB1 == null) return true;
+        const int sign = -1;
+        var rotatedVectorAx = (vectorPointA2.X - vectorPointA1.X) * Math.Cos(sign * (double)phiB1) -
+                              (vectorPointA2.Y - vectorPointA1.Y) * Math.Sin(sign * (double)phiB1);
+        var rotatedVectorAy = (vectorPointA2.X - vectorPointA1.X) * Math.Sin(sign * (double)phiB1) +
+                              (vectorPointA2.Y - vectorPointA1.Y) * Math.Cos(sign * (double)phiB1);
+        var phiA = CalculatePhiFromZeroTo2Pi(rotatedVectorAx, rotatedVectorAy);
+        var rotatedVectorB2X = (anglePointB1.X - anglePointB2.X) * Math.Cos(sign * (double)phiB1) -
+                               (anglePointB1.Y - anglePointB2.Y) * Math.Sin(sign * (double)phiB1);
+        var rotatedVectorB2Y = (anglePointB1.X - anglePointB2.X) * Math.Sin(sign * (double)phiB1) +
+                               (anglePointB1.Y - anglePointB2.Y) * Math.Cos(sign * (double)phiB1);
+        var phiB2 = CalculatePhiFromZeroTo2Pi(rotatedVectorB2X, rotatedVectorB2Y);
+        return phiA > 0 && phiA < phiB2;
     }
 }
