@@ -133,6 +133,9 @@ public class BoundingHoleDeleterTest
     [Fact]
     public void Test4Polygon()
     {
+        string user = "User";
+        string fileName = "C:\\Users\\" + user + "\\Downloads\\Telegram Desktop\\";
+        int v = 0;
         //Arrange
         ZeroTunnelDivider divider = ObjectsForTests.GetZeroTunnelDivider();
         LinkedList<Coordinate> problemCoordinates;
@@ -146,7 +149,10 @@ public class BoundingHoleDeleterTest
             {
                 //Act
                 Polygon newTest4 = Deleter.DeleteHoles(test4);
+                GeoJsonFileService.WriteGeometryToFile(newTest4, fileName + "newBaikal" + v);
                 divider.DivideZeroTunnels(newTest4.Shell, out extendedTunnelsTest4, out problemCoordinates);
+                GeoJsonFileService.WriteGeometryToFile(extendedTunnelsTest4, fileName + "newBaikal2" + v);
+                v++;
                 //Assert
                 Assert.IsEquals(0, newTest4.Holes.Length);
                 Assert.IsEquals(0, problemCoordinates.Count);

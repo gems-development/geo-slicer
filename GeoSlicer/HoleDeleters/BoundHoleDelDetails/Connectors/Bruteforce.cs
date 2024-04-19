@@ -64,11 +64,8 @@ internal static class Bruteforce
             FindNewConnectRingInFramesWhoContainThis
                 (thisRing, cache, ref connectRing, ref connectPoint, ref findNewConnectRing);
         }
-        thisRing.Value.ConnectBoundRings(
-            connectRing.Value,
-            thisRing.Value.PointUpNode,
-            connectPoint);
-        listOfHoles.Remove(connectRing);
+        Connector.Connect(
+            thisRing, connectRing, thisRing.Value.PointUpNode, connectPoint, listOfHoles);
     }
     
     private static void FindNewConnectRing(

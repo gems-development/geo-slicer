@@ -35,40 +35,42 @@ internal class NoIntersectRectangles
         
         if (_data.AbcCanConnect)
         {
-            thisRing.Value.ConnectBoundRings(
-                cache.NearRing[Zones.Abc].BoundRing.Value,
+            Connector.Connect(
+                thisRing,
+                cache.NearRing[Zones.Abc].BoundRing, 
                 thisRing.Value.PointUpNode,
-                cache.NearRing[Zones.Abc].BoundRing.Value.PointDownNode);
-            
-            listOfHoles.Remove(cache.NearRing[Zones.Abc].BoundRing);
+                cache.NearRing[Zones.Abc].BoundRing.Value.PointDownNode,
+                listOfHoles);
         }
 
         if (_data.CdeCanConnect && oldPointMin.Equals(thisRing.Value.PointMin))
         {
-            thisRing.Value.ConnectBoundRings(
-                cache.NearRing[Zones.Cde].BoundRing.Value,
-                thisRing.Value.PointLeftNode,
-                cache.NearRing[Zones.Cde].BoundRing.Value.PointRightNode);
-
-            listOfHoles.Remove(cache.NearRing[Zones.Cde].BoundRing);
+            Connector.Connect(
+                thisRing, 
+                cache.NearRing[Zones.Cde].BoundRing, 
+                thisRing.Value.PointLeftNode, 
+                cache.NearRing[Zones.Cde].BoundRing.Value.PointRightNode,
+                listOfHoles);
         }
 
         if (_data.EfgCanConnect && oldPointMin.Equals(thisRing.Value.PointMin))
         {
-            thisRing.Value.ConnectBoundRings(
-                cache.NearRing[Zones.Efg].BoundRing.Value,
-                thisRing.Value.PointDownNode,
-                cache.NearRing[Zones.Efg].BoundRing.Value.PointUpNode);
-            listOfHoles.Remove(cache.NearRing[Zones.Efg].BoundRing);
+            Connector.Connect(
+                thisRing, 
+                cache.NearRing[Zones.Efg].BoundRing, 
+                thisRing.Value.PointDownNode, 
+                cache.NearRing[Zones.Efg].BoundRing.Value.PointUpNode,
+                listOfHoles);
         }
 
         if (_data.AhgCanConnect && oldPointMax.Equals(thisRing.Value.PointMax))
         {
-            thisRing.Value.ConnectBoundRings(
-                cache.NearRing[Zones.Ahg].BoundRing.Value,
-                thisRing.Value.PointRightNode,
-                cache.NearRing[Zones.Ahg].BoundRing.Value.PointLeftNode);
-            listOfHoles.Remove(cache.NearRing[Zones.Ahg].BoundRing);
+            Connector.Connect(
+                thisRing, 
+                cache.NearRing[Zones.Ahg].BoundRing, 
+                thisRing.Value.PointRightNode, 
+                cache.NearRing[Zones.Ahg].BoundRing.Value.PointLeftNode,
+                listOfHoles);
         }
 
         return _data.AbcCanConnect || _data.CdeCanConnect || _data.EfgCanConnect || _data.AhgCanConnect;

@@ -80,11 +80,9 @@ internal static class WithIntersectRing
                 } while (intersectSegment is not null);
             }
         }
-
-        thisRing.Value.ConnectBoundRings(
-            frameContainThis.Value,
-            connectCoordThisR, connectCoordFrameContainThis);
-        listOfHoles.Remove(frameContainThis);
+        Connector.Connect(
+            thisRing, frameContainThis,
+            connectCoordThisR, connectCoordFrameContainThis, listOfHoles);
     }
     
     

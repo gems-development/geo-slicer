@@ -61,10 +61,10 @@ internal class IntersectionBoundRFrames
 
             if (_findCurrentPointThisRing && _findCurrentPointIntersectFrame)
             {
-                thisRing.Value.ConnectBoundRings(
-                    _intersectFrame!.Value,
-                    _currentPointThisRing!, _currentPointIntersectFrame!);
-                listOfHoles.Remove(_intersectFrame);
+                Connector.Connect(
+                    thisRing, _intersectFrame!,
+                    _currentPointThisRing!, _currentPointIntersectFrame!,
+                    listOfHoles);
                 return true;
             } 
             
