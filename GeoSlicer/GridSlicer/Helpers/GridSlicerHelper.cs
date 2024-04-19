@@ -298,16 +298,16 @@ public class GridSlicerHelper
 
                     else if (_coordinateComparator.IsEquals(numberTwo.Value, numberFour.Value))
                     {
-                        if ((VectorService.InsideTheAngle(numberFour.Value,numberThree.Value,
+                        if ((_lineService.InsideTheAngle(numberFour.Value,numberThree.Value,
                                 nextTwo!.Value,numberTwo.Value,numberOne.Value) &&
                              
-                              !VectorService.InsideTheAngle(numberFour.Value,nextFour!.Value,
+                              !_lineService.InsideTheAngle(numberFour.Value,nextFour!.Value,
                                 nextTwo.Value,numberTwo.Value,numberOne.Value))
                             ||
-                            !VectorService.InsideTheAngle(numberFour.Value,numberThree.Value,
+                            !_lineService.InsideTheAngle(numberFour.Value,numberThree.Value,
                                   nextTwo.Value,numberTwo.Value,numberOne.Value) &&
                               
-                              VectorService.InsideTheAngle(numberFour.Value,nextFour!.Value,
+                            _lineService.InsideTheAngle(numberFour.Value,nextFour!.Value,
                                   nextTwo.Value,numberTwo.Value,numberOne.Value))
                         {
                             double product = _lineService.VectorProduct(
@@ -345,16 +345,16 @@ public class GridSlicerHelper
 
                     else if(_coordinateComparator.IsEquals(numberOne.Value, numberThree.Value))
                     {
-                        if (!VectorService.InsideTheAngle(numberThree.Value,numberFour.Value,
+                        if (!_lineService.InsideTheAngle(numberThree.Value,numberFour.Value,
                                   numberTwo.Value,numberOne.Value,prevOne.Value) &&
                               
-                              VectorService.InsideTheAngle(numberThree.Value,prevThree!.Value,
+                            _lineService.InsideTheAngle(numberThree.Value,prevThree!.Value,
                                   numberTwo.Value,numberOne.Value,prevOne.Value)
                                 ||
-                              VectorService.InsideTheAngle(numberThree.Value,numberFour.Value,
+                            _lineService.InsideTheAngle(numberThree.Value,numberFour.Value,
                                    numberTwo.Value,numberOne.Value,prevOne.Value) &&
                               
-                               !VectorService.InsideTheAngle(numberThree.Value,prevThree!.Value,
+                               !_lineService.InsideTheAngle(numberThree.Value,prevThree!.Value,
                                    numberTwo.Value,numberOne.Value,prevOne.Value))
                         {
                             double product = _lineService.VectorProduct(
