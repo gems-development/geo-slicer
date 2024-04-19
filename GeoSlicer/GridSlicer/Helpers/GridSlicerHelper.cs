@@ -169,37 +169,11 @@ public class GridSlicerHelper
 
                 if (intersection is { Item2: not null, Item1: LinesIntersectionType.Inner })
                 {
-                    //flagWereIntersection = true;
-
                     LinkedListNode<CoordinateSupport> intersectionNodeInClip =
                         new LinkedListNode<CoordinateSupport>(new CoordinateSupport(intersection.Item2));
                     LinkedListNode<CoordinateSupport> intersectionNodeInCut =
                         new LinkedListNode<CoordinateSupport>(new CoordinateSupport(intersection.Item2));
-/*
-                    intersectionNodeInClip.Value.Coord = intersectionNodeInCut;
-                    intersectionNodeInCut.Value.Coord = intersectionNodeInClip;
-                    
-                    double product = _lineService.VectorProduct(
-                        numberOne.Value, numberTwo.Value, 
-                        numberThree.Value, numberFour.Value);
-                    if (product > 0 && 
-                    
-                        intersectionNodeInClip.Value.Type == PointType.Useless && 
-                        intersectionNodeInCut.Value.Type == PointType.Useless)
-                    {
-                        flagWereIntersection = true;
-                        intersectionNodeInClip.Value.Type = PointType.Entering;
-                        intersectionNodeInCut.Value.Type = PointType.Entering;
-                    }
-                    else if (product < 0 && 
-                             numberTwo.Value.Type == PointType.Useless && 
-                             numberFour.Value.Type == PointType.Useless)
-                    {
-                        flagWereIntersection = true;
-                        intersectionNodeInClip.Value.Type = PointType.Living;
-                        intersectionNodeInCut.Value.Type = PointType.Living;
-                    }
-                    */
+
                     clipped.AddAfter(nodeI, intersectionNodeInClip);
                     cutting.AddAfter(nodeJ, intersectionNodeInCut);
                     flagWereIntersectionOnCurrentIteration = true;
@@ -209,50 +183,26 @@ public class GridSlicerHelper
                 
                 else if (intersection is { Item2: not null, Item1: LinesIntersectionType.TyShaped })
                 {
-                    //flagWereIntersection = true;
-
                     LinkedListNode<CoordinateSupport> intersectionNode =
                         new LinkedListNode<CoordinateSupport>(new CoordinateSupport(intersection.Item2));
-              /*      
-                    double product = _lineService.VectorProduct(
-                        numberOne.Value, numberTwo.Value, 
-                        numberThree.Value, numberFour.Value);
-                    if (product > 0 && 
-                        intersectionNode.Value.Type == PointType.Useless)
-                    {
-                        flagWereIntersection = true;
-                        intersectionNode.Value.Type = PointType.Entering;
-                        //пометить ещё и другую точку 
-                    }
-                    else if (product < 0 && 
-                             numberTwo.Value.Type == PointType.Useless)
-                    {
-                        flagWereIntersection = true;
-                        intersectionNode.Value.Type = PointType.Living;
-                        //пометить ещё и другую точку
-                    }
-*/
+
                     if(_coordinateComparator.IsEquals(intersectionNode.Value, numberOne.Value))
                     {
-                        //numberOne.Value.Type = intersectionNode.Value.Type;
                         cutting.AddAfter(numberThree, intersectionNode);
                         flagWereIntersectionOnCurrentIteration = true;
                     }
                     else if (_coordinateComparator.IsEquals(intersectionNode.Value, numberTwo!.Value))
                     {
-                     //   numberTwo.Value.Type = intersectionNode.Value.Type;
                         cutting.AddAfter(numberThree, intersectionNode);
                         flagWereIntersectionOnCurrentIteration = true;
                     }
                     else if (_coordinateComparator.IsEquals(intersectionNode.Value, numberThree.Value))
                     {
-                        //numberThree.Value.Type = intersectionNode.Value.Type;
                         clipped.AddAfter(numberOne, intersectionNode);
                         flagWereIntersectionOnCurrentIteration = true;
                     }
                     else
                     {
-                       // numberFour.Value.Type = intersectionNode.Value.Type;
                         clipped.AddAfter(numberOne, intersectionNode);
                         flagWereIntersectionOnCurrentIteration = true;
                     }
@@ -289,7 +239,33 @@ public class GridSlicerHelper
                     {
                         nextFour = numberFour.Next;
                     }
+
+                    if (_lineService.InsideTheAngleWithoutBorders(numberOne.Value, numberTwo.Value,
+                            numberFour.Value, numberThree.Value, prevThree.Value) &&
+                        !_lineService.InsideTheAngleWithoutBorders(numberOne.Value, prevOne.Value,
+                            numberFour.Value, numberThree.Value, prevThree.Value))
+                    {
+                        flagWereIntersection = true;
+                        numberOfEnteringMarks++;
+                        numberOne.Value.Type = PointType.Entering;
+                        numberThree.Value.Type = PointType.Entering;
+                        numberOne.Value.Coord = numberThree;
+                        numberThree.Value.Coord = numberOne;
+                    }
                     
+                    else if (!_lineService.InsideTheAngleWithoutBorders(numberOne.Value, numberTwo.Value,
+                                 numberFour.Value, numberThree.Value, prevThree.Value) &&
+                             _lineService.InsideTheAngleWithoutBorders(numberOne.Value, prevOne.Value,
+                                 numberFour.Value, numberThree.Value, prevThree.Value))
+                    {
+                        flagWereIntersection = true;
+                        numberOne.Value.Type = PointType.Living;
+                        numberThree.Value.Type = PointType.Living;
+                        numberOne.Value.Coord = numberThree;
+                        numberThree.Value.Coord = numberOne;
+                    }
+                    
+                    /*
                     if (_coordinateComparator.IsEquals(numberOne.Value, numberFour.Value))
                     {
                         numberOne.Value.Coord = numberFour;
@@ -322,7 +298,7 @@ public class GridSlicerHelper
                                 numberTwo.Value.Type = PointType.Entering;
                                 numberFour.Value.Type = PointType.Entering;
                             }
-                            else */if ((product < 0 || Math.Abs(product) < _epsilon)&& 
+                            else *if ((product < 0 || Math.Abs(product) < _epsilon)&& 
                                      numberTwo.Value.Type == PointType.Useless && 
                                      numberFour.Value.Type == PointType.Useless)
                             {
@@ -377,11 +353,11 @@ public class GridSlicerHelper
                                 flagWereIntersection = true;
                                 numberOne.Value.Type = PointType.Living;
                                 numberThree.Value.Type = PointType.Living;
-                            }*/
+                            }*
                         }
                         numberOne.Value.Coord = numberThree;
                         numberThree.Value.Coord = numberOne;
-                    }
+                    }*/
                 }
                 
                 //Overlay
@@ -397,52 +373,25 @@ public class GridSlicerHelper
                     {
                         intersectionNodeInClip = new LinkedListNode<CoordinateSupport>(new CoordinateSupport(numberThree.Value));
                         intersectionNodeInCut = new LinkedListNode<CoordinateSupport>(new CoordinateSupport(numberTwo.Value));
-                    /*
-                        intersectionNodeInClip.Value.Coord = numberThree;
-                        numberThree.Value.Coord = intersectionNodeInClip;
-
-                        intersectionNodeInCut.Value.Coord = numberTwo;
-                        numberTwo.Value.Coord = intersectionNodeInCut;
-                    */
                     }
                     else if (_lineService.IsCoordinateInSegmentBorders(numberFour!.Value, numberOne.Value, numberTwo.Value) &&
                                 _lineService.IsCoordinateInSegmentBorders(numberTwo.Value, numberThree.Value, numberFour.Value))
                     {
                         intersectionNodeInClip = new LinkedListNode<CoordinateSupport>(new CoordinateSupport(numberFour.Value));
                         intersectionNodeInCut = new LinkedListNode<CoordinateSupport>(new CoordinateSupport(numberTwo.Value));
-                    /*
-                        intersectionNodeInClip.Value.Coord = numberFour;
-                        numberFour.Value.Coord = intersectionNodeInClip;
 
-                        intersectionNodeInCut.Value.Coord = numberTwo;
-                        numberTwo.Value.Coord = intersectionNodeInCut;
-                    */
                     }
                     else if (_lineService.IsCoordinateInSegmentBorders(numberThree.Value, numberOne.Value, numberTwo.Value) &&
                                 _lineService.IsCoordinateInSegmentBorders(numberOne.Value, numberThree.Value, numberFour.Value))
                     {
                         intersectionNodeInClip = new LinkedListNode<CoordinateSupport>(new CoordinateSupport(numberThree.Value));
                         intersectionNodeInCut = new LinkedListNode<CoordinateSupport>(new CoordinateSupport(numberOne.Value));
-                    /*
-                        intersectionNodeInClip.Value.Coord = numberThree;
-                        numberThree.Value.Coord = intersectionNodeInClip;
-
-                        intersectionNodeInCut.Value.Coord = numberOne;
-                        numberOne.Value.Coord = intersectionNodeInCut;
-                    */
                     }
                     else if (_lineService.IsCoordinateInSegmentBorders(numberFour.Value, numberOne.Value, numberTwo.Value) &&
                              _lineService.IsCoordinateInSegmentBorders(numberOne.Value, numberThree.Value, numberFour.Value))
                     {
                         intersectionNodeInClip = new LinkedListNode<CoordinateSupport>(new CoordinateSupport(numberFour.Value));
                         intersectionNodeInCut = new LinkedListNode<CoordinateSupport>(new CoordinateSupport(numberOne.Value));
-                    /*
-                        intersectionNodeInClip.Value.Coord = numberFour;
-                        numberFour.Value.Coord = intersectionNodeInClip;
-
-                        intersectionNodeInCut.Value.Coord = numberOne;
-                        numberOne.Value.Coord = intersectionNodeInCut;
-                    */
                     }
 
                     //добавление двух новых нод в листы
@@ -678,67 +627,7 @@ public class GridSlicerHelper
                 }
             }
         }
-        //////////////////////////////////////////////////////////////////////////////////////////////////
-        /*
-        for (LinkedListNode<CoordinateSupport>? nodeInClipped = clipped.First;
-             nodeInClipped != null;
-             nodeInClipped = nodeInClipped.Next)
-        {
-            if (nodeInClipped.Value.Type == PointType.Entering)
-            {
-                List<Coordinate> figure = new();
 
-                LinkedListNode<CoordinateSupport>? startInCutting =
-                    new LinkedListNode<CoordinateSupport>(nodeInClipped.Value);
-
-                for (LinkedListNode<CoordinateSupport>? nodeFromEToL = nodeInClipped;
-                     nodeFromEToL!.Value.Type != PointType.Living;
-                     nodeFromEToL = nodeFromEToL.Next)
-                {
-                    figure.Add(nodeFromEToL.Value);
-
-                    if (nodeFromEToL.Next == null)
-                    {
-                        nodeFromEToL = clipped.First;
-
-                        if (nodeFromEToL!.Value.Type == PointType.Living)
-                        {
-                            startInCutting = nodeFromEToL.Value.Coord;
-                            break;
-                        }
-
-                        figure.Add(nodeFromEToL.Value);
-                    }
-
-                    if (nodeFromEToL.Next!.Value.Type == PointType.Living)
-                    {
-                        startInCutting = nodeFromEToL.Next.Value.Coord;
-                    }
-                }
-
-                for (LinkedListNode<CoordinateSupport>? nodeCutting = startInCutting;
-                     nodeCutting!.Value.Coord != nodeInClipped;
-                     nodeCutting = nodeCutting.Next)
-                {
-                    figure.Add(nodeCutting.Value);
-
-                    if (nodeCutting.Next == null)
-                    {
-                        nodeCutting = cutting.First;
-                        figure.Add(nodeCutting!.Value);
-
-                        if (nodeCutting.Value.Coord == nodeInClipped)
-                        {
-                            break;
-                        }
-                    }
-                }
-
-                figure.Add(nodeInClipped.Value);
-                result.Add(figure);
-            }
-        }
-        */
         return result.Select(enumerable => new LinearRing(enumerable.ToArray()));
     }
 
