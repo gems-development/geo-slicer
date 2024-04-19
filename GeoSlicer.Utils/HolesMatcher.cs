@@ -14,7 +14,7 @@ public class HolesMatcher
     }
 
 
-    public IEnumerable<Polygon> MatchHoles(IEnumerable<LinearRing> shells, LinkedList<LinearRing> holes)
+    public LinkedList<Polygon> MatchHoles(IEnumerable<LinearRing> shells, LinkedList<LinearRing> holes)
     {
         LinkedList<Polygon> result = new LinkedList<Polygon>();
 
@@ -29,10 +29,14 @@ public class HolesMatcher
                     if (_containsChecker.IsPointInLinearRing(node.Value.GetCoordinateN(0), shell))
                     {
                         currentHoles.AddLast(node.Value);
+                        LinkedListNode<LinearRing>? temp = node.Next;
                         holes.Remove(node);
+                        node = temp;
                     }
-
-                    node = node.Next;
+                    else
+                    {
+                        node = node.Next;
+                    }
                 } while (node is not null);
 
                 result.AddLast(new Polygon(shell, currentHoles.ToArray()));
