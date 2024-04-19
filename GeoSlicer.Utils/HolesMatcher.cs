@@ -14,7 +14,7 @@ public class HolesMatcher
     }
 
 
-    public IEnumerable<Polygon> PlaceHoles(IEnumerable<LinearRing> shells, LinkedList<LinearRing> holes)
+    public IEnumerable<Polygon> MatchHoles(IEnumerable<LinearRing> shells, LinkedList<LinearRing> holes)
     {
         LinkedList<Polygon> result = new LinkedList<Polygon>();
 
