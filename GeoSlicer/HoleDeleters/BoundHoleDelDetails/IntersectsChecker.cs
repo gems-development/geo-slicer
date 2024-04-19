@@ -70,7 +70,7 @@ public static class IntersectsChecker
     }
     
     //Проверяет, пересекает ли отрезок ab рамку кольца ring, или содержится ли отрезок в этой рамке.
-    private static bool LineIntersectsOrContainsInBoundRFrame(BoundingRing ring, Coordinate a, Coordinate b)
+    public static bool LineIntersectsOrContainsInBoundRFrame(BoundingRing ring, Coordinate a, Coordinate b)
     {
         return HasIntersectsBoundRFrame(ring, a, b)
                || PointInsideBoundRFrame(a, ring)
