@@ -3,16 +3,10 @@ using NetTopologySuite.Geometries;
 
 namespace GeoSlicer.Utils;
 
-public class TraverseDirection
+public static class TraverseDirection
 {
-    private readonly LineService _lineService;
 
-    public TraverseDirection(LineService lineService)
-    {
-        _lineService = lineService;
-    }
-
-    public bool IsClockwiseBypass(LinearRing ring)
+    public static bool IsClockwiseBypass(LinearRing ring)
     {
         Coordinate[] coordinates = ring.Coordinates;
 
@@ -41,10 +35,10 @@ public class TraverseDirection
         var vecAb = new Coordinate(coordB.X - coordA.X, coordB.Y - coordA.Y);
         var vecBc = new Coordinate(coordC.X - coordB.X, coordC.Y - coordB.Y);
 
-        return _lineService.VectorProduct(vecAb, vecBc) < 0;
+        return LineService.VectorProduct(vecAb, vecBc) < 0;
     }
 
-    public void ChangeDirection(LinearRing ring)
+    public static void ChangeDirection(LinearRing ring)
     {
         Coordinate[] coordinates = ring.Coordinates;
         for (var i = 1; i < (coordinates.Length - 2) / 2 + 1; i++)

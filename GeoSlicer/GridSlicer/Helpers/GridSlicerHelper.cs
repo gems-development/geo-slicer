@@ -17,7 +17,6 @@ public class GridSlicerHelper
     private readonly LineService _lineService;
     private readonly SegmentService _segmentService;
     private readonly ICoordinateComparator _coordinateComparator;
-    private readonly TraverseDirection _traverseDirection;
     private readonly ContainsChecker _containsChecker;
 
     public GridSlicerHelper(LinesIntersector linesIntersector, double epsilon, LineService lineService,
@@ -28,7 +27,6 @@ public class GridSlicerHelper
         _lineService = lineService;
         _coordinateComparator = coordinateComparator;
         _containsChecker = containsChecker;
-        _traverseDirection = new TraverseDirection(_lineService);
         _segmentService = new SegmentService(_lineService);
     }
 
@@ -150,14 +148,14 @@ public class GridSlicerHelper
 
         //нужно, чтобы обход clipped и cutting был по часовой
 
-        if (!_traverseDirection.IsClockwiseBypass(clippedCoordinates))
+        if (!TraverseDirection.IsClockwiseBypass(clippedCoordinates))
         {
-            _traverseDirection.ChangeDirection(clippedCoordinates);
+            TraverseDirection.ChangeDirection(clippedCoordinates);
         }
 
-        if (!_traverseDirection.IsClockwiseBypass(cuttingCoordinates))
+        if (!TraverseDirection.IsClockwiseBypass(cuttingCoordinates))
         {
-            _traverseDirection.ChangeDirection(cuttingCoordinates);
+            TraverseDirection.ChangeDirection(cuttingCoordinates);
         }
 
         LinkedList<CoordinateSupport> clipped = CoordinateToCoordinateSupport(clippedCoordinates);
@@ -355,7 +353,7 @@ public class GridSlicerHelper
                             VectorService.InsideTheAngle(numberFour.Value, nextFour!.Value,
                                 nextTwo.Value, numberTwo.Value, numberOne.Value))
                         {
-                            double product = _lineService.VectorProduct(
+                            double product = LineService.VectorProduct(
                                 numberOne.Value, numberTwo.Value,
                                 numberThree.Value, numberFour.Value);
                             /*if (product > 0 &&
@@ -400,7 +398,7 @@ public class GridSlicerHelper
                             !VectorService.InsideTheAngle(numberThree.Value, prevThree!.Value,
                                 numberTwo.Value, numberOne.Value, prevOne.Value))
                         {
-                            double product = _lineService.VectorProduct(
+                            double product = LineService.VectorProduct(
                                 numberOne.Value, numberTwo.Value,
                                 numberThree.Value, numberFour.Value);
                             if ((product > 0 || Math.Abs(product) < _epsilon) &&

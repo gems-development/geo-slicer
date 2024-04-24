@@ -17,14 +17,12 @@ public class NonConvexSlicerBench
 
     private static readonly LineService LineService = new LineService(Epsilon);
     private static readonly SegmentService SegmentService = new SegmentService(LineService);
-    private static readonly TraverseDirection TraverseDirection = new TraverseDirection(LineService);
 
     private readonly NonConvexSlicer.Slicer _slicer =
         new(Gf,
             SegmentService,
             new NonConvexSlicerHelper(
-                new LinesIntersector(new EpsilonCoordinateComparator(Epsilon), LineService, Epsilon),
-                LineService), TraverseDirection, LineService);
+                new LinesIntersector(new EpsilonCoordinateComparator(Epsilon), LineService, Epsilon)));
 
     private readonly LinearRing _ring = Gf.CreateLinearRing(
         GeoJsonFileService.ReadGeometryFromFile<LineString>(
