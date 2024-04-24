@@ -17,7 +17,7 @@ public class CornerTests
         new(new LinesIntersector(new EpsilonCoordinateComparator(Epsilon), LineService, Epsilon), LineService,
             new EpsilonCoordinateComparator(), new ContainsChecker(LineService, Epsilon));
 
-    [Fact]
+     [Fact]
     public void NonConvexNonConvex()
     {
         //Arrange
@@ -56,20 +56,102 @@ public class CornerTests
         Assert.Equal(expectedB, actualB);
     }
 
+     
     [Fact]
     public void NonConvexConvex()
     {
         //Arrange
         Coordinate[] figureA =
         {
-            new(0,0), new(-3,0), new(-3, 2), new(2, 2), new(2,-3), new(0,0)
+            new(-3, 0), new(-3, 2), new(2, 2), new(2, -3), new(0, 0), new(-3, 0)
         };
         LinearRing ringA = new LinearRing(figureA);
         Coordinate[] figureB =
         {
-            new(0, 0), new(-4, -5), new(-4, 4),  new(0, 0)
+            new(0, 0), new(-4, -5), new(-4, 4), new(0, 0)
         };
         LinearRing ringB = new LinearRing(figureB);
+
+        List<LinearRing> expected = new()
+        {
+            new LinearRing(new Coordinate[]
+            {
+                new(0, 0), new(-3, 0), new(-3, 2), new(-2, 2), new(0, 0)
+            })
+        };
+
+        //Act
+        var actualA = SlicerHelper.WeilerAtherton(ringA, ringB);
+        var actualB = SlicerHelper.WeilerAtherton(ringA, ringB);
+        
+        //Assert
+        Assert.Equal(expected, actualA);
+        Assert.Equal(expected, actualB);
+    }
+    
+    [Fact]
+    public void ConvexNonConvex()
+    {
+        //Arrange
+        Coordinate[] figureA =
+        {
+            new(0, 0), new(3, -3), new(-2, -3), new(0, 0)
+        };
+        LinearRing ringA = new LinearRing(figureA);
+        Coordinate[] figureB =
+        {
+            new(-4, 0), new(4, 3), new(4, -6), new(0, -6), new(0, 0), new(-4, 0)
+        };
+        LinearRing ringB = new LinearRing(figureB);
+
+        List<LinearRing> expected = new()
+        {
+            new LinearRing(new Coordinate[]
+            {
+                new(0, 0), new(3, -3), new(0, -3), new(0, 0)
+            })
+        };
+
+        //Act
+        var actualA = SlicerHelper.WeilerAtherton(ringA, ringB);
+        var actualB = SlicerHelper.WeilerAtherton(ringA, ringB);
+        
+        //Assert
+        Assert.Equal(expected, actualA);
+        Assert.Equal(expected, actualB);
+    }
+    
+    [Fact]
+    public void ConvexConvex()
+    {
+        //Arrange
+        Coordinate[] figureA =
+        {
+            new(0, 0), new(-2, -3), new(-2, -1), new(0, 0)
+        };
+        LinearRing ringA = new LinearRing(figureA);
+        Coordinate[] figureB =
+        {
+            new(0, 0), new(-3, -3), new(-3, 4), new(0, 0)
+        };
+        LinearRing ringB = new LinearRing(figureB);
+
+        List<LinearRing> expected = new()
+        {
+            new LinearRing(new Coordinate[]
+            {
+                new(-2, -2), new(-2, -1), new(0, 0), new(-2, -2)
+            })
+        };
+
+        //Act
+        var actualA = SlicerHelper.WeilerAtherton(ringA, ringB);
+        var actualB = SlicerHelper.WeilerAtherton(ringA, ringB);
+        
+        //Assert
+        Assert.Equal(expected, actualA);
+        Assert.Equal(expected, actualB);
+    }
 
         List<LinearRing> expectedA = new()
         {
