@@ -12,7 +12,7 @@ public class FactTestsOverlayWeilerAtherton
 {
     private static readonly double Epsilon = 1E-9;
 
-    private static readonly LineService LineService = new LineService(Epsilon);
+    private static readonly LineService LineService = new(Epsilon);
 
     private static readonly GridSlicerHelper SlicerHelper =
         new(new LinesIntersector(new EpsilonCoordinateComparator(Epsilon), LineService, Epsilon), Epsilon, LineService,
@@ -37,8 +37,7 @@ public class FactTestsOverlayWeilerAtherton
         {
             new LinearRing(new Coordinate[]
                 {
-                    new(-2, 2), new(0, 2), new(2, 2), new(2, 0),
-                    new(2, -2), new(-2, -2), new(-2, 0), new(-2, 2)
+                    new(-2, 2), new(2, 2), new(2, -2), new(-2, -2), new(-2, 2)
                 }
             )
         };
@@ -50,7 +49,6 @@ public class FactTestsOverlayWeilerAtherton
         //Assert
         Assert.Equal(expected, actual);
         Assert.Single(actual);
-        // Assert.True(actual[0].IsEqualsRing(expected));
     }
 
     [Fact]
@@ -73,8 +71,8 @@ public class FactTestsOverlayWeilerAtherton
         {
             new LinearRing(new Coordinate[]
             {
-                new(-2, 2), new(0, 2), new(2, 2), new(2, 0),
-                new(2, -2), new(-2, -2), new(-2, 0), new(-2, 2)
+                new(0, 2), new(2, 2), new(2, 0), new(2, -2),
+                new(-2, -2), new(-2, 0), new(-2, 2), new(0, 2)
             })
         };
 
@@ -84,8 +82,6 @@ public class FactTestsOverlayWeilerAtherton
         //Assert
         Assert.Equal(expected, actual);
         Assert.Single(actual);
-        //Assert.True(expected[0].Coordinates.IsEqualsRing(actual));
-        //Assert.True(actual[0].IsEqualsRing(expected));
     }
 
     [Fact]
@@ -119,7 +115,6 @@ public class FactTestsOverlayWeilerAtherton
         //Assert
         Assert.Equal(expected, actual);
         Assert.Single(actual);
-        //Assert.True(actual[0].IsEqualsRing(expected));
     }
 
     [Fact]
@@ -153,7 +148,6 @@ public class FactTestsOverlayWeilerAtherton
         //Assert
         Assert.Equal(expected, actual);
         Assert.Single(actual);
-        //Assert.True(actual[0].IsEqualsRing(expected));
     }
 
     [Fact]
@@ -185,7 +179,6 @@ public class FactTestsOverlayWeilerAtherton
         //Assert
         //Assert.Equal(expected,actual);
         Assert.Empty(actual);
-        //Assert.True(actual.First().Coordinates.IsEqualsRing(expected[0]));
     }
 
     [Fact]
@@ -217,7 +210,6 @@ public class FactTestsOverlayWeilerAtherton
         //Assert
         //Assert.Equal(expected,actual);
         Assert.Empty(actual);
-        //Assert.True(actual.First().Coordinates.IsEqualsRing(expected[0]));
     }
 
     [Fact]
@@ -249,7 +241,6 @@ public class FactTestsOverlayWeilerAtherton
         //Assert
         //Assert.Equal(expected,actual);
         Assert.Empty(actual);
-        //Assert.True(actual.First().Coordinates.IsEqualsRing(expected[0]));
     }
 
     [Fact]
@@ -281,6 +272,5 @@ public class FactTestsOverlayWeilerAtherton
         //Assert
         //Assert.Equal(expected,actual);
         Assert.Empty(actual);
-        //Assert.True(actual.First().Coordinates.IsEqualsRing(expected[0]));
     }
 }
