@@ -73,12 +73,16 @@ public class GridSlicerHelper
                 {
                     res.AddLast(pol.Shell);
                 }
-                else if (geometry is Point)
+                else if (geometry is Point || geometry is LineString)
                 {
                     
                 }
                 else
                 {
+                    GeoJsonFileService.WriteGeometryToFile(clipped, "OutData/clp.geojson.ignore");
+                    GeoJsonFileService.WriteGeometryToFile(cutting, "OutData/ctt.geojson.ignore");
+                    GeoJsonFileService.WriteGeometryToFile(intersection, "OutData/res.geojson.ignore");
+                    GeoJsonFileService.WriteGeometryToFile(geometry, "OutData/geom.geojson.ignore");
                     throw new NotImplementedException(
                         "Пойман нерассмотренный вариант типа вложнной геометрии, возвращаемого 'Intersection'");
                 }

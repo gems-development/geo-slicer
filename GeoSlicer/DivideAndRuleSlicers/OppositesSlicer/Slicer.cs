@@ -39,12 +39,15 @@ public class Slicer
 
         Queue<Polygon> queue = new Queue<Polygon>();
         queue.Enqueue(input);
-        
+        int i = 0;
         while (queue.Count != 0)
         {
+            Console.WriteLine(
+                $"Queue count: {queue.Count}. Max points count: {queue.Select(polygon => polygon.Shell.Count).Max()}");
+
             // todo Кажется, есть лишние разрезания
             Polygon current = queue.Dequeue();
-            
+
             int oppositesIndex = Utils.GetNearestOppositesInner(current.Shell);
             IEnumerable<Polygon> sliced = SliceByLine(
                 current,
@@ -61,6 +64,10 @@ public class Slicer
                     queue.Enqueue(ring);
                 }
             }
+
+          //  GeoJsonFileService.WriteGeometryToFile(new MultiPolygon(result.Concat(queue).ToArray()),
+          //      $"OutData/{i}.geojson.ignore");
+            i++;
         }
 
         return result;
@@ -73,7 +80,7 @@ public class Slicer
     {
         a = a.Copy();
         b = b.Copy();
-
+        //GeoJsonFileService.WriteGeometryToFile(polygon, "Out/wrong.geojson.ignore");
         // Если isVertical == true, создается 2 области: слева и справа от вертикального разделителя
         bool isVertical = Math.Abs(a.Y - b.Y) > Math.Abs(a.X - b.X);
 
@@ -125,15 +132,15 @@ public class Slicer
 
         // Если пересекается с 2мя смежными сторонами, в результате будет треугольник, у которого в одной точке
         // будет на самом деле 2 точки. Без этого будет самопересечения а-ля бантик
-        minX = a.X;
-        minY = a.Y;
-        maxX = b.X;
-        maxY = b.Y;
+        minX = Math.Min(minX, Math.Min(a.X, b.X));
+        minY = Math.Min(minY, Math.Min(a.Y, b.Y));
+        maxX = Math.Max(maxX, Math.Max(a.X, b.X));
+        maxY = Math.Max(maxY, Math.Max(a.Y, b.Y));
         LinearRing part1;
         LinearRing part2;
         if (isVertical)
         {
-            part1 = new LinearRing(new []
+            part1 = new LinearRing(new[]
                 { a, new(minX, minY), new(minX, maxY), b, a });
             part2 = new LinearRing(new[]
                 { a, b, new(maxX, maxY), new(maxX, minY), a });
