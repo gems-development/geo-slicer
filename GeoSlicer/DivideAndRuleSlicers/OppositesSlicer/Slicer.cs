@@ -98,13 +98,13 @@ public class Slicer
                 // для разрезания сдвигаются и больше не соответствуют существующим
 
                 // Продлеваем прямую
-                a.X -= Math.Abs(a.X - b.X) * (a.Y - minY) / (b.Y - a.Y);
+                a.X += (a.X - b.X) * (a.Y - minY) / (b.Y - a.Y);
                 a.Y = minY;
             }
 
             if (b.Y < maxY)
             {
-                b.X += Math.Abs(a.X - b.X) * (maxY - b.Y) / (b.Y - a.Y);
+                b.X -= (a.X - b.X) * (maxY - b.Y) / (b.Y - a.Y);
                 b.Y = maxY;
             }
         }
@@ -112,13 +112,13 @@ public class Slicer
         {
             if (minX < a.X)
             {
-                a.Y -= Math.Abs(a.Y - b.Y) * (a.X - minX) / (b.X - a.X);
+                a.Y += (a.Y - b.Y) * (a.X - minX) / (b.X - a.X);
                 a.X = minX;
             }
 
             if (b.X < maxX)
             {
-                b.Y += Math.Abs(a.Y - b.Y) * (maxX - b.X) / (b.X - a.X);
+                b.Y -= (a.Y - b.Y) * (maxX - b.X) / (b.X - a.X);
                 b.X = maxX;
             }
         }
@@ -136,7 +136,7 @@ public class Slicer
             part1 = new LinearRing(new []
                 { a, new(minX, minY), new(minX, maxY), b, a });
             part2 = new LinearRing(new[]
-                { a, b, new(maxY, maxY), new(maxX, minY), a });
+                { a, b, new(maxX, maxY), new(maxX, minY), a });
         }
         else
         {

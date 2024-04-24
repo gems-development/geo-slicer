@@ -64,6 +64,28 @@ public class GridSlicerHelper
             return multiPolygon.Select(geometry => ((Polygon)geometry).Shell);
         }
 
+        if (intersection is GeometryCollection geometryCollection)
+        {
+            LinkedList<LinearRing> res = new LinkedList<LinearRing>();
+            foreach (Geometry geometry in geometryCollection)
+            {
+                if (geometry is Polygon pol)
+                {
+                    res.AddLast(pol.Shell);
+                }
+                else if (geometry is Point)
+                {
+                    
+                }
+                else
+                {
+                    throw new NotImplementedException(
+                        "Пойман нерассмотренный вариант типа вложнной геометрии, возвращаемого 'Intersection'");
+                }
+            }
+
+            return res;
+        }
         throw new NotImplementedException("Пойман нерассмотренный вариант типа, возвращаемого 'Intersection'");
     }
 
