@@ -17,18 +17,18 @@ public class CornerTests
         new(new LinesIntersector(new EpsilonCoordinateComparator(Epsilon), LineService, Epsilon), LineService,
             new EpsilonCoordinateComparator(), new ContainsChecker(LineService, Epsilon));
 
-     [Fact]
+    [Fact]
     public void NonConvexNonConvex()
     {
         //Arrange
         Coordinate[] figureA =
         {
-            new(-2,-1), new(-2,2), new(2,2), new(2,-2), new(0,0), new(-2,-1)
+            new(-2, -1), new(-2, 2), new(2, 2), new(2, -2), new(0, 0), new(-2, -1)
         };
         LinearRing ringA = new LinearRing(figureA);
         Coordinate[] figureB =
         {
-            new(0,0), new(-4, 2), new(4, 5), new(4, -5), new(0, -5), new(0,0)
+            new(0, 0), new(-4, 2), new(4, 5), new(4, -5), new(0, -5), new(0, 0)
         };
         LinearRing ringB = new LinearRing(figureB);
 
@@ -36,14 +36,14 @@ public class CornerTests
         {
             new LinearRing(new Coordinate[]
             {
-                new(0, 0), new(-2, 1), new(-2, 2), new(2,2), new(2, -2), new(0, 0)
+                new(0, 0), new(-2, 1), new(-2, 2), new(2, 2), new(2, -2), new(0, 0)
             })
         };
         List<LinearRing> expectedA = new()
         {
             new LinearRing(new Coordinate[]
             {
-                new(-2, 1), new(-2, 2), new(2,2), new(2, -2), new(0, 0), new(-2, 1)
+                new(-2, 1), new(-2, 2), new(2, 2), new(2, -2), new(0, 0), new(-2, 1)
             })
         };
 
@@ -56,7 +56,7 @@ public class CornerTests
         Assert.Equal(expectedB, actualB);
     }
 
-     
+
     [Fact]
     public void NonConvexConvex()
     {
@@ -83,12 +83,12 @@ public class CornerTests
         //Act
         var actualA = SlicerHelper.WeilerAtherton(ringA, ringB);
         var actualB = SlicerHelper.WeilerAtherton(ringA, ringB);
-        
+
         //Assert
         Assert.Equal(expected, actualA);
         Assert.Equal(expected, actualB);
     }
-    
+
     [Fact]
     public void ConvexNonConvex()
     {
@@ -115,12 +115,12 @@ public class CornerTests
         //Act
         var actualA = SlicerHelper.WeilerAtherton(ringA, ringB);
         var actualB = SlicerHelper.WeilerAtherton(ringA, ringB);
-        
+
         //Assert
         Assert.Equal(expected, actualA);
         Assert.Equal(expected, actualB);
     }
-    
+
     [Fact]
     public void ConvexConvex()
     {
@@ -151,29 +151,5 @@ public class CornerTests
         //Assert
         Assert.Equal(expected, actualA);
         Assert.Equal(expected, actualB);
-    }
-
-        List<LinearRing> expectedA = new()
-        {
-            new LinearRing(new Coordinate[]
-            {
-                new(0, 0), new(-3,0), new(-3, 2), new(-2, 2), new(0, 0)
-            })
-        };
-        List<LinearRing> expectedB = new()
-        {
-            new LinearRing(new Coordinate[]
-            {
-                new(-2,2), new(0, 0), new(-3,0), new(-3, 2), new(-2, 2)
-            })
-        };
-
-        //Act
-        var actualA = SlicerHelper.WeilerAtherton(ringA, ringB);
-        var actualB = SlicerHelper.WeilerAtherton(ringB, ringA);
-
-        //Assert
-        Assert.Equal(expectedA, actualA);
-        Assert.Equal(expectedB, actualB);
     }
 }
