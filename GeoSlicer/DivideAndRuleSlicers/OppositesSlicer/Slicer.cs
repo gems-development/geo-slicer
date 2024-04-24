@@ -48,7 +48,7 @@ public class Slicer
             // todo Кажется, есть лишние разрезания
             Polygon current = queue.Dequeue();
 
-            int oppositesIndex = Utils.GetNearestOppositesInner(current.Shell);
+            int oppositesIndex = Utils.GetOppositesIndexByTriangles(current.Shell);
             IEnumerable<Polygon> sliced = SliceByLine(
                 current,
                 current.Shell.GetCoordinateN(oppositesIndex),
@@ -84,6 +84,7 @@ public class Slicer
         // Если isVertical == true, создается 2 области: слева и справа от вертикального разделителя
         bool isVertical = Math.Abs(a.Y - b.Y) > Math.Abs(a.X - b.X);
 
+        
         // Сортировка к a<b
         if (isVertical && a.Y > b.Y || !isVertical && a.X > b.X)
         {
