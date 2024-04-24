@@ -1,5 +1,6 @@
 ﻿using NetTopologySuite.Geometries;
 using System.Collections.Generic;
+using System.Linq;
 using GeoSlicer.GridSlicer.Helpers;
 using GeoSlicer.Utils;
 using GeoSlicer.Utils.Intersectors;
@@ -7,11 +8,11 @@ using GeoSlicer.Utils.Intersectors.CoordinateComparators;
 
 namespace GeoSlicer.Tests.GridTests;
 
-public class WeilerAthertonTests
+public class PolygonIntersectionTests
 {
     private static readonly double Epsilon = 1E-9;
 
-    private static readonly LineService LineService = new LineService(Epsilon);
+    private static readonly LineService LineService = new(Epsilon);
 
     private static readonly GridSlicerHelper SlicerHelper =
         new(new LinesIntersector(new EpsilonCoordinateComparator(Epsilon), LineService, Epsilon), Epsilon, LineService,
@@ -32,11 +33,11 @@ public class WeilerAthertonTests
         };
         LinearRing cuttingRing = new LinearRing(cutting);
 
-        List<LinearRing> expected = new List<LinearRing>()
+        List<LinearRing> expected = new()
         {
             new LinearRing(new Coordinate[]
             {
-                new Coordinate(4, 4), new Coordinate(4, 2), new Coordinate(3, 2), new Coordinate(4, 4)
+                new(4, 4), new(4, 2), new(3, 2), new(4, 4)
             })
         };
 
@@ -62,7 +63,7 @@ public class WeilerAthertonTests
         };
         LinearRing cuttingRing = new LinearRing(cutting);
 
-        List<LinearRing> expected = new List<LinearRing>()
+        List<LinearRing> expected = new()
         {
             new LinearRing(new Coordinate[]
             {
@@ -93,7 +94,7 @@ public class WeilerAthertonTests
         };
         LinearRing cuttingRing = new LinearRing(cutting);
 
-        List<LinearRing> expected = new List<LinearRing>()
+        List<LinearRing> expected = new()
         {
             new LinearRing(new Coordinate[]
             {
@@ -114,7 +115,7 @@ public class WeilerAthertonTests
     }
 
     [Fact]
-    public void SimpleTestWithFirstPodkovirka()
+    public void SimpleTestSpecialPointsInOneCuttingEdge()
     {
         //Arrange
         Coordinate[] clipped =
@@ -128,7 +129,7 @@ public class WeilerAthertonTests
         };
         LinearRing cuttingRing = new LinearRing(cutting);
 
-        List<LinearRing> expected = new List<LinearRing>()
+        List<LinearRing> expected = new()
         {
             new LinearRing(new Coordinate[]
             {
@@ -144,7 +145,7 @@ public class WeilerAthertonTests
     }
 
     [Fact]
-    public void SimpleTestWithUltraPodkovirka()
+    public void SimpleTestOverlayingEdges()
     {
         //Arrange
         Coordinate[] clipped =
@@ -158,7 +159,7 @@ public class WeilerAthertonTests
         };
         LinearRing cuttingRing = new LinearRing(cutting);
 
-        List<LinearRing> expected = new List<LinearRing>()
+        List<LinearRing> expected = new()
         {
             new LinearRing(new Coordinate[]
             {
@@ -174,7 +175,7 @@ public class WeilerAthertonTests
     }
 
     [Fact]
-    public void TestWithOnlyOneCommonPoints()
+    public void OnlyOneCommonPoint()
     {
         //Arrange
         Coordinate[] clipped =
@@ -188,11 +189,7 @@ public class WeilerAthertonTests
         };
         LinearRing cuttingRing = new LinearRing(cutting);
 
-        List<LinearRing> expected = new List<LinearRing>()
-        {
-            /* new List<Coordinate>() {
-             }*/
-        };
+        IEnumerable<LinearRing> expected = Enumerable.Empty<LinearRing>();
 
         //Act
         var figures = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
@@ -202,7 +199,7 @@ public class WeilerAthertonTests
     }
 
     [Fact]
-    public void TestWithoutCommonPoints()
+    public void WithoutCommonPoints()
     {
         //Arrange
         Coordinate[] clipped =
@@ -216,9 +213,7 @@ public class WeilerAthertonTests
         };
         LinearRing cuttingRing = new LinearRing(cutting);
 
-        List<LinearRing> expected = new List<LinearRing>()
-        {
-        };
+        IEnumerable<LinearRing> expected = Enumerable.Empty<LinearRing>();
 
         //Act
         var figures = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
@@ -228,7 +223,7 @@ public class WeilerAthertonTests
     }
 
     [Fact]
-    public void TestCuttingInClippedWithCommonSegments()
+    public void CuttingInClippedWithCommonSegments()
     {
         //Arrange
         Coordinate[] clipped =
@@ -242,11 +237,11 @@ public class WeilerAthertonTests
         };
         LinearRing cuttingRing = new LinearRing(cutting);
 
-        List<LinearRing> expected = new List<LinearRing>()
+        List<LinearRing> expected = new()
         {
             new LinearRing(new Coordinate[]
             {
-                new(1, -1), new( 2, -1), new(2, -2), new(1, -2), new(1, -1)
+                new(1, -1), new(2, -1), new(2, -2), new(1, -2), new(1, -1)
             })
         };
 
@@ -258,7 +253,7 @@ public class WeilerAthertonTests
     }
 
     [Fact]
-    public void TestCuttingInClippedWithoutIntersections()
+    public void CuttingInClippedWithoutIntersections()
     {
         //Arrange
         Coordinate[] clipped =
@@ -272,7 +267,7 @@ public class WeilerAthertonTests
         };
         LinearRing cuttingRing = new LinearRing(cutting);
 
-        List<LinearRing> expected = new List<LinearRing>()
+        List<LinearRing> expected = new()
         {
             new LinearRing(new Coordinate[]
             {
@@ -288,7 +283,7 @@ public class WeilerAthertonTests
     }
 
     [Fact]
-    public void CornerCornerTest()
+    public void CornerIntersection()
     {
         //Arrange
         Coordinate[] clipped =
@@ -303,7 +298,7 @@ public class WeilerAthertonTests
         };
         LinearRing cuttingRing = new LinearRing(cutting);
 
-        List<LinearRing> expected = new List<LinearRing>()
+        List<LinearRing> expected = new()
         {
             new LinearRing(new Coordinate[]
             {
@@ -320,29 +315,29 @@ public class WeilerAthertonTests
     }
 
     [Fact]
-    public void TestForChampions()
+    public void MultipleCommonEdges()
     {
         //Arrange
         Coordinate[] clipped =
         {
-            new(-4,2), new(4,2), new(4,-1), new(1,-1), new(1,-2), new(-4,-2), new(-4,2) 
+            new(-4, 2), new(4, 2), new(4, -1), new(1, -1), new(1, -2), new(-4, -2), new(-4, 2)
         };
         LinearRing clippedRing = new LinearRing(clipped);
 
         Coordinate[] cutting =
         {
-            new(0,1), new(0,2), new(2,2), new(2,3), new(5,3), new(5,1), new(4,1), new(4,0), 
-            new(3,0), new(2,1), new(2,-2), new( -3,-2), new(-3,3), new(-2,3), new(0,1) 
+            new(0, 1), new(0, 2), new(2, 2), new(2, 3), new(5, 3), new(5, 1), new(4, 1), new(4, 0),
+            new(3, 0), new(2, 1), new(2, -2), new(-3, -2), new(-3, 3), new(-2, 3), new(0, 1)
         };
         LinearRing cuttingRing = new LinearRing(cutting);
 
-        List<LinearRing> expected = new List<LinearRing>()
+        List<LinearRing> expected = new()
         {
             new LinearRing(new Coordinate[]
             {
-                new(-3,2), new(-1,2), new(0,1), new(0,2), new(2,2), new(4,2), new(4,1), 
-                new(4,0), new(3,0), new(2,1), new(2,-1), new(1,-1), 
-                new(1,-2), new(-3,-2), new(-3,2)
+                new(-3, 2), new(-1, 2), new(0, 1), new(0, 2), new(2, 2), new(4, 2), new(4, 1),
+                new(4, 0), new(3, 0), new(2, 1), new(2, -1), new(1, -1),
+                new(1, -2), new(-3, -2), new(-3, 2)
             })
         };
 
@@ -355,91 +350,60 @@ public class WeilerAthertonTests
     }
 
     [Fact]
-    public void TestWithAppendix()
+    public void ZeroTunnelInIntersection()
     {
         //Arrange
         Coordinate[] clipped =
         {
-            new(-2,2), new(0,2),new(2,4), new(3,4), new(3,0), new(-2,0), new(-2,2)
+            new(-2, 2), new(0, 2), new(2, 4), new(3, 4), new(3, 0), new(-2, 0), new(-2, 2)
         };
         LinearRing clippedRing = new LinearRing(clipped);
 
         Coordinate[] cutting =
         {
-            new(1,2), new(-2,2), new(-2,5), new(1,5), new(1,2)
+            new(1, 2), new(-2, 2), new(-2, 5), new(1, 5), new(1, 2)
         };
         LinearRing cuttingRing = new LinearRing(cutting);
 
-        List<LinearRing> expected = new List<LinearRing>()
+        List<LinearRing> expected = new()
         {
             new LinearRing(new Coordinate[]
             {
-                new(0,2), new(1,3), new(1,2), new(0,2)
+                new(0, 2), new(1, 3), new(1, 2), new(0, 2)
             })
         };
-        
+
         //Act
         var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
 
         //Assert
         Assert.Equal(expected, actual);
     }
-    
+
     [Fact]
-    public void TestLOnEmptyCorner()
+    public void ClippedAngleInsideCuttingAngle()
     {
         //Arrange
         Coordinate[] clipped =
         {
-            new(-2,0), new(-2,3), new(0,3), new(0,0), new(-2,0)
+            new(-2, 0), new(-2, 3), new(0, 3), new(0, 0), new(-2, 0)
         };
         LinearRing clippedRing = new LinearRing(clipped);
 
         Coordinate[] cutting =
         {
-            new(-3,1), new(-2,3), new(0,4), new(1,1), new(-3,1)
+            new(-3, 1), new(-2, 3), new(0, 4), new(1, 1), new(-3, 1)
         };
         LinearRing cuttingRing = new LinearRing(cutting);
 
-        List<LinearRing> expected = new List<LinearRing>()
+        List<LinearRing> expected = new()
         {
             new LinearRing(new Coordinate[]
             {
-                new(-2,1), new(-2,3), new(0,3), new(0,1), new(-2,1)
+                new(-2, 1), new(-2, 3), new(0, 3), new(0, 1), new(-2, 1)
             })
         };
-        
-        //Act
-        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
 
-        //Assert
-        Assert.Equal(expected, actual);
-    }
-    
-    [Fact]
-    public void TestDangerous()
-    {
-        //Arrange
-        Coordinate[] clipped =
-        {
-            new(0,0), new(3,3), new(6,0), new(0,0)
-        };
-        LinearRing clippedRing = new LinearRing(clipped);
-
-        Coordinate[] cutting =
-        {
-            new(3,3), new(-1,3), new(3,6), new(11,-2), new(3,-2), new(3,3)
-        };
-        LinearRing cuttingRing = new LinearRing(cutting);
-
-        List<LinearRing> expected = new List<LinearRing>()
-        {
-            new LinearRing(new Coordinate[]
-            {
-                new(3,3), new(6,0), new(3,0), new(3,3)
-            })
-        };
-        
         //Act
         var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
 

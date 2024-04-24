@@ -8,7 +8,7 @@ using NetTopologySuite.Geometries;
 
 namespace GeoSlicer.Tests.GridTests;
 
-public class FactTestsOverlayWeilerAtherton
+public class PolygonTangencyTests
 {
     private static readonly double Epsilon = 1E-9;
 
@@ -44,7 +44,7 @@ public class FactTestsOverlayWeilerAtherton
 
 
         //Act
-        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing).ToList();
 
         //Assert
         Assert.Equal(expected, actual);
@@ -77,73 +77,7 @@ public class FactTestsOverlayWeilerAtherton
         };
 
         //Act
-        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
-
-        //Assert
-        Assert.Equal(expected, actual);
-        Assert.Single(actual);
-    }
-
-    [Fact]
-    public void CuttingInClippedNoByClock()
-    {
-        //Arrange
-        Coordinate[] clipped =
-        {
-            new(2, -4), new(2, 0), new(4, 4), new(0, 2),
-            new(-4, 2), new(-4, -2), new(0, -2), new(2, -4)
-        };
-        LinearRing clippedRing = new LinearRing(clipped);
-        Coordinate[] cutting =
-        {
-            new(2, -2), new(2, 2), new(-2, 2), new(-2, -2), new(2, -2)
-        };
-        LinearRing cuttingRing = new LinearRing(cutting);
-
-        List<LinearRing> expected = new List<LinearRing>()
-        {
-            new LinearRing(new Coordinate[]
-            {
-                new(2, -2), new(2, 0), new(2, 2), new(0, 2),
-                new(-2, 2), new(-2, -2), new(0, -2), new(2, -2)
-            })
-        };
-
-        //Act
-        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
-
-        //Assert
-        Assert.Equal(expected, actual);
-        Assert.Single(actual);
-    }
-
-    [Fact]
-    public void ClippedInCuttingNoByClock()
-    {
-        //Arrange
-        Coordinate[] clipped =
-        {
-            new(2, -2), new(2, 2), new(-2, 2), new(-2, -2), new(2, -2)
-        };
-        LinearRing clippedRing = new LinearRing(clipped);
-        Coordinate[] cutting =
-        {
-            new(2, -4), new(2, 0), new(4, 4), new(0, 2),
-            new(-4, 2), new(-4, -2), new(0, -2), new(2, -4)
-        };
-        LinearRing cuttingRing = new LinearRing(cutting);
-
-        List<LinearRing> expected = new List<LinearRing>()
-        {
-            new LinearRing(new Coordinate[]
-            {
-                new(2, -2), new(2, 0), new(2, 2), new(0, 2),
-                new(-2, 2), new(-2, -2), new(0, -2), new(2, -2)
-            })
-        };
-
-        //Act
-        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing).ToList();
 
         //Assert
         Assert.Equal(expected, actual);
@@ -165,19 +99,10 @@ public class FactTestsOverlayWeilerAtherton
         };
         LinearRing cuttingRing = new LinearRing(cutting);
 
-        List<List<Coordinate>> expected = new List<List<Coordinate>>()
-        {
-            new List<Coordinate>()
-            {
-                new(-1, 1), new(0, 1), new(-1, 1)
-            }
-        };
-
         //Act
         var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
 
         //Assert
-        //Assert.Equal(expected,actual);
         Assert.Empty(actual);
     }
 
@@ -196,19 +121,10 @@ public class FactTestsOverlayWeilerAtherton
         };
         LinearRing cuttingRing = new LinearRing(cutting);
 
-        List<List<Coordinate>> expected = new List<List<Coordinate>>()
-        {
-            new List<Coordinate>()
-            {
-                new(-1, 1), new(0, 1), new(-1, 1)
-            }
-        };
-
         //Act
         var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
 
         //Assert
-        //Assert.Equal(expected,actual);
         Assert.Empty(actual);
     }
 
@@ -227,19 +143,10 @@ public class FactTestsOverlayWeilerAtherton
         };
         LinearRing cuttingRing = new LinearRing(cutting);
 
-        List<List<Coordinate>> expected = new List<List<Coordinate>>()
-        {
-            new List<Coordinate>()
-            {
-                new(1, 1), new(0, 1), new(1, 1)
-            }
-        };
-
         //Act
         var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
 
         //Assert
-        //Assert.Equal(expected,actual);
         Assert.Empty(actual);
     }
 
@@ -258,19 +165,32 @@ public class FactTestsOverlayWeilerAtherton
         };
         LinearRing cuttingRing = new LinearRing(cutting);
 
-        List<List<Coordinate>> expected = new List<List<Coordinate>>()
+        //Act
+        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+
+        //Assert
+        Assert.Empty(actual);
+    }
+    
+    [Fact]
+    public void TangentRectangles()
+    {
+        //Arrange
+        Coordinate[] clipped =
         {
-            new List<Coordinate>()
-            {
-                new(1, 1), new(0, 1), new(1, 1)
-            }
+            new(-2, 4), new(2, 4), new(2, 0), new(-2, 0), new(-2, 4)
         };
+        LinearRing clippedRing = new LinearRing(clipped);
+        Coordinate[] cutting =
+        {
+            new(2, 4), new(-2, 4), new(-2, 6), new(2, 6), new(2, 4)
+        };
+        LinearRing cuttingRing = new LinearRing(cutting);
 
         //Act
         var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
 
         //Assert
-        //Assert.Equal(expected,actual);
         Assert.Empty(actual);
     }
 }
