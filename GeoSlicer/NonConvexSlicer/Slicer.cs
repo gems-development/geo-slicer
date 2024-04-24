@@ -9,21 +9,16 @@ public class Slicer
 {
     private readonly GeometryFactory _gf;
     private readonly SegmentService _segmentService;
-    private readonly LineService _lineService;
     private readonly NonConvexSlicerHelper _helper;
-    private readonly TraverseDirection _traverseDirection;
 
     public Slicer(
         GeometryFactory gf,
         SegmentService segmentService,
-        NonConvexSlicerHelper helper,
-        TraverseDirection traverseDirection, LineService lineService)
+        NonConvexSlicerHelper helper)
     {
         _gf = gf;
         _segmentService = segmentService;
         _helper = helper;
-        _traverseDirection = traverseDirection;
-        _lineService = lineService;
     }
 
     public List<LinearRing> SliceFigureWithMinNumberOfSpecialPoints(LinearRing ring, Coordinate firstPoint,
@@ -152,7 +147,7 @@ public class Slicer
 
     public List<LinearRing> Slice(LinearRing ring)
     {
-        if (!_traverseDirection.IsClockwiseBypass(ring)) _traverseDirection.ChangeDirection(ring);
+        if (!TraverseDirection.IsClockwiseBypass(ring)) TraverseDirection.ChangeDirection(ring);
         //Список особых точек
         var listSpecialPoints = _helper.GetSpecialPoints(ring);
         int ringCount = ring.Count;
@@ -248,7 +243,7 @@ public class Slicer
                 //Если особая точка будет особой в получившемся кольце, то добавляем с конец списка особых точек.
                 //При этом кольцо не двуугольник
                 if (afterFirstIndex != beforeFirstIndex &&
-                    _lineService.VectorProduct(
+                    LineService.VectorProduct(
                         ringCoords[coordCurrent.C].X - ringCoords[coordPrev.C].X,
                         ringCoords[coordCurrent.C].Y - ringCoords[coordPrev.C].Y,
                         ringCoords[coordNext.C].X - ringCoords[coordCurrent.C].X,
@@ -266,7 +261,7 @@ public class Slicer
                 if (coordNext.C != afterFirstIndex &&
                     coordNext.C != beforeFirstIndex &&
                     afterFirstIndex != beforeFirstIndex &&
-                    _lineService.VectorProduct(
+                    LineService.VectorProduct(
                         ringCoords[coordNext.C].X - ringCoords[beforeFirstIndex].X,
                         ringCoords[coordNext.C].Y - ringCoords[beforeFirstIndex].Y,
                         ringCoords[afterFirstIndex].X - ringCoords[coordNext.C].X,

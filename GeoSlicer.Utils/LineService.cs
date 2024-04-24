@@ -14,26 +14,26 @@ public class LineService
         _epsilon = epsilon;
     }
 
-    public double VectorProduct(Coordinate firstVec, Coordinate secondVec)
+    public static double VectorProduct(Coordinate firstVec, Coordinate secondVec)
     {
         return firstVec.X * secondVec.Y - secondVec.X * firstVec.Y;
     }
 
-    public double VectorProduct(Coordinate firstVecPoint1, Coordinate firstVecPoint2, Coordinate secondVecPoint1,
+    public static  double VectorProduct(Coordinate firstVecPoint1, Coordinate firstVecPoint2, Coordinate secondVecPoint1,
         Coordinate secondVecPoint2)
     {
         return (firstVecPoint2.X - firstVecPoint1.X) * (secondVecPoint2.Y - secondVecPoint1.Y) -
                (secondVecPoint2.X - secondVecPoint1.X) * (firstVecPoint2.Y - firstVecPoint1.Y);
     }
 
-    public double VectorProduct(Coordinate firstVecPoint1, Coordinate firstVecPoint2, Coordinate secondVecPoint1,
+    public static  double VectorProduct(Coordinate firstVecPoint1, Coordinate firstVecPoint2, Coordinate secondVecPoint1,
         double secondVecPoint2X, double secondVecPoint2Y)
     {
         return (firstVecPoint2.X - firstVecPoint1.X) * (secondVecPoint2Y - secondVecPoint1.Y) -
                (secondVecPoint2X - secondVecPoint1.X) * (firstVecPoint2.Y - firstVecPoint1.Y);
     }
 
-    public double VectorProduct(double firstVecX, double firstVecY, double secondVecX, double secondVecY)
+    public static  double VectorProduct(double firstVecX, double firstVecY, double secondVecX, double secondVecY)
     {
         return firstVecX * secondVecY - secondVecX * firstVecY;
     }

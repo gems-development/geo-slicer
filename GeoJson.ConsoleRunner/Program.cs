@@ -19,7 +19,6 @@ Slicer slicer = new Slicer(lineService, 10,
     new GridSlicerHelper(new LinesIntersector(coordinateComparator, lineService, epsilon), epsilon,
         lineService, coordinateComparator, new ContainsChecker(lineService, epsilon)));
 
-TraverseDirection traverseDirection = new TraverseDirection(lineService);
 
 LinearRing linearRing = new LinearRing(
     GeoJsonFileService.ReadGeometryFromFile<LineString>("TestFiles\\maloeOzeroLinearRing.geojson").Coordinates);
@@ -29,8 +28,6 @@ RepeatingPointsValidator repeatingPointsValidator =
 
 Console.WriteLine(repeatingPointsValidator.Check(linearRing, true));
 
-
-traverseDirection.ChangeDirection(linearRing);
 
 IEnumerable<Polygon> result = slicer.Slice(new Polygon(linearRing));
 

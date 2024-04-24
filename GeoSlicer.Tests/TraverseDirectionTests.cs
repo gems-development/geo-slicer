@@ -5,7 +5,6 @@ namespace GeoSlicer.Tests;
 
 public class TraverseDirectionTests
 {
-    private readonly TraverseDirection _traverseDirection = new TraverseDirection(new LineService(1E-5));
 
     [Fact]
     public void IsClockwiseBypassTriangleTest()
@@ -17,7 +16,7 @@ public class TraverseDirectionTests
 
         LinearRing ring = new LinearRing(coordinates);
 
-        Assert.True(_traverseDirection.IsClockwiseBypass(ring));
+        Assert.True(TraverseDirection.IsClockwiseBypass(ring));
     }
 
     [Fact]
@@ -30,7 +29,7 @@ public class TraverseDirectionTests
 
         LinearRing ring = new LinearRing(coordinates);
 
-        Assert.False(_traverseDirection.IsClockwiseBypass(ring));
+        Assert.False(TraverseDirection.IsClockwiseBypass(ring));
     }
 
     [Fact]
@@ -44,7 +43,7 @@ public class TraverseDirectionTests
 
         LinearRing ring = new LinearRing(coordinates);
 
-        Assert.True(_traverseDirection.IsClockwiseBypass(ring));
+        Assert.True(TraverseDirection.IsClockwiseBypass(ring));
     }
 
     [Fact]
@@ -58,7 +57,7 @@ public class TraverseDirectionTests
 
         LinearRing ring = new LinearRing(coordinates);
 
-        Assert.False(_traverseDirection.IsClockwiseBypass(ring));
+        Assert.False(TraverseDirection.IsClockwiseBypass(ring));
     }
 
     [Fact]
@@ -80,7 +79,7 @@ public class TraverseDirectionTests
 
         LinearRing expectedRing = new LinearRing(expectedCoordinates);
 
-        _traverseDirection.ChangeDirection(ring);
+        TraverseDirection.ChangeDirection(ring);
 
         Assert.Equal(expectedRing, ring);
     }
@@ -104,7 +103,7 @@ public class TraverseDirectionTests
 
         LinearRing expectedRing = new LinearRing(expectedCoordinates);
 
-        _traverseDirection.ChangeDirection(ring);
+        TraverseDirection.ChangeDirection(ring);
 
         Assert.Equal(expectedRing, ring);
     }

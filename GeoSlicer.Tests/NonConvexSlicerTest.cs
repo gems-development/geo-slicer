@@ -18,13 +18,12 @@ public class NonConvexSlicerTest
 
     private static readonly LineService LineService = new LineService(Epsilon);
     private static readonly SegmentService SegmentService = new SegmentService(LineService);
-    private static readonly TraverseDirection TraverseDirection = new TraverseDirection(LineService);
 
     private static readonly NonConvexSlicerHelper NonConvexSlicerHelper = new NonConvexSlicerHelper(
-        new LinesIntersector(new EpsilonCoordinateComparator(Epsilon), LineService, Epsilon), LineService);
+        new LinesIntersector(new EpsilonCoordinateComparator(Epsilon), LineService, Epsilon));
 
     private readonly NonConvexSlicer.Slicer _slicer =
-        new(Gf, SegmentService, NonConvexSlicerHelper, TraverseDirection, LineService);
+        new(Gf, SegmentService, NonConvexSlicerHelper);
 
     [Fact]
     public void OneSpecialPoint_OptimalSlice()
