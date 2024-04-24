@@ -331,7 +331,7 @@ public class WeilerAthertonTests
 
         Coordinate[] cutting =
         {
-            new(0,1), new(0,2), new(2,2), new(2,3), new(5,3), new(4,1), new(4,0), 
+            new(0,1), new(0,2), new(2,2), new(2,3), new(5,3), new(5,1), new(4,1), new(4,0), 
             new(3,0), new(2,1), new(2,-2), new( -3,-2), new(-3,3), new(-2,3), new(0,1) 
         };
         LinearRing cuttingRing = new LinearRing(cutting);
@@ -406,6 +406,37 @@ public class WeilerAthertonTests
             new LinearRing(new Coordinate[]
             {
                 new(-2,1), new(-2,3), new(0,3), new(0,1), new(-2,1)
+            })
+        };
+        
+        //Act
+        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+
+        //Assert
+        Assert.Equal(expected, actual);
+    }
+    
+    [Fact]
+    public void TestDangerous()
+    {
+        //Arrange
+        Coordinate[] clipped =
+        {
+            new(0,0), new(3,3), new(6,0), new(0,0)
+        };
+        LinearRing clippedRing = new LinearRing(clipped);
+
+        Coordinate[] cutting =
+        {
+            new(3,3), new(-1,3), new(3,6), new(11,-2), new(3,-2), new(3,3)
+        };
+        LinearRing cuttingRing = new LinearRing(cutting);
+
+        List<LinearRing> expected = new List<LinearRing>()
+        {
+            new LinearRing(new Coordinate[]
+            {
+                new(3,3), new(6,0), new(3,0), new(3,3)
             })
         };
         

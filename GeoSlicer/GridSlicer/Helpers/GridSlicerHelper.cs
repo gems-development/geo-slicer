@@ -123,11 +123,12 @@ public class GridSlicerHelper
         bool flagWereIntersectionOnCurrentIteration = false;
         
         // Создание двух списков с помеченными точками
-        for (LinkedListNode<CoordinateSupport>? nodeI = clipped.First!; nodeI != null; 
-             nodeI = nodeI.Next)
+        
+        for (LinkedListNode<CoordinateSupport>? nodeI = clipped.First!; nodeI != null;
+             nodeI = flagWereIntersectionOnCurrentIteration ? nodeI : nodeI.Next)
         {
-            for (LinkedListNode<CoordinateSupport>? nodeJ = cutting.First!; nodeJ != null; 
-                 nodeJ = nodeJ.Next)
+            for (LinkedListNode<CoordinateSupport>? nodeJ = cutting.First!; nodeJ != null;
+                 nodeJ = flagWereIntersectionOnCurrentIteration ? nodeJ : nodeJ.Next)
             {
                 flagWereIntersectionOnCurrentIteration = false;
                 
@@ -240,8 +241,7 @@ public class GridSlicerHelper
                         nextFour = numberFour.Next;
                     }
 
-                    if (_coordinateComparator.IsEquals(numberOne.Value, numberThree.Value) || 
-                        _coordinateComparator.IsEquals(numberTwo.Value, numberFour.Value))
+                    if (_coordinateComparator.IsEquals(numberOne.Value, numberThree.Value))
                     {
                         if (_lineService.InsideTheAngleWithoutBorders(numberOne.Value, numberTwo.Value,
                                 numberFour.Value, numberThree.Value, prevThree.Value) &&
@@ -271,7 +271,35 @@ public class GridSlicerHelper
                         }
                     }
 
-                    
+                    if (_coordinateComparator.IsEquals(numberTwo.Value, numberFour.Value))
+                    {
+                        if (_lineService.InsideTheAngleWithoutBorders(numberTwo.Value, numberOne.Value,
+                                nextFour.Value, numberFour.Value, numberThree.Value) &&
+                            !_lineService.InsideTheAngleWithoutBorders(numberTwo.Value, nextTwo.Value,
+                                nextFour.Value, numberFour.Value, numberThree.Value) &&
+                            numberTwo.Value.Type == PointType.Useless)
+                        {
+                            flagWereIntersection = true;
+                            numberTwo.Value.Type = PointType.Living;
+                            numberFour.Value.Type = PointType.Living;
+                            numberTwo.Value.Coord = numberFour;
+                            numberFour.Value.Coord = numberTwo;
+                        }
+
+                        else if (!_lineService.InsideTheAngleWithoutBorders(numberTwo.Value, numberOne.Value,
+                                     nextFour.Value, numberFour.Value, numberThree.Value) &&
+                                 _lineService.InsideTheAngleWithoutBorders(numberTwo.Value, nextTwo.Value,
+                                     nextFour.Value, numberFour.Value, numberThree.Value) &&
+                                 numberTwo.Value.Type == PointType.Useless)
+                        {
+                            flagWereIntersection = true;
+                            numberOfEnteringMarks++;
+                            numberTwo.Value.Type = PointType.Entering;
+                            numberFour.Value.Type = PointType.Entering;
+                            numberTwo.Value.Coord = numberFour;
+                            numberFour.Value.Coord = numberTwo;
+                        }
+                    }
                     /*
                     if (_coordinateComparator.IsEquals(numberOne.Value, numberFour.Value))
                     {
