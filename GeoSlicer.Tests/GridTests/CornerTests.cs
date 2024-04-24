@@ -1,7 +1,9 @@
-﻿using GeoSlicer.GridSlicer.Helpers;
+﻿using System.Collections.Generic;
+using GeoSlicer.GridSlicer.Helpers;
 using GeoSlicer.Utils;
 using GeoSlicer.Utils.Intersectors;
 using GeoSlicer.Utils.Intersectors.CoordinateComparators;
+using NetTopologySuite.Geometries;
 
 namespace GeoSlicer.Tests.GridTests;
 
@@ -15,5 +17,81 @@ public class CornerTests
         new(new LinesIntersector(new EpsilonCoordinateComparator(Epsilon), LineService, Epsilon), LineService,
             new EpsilonCoordinateComparator(), new ContainsChecker(LineService, Epsilon));
 
-    
+    [Fact]
+    public void NonConvexNonConvex()
+    {
+        //Arrange
+        Coordinate[] figureA =
+        {
+            new(-2,-1), new(-2,2), new(2,2), new(2,-2), new(0,0), new(-2,-1)
+        };
+        LinearRing ringA = new LinearRing(figureA);
+        Coordinate[] figureB =
+        {
+            new(0,0), new(-4, 2), new(4, 5), new(4, -5), new(0, -5), new(0,0)
+        };
+        LinearRing ringB = new LinearRing(figureB);
+
+        List<LinearRing> expectedB = new()
+        {
+            new LinearRing(new Coordinate[]
+            {
+                new(0, 0), new(-2, 1), new(-2, 2), new(2,2), new(2, -2), new(0, 0)
+            })
+        };
+        List<LinearRing> expectedA = new()
+        {
+            new LinearRing(new Coordinate[]
+            {
+                new(-2, 1), new(-2, 2), new(2,2), new(2, -2), new(0, 0), new(-2, 1)
+            })
+        };
+
+        //Act
+        var actualA = SlicerHelper.WeilerAtherton(ringA, ringB);
+        var actualB = SlicerHelper.WeilerAtherton(ringB, ringA);
+
+        //Assert
+        Assert.Equal(expectedA, actualA);
+        Assert.Equal(expectedB, actualB);
+    }
+
+    [Fact]
+    public void NonConvexConvex()
+    {
+        //Arrange
+        Coordinate[] figureA =
+        {
+            new(0,0), new(-3,0), new(-3, 2), new(2, 2), new(2,-3), new(0,0)
+        };
+        LinearRing ringA = new LinearRing(figureA);
+        Coordinate[] figureB =
+        {
+            new(0, 0), new(-4, -5), new(-4, 4),  new(0, 0)
+        };
+        LinearRing ringB = new LinearRing(figureB);
+
+        List<LinearRing> expectedA = new()
+        {
+            new LinearRing(new Coordinate[]
+            {
+                new(0, 0), new(-3,0), new(-3, 2), new(-2, 2), new(0, 0)
+            })
+        };
+        List<LinearRing> expectedB = new()
+        {
+            new LinearRing(new Coordinate[]
+            {
+                new(-2,2), new(0, 0), new(-3,0), new(-3, 2), new(-2, 2)
+            })
+        };
+
+        //Act
+        var actualA = SlicerHelper.WeilerAtherton(ringA, ringB);
+        var actualB = SlicerHelper.WeilerAtherton(ringB, ringA);
+
+        //Assert
+        Assert.Equal(expectedA, actualA);
+        Assert.Equal(expectedB, actualB);
+    }
 }

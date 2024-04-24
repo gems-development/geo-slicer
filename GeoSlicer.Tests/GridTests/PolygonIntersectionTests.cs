@@ -42,10 +42,10 @@ public class PolygonIntersectionTests
         };
 
         //Act
-        var figures = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
 
         //Assert
-        Assert.Equal(expected, figures);
+        Assert.Equal(expected, actual);
     }
 
     [Fact]
@@ -72,10 +72,10 @@ public class PolygonIntersectionTests
         };
 
         //Act
-        var figures = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
 
         //Assert
-        Assert.Equal(expected, figures);
+        Assert.Equal(expected, actual);
     }
 
     [Fact]
@@ -108,10 +108,10 @@ public class PolygonIntersectionTests
         };
 
         //Act
-        var figures = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
 
         //Assert
-        Assert.Equal(expected, figures);
+        Assert.Equal(expected, actual);
     }
 
     [Fact]
@@ -138,10 +138,10 @@ public class PolygonIntersectionTests
         };
 
         //Act
-        var figures = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
 
         //Assert
-        Assert.Equal(expected, figures);
+        Assert.Equal(expected, actual);
     }
 
     [Fact]
@@ -168,10 +168,10 @@ public class PolygonIntersectionTests
         };
 
         //Act
-        var figures = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
 
         //Assert
-        Assert.Equal(expected, figures);
+        Assert.Equal(expected, actual);
     }
 
     [Fact]
@@ -192,10 +192,10 @@ public class PolygonIntersectionTests
         IEnumerable<LinearRing> expected = Enumerable.Empty<LinearRing>();
 
         //Act
-        var figures = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
 
         //Assert
-        Assert.Equal(expected, figures);
+        Assert.Equal(expected, actual);
     }
 
     [Fact]
@@ -216,10 +216,10 @@ public class PolygonIntersectionTests
         IEnumerable<LinearRing> expected = Enumerable.Empty<LinearRing>();
 
         //Act
-        var figures = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
 
         //Assert
-        Assert.Equal(expected, figures);
+        Assert.Equal(expected, actual);
     }
 
     [Fact]
@@ -246,10 +246,10 @@ public class PolygonIntersectionTests
         };
 
         //Act
-        var figures = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
 
         //Assert
-        Assert.Equal(expected, figures);
+        Assert.Equal(expected, actual);
     }
 
     [Fact]
@@ -276,10 +276,10 @@ public class PolygonIntersectionTests
         };
 
         //Act
-        var figures = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
 
         //Assert
-        Assert.Equal(expected, figures);
+        Assert.Equal(expected, actual);
     }
 
     [Fact]
