@@ -22,7 +22,7 @@ public class NonConvexSlicerBaikalBench
         new(Gf,
             SegmentService,
             new NonConvexSlicerHelper(
-                new LinesIntersector(new EpsilonCoordinateComparator(Epsilon), LineService, Epsilon)));
+                new LinesIntersector(new EpsilonCoordinateComparator(Epsilon), LineService, Epsilon), LineService));
 
     private static readonly MultiPolygon MultiPolygon =
         GeoJsonFileService.ReadGeometryFromFile<MultiPolygon>("TestFiles\\baikal_multy_polygon.geojson");

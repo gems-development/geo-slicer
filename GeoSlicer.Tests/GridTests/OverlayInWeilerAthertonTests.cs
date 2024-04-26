@@ -14,7 +14,7 @@ public class OverlayInWeilerAthertonTests
     private static readonly LineService LineService = new LineService(Epsilon);
 
     private static readonly GridSlicerHelper SlicerHelper =
-        new(new LinesIntersector(new EpsilonCoordinateComparator(Epsilon), LineService, Epsilon), Epsilon, LineService,
+        new(new LinesIntersector(new EpsilonCoordinateComparator(Epsilon), LineService, Epsilon), LineService,
             new EpsilonCoordinateComparator(), new ContainsChecker(LineService, Epsilon));
 
 /*

@@ -17,8 +17,8 @@ LineService lineService = new LineService(epsilon);
 ICoordinateComparator coordinateComparator = new EpsilonCoordinateComparator(epsilon);
 
 Slicer slicer = new Slicer(lineService, 4,
-    new GridSlicerHelper(new LinesIntersector(coordinateComparator, lineService, epsilon), epsilon,
-        lineService, coordinateComparator, new ContainsChecker(lineService, epsilon)));
+    new GridSlicerHelper(new LinesIntersector(coordinateComparator, lineService, epsilon), lineService,
+        coordinateComparator, new ContainsChecker(lineService, epsilon)));
 
 
 var polygon =

@@ -16,10 +16,14 @@ public class NonConvexSlicerHelper
     private const AreasIntersectionType SuitableAreaAreaIntersectionType = AreasIntersectionType.Inside;
     private readonly LinesIntersector _linesIntersector;
     private readonly AreasIntersector _areasIntersector = new();
+    private readonly LineService _lineService;
 
-    public NonConvexSlicerHelper(LinesIntersector linesIntersector)
+    public NonConvexSlicerHelper(
+        LinesIntersector linesIntersector,
+        LineService lineService)
     {
         _linesIntersector = linesIntersector;
+        _lineService = lineService;
     }
 
     public bool CurrentPointIsSpecial(Coordinate previousPoint, Coordinate currentPoint, Coordinate nextPoint)
@@ -55,7 +59,7 @@ public class NonConvexSlicerHelper
     private bool FirstPointCanSeeSecond(CoordinatePcn[] ring, CoordinatePcn pointA, CoordinatePcn pointB)
     {
         return pointA.Equals2D(pointB) ||
-               VectorService.InsideTheAngle(pointA, pointB, ring[pointA.Nl],
+               _lineService.InsideTheAngle(pointA, pointB, ring[pointA.Nl],
                    pointA, ring[pointA.Pl]) ||
                (ring[pointA.Nl].Equals2D(pointB) && pointA.Nl == pointB.C) ||
                (ring[pointA.Pl].Equals2D(pointB) && pointA.Pl == pointB.C);

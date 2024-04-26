@@ -20,7 +20,7 @@ public class NonConvexSlicerTest
     private static readonly SegmentService SegmentService = new SegmentService(LineService);
 
     private static readonly NonConvexSlicerHelper NonConvexSlicerHelper = new NonConvexSlicerHelper(
-        new LinesIntersector(new EpsilonCoordinateComparator(Epsilon), LineService, Epsilon));
+        new LinesIntersector(new EpsilonCoordinateComparator(Epsilon), LineService, Epsilon), LineService);
 
     private readonly NonConvexSlicer.Slicer _slicer =
         new(Gf, SegmentService, NonConvexSlicerHelper);

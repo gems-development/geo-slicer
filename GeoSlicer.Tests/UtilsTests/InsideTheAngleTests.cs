@@ -1,10 +1,11 @@
 ﻿using GeoSlicer.Utils;
 using NetTopologySuite.Geometries;
 
-namespace GeoSlicer.Tests.GridTests;
+namespace GeoSlicer.Tests.UtilsTests;
 
-public class UtilsTests
+public class InsideTheAngleTests
 {
+    private readonly LineService _lineService = new(1e-9);
     [Fact]
     public void TestInsideTheAngleLeft()
     {
@@ -15,7 +16,9 @@ public class UtilsTests
         Coordinate angleB = new Coordinate(1,1);
         Coordinate angleC = new Coordinate(2,1);
 
-        Assert.True(VectorService.InsideTheAngle(vecBegin, vecEnd,
+        Assert.True(_lineService.InsideTheAngle(vecBegin, vecEnd,
+            angleA, angleB, angleC));
+        Assert.False(_lineService.InsideTheAngleWithoutBorders(vecBegin, vecEnd,
             angleA, angleB, angleC));
     } 
     
@@ -29,7 +32,9 @@ public class UtilsTests
         Coordinate angleB = new Coordinate(1,1);
         Coordinate angleC = new Coordinate(2,1);
 
-        Assert.True(VectorService.InsideTheAngle(vecBegin, vecEnd,
+        Assert.True(_lineService.InsideTheAngle(vecBegin, vecEnd,
+            angleA, angleB, angleC));
+        Assert.False(_lineService.InsideTheAngleWithoutBorders(vecBegin, vecEnd,
             angleA, angleB, angleC));
     } 
 }
