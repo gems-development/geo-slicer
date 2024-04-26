@@ -9,7 +9,7 @@ using NetTopologySuite.Geometries;
 
 namespace GeoSlicer.DivideAndRuleSlicers.OppositesSlicer;
 
-public class Slicer
+public class SlicerOld
 {
     private readonly LineService _lineService;
 
@@ -18,7 +18,7 @@ public class Slicer
     // todo После вынесения метода пересечения заменить на нужный класс
     private readonly GridSlicerHelper _helper;
 
-    public Slicer(LineService lineService, int maxPointsCount, GridSlicerHelper helper)
+    public SlicerOld(LineService lineService, int maxPointsCount, GridSlicerHelper helper)
     {
         _lineService = lineService;
         _maxPointsCount = maxPointsCount;
@@ -39,11 +39,10 @@ public class Slicer
 
         Queue<Polygon> queue = new Queue<Polygon>();
         queue.Enqueue(input);
-        int i = 0;
         while (queue.Count != 0)
         {
             Console.WriteLine(
-                $"Number: {i}. Queue count: {queue.Count}. Max points count: {queue.Select(polygon => polygon.Shell.Count).Max()}");
+                $"Queue count: {queue.Count}. Max points count: {queue.Select(polygon => polygon.Shell.Count).Max()}");
 
             // todo Кажется, есть лишние разрезания
             Polygon current = queue.Dequeue();
@@ -64,8 +63,6 @@ public class Slicer
                     queue.Enqueue(ring);
                 }
             }
-
-            i++;
         }
 
         return result;
@@ -151,11 +148,9 @@ public class Slicer
             part2 = new LinearRing(new[]
                 { a, b, new(maxX, minY), new(minX, minY), a });
         }
-        GeoJsonFileService.WriteGeometryToFile(polygon, "Out/source.geojson.ignore");
-        GeoJsonFileService.WriteGeometryToFile(part1, "Out/part1.geojson.ignore");
 
-        IEnumerable<LinearRing> resPart1 = _helper.WeilerAtherton(polygon.Shell, part1);
-        IEnumerable<LinearRing> resPart2 = _helper.WeilerAtherton(polygon.Shell, part2);
+        IEnumerable<LinearRing> resPart1 = _helper.WeilerAthertonStub(polygon.Shell, part1);
+        IEnumerable<LinearRing> resPart2 = _helper.WeilerAthertonStub(polygon.Shell, part2);
 
         return resPart1.Concat(resPart2).Select(ring => new Polygon(ring));
     }

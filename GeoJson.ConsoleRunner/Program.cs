@@ -16,7 +16,7 @@ GeometryFactory gf =
 LineService lineService = new LineService(epsilon);
 ICoordinateComparator coordinateComparator = new EpsilonCoordinateComparator(epsilon);
 
-Slicer slicer = new Slicer(lineService, 4,
+Slicer slicer = new Slicer(lineService, 1000,
     new GridSlicerHelper(new LinesIntersector(coordinateComparator, lineService, epsilon), lineService,
         coordinateComparator, new ContainsChecker(lineService, epsilon)));
 
@@ -41,4 +41,4 @@ IEnumerable<Polygon> result = slicer.Slice(new Polygon(shell));
 
 MultiPolygon multiPolygon = new MultiPolygon(result.ToArray());
 
-GeoJsonFileService.WriteGeometryToFile(multiPolygon, "TestFiles\\baikalDivideAndRule4.geojson.ignore");
+//GeoJsonFileService.WriteGeometryToFile(multiPolygon, "TestFiles\\baikalDivideAndRule4.geojson.ignore");
