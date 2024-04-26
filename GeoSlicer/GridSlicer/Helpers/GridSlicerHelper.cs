@@ -45,6 +45,7 @@ public class GridSlicerHelper
         //Вернёт LinkedList с координатами всех точек кольца без последней (равной первой)
     }
 
+    
     public IntersectionType WeilerAtherton(
         LinearRing clipped, double xDown, double xUp, double yDown, double yUp, out IEnumerable<LinearRing> result)
     {
@@ -91,12 +92,14 @@ public class GridSlicerHelper
         return IntersectionType.IntersectionWithEdge;
     }
 
+    
 
     //На вход передаются координаты колец
     public IEnumerable<LinearRing> WeilerAtherton(
         LinearRing clippedCoordinates, LinearRing cuttingCoordinates)
     {
         int numberOfEnteringMarks = 0;
+        int numberOfLivingMarks = 0;
 
         //нужно, чтобы обход clipped и cutting был по часовой
 
@@ -261,6 +264,7 @@ public class GridSlicerHelper
                                  numberOne.Value.Type == PointType.Useless)
                         {
                             flagWereIntersection = true;
+                            numberOfLivingMarks++;
                             numberOne.Value.Type = PointType.Living;
                             numberThree.Value.Type = PointType.Living;
                             numberOne.Value.Coord = numberThree;
@@ -277,6 +281,7 @@ public class GridSlicerHelper
                             numberTwo.Value.Type == PointType.Useless)
                         {
                             flagWereIntersection = true;
+                            numberOfLivingMarks++;
                             numberTwo.Value.Type = PointType.Living;
                             numberFour.Value.Type = PointType.Living;
                             numberTwo.Value.Coord = numberFour;
