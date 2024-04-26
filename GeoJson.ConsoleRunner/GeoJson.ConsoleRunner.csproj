@@ -8,7 +8,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\GeoSlicer.Benchmark\GeoSlicer.Benchmark.csproj"/>
+      <ProjectReference Include="..\GeoSlicer.Benchmark\GeoSlicer.Benchmark.csproj" />
+      <ProjectReference Include="..\GeoSlicer.Tests\GeoSlicer.Tests.csproj" />
         <ProjectReference Include="..\GeoSlicer.Utils\GeoSlicer.Utils.csproj"/>
         <ProjectReference Include="..\GeoSlicer\GeoSlicer.csproj"/>
     </ItemGroup>

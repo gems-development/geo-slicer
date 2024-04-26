@@ -14,7 +14,7 @@ GeometryFactory gf =
     NetTopologySuite.NtsGeometryServices.Instance.CreateGeometryFactory(4326);
 
 LineService lineService = new LineService(epsilon);
-ICoordinateComparator coordinateComparator = new EpsilonCoordinateComparator(epsilon);
+EpsilonCoordinateComparator coordinateComparator = new EpsilonCoordinateComparator(epsilon);
 
 Slicer slicer = new Slicer(lineService, 1000,
     new GridSlicerHelper(new LinesIntersector(coordinateComparator, lineService, epsilon), lineService,

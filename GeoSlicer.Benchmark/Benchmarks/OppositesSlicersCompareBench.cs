@@ -18,7 +18,7 @@ public class OppositesSlicersCompareBench
 
 
     private static readonly LineService LineService = new LineService(Epsilon);
-    private static readonly ICoordinateComparator CoordinateComparator = new EpsilonCoordinateComparator(Epsilon);
+    private static readonly EpsilonCoordinateComparator CoordinateComparator = new EpsilonCoordinateComparator(Epsilon);
 
     private static readonly Slicer Slicer = new Slicer(LineService, 1000,
         new GridSlicerHelper(new LinesIntersector(CoordinateComparator, LineService, Epsilon), LineService,

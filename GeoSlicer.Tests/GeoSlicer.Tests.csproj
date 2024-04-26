@@ -26,4 +26,7 @@
         <ProjectReference Include="..\GeoSlicer\GeoSlicer.csproj" />
     </ItemGroup>
 
+
+
+
 </Project>
