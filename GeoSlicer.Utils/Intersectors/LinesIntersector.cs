@@ -8,14 +8,12 @@ public class LinesIntersector
 {
     private readonly double _epsilon;
 
-    private readonly ICoordinateComparator _coordinateComparator;
-    private readonly EpsilonCoordinateComparator _epsilonCoordinateComparator;
+    private readonly EpsilonCoordinateComparator _coordinateComparator;
     private readonly LineService _lineService;
 
-    public LinesIntersector(ICoordinateComparator coordinateComparator, LineService lineService, double epsilon)
+    public LinesIntersector(EpsilonCoordinateComparator coordinateComparator, LineService lineService, double epsilon)
     {
         _coordinateComparator = coordinateComparator;
-        _epsilonCoordinateComparator = new EpsilonCoordinateComparator(epsilon);
         _epsilon = epsilon;
         _lineService = lineService;
     }
@@ -109,7 +107,7 @@ public class LinesIntersector
 
         // Проверка на TyShaped
         bool CheckTyShaped(Coordinate a, Coordinate b, Coordinate checkable, double x, double y) =>
-            _epsilonCoordinateComparator.IsEquals(checkable, x, y) &&
+            _coordinateComparator.IsEquals(checkable, x, y) &&
             _lineService.IsCoordinateInSegmentBorders(x, y, a, b);
 
         if (CheckTyShaped(a1, a2, b1, x, y))
