@@ -1,4 +1,4 @@
-﻿namespace GeoSlicer.GridSlicer.Helpers;
+﻿namespace GeoSlicer.Utils.WeilerAtherton;
 
 public enum PointType
 {

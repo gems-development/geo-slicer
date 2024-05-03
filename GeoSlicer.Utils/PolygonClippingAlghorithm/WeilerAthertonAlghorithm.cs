@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using GeoSlicer.Utils;
 using GeoSlicer.Utils.Intersectors;
 using GeoSlicer.Utils.Intersectors.CoordinateComparators;
 using NetTopologySuite.Geometries;
 
-namespace GeoSlicer.GridSlicer.Helpers;
+namespace GeoSlicer.Utils.WeilerAtherton;
 
-public class GridSlicerHelper
+public class WeilerAthertonAlghorithm
 {
     private readonly LinesIntersector _linesIntersector;
     private readonly LineService _lineService;
@@ -17,7 +15,7 @@ public class GridSlicerHelper
     private readonly TraverseDirection _traverseDirection;
     private readonly ContainsChecker _containsChecker;
 
-    public GridSlicerHelper(LinesIntersector linesIntersector, LineService lineService,
+    public WeilerAthertonAlghorithm(LinesIntersector linesIntersector, LineService lineService,
         ICoordinateComparator coordinateComparator, ContainsChecker containsChecker)
     {
         _linesIntersector = linesIntersector;
@@ -470,7 +468,7 @@ public class GridSlicerHelper
         if (!flagWereIntersection)
         {
             bool flagCuttingInClipped = true;
-            foreach (Coordinate coordinate in cutting)
+            foreach (CoordinateSupport coordinate in cutting)
             {
                 if (!_containsChecker.IsPointInLinearRing(coordinate, clippedCoordinates))
                 {
@@ -480,7 +478,7 @@ public class GridSlicerHelper
             }
 
             bool flagClippedInCutting = true;
-            foreach (Coordinate coordinate in clipped)
+            foreach (CoordinateSupport coordinate in clipped)
             {
                 if (!_containsChecker.IsPointInLinearRing(coordinate, cuttingCoordinates))
                 {
@@ -567,6 +565,7 @@ public class GridSlicerHelper
                         if (nodeFromLToEInCutting!.Value.Type == PointType.Entering)
                         {
                             startInClipped = nodeFromLToEInCutting.Value.Coord;
+                            startInClipped!.Value.Type = PointType.Useless;
                             break;
                         }
 
@@ -576,6 +575,7 @@ public class GridSlicerHelper
                     if (nodeFromLToEInCutting.Next!.Value.Type == PointType.Entering)
                     {
                         startInClipped = nodeFromLToEInCutting.Next.Value.Coord;
+                        startInClipped!.Value.Type = PointType.Useless;
                     }
                 }
             } while (startInClipped != nodeInClipped);
