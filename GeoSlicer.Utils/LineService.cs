@@ -187,6 +187,6 @@ public class LineService
         var rotatedVectorB2Y = (anglePointB1.X - anglePointB2.X) * Math.Sin(sign * (double)phiB1) +
                                (anglePointB1.Y - anglePointB2.Y) * Math.Cos(sign * (double)phiB1);
         var phiB2 = CalculatePhiFromZeroTo2Pi(rotatedVectorB2X, rotatedVectorB2Y);
-        return phiA > 0 && phiA < phiB2;
+        return phiA > 0 + _epsilon && phiA < phiB2 - _epsilon;
     }
 }

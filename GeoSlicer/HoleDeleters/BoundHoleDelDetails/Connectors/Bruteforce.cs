@@ -123,8 +123,8 @@ internal static class Bruteforce
                 var currentCoord = ringFramesContainThis.Value.Ring;
                 do
                 {
-                    bool flag1 = currentCoord.Elem.Y > connectPointThisR.Y;
-                    bool flag2 = currentCoord.Next.Elem.Y > connectPointThisR.Y;
+                    bool flag1 = currentCoord.Elem.Y >= connectPointThisR.Y;
+                    bool flag2 = currentCoord.Next.Elem.Y >= connectPointThisR.Y;
                     if ((flag1 || flag2) && 
                         IntersectsChecker.HasIntersectedSegmentsNotExternalPoints(
                             connectPointThisR, connectPoint.Elem,

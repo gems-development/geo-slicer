@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using GeoSlicer.Utils;
 using GeoSlicer.Utils.BoundRing;
+using GeoSlicer.Utils.Intersectors;
+using GeoSlicer.Utils.Intersectors.CoordinateComparators;
 using NetTopologySuite.Algorithm;
 using NetTopologySuite.Geometries;
 
@@ -97,13 +100,13 @@ public static class IntersectsChecker
     public static bool HasIntersectedSegmentsNotExternalPoints
         (Coordinate a1, Coordinate b1, Coordinate a2, Coordinate b2)
     {
-        if (ReferenceEquals(a1, a2) ||
-            ReferenceEquals(a1, b2) ||
-            ReferenceEquals(b1, a2) ||
-            ReferenceEquals(b1, b2))
+        LinesIntersector intersector =
+            new LinesIntersector(new EpsilonCoordinateComparator(1e-15), new LineService(1e-15), 1e-15);
+        LinesIntersectionType type = intersector.GetIntersection(a1, b1, a2, b2).Item1;
+        if (type == LinesIntersectionType.NoIntersection || type == LinesIntersectionType.Corner ||
+            type == LinesIntersectionType.Extension || type == LinesIntersectionType.Outside)
             return false;
-        _li.ComputeIntersection(a1, b1, a2, b2);
-        return _li.HasIntersection;
+        return true;
     }
 
     

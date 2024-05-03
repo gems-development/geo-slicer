@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using GeoSlicer.HoleDeleters.BoundHoleDelDetails.Connectors.NoIntersectRectanglesDetails;
+using GeoSlicer.Utils;
 using GeoSlicer.Utils.BoundRing;
 using NetTopologySuite.Geometries;
 
@@ -17,18 +18,26 @@ internal class NoIntersectRectangles
         public LineSegment? LineConnectNearCdeFrame;
         public LineSegment? LineConnectNearEfgFrame;
         public LineSegment? LineConnectNearAhgFrame;
+        public double Epsilon;
     }
 
+    private LineService _lineService;
     private readonly Data _data = new ();
+
+    public NoIntersectRectangles(double epsilon)
+    {
+        _lineService = new LineService(epsilon);
+        _data.Epsilon = epsilon;
+    }
+
     internal bool Connect(
         LinkedListNode<BoundingRing> thisRing,
         LinkedList<BoundingRing> listOfHoles,
-        Cache cache,
-        double epsilon)
+        Cache cache)
     {
-        DataInitializer.Initialize(_data, thisRing, cache, epsilon);
+        DataInitializer.Initialize(_data, thisRing, cache);
         
-        FramesContainThisIntersectsChecker.Check(_data, thisRing, cache, epsilon);
+        FramesContainThisIntersectsChecker.Check(_data, thisRing, cache);
 
         Coordinate oldPointMin = thisRing.Value.PointMin;
         Coordinate oldPointMax = thisRing.Value.PointMax;
@@ -40,7 +49,8 @@ internal class NoIntersectRectangles
                 cache.NearRing[Zones.Abc].BoundRing, 
                 thisRing.Value.PointUpNode,
                 cache.NearRing[Zones.Abc].BoundRing.Value.PointDownNode,
-                listOfHoles);
+                listOfHoles, 
+                Zones.Abc, _data.Epsilon, _lineService);
         }
 
         if (_data.CdeCanConnect && oldPointMin.Equals(thisRing.Value.PointMin))
@@ -50,7 +60,8 @@ internal class NoIntersectRectangles
                 cache.NearRing[Zones.Cde].BoundRing, 
                 thisRing.Value.PointLeftNode, 
                 cache.NearRing[Zones.Cde].BoundRing.Value.PointRightNode,
-                listOfHoles);
+                listOfHoles, 
+                Zones.Cde, _data.Epsilon, _lineService);
         }
 
         if (_data.EfgCanConnect && oldPointMin.Equals(thisRing.Value.PointMin))
@@ -60,7 +71,8 @@ internal class NoIntersectRectangles
                 cache.NearRing[Zones.Efg].BoundRing, 
                 thisRing.Value.PointDownNode, 
                 cache.NearRing[Zones.Efg].BoundRing.Value.PointUpNode,
-                listOfHoles);
+                listOfHoles, 
+                Zones.Efg, _data.Epsilon, _lineService);
         }
 
         if (_data.AhgCanConnect && oldPointMax.Equals(thisRing.Value.PointMax))
@@ -70,7 +82,8 @@ internal class NoIntersectRectangles
                 cache.NearRing[Zones.Ahg].BoundRing, 
                 thisRing.Value.PointRightNode, 
                 cache.NearRing[Zones.Ahg].BoundRing.Value.PointLeftNode,
-                listOfHoles);
+                listOfHoles, 
+                Zones.Ahg, _data.Epsilon, _lineService);
         }
 
         return _data.AbcCanConnect || _data.CdeCanConnect || _data.EfgCanConnect || _data.AhgCanConnect;

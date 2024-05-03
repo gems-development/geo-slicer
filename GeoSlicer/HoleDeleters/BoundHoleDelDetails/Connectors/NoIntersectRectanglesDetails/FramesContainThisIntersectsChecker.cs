@@ -29,14 +29,13 @@ internal static class FramesContainThisIntersectsChecker
     internal static void Check(
         NoIntersectRectangles.Data data,
         LinkedListNode<BoundingRing> thisRing,
-        Cache cache,
-        double epsilon)
+        Cache cache)
     {
         var shell = cache.FramesContainThis.First!.Value;
         cache.FramesContainThis.Remove(cache.FramesContainThis.First);
         cache.FramesContainThis.AddLast(shell);
 
-        Values values = new Values(thisRing, cache, epsilon);
+        Values values = new Values(thisRing, cache, data.Epsilon);
         var frameWhoContainThis = cache.FramesContainThis.First;
         while (frameWhoContainThis is not null)
         {

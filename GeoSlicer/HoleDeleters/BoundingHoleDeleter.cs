@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using GeoSlicer.HoleDeleters.BoundHoleDelDetails;
 using GeoSlicer.HoleDeleters.BoundHoleDelDetails.Connectors;
 using GeoSlicer.Utils;
@@ -12,12 +13,13 @@ public class BoundingHoleDeleter
     private readonly TraverseDirection _direction;
     private readonly Cache _cache;
     private readonly double _epsilon;
-    private readonly NoIntersectRectangles _noIntersectRectangles = new ();
+    private readonly NoIntersectRectangles _noIntersectRectangles;
     private readonly IntersectionBoundRFrames _intersectionBoundRFrames = new();
 
     public BoundingHoleDeleter(TraverseDirection direction, double epsilon)
     {
         _direction = direction;
+        _noIntersectRectangles = new NoIntersectRectangles(epsilon);
         _cache = new Cache(epsilon);
         _epsilon = epsilon;
     }
@@ -33,9 +35,12 @@ public class BoundingHoleDeleter
         var thisRing = listOfHoles.First;
         var pointMinShell = thisRing!.Value.PointMin;
         var pointMaxShell = thisRing.Value.PointMax;
-        
+
+        int m = 0;
         while (listOfHoles.First!.Next is not null)
-        { 
+        {
+            if (m == 2)
+                Console.WriteLine("error");
             if (thisRing.Next is null)
                 thisRing = listOfHoles.First.Next;
             else thisRing = thisRing.Next;
@@ -45,7 +50,7 @@ public class BoundingHoleDeleter
             if (!_cache.FillListsRelativeRing(thisRing, listOfHoles))
             {
                 isConnected = 
-                    _noIntersectRectangles.Connect(thisRing, listOfHoles, _cache, _epsilon) ||
+                    _noIntersectRectangles.Connect(thisRing, listOfHoles, _cache) ||
                     WithIntersectRing.BruteforceConnect(thisRing, listOfHoles, _cache);
             }
             else
@@ -65,6 +70,11 @@ public class BoundingHoleDeleter
                 listOfHoles.AddFirst(buff);
                 thisRing = listOfHoles.First;
             }
+            string user = "User";
+            string fileName = "C:\\Users\\" + user + "\\Downloads\\Telegram Desktop\\";
+            GeoJsonFileService.WriteGeometryToFile(BoundingRing.BoundRingsToPolygon(listOfHoles),
+                fileName + "step" + m);
+            m++;
         }
     }
 }

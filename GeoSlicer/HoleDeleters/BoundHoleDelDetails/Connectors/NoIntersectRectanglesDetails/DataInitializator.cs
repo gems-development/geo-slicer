@@ -17,8 +17,7 @@ internal static class DataInitializer
     internal static void Initialize(
         NoIntersectRectangles.Data data,
         LinkedListNode<BoundingRing> thisRing,
-        Cache cache,
-        double epsilon)
+        Cache cache)
     {
         Clear(data);
         if (!cache.NearRing.ContainsKey(Zones.Abc))
