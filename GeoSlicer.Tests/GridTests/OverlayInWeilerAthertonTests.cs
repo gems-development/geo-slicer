@@ -1,8 +1,8 @@
 ﻿using System.Collections.Generic;
-using GeoSlicer.GridSlicer.Helpers;
 using GeoSlicer.Utils;
 using GeoSlicer.Utils.Intersectors;
 using GeoSlicer.Utils.Intersectors.CoordinateComparators;
+using GeoSlicer.Utils.WeilerAtherton;
 using NetTopologySuite.Geometries;
 
 namespace GeoSlicer.Tests.GridTests;
@@ -13,7 +13,7 @@ public class OverlayInWeilerAthertonTests
 
     private static readonly LineService LineService = new LineService(Epsilon);
 
-    private static readonly GridSlicerHelper SlicerHelper =
+    private static readonly WeilerAthertonAlghorithm SlicerHelper =
         new(new LinesIntersector(new EpsilonCoordinateComparator(Epsilon), LineService, Epsilon), LineService,
             new EpsilonCoordinateComparator(), new ContainsChecker(LineService, Epsilon));
 

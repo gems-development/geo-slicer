@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using GeoSlicer.Utils;
 using GeoSlicer.Utils.Intersectors;
 using GeoSlicer.Utils.Intersectors.CoordinateComparators;
 using NetTopologySuite.Geometries;
 
-namespace GeoSlicer.GridSlicer.Helpers;
+namespace GeoSlicer.Utils.WeilerAtherton;
 
-public class GridSlicerHelper
+public class WeilerAthertonAlghorithm
 {
     private readonly LinesIntersector _linesIntersector;
     private readonly LineService _lineService;
@@ -17,7 +15,7 @@ public class GridSlicerHelper
     private readonly TraverseDirection _traverseDirection;
     private readonly ContainsChecker _containsChecker;
 
-    public GridSlicerHelper(LinesIntersector linesIntersector, LineService lineService,
+    public WeilerAthertonAlghorithm(LinesIntersector linesIntersector, LineService lineService,
         ICoordinateComparator coordinateComparator, ContainsChecker containsChecker)
     {
         _linesIntersector = linesIntersector;

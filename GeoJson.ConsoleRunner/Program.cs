@@ -1,8 +1,7 @@
-﻿using GeoSlicer.GridSlicer;
-using GeoSlicer.GridSlicer.Helpers;
-using GeoSlicer.Utils;
+﻿using GeoSlicer.Utils;
 using GeoSlicer.Utils.Intersectors;
 using GeoSlicer.Utils.Intersectors.CoordinateComparators;
+using GeoSlicer.Utils.WeilerAtherton;
 using NetTopologySuite.Geometries;
 
 
@@ -14,7 +13,7 @@ GeometryFactory gf =
 LineService lineService = new LineService(epsilon);
 ICoordinateComparator coordinateComparator = new EpsilonCoordinateComparator(epsilon);
 
-GridSlicerHelper helper = new GridSlicerHelper(new LinesIntersector(coordinateComparator, lineService, epsilon),
+WeilerAthertonAlghorithm helper = new WeilerAthertonAlghorithm(new LinesIntersector(coordinateComparator, lineService, epsilon),
     lineService, coordinateComparator, new ContainsChecker(lineService, epsilon));
 
 LinearRing linearRing = new LinearRing(GeoJsonFileService.ReadGeometryFromFile<LineString>("TestFiles/part1.geojson.ignore").Coordinates);

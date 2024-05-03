@@ -1,4 +1,4 @@
-﻿namespace GeoSlicer.GridSlicer;
+﻿namespace GeoSlicer.Utils.WeilerAtherton;
 
 public enum IntersectionType
 {

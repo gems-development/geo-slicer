@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using NetTopologySuite.Geometries;
 
-namespace GeoSlicer.GridSlicer.Helpers;
+namespace GeoSlicer.Utils.WeilerAtherton;
 
 public class CoordinateSupport : Coordinate
 {
