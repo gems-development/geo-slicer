@@ -5,7 +5,7 @@ using GeoSlicer.Utils.Intersectors;
 using GeoSlicer.Utils.Intersectors.CoordinateComparators;
 using NetTopologySuite.Geometries;
 
-namespace GeoSlicer.Utils.WeilerAtherton;
+namespace GeoSlicer.Utils.PolygonClippingAlghorithm;
 
 public class WeilerAthertonAlghorithm
 {

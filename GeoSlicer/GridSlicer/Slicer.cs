@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using GeoSlicer.Utils.WeilerAtherton;
+using GeoSlicer.Utils.PolygonClippingAlghorithm;
 using NetTopologySuite.Geometries;
 
 // ReSharper disable UseArrayEmptyMethod

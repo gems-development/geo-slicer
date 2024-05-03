@@ -1,7 +1,7 @@
 ﻿using GeoSlicer.Utils;
 using GeoSlicer.Utils.Intersectors;
 using GeoSlicer.Utils.Intersectors.CoordinateComparators;
-using GeoSlicer.Utils.WeilerAtherton;
+using GeoSlicer.Utils.PolygonClippingAlghorithm;
 using NetTopologySuite.Geometries;
 
 

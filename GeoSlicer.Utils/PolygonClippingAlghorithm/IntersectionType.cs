@@ -1,4 +1,4 @@
-﻿namespace GeoSlicer.Utils.WeilerAtherton;
+﻿namespace GeoSlicer.Utils.PolygonClippingAlghorithm;
 
 public enum IntersectionType
 {
