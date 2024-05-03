@@ -470,7 +470,7 @@ public class GridSlicerHelper
         if (!flagWereIntersection)
         {
             bool flagCuttingInClipped = true;
-            foreach (Coordinate coordinate in cutting)
+            foreach (CoordinateSupport coordinate in cutting)
             {
                 if (!_containsChecker.IsPointInLinearRing(coordinate, clippedCoordinates))
                 {
@@ -480,7 +480,7 @@ public class GridSlicerHelper
             }
 
             bool flagClippedInCutting = true;
-            foreach (Coordinate coordinate in clipped)
+            foreach (CoordinateSupport coordinate in clipped)
             {
                 if (!_containsChecker.IsPointInLinearRing(coordinate, cuttingCoordinates))
                 {
@@ -567,6 +567,7 @@ public class GridSlicerHelper
                         if (nodeFromLToEInCutting!.Value.Type == PointType.Entering)
                         {
                             startInClipped = nodeFromLToEInCutting.Value.Coord;
+                            startInClipped!.Value.Type = PointType.Useless;
                             break;
                         }
 
@@ -576,6 +577,7 @@ public class GridSlicerHelper
                     if (nodeFromLToEInCutting.Next!.Value.Type == PointType.Entering)
                     {
                         startInClipped = nodeFromLToEInCutting.Next.Value.Coord;
+                        startInClipped!.Value.Type = PointType.Useless;
                     }
                 }
             } while (startInClipped != nodeInClipped);
