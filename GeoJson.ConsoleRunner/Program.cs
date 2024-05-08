@@ -1,35 +1,28 @@
-﻿using GeoSlicer.HoleDeleters;
-using GeoSlicer.Tests.HoleDeletersTests;
-using GeoSlicer.Utils;
+﻿using GeoSlicer.Utils;
+using GeoSlicer.Utils.Intersectors;
+using GeoSlicer.Utils.Intersectors.CoordinateComparators;
+using GeoSlicer.Utils.PolygonClippingAlghorithm;
 using NetTopologySuite.Geometries;
 
-string user = "User";
-string fileName = "C:\\Users\\" + user + "\\Downloads\\Telegram Desktop\\";
 
+const double epsilon = 1E-14;
 
-double Epsilon = 1e-15;
-TraverseDirection Traverse = new(new LineService(Epsilon));
+GeometryFactory gf =
+    NetTopologySuite.NtsGeometryServices.Instance.CreateGeometryFactory(4326);
 
-BoundingHoleDeleter Deleter =
-    new(Traverse, Epsilon);
-ZeroTunnelDivider divider = ObjectsForTests.GetZeroTunnelDivider();
-LinkedList<Coordinate> problemCoordinates;
-LinearRing extendedTunnelsTest4;
-var test4 = ObjectsForTests.GetTest4(-5.4481159167396598E-18, 1);
+LineService lineService = new LineService(epsilon);
+EpsilonCoordinateComparator coordinateComparator = new EpsilonCoordinateComparator(1e-7);
 
-Polygon newTest4 = Deleter.DeleteHoles(test4);
-GeoJsonFileService.WriteGeometryToFile(newTest4, fileName + "newBaikal");
-//divider.DivideZeroTunnels(newTest4.Shell, out extendedTunnelsTest4, out problemCoordinates);
-//GeoJsonFileService.WriteGeometryToFile(extendedTunnelsTest4, fileName + "newBaikal2");
+WeilerAthertonAlghorithm helper = new WeilerAthertonAlghorithm(new LinesIntersector(coordinateComparator, lineService, epsilon),
+    lineService, coordinateComparator, new ContainsChecker(lineService, epsilon));
 
+LinearRing linearRing = new LinearRing(GeoJsonFileService.ReadGeometryFromFile<LineString>("TestFiles/part2.geojson.ignore").Coordinates);
+Polygon polygon = GeoJsonFileService.ReadGeometryFromFile<Polygon>("TestFiles/source.geojson.ignore");
+if (!new TraverseDirection(lineService).IsClockwiseBypass(polygon.Shell)) new TraverseDirection(lineService).ChangeDirection(polygon.Shell);
 
+var result = new MultiPolygon(helper.WeilerAtherton(polygon.Shell, linearRing).Select(o => new Polygon(o)).ToArray());
 
-
-
-
-
-
-
+GeoJsonFileService.WriteGeometryToFile(result, "TestFiles\\bug_result_2.geojson.ignore");
 
 
 
