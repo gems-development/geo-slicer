@@ -13,26 +13,27 @@ internal static class WithIntersectRing
     internal static bool BruteforceConnect(
         LinkedListNode<BoundingRing> thisRing,
         LinkedList<BoundingRing> listOfHoles,
-        Cache cache)
+        Cache cache,
+        IntersectsChecker intersectsChecker)
     {
         if (cache.NearSegmentIntersect.TryGetValue(Zones.Abc, out var ringAndPoint))
         {
-           ConnectWithBoundRFrameWhoContainThisRing(ringAndPoint, thisRing, listOfHoles, Zones.Abc, cache); 
+           ConnectWithBoundRFrameWhoContainThisRing(ringAndPoint, thisRing, listOfHoles, Zones.Abc, cache, intersectsChecker); 
            return true;
         }
         if (cache.NearSegmentIntersect.TryGetValue(Zones.Cde, out ringAndPoint))
         {
-            ConnectWithBoundRFrameWhoContainThisRing(ringAndPoint, thisRing, listOfHoles, Zones.Cde, cache);
+            ConnectWithBoundRFrameWhoContainThisRing(ringAndPoint, thisRing, listOfHoles, Zones.Cde, cache, intersectsChecker);
             return true;
         }
         if (cache.NearSegmentIntersect.TryGetValue(Zones.Efg, out ringAndPoint))
         {
-            ConnectWithBoundRFrameWhoContainThisRing(ringAndPoint, thisRing, listOfHoles, Zones.Efg, cache);
+            ConnectWithBoundRFrameWhoContainThisRing(ringAndPoint, thisRing, listOfHoles, Zones.Efg, cache, intersectsChecker);
             return true;
         }
         if (cache.NearSegmentIntersect.TryGetValue(Zones.Ahg, out ringAndPoint))
         {
-            ConnectWithBoundRFrameWhoContainThisRing(ringAndPoint, thisRing, listOfHoles, Zones.Ahg, cache);
+            ConnectWithBoundRFrameWhoContainThisRing(ringAndPoint, thisRing, listOfHoles, Zones.Ahg, cache, intersectsChecker);
             return true;
         }
 
@@ -47,7 +48,8 @@ internal static class WithIntersectRing
         LinkedListNode<BoundingRing> thisRing,
         LinkedList<BoundingRing> listOfHoles, 
         Zones zonesUnion, 
-        Cache cache)
+        Cache cache,
+        IntersectsChecker intersectsChecker)
     {
         LinkedNode<Coordinate> connectCoordFrameContainThis =
             RearrangePoints(nearSegmentIntersect!.Start, zonesUnion, thisRing);
@@ -64,7 +66,7 @@ internal static class WithIntersectRing
                 (LinkedListNode<BoundingRing> boundRing, LinkedNode<Coordinate> _start)? intersectSegment;
                 do
                 {
-                    intersectSegment = IntersectsChecker.GetIntersectRingWithSegmentNotExtPoint(
+                    intersectSegment = intersectsChecker.GetIntersectRingWithSegmentNotExtPoint(
                         frame, 
                         connectCoordThisR.Elem, connectCoordFrameContainThis.Elem);
                     

@@ -24,20 +24,21 @@ internal class NoIntersectRectangles
     private LineService _lineService;
     private readonly Data _data = new ();
 
-    public NoIntersectRectangles(double epsilon)
+    public NoIntersectRectangles(double epsilon, LineService lineService)
     {
-        _lineService = new LineService(epsilon);
+        _lineService = lineService;
         _data.Epsilon = epsilon;
     }
 
     internal bool Connect(
         LinkedListNode<BoundingRing> thisRing,
         LinkedList<BoundingRing> listOfHoles,
-        Cache cache)
+        Cache cache, 
+        IntersectsChecker intersectsChecker)
     {
-        DataInitializer.Initialize(_data, thisRing, cache);
+        DataInitializer.Initialize(_data, thisRing, cache, intersectsChecker);
         
-        FramesContainThisIntersectsChecker.Check(_data, thisRing, cache);
+        FramesContainThisIntersectsChecker.Check(_data, thisRing, cache, intersectsChecker);
 
         Coordinate oldPointMin = thisRing.Value.PointMin;
         Coordinate oldPointMax = thisRing.Value.PointMax;

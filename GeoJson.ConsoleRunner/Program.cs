@@ -15,7 +15,7 @@ BoundingHoleDeleter Deleter =
 ZeroTunnelDivider divider = ObjectsForTests.GetZeroTunnelDivider();
 LinkedList<Coordinate> problemCoordinates;
 LinearRing extendedTunnelsTest4;
-var test4 = ObjectsForTests.GetBaikal();
+var test4 = ObjectsForTests.GetTest4(-5.4481159167396598E-18, 1);
 
 Polygon newTest4 = Deleter.DeleteHoles(test4);
 GeoJsonFileService.WriteGeometryToFile(newTest4, fileName + "newBaikal");

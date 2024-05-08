@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using GeoSlicer.HoleDeleters.BoundHoleDelDetails.Structures;
+using GeoSlicer.Utils;
 using GeoSlicer.Utils.BoundRing;
 using NetTopologySuite.Geometries;
 
@@ -41,7 +40,10 @@ internal static class Bruteforce
     internal static void Connect(
         LinkedListNode<BoundingRing> thisRing,
         LinkedList<BoundingRing> listOfHoles,
-        Cache cache)
+        Cache cache, 
+        IntersectsChecker intersectsChecker,
+        LineService lineService,
+        double epsilon)
     {
         var boundRingsInAbc = 
             cache.RingsInZone[Zones.A]
@@ -58,14 +60,16 @@ internal static class Bruteforce
         {
             findNewConnectRing = false;
             FindNewConnectRing
-                (thisRing, cache.IntersectFrames, ref connectRing, ref connectPoint, ref findNewConnectRing);
+                (thisRing, cache.IntersectFrames, ref connectRing, ref connectPoint, ref findNewConnectRing, intersectsChecker);
             FindNewConnectRing
-                (thisRing, boundRingsInAbc, ref connectRing, ref connectPoint, ref findNewConnectRing);
+                (thisRing, boundRingsInAbc, ref connectRing, ref connectPoint, ref findNewConnectRing, intersectsChecker);
             FindNewConnectRingInFramesWhoContainThis
-                (thisRing, cache, ref connectRing, ref connectPoint, ref findNewConnectRing);
+                (thisRing, cache, ref connectRing, ref connectPoint, ref findNewConnectRing, intersectsChecker);
         }
         Connector.Connect(
-            thisRing, connectRing, thisRing.Value.PointUpNode, connectPoint, listOfHoles);
+            thisRing, connectRing,
+            thisRing.Value.PointUpNode, connectPoint,
+            listOfHoles, Zones.Abc, epsilon, lineService);
     }
     
     private static void FindNewConnectRing(
@@ -73,7 +77,8 @@ internal static class Bruteforce
         IEnumerable<LinkedListNode<BoundingRing>> checkedRings,
         ref LinkedListNode<BoundingRing> connectRing,
         ref LinkedNode<Coordinate> connectPoint,
-        ref bool findNewConnectRing)
+        ref bool findNewConnectRing,
+        IntersectsChecker intersectsChecker)
     {
         bool findIntersectCheckedR = true;
         Coordinate connectPointThisR = thisRing.Value.PointUpNode.Elem;
@@ -82,14 +87,14 @@ internal static class Bruteforce
             findIntersectCheckedR = false;
             foreach (var checkedRing in checkedRings)
             {
-                if (IntersectsChecker.LineIntersectsOrContainsInBoundRFrame(
+                if (intersectsChecker.LineIntersectsOrContainsInBoundRFrame(
                         checkedRing.Value, 
                         connectPointThisR, connectPoint.Elem))
                 {
                     var pointInCheckedR = checkedRing.Value.PointUpNode;
                     do
                     {
-                        if (IntersectsChecker.HasIntersectedSegmentsNotExternalPoints(
+                        if (intersectsChecker.HasIntersectedSegmentsNotExternalPoints(
                                 pointInCheckedR.Elem, pointInCheckedR.Next.Elem,
                                 connectPointThisR, connectPoint.Elem))
                         {
@@ -111,7 +116,8 @@ internal static class Bruteforce
         Cache cache,
         ref LinkedListNode<BoundingRing> connectRing,
         ref LinkedNode<Coordinate> connectPoint,
-        ref bool findNewConnectRing)
+        ref bool findNewConnectRing, 
+        IntersectsChecker intersectsChecker)
     {
         Coordinate connectPointThisR = thisRing.Value.PointUpNode.Elem;
         bool findRFramesContainThis = true;
@@ -126,7 +132,7 @@ internal static class Bruteforce
                     bool flag1 = currentCoord.Elem.Y >= connectPointThisR.Y;
                     bool flag2 = currentCoord.Next.Elem.Y >= connectPointThisR.Y;
                     if ((flag1 || flag2) && 
-                        IntersectsChecker.HasIntersectedSegmentsNotExternalPoints(
+                        intersectsChecker.HasIntersectedSegmentsNotExternalPoints(
                             connectPointThisR, connectPoint.Elem,
                             currentCoord.Elem, currentCoord.Next.Elem))
                     {

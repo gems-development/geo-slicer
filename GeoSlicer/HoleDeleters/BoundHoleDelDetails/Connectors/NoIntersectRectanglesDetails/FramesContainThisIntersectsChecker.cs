@@ -29,7 +29,8 @@ internal static class FramesContainThisIntersectsChecker
     internal static void Check(
         NoIntersectRectangles.Data data,
         LinkedListNode<BoundingRing> thisRing,
-        Cache cache)
+        Cache cache, 
+        IntersectsChecker intersectsChecker)
     {
         var shell = cache.FramesContainThis.First!.Value;
         cache.FramesContainThis.Remove(cache.FramesContainThis.First);
@@ -49,25 +50,29 @@ internal static class FramesContainThisIntersectsChecker
                     Zones.Abc,
                     ref data.AbcCanConnect,
                     data.LineConnectNearAbcFrame,
-                    values);
+                    values, 
+                    intersectsChecker);
                 
                 ConnectsLineIntersectsCheck(
                     Zones.Cde,
                     ref data.CdeCanConnect,
                     data.LineConnectNearCdeFrame,
-                    values);
+                    values, 
+                    intersectsChecker);
                 
                 ConnectsLineIntersectsCheck(
                     Zones.Efg,
                     ref data.EfgCanConnect,
                     data.LineConnectNearEfgFrame,
-                    values);
+                    values, 
+                    intersectsChecker);
                 
                 ConnectsLineIntersectsCheck(
                     Zones.Ahg,
                     ref data.AhgCanConnect,
                     data.LineConnectNearAhgFrame,
-                    values);
+                    values, 
+                    intersectsChecker);
                 
                 values.CurrentCoord = values.CurrentCoord.Next;
             } while (!ReferenceEquals(values.CurrentCoord, startCoord)
@@ -87,12 +92,13 @@ internal static class FramesContainThisIntersectsChecker
         Zones zonesUnion,
         ref bool zonesUnionCanConnect,
         LineSegment? lineConnectNearZonesUnion,
-        Values values)
+        Values values, 
+        IntersectsChecker intersectsChecker)
     {
         if (zonesUnionCanConnect &&
             CurrentCoordLineIntersectsZonesUnion(zonesUnion, values.CurrentCoord!, values.ThisRing, values.Epsilon))
         {
-            if (IntersectsChecker.HasIntersectedSegments(
+            if (intersectsChecker.HasIntersectedSegments(
                     lineConnectNearZonesUnion!.P0, lineConnectNearZonesUnion!.P1,
                     values.CurrentCoord!.Elem, values.CurrentCoord!.Next.Elem))
             {

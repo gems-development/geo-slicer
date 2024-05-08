@@ -11,6 +11,7 @@ namespace GeoSlicer.HoleDeleters.BoundHoleDelDetails;
 internal class Cache
 {
     private readonly double _epsilon;
+    private IntersectsChecker _intersectsChecker;
 
     internal readonly IReadOnlyDictionary<Zones, LinkedList<RingAndZones>> RingsInZone;
     
@@ -20,9 +21,10 @@ internal class Cache
     internal readonly Dictionary<Zones, RingAndZones> NearRing = new();
     internal readonly Dictionary<Zones, RingAndPoint> NearSegmentIntersect = new();
 
-    internal Cache(double epsilon)
+    internal Cache(double epsilon, IntersectsChecker checker)
     {
         _epsilon = epsilon;
+        _intersectsChecker = checker;
         var thisRingsInZone = new Dictionary<Zones, LinkedList<RingAndZones>>();
         thisRingsInZone.Add(Zones.A, new LinkedList<RingAndZones>());
         thisRingsInZone.Add(Zones.B, new LinkedList<RingAndZones>());
@@ -70,7 +72,7 @@ internal class Cache
                             IntersectFrames.AddFirst(thisRing);
                     }
                 }
-                else if (IntersectsChecker.NotIntersect(boundRing.Value, thisRing.Value, _epsilon))
+                else if (_intersectsChecker.NotIntersect(boundRing.Value, thisRing.Value, _epsilon))
                 {
                     if (IntersectOrContainFrames(boundRing, thisRing))
                         DetectSeparatingZone(boundRing, thisRing);
@@ -132,7 +134,7 @@ internal class Cache
         bool flagEfg = false;
         bool flagAhg = false;
         if (boundRing.Value.PointMin.Y > relativeBoundRing.Value.PointMax.Y &&
-            !IntersectsChecker
+            !_intersectsChecker
                 .CompareEquality(boundRing.Value.PointMin.Y, relativeBoundRing.Value.PointMax.Y, _epsilon))
         {
             flagAbc = true;
@@ -151,7 +153,7 @@ internal class Cache
         }
 
         else if (boundRing.Value.PointMax.X < relativeBoundRing.Value.PointMin.X &&
-                 !IntersectsChecker
+                 !_intersectsChecker
                      .CompareEquality(relativeBoundRing.Value.PointMin.X, boundRing.Value.PointMax.X, _epsilon))
         {
             flagCde = true;
@@ -170,7 +172,7 @@ internal class Cache
         }
 
         else if (boundRing.Value.PointMax.Y < relativeBoundRing.Value.PointMin.Y &&
-                 !IntersectsChecker
+                 !_intersectsChecker
                      .CompareEquality(relativeBoundRing.Value.PointMin.Y, boundRing.Value.PointMax.Y, _epsilon))
         { 
             flagEfg = true;
@@ -189,7 +191,7 @@ internal class Cache
         }
 
         else if (boundRing.Value.PointMin.X > relativeBoundRing.Value.PointMax.X && 
-                 !IntersectsChecker
+                 !_intersectsChecker
                      .CompareEquality(boundRing.Value.PointMin.X, relativeBoundRing.Value.PointMax.X, _epsilon))
         {
             flagAhg = true;
@@ -257,7 +259,7 @@ internal class Cache
         )
     {
         if (boundMin < relativeMin ||
-            IntersectsChecker
+            _intersectsChecker
                 .CompareEquality(relativeMin, boundMin, _epsilon))
         {
             list.Add(first);
@@ -266,7 +268,7 @@ internal class Cache
         }
 
         if (boundMax > relativeMax ||
-            IntersectsChecker
+            _intersectsChecker
                 .CompareEquality(boundMax, relativeMax, _epsilon))
         {
             list.Add(second);
@@ -275,7 +277,7 @@ internal class Cache
         }
 
         if (firstFlag == secondFlag
-            || IntersectsChecker.SegmentContainAtLeastOneNumber
+            || _intersectsChecker.SegmentContainAtLeastOneNumber
             (relativeMin,
                 relativeMax,
                 new[] { boundMin, boundMax }))

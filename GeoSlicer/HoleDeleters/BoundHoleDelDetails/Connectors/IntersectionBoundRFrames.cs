@@ -21,7 +21,8 @@ internal class IntersectionBoundRFrames
     internal bool BruteforceConnect(
         LinkedListNode<BoundingRing> thisRing,
         LinkedList<BoundingRing> listOfHoles,
-        Cache cache)
+        Cache cache,
+        IntersectsChecker intersectsChecker)
     {
         _intersectFrameNode = cache.IntersectFrames.First;
         while (_intersectFrameNode is not null)
@@ -32,13 +33,13 @@ internal class IntersectionBoundRFrames
             _findCurrentPointThisRing = false;
             _findCurrentPointIntersectFrame = false;
             
-            IntersectsChecker.GetIntersectionBoundRFrames(
+            intersectsChecker.GetIntersectionBoundRFrames(
                 thisRing.Value, 
                 _intersectFrame.Value,
                 out _framesIntersectionPointMin,
                 out _framesIntersectionPointMax);
             
-            if (ConnectThisRWithIntersectFrameR(thisRing, listOfHoles, cache))
+            if (ConnectThisRWithIntersectFrameR(thisRing, listOfHoles, cache, intersectsChecker))
                 return true;
 
             _intersectFrameNode = _intersectFrameNode.Next;
@@ -50,14 +51,14 @@ internal class IntersectionBoundRFrames
     private bool ConnectThisRWithIntersectFrameR(
         LinkedListNode<BoundingRing> thisRing,
         LinkedList<BoundingRing> listOfHoles,
-        Cache cache)
+        Cache cache,  IntersectsChecker intersectsChecker)
     {
         do
         {
-            FindLineInFramesIntersection(thisRing);
-            CheckLineIntersectThisRingOrFrameRing(thisRing);
-            CheckLineIntersectRingFromList(cache.IntersectFrames);
-            CheckLineIntersectRingFromList(cache.FramesContainThis);
+            FindLineInFramesIntersection(thisRing, intersectsChecker);
+            CheckLineIntersectThisRingOrFrameRing(thisRing, intersectsChecker);
+            CheckLineIntersectRingFromList(cache.IntersectFrames, intersectsChecker);
+            CheckLineIntersectRingFromList(cache.FramesContainThis, intersectsChecker);
 
             if (_findCurrentPointThisRing && _findCurrentPointIntersectFrame)
             {
@@ -81,13 +82,13 @@ internal class IntersectionBoundRFrames
     // Метод устанавливает флаги _findCurrentPointThisRing, _findCurrentPointIntersectFrame в true,
     // если найдены корректные точки.
     
-    private void FindLineInFramesIntersection(LinkedListNode<BoundingRing> thisRing)
+    private void FindLineInFramesIntersection(LinkedListNode<BoundingRing> thisRing,  IntersectsChecker intersectsChecker)
     {
         if (!_findCurrentPointThisRing)
         {
             do
             {
-                if (IntersectsChecker.PointInsideFrameCheck(
+                if (intersectsChecker.PointInsideFrameCheck(
                         _currentPointThisRing!.Elem,
                         _framesIntersectionPointMin!, _framesIntersectionPointMax!))
                 {
@@ -102,7 +103,7 @@ internal class IntersectionBoundRFrames
         {
             do
             {
-                if (IntersectsChecker.PointInsideFrameCheck(
+                if (intersectsChecker.PointInsideFrameCheck(
                         _currentPointIntersectFrame!.Elem,
                         _framesIntersectionPointMin!, _framesIntersectionPointMax!))
                 {
@@ -119,12 +120,12 @@ internal class IntersectionBoundRFrames
     // _currentPointThisRing, _currentPointIntersectFrame и установить флаги _findCurrentPointThisRing,
     // _findCurrentPointIntersectFrame в false.
     private void CheckLineIntersectThisRingOrFrameRing
-        (LinkedListNode<BoundingRing> thisRing)
+        (LinkedListNode<BoundingRing> thisRing,  IntersectsChecker intersectsChecker)
     {
         if (!_findCurrentPointThisRing || !_findCurrentPointIntersectFrame)
             return;
         
-        if (IntersectsChecker.IntersectRingWithSegmentNotExtPoints(
+        if (intersectsChecker.IntersectRingWithSegmentNotExtPoints(
                 thisRing,
                 _currentPointThisRing!.Elem, _currentPointIntersectFrame!.Elem))
         {
@@ -132,7 +133,7 @@ internal class IntersectionBoundRFrames
             _currentPointThisRing = _currentPointThisRing.Next;
         }
 
-        if (IntersectsChecker.IntersectRingWithSegmentNotExtPoints(
+        if (intersectsChecker.IntersectRingWithSegmentNotExtPoints(
                 _intersectFrame!,
                 _currentPointThisRing.Elem, _currentPointIntersectFrame.Elem))
         {
@@ -145,7 +146,7 @@ internal class IntersectionBoundRFrames
     // кольца из list. В случае пересечений может поменять ссылки 
     // _currentPointThisRing, _currentPointIntersectFrame и установить флаги _findCurrentPointThisRing,
     // _findCurrentPointIntersectFrame в false.
-    private void CheckLineIntersectRingFromList(LinkedList<LinkedListNode<BoundingRing>> list)
+    private void CheckLineIntersectRingFromList(LinkedList<LinkedListNode<BoundingRing>> list,  IntersectsChecker intersectsChecker)
     {
         if (!_findCurrentPointThisRing || !_findCurrentPointIntersectFrame)
             return;
@@ -153,7 +154,7 @@ internal class IntersectionBoundRFrames
         foreach (var frame in list)
         {
             if (!ReferenceEquals(_intersectFrame, frame) &&
-                IntersectsChecker.IntersectBoundRingWithLine(
+                intersectsChecker.IntersectBoundRingWithLine(
                     frame, 
                     _currentPointThisRing!.Elem, _currentPointIntersectFrame!.Elem))
             { 

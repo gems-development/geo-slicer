@@ -17,7 +17,8 @@ internal static class DataInitializer
     internal static void Initialize(
         NoIntersectRectangles.Data data,
         LinkedListNode<BoundingRing> thisRing,
-        Cache cache)
+        Cache cache, 
+        IntersectsChecker intersectsChecker)
     {
         Clear(data);
         if (!cache.NearRing.ContainsKey(Zones.Abc))
@@ -33,7 +34,8 @@ internal static class DataInitializer
                 Zones.Abc,
                 Zones.A, Zones.B, Zones.C,
                 cache,
-                thisRing);
+                thisRing, 
+                intersectsChecker);
         }
         
         if (!cache.NearRing.ContainsKey(Zones.Cde))
@@ -49,7 +51,8 @@ internal static class DataInitializer
                 Zones.Cde,
                 Zones.C, Zones.D, Zones.E,
                 cache,
-                thisRing);
+                thisRing, 
+                intersectsChecker);
         }
         
         if (!cache.NearRing.ContainsKey(Zones.Efg))
@@ -65,7 +68,8 @@ internal static class DataInitializer
                 Zones.Efg,
                 Zones.E, Zones.F, Zones.G,
                 cache,
-                thisRing);
+                thisRing, 
+                intersectsChecker);
         }
         
         if (!cache.NearRing.ContainsKey(Zones.Ahg))
@@ -81,7 +85,8 @@ internal static class DataInitializer
                 Zones.Ahg,
                 Zones.A, Zones.H, Zones.G,
                 cache, 
-                thisRing);
+                thisRing, 
+                intersectsChecker);
         }
     }
     
@@ -101,7 +106,8 @@ internal static class DataInitializer
         Zones arrangeZone,
         Zones secondZone,
         Cache cache,
-        LinkedListNode<BoundingRing> thisRing)
+        LinkedListNode<BoundingRing> thisRing,
+        IntersectsChecker intersectsChecker)
     {
         bool flag = true;
         if (cache.NearRing[zonesUnion].Zones.Contains(secondZone))
@@ -110,7 +116,8 @@ internal static class DataInitializer
                 firstCoordLineConnect, secondCoordLineConnect,
                 zonesUnion, arrangeZone, secondZone,
                 cache,
-                thisRing);
+                thisRing, 
+                intersectsChecker);
         }
 
         if (cache.NearRing[zonesUnion].Zones.Contains(firstZone) && flag)
@@ -119,7 +126,8 @@ internal static class DataInitializer
                 firstCoordLineConnect, secondCoordLineConnect,
                 zonesUnion, arrangeZone, firstZone,
                 cache,
-                thisRing);
+                thisRing, 
+                intersectsChecker);
         }
 
         return flag;
@@ -132,13 +140,14 @@ internal static class DataInitializer
         Zones arrangeZone,
         Zones currentZone,
         Cache cache,
-        LinkedListNode<BoundingRing> thisRing)
+        LinkedListNode<BoundingRing> thisRing,
+        IntersectsChecker intersectsChecker)
     {
         foreach (var frame in cache.RingsInZone[currentZone])
         {
             if (!frame.Zones.Contains(arrangeZone)
                 && CheckIntersectFrameWithZonesUnion(frame, thisRing, zonesUnion)
-                && IntersectsChecker.HasIntersectsBoundRFrame(frame.BoundRing.Value, firstCoordLineConnect,
+                && intersectsChecker.HasIntersectsBoundRFrame(frame.BoundRing.Value, firstCoordLineConnect,
                     secondCoordLineConnect) &&
                 !ReferenceEquals(frame.BoundRing.Value, cache.NearRing[zonesUnion].BoundRing.Value))
             {
