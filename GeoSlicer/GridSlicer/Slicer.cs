@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using GeoSlicer.GridSlicer.Helpers;
+using GeoSlicer.Utils.PolygonClippingAlghorithm;
 using NetTopologySuite.Geometries;
 
 // ReSharper disable UseArrayEmptyMethod
@@ -13,9 +13,9 @@ public class Slicer
     private readonly IEnumerable<LinearRing> _inner = new LinearRing[0];
     private readonly IEnumerable<LinearRing> _inQueue = new LinearRing[0];
 
-    private readonly GridSlicerHelper _helper;
+    private readonly WeilerAthertonAlghorithm _helper;
 
-    public Slicer(GridSlicerHelper helper)
+    public Slicer(WeilerAthertonAlghorithm helper)
     {
         _helper = helper;
     }

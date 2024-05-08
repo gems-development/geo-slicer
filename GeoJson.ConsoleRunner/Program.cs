@@ -1,8 +1,8 @@
 ﻿using GeoSlicer.DivideAndRuleSlicers.OppositesSlicer;
-using GeoSlicer.GridSlicer.Helpers;
 using GeoSlicer.Utils;
 using GeoSlicer.Utils.Intersectors;
 using GeoSlicer.Utils.Intersectors.CoordinateComparators;
+using GeoSlicer.Utils.PolygonClippingAlghorithm;
 using GeoSlicer.Utils.Validators;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
@@ -10,25 +10,23 @@ using NetTopologySuite.Geometries;
 
 const double epsilon = 1E-15;
 
-GeometryFactory gf =
-    NetTopologySuite.NtsGeometryServices.Instance.CreateGeometryFactory(4326);
-
 LineService lineService = new LineService(epsilon);
 EpsilonCoordinateComparator coordinateComparator = new EpsilonCoordinateComparator(1e-9);
 
-SlicerOld slicer = new SlicerOld(lineService, 5,
-    new GridSlicerHelper(new LinesIntersector(coordinateComparator, lineService, epsilon), lineService,
+//SlicerOld slicer = new SlicerOld(lineService, 5,
+Slicer slicer = new Slicer(lineService, 1000,
+    new WeilerAthertonAlghorithm(new LinesIntersector(coordinateComparator, lineService, epsilon), lineService,
         coordinateComparator, new ContainsChecker(lineService, epsilon)));
 
-//
-// var polygon =
-//     (Polygon)((MultiPolygon)GeoJsonFileService.ReadGeometryFromFile<FeatureCollection>("TestFiles\\baikal.geojson")[0]
-//         .Geometry)[0];
-//
-// LinearRing shell = polygon.Shell;
 
-LinearRing shell = new LinearRing(GeoJsonFileService
-    .ReadGeometryFromFile<LineString>("TestFiles/maloeOzeroLinearRing.geojson").Coordinates);
+var polygon =
+    (Polygon)((MultiPolygon)GeoJsonFileService.ReadGeometryFromFile<FeatureCollection>("TestFiles\\baikal.geojson")[0]
+        .Geometry)[0];
+
+LinearRing shell = polygon.Shell;
+
+//LinearRing shell = new LinearRing(GeoJsonFileService
+//    .ReadGeometryFromFile<LineString>("TestFiles/maloeOzeroLinearRing.geojson").Coordinates);
 
 RepeatingPointsValidator repeatingPointsValidator =
     new RepeatingPointsValidator(new EpsilonCoordinateComparator(epsilon));
@@ -44,4 +42,4 @@ IEnumerable<Polygon> result = slicer.Slice(new Polygon(shell));
 
 MultiPolygon multiPolygon = new MultiPolygon(result.ToArray());
 
-GeoJsonFileService.WriteGeometryToFile(multiPolygon, "Out\\mo.geojson.ignore");
+GeoJsonFileService.WriteGeometryToFile(multiPolygon, "Out\\darBaikal1000New.geojson.ignore");

@@ -1,10 +1,9 @@
 ﻿using BenchmarkDotNet.Attributes;
 using GeoSlicer.DivideAndRuleSlicers.OppositesSlicer;
-using GeoSlicer.GridSlicer.Helpers;
-using GeoSlicer.NonConvexSlicer.Helpers;
 using GeoSlicer.Utils;
 using GeoSlicer.Utils.Intersectors;
 using GeoSlicer.Utils.Intersectors.CoordinateComparators;
+using GeoSlicer.Utils.PolygonClippingAlghorithm;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 
@@ -21,11 +20,11 @@ public class OppositesSlicersCompareBench
     private static readonly EpsilonCoordinateComparator CoordinateComparator = new EpsilonCoordinateComparator(Epsilon);
 
     private static readonly Slicer Slicer = new Slicer(LineService, 1000,
-        new GridSlicerHelper(new LinesIntersector(CoordinateComparator, LineService, Epsilon), LineService,
+        new WeilerAthertonAlghorithm(new LinesIntersector(CoordinateComparator, LineService, Epsilon), LineService,
             CoordinateComparator, new ContainsChecker(LineService, Epsilon)));
 
     private static readonly SlicerOld SlicerOld = new SlicerOld(LineService, 1000,
-        new GridSlicerHelper(new LinesIntersector(CoordinateComparator, LineService, Epsilon), LineService,
+        new WeilerAthertonAlghorithm(new LinesIntersector(CoordinateComparator, LineService, Epsilon), LineService,
             CoordinateComparator, new ContainsChecker(LineService, Epsilon)));
 
 

@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using GeoSlicer.GridSlicer.Helpers;
 using GeoSlicer.Utils;
-using GeoSlicer.Utils.Intersectors;
+using GeoSlicer.Utils.PolygonClippingAlghorithm;
 using NetTopologySuite.Geometries;
 
 namespace GeoSlicer.DivideAndRuleSlicers.OppositesSlicer;
@@ -16,13 +14,13 @@ public class Slicer
     private readonly int _maxPointsCount;
 
     // todo После вынесения метода пересечения заменить на нужный класс
-    private readonly GridSlicerHelper _helper;
+    private readonly WeilerAthertonAlghorithm _weilerAthertonAlghorithm;
 
-    public Slicer(LineService lineService, int maxPointsCount, GridSlicerHelper helper)
+    public Slicer(LineService lineService, int maxPointsCount, WeilerAthertonAlghorithm weilerAthertonAlghorithm)
     {
         _lineService = lineService;
         _maxPointsCount = maxPointsCount;
-        _helper = helper;
+        _weilerAthertonAlghorithm = weilerAthertonAlghorithm;
     }
 
 
@@ -154,8 +152,8 @@ public class Slicer
         GeoJsonFileService.WriteGeometryToFile(polygon, "Out/source.geojson.ignore");
         GeoJsonFileService.WriteGeometryToFile(part1, "Out/part1.geojson.ignore");
 
-        IEnumerable<LinearRing> resPart1 = _helper.WeilerAtherton(polygon.Shell, part1);
-        IEnumerable<LinearRing> resPart2 = _helper.WeilerAtherton(polygon.Shell, part2);
+        IEnumerable<LinearRing> resPart1 = _weilerAthertonAlghorithm.WeilerAtherton(polygon.Shell, part1);
+        IEnumerable<LinearRing> resPart2 = _weilerAthertonAlghorithm.WeilerAtherton(polygon.Shell, part2);
 
         return resPart1.Concat(resPart2).Select(ring => new Polygon(ring));
     }
