@@ -11,7 +11,7 @@ GeometryFactory gf =
     NetTopologySuite.NtsGeometryServices.Instance.CreateGeometryFactory(4326);
 
 LineService lineService = new LineService(epsilon);
-ICoordinateComparator coordinateComparator = new EpsilonCoordinateComparator(1e-7);
+EpsilonCoordinateComparator coordinateComparator = new EpsilonCoordinateComparator(1e-7);
 
 WeilerAthertonAlghorithm helper = new WeilerAthertonAlghorithm(new LinesIntersector(coordinateComparator, lineService, epsilon),
     lineService, coordinateComparator, new ContainsChecker(lineService, epsilon));
