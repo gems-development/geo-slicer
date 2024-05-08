@@ -83,6 +83,12 @@ public static class Utils
             }
 
         }
+        
+        // todo Понять, возможна ли такая ситуация. Удалить иф к релизу
+        if (betterIndex == -1)
+        {
+            throw new NotImplementedException("Не нашел подходящий индекс. Передайте ошибку Максиму");
+        }
 
         return betterIndex;
     }
