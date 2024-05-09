@@ -10,10 +10,9 @@ namespace GeoSlicer.Tests.HoleDeletersTests;
 public class BoundingHoleDeleterTest
 {
     private static readonly double Epsilon = 1e-15;
-    private static readonly TraverseDirection Traverse = new(new LineService(Epsilon));
 
     private static readonly BoundingHoleDeleter Deleter =
-        new(Traverse, Epsilon);
+        new(Epsilon);
 
     [Fact]
     public void TestSimplePolygon()

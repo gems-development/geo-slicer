@@ -46,7 +46,7 @@ public class ContainsChecker
             Coordinate vec1 = new Coordinate(minCoord.X - p.X, minCoord.Y - p.Y);
             Coordinate vec2 = new Coordinate(p.X - maxCoord.X, p.Y - maxCoord.Y);
 
-            double product = _lineService.VectorProduct(vec1, vec2);
+            double product = LineService.VectorProduct(vec1, vec2);
 
             return minCoord.Y < p.Y - _epsilon && maxCoord.Y >= p.Y && product < 0;
         }

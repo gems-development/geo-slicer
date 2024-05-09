@@ -28,7 +28,7 @@ public class NonConvexSlicerHelper
 
     public bool CurrentPointIsSpecial(Coordinate previousPoint, Coordinate currentPoint, Coordinate nextPoint)
     {
-        return _lineService.VectorProduct(
+        return LineService.VectorProduct(
             currentPoint.X - previousPoint.X,
             currentPoint.Y - previousPoint.Y,
             nextPoint.X - currentPoint.X,
@@ -42,7 +42,7 @@ public class NonConvexSlicerHelper
         var coordinates = ring.Coordinates;
         for (var i = 0; i < coordinates.Length - 1; ++i)
         {
-            if (_lineService.VectorProduct(
+            if (LineService.VectorProduct(
                     coordinates[i].X - coordinates[(i - 1 + coordinates.Length - 1) % (coordinates.Length - 1)].X,
                     coordinates[i].Y - coordinates[(i - 1 + coordinates.Length - 1) % (coordinates.Length - 1)].Y,
                     coordinates[(i + 1) % (coordinates.Length - 1)].X - coordinates[i].X,

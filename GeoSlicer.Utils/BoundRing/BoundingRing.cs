@@ -70,15 +70,15 @@ public class BoundingRing
     //Преобразует Polygon в список из BoundingRing, в котором первый элемент - оболочка полигона,
     //остальные элементы - дыры полигона
     public static LinkedList<BoundingRing> PolygonToBoundRings(
-        Polygon polygon, TraverseDirection direction, LineService lineService)
+        Polygon polygon, LineService lineService)
     {
         LinkedList<BoundingRing> boundRings = new LinkedList<BoundingRing>();
         boundRings.AddFirst(
-            BoundRService.LinearRingToBoundingRing(polygon.Shell, true, direction, lineService));
+            BoundRService.LinearRingToBoundingRing(polygon.Shell, true, lineService));
         foreach(LinearRing ring in polygon.Holes)
         {
             boundRings.AddLast(
-                BoundRService.LinearRingToBoundingRing(ring, false, direction, lineService));
+                BoundRService.LinearRingToBoundingRing(ring, false, lineService));
         }
         return boundRings;
     }

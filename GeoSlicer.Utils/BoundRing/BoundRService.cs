@@ -24,7 +24,7 @@ internal class BoundRService
     }
 
     internal static BoundingRing LinearRingToBoundingRing(
-        LinearRing ring, bool counterClockwiseBypass, TraverseDirection direction, LineService lineService)
+        LinearRing ring, bool counterClockwiseBypass, LineService lineService)
     {
         Coordinate[] coordinates = ring.Coordinates;
         LinkedNode <Coordinate> ringNode = new LinkedNode<Coordinate>(coordinates[0]);
@@ -32,7 +32,7 @@ internal class BoundRService
         LinkedNode<Coordinate> pointRightNode = ringNode;
         LinkedNode<Coordinate> pointUpNode = ringNode;
         LinkedNode<Coordinate> pointDownNode = ringNode;
-        bool clockwise = direction.IsClockwiseBypass(ring);
+        bool clockwise = TraverseDirection.IsClockwiseBypass(ring);
         bool counterClockwiseBypassBuff = counterClockwiseBypass;
         
         if (!counterClockwiseBypass) 

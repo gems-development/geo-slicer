@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using GeoSlicer.HoleDeleters.BoundHoleDelDetails;
 using GeoSlicer.HoleDeleters.BoundHoleDelDetails.Connectors;
 using GeoSlicer.Utils;
@@ -12,7 +11,6 @@ namespace GeoSlicer.HoleDeleters;
 
 public class BoundingHoleDeleter
 {
-    private readonly TraverseDirection _direction;
     private readonly Cache _cache;
     private readonly double _epsilon;
     private readonly NoIntersectRectangles _noIntersectRectangles;
@@ -21,7 +19,7 @@ public class BoundingHoleDeleter
     private readonly LineService _lineService;
 
     public BoundingHoleDeleter(
-        TraverseDirection direction, double epsilon, IntersectsChecker? checker = null, LineService? lineService = null)
+        double epsilon, IntersectsChecker? checker = null, LineService? lineService = null)
     {
         if (checker is null)
         {
@@ -38,7 +36,6 @@ public class BoundingHoleDeleter
         }
         else
             _lineService = lineService;
-        _direction = direction;
         _noIntersectRectangles = new NoIntersectRectangles(epsilon, _lineService);
         _cache = new Cache(epsilon, _intersectChecker);
         _epsilon = epsilon;
@@ -46,7 +43,7 @@ public class BoundingHoleDeleter
 
     public Polygon DeleteHoles(Polygon polygon)
     {
-        LinkedList<BoundingRing> list = BoundingRing.PolygonToBoundRings(polygon, _direction, new LineService(_epsilon));
+        LinkedList<BoundingRing> list = BoundingRing.PolygonToBoundRings(polygon, new LineService(_epsilon));
         DeleteHoles(list);
         return BoundingRing.BoundRingsToPolygon(list);
     }
