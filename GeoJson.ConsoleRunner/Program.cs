@@ -8,13 +8,13 @@ using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 
 
-const double epsilon = 1E-15;
+const double epsilon = 1E-14;
 
 LineService lineService = new LineService(epsilon);
-EpsilonCoordinateComparator coordinateComparator = new EpsilonCoordinateComparator(1e-9);
+EpsilonCoordinateComparator coordinateComparator = new EpsilonCoordinateComparator(1e-7);
 
 //SlicerOld slicer = new SlicerOld(lineService, 5,
-Slicer slicer = new Slicer(lineService, 1000,
+Slicer slicer = new Slicer(lineService, 1500,
     new WeilerAthertonAlghorithm(new LinesIntersector(coordinateComparator, lineService, epsilon), lineService,
         coordinateComparator, new ContainsChecker(lineService, epsilon)));
 
@@ -42,4 +42,4 @@ IEnumerable<Polygon> result = slicer.Slice(new Polygon(shell));
 
 MultiPolygon multiPolygon = new MultiPolygon(result.ToArray());
 
-GeoJsonFileService.WriteGeometryToFile(multiPolygon, "Out\\darBaikal1000New.geojson.ignore");
+GeoJsonFileService.WriteGeometryToFile(multiPolygon, "Out\\darBaikal1500New.geojson.ignore");

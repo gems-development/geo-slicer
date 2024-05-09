@@ -51,6 +51,8 @@ public class Slicer
                 current,
                 current.Shell.GetCoordinateN(oppositesIndex),
                 current.Shell.GetCoordinateN((oppositesIndex + current.Shell.Count / 2) % current.Shell.Count));
+            
+
             foreach (Polygon ring in sliced)
             {
                 if (ring.NumPoints <= _maxPointsCount)
@@ -62,7 +64,8 @@ public class Slicer
                     queue.Enqueue(ring);
                 }
             }
-
+          //  GeoJsonFileService.WriteGeometryToFile(new MultiPolygon(queue.Concat(result).ToArray())
+          //      , $"Out\\iter{i}.geojson.ignore");
             i++;
         }
 
@@ -144,17 +147,24 @@ public class Slicer
         }
         else
         {
+            // part1 максы и Б part2 минимумы и А
+            // todo Исправить создание треугольников
             part1 = new LinearRing(new[]
                 { a, new(minX, maxY), new(maxX, maxY), b, a });
             part2 = new LinearRing(new[]
                 { a, b, new(maxX, minY), new(minX, minY), a });
         }
-        GeoJsonFileService.WriteGeometryToFile(polygon, "Out/source.geojson.ignore");
-        GeoJsonFileService.WriteGeometryToFile(part1, "Out/part1.geojson.ignore");
+
 
         IEnumerable<LinearRing> resPart1 = _weilerAthertonAlghorithm.WeilerAtherton(polygon.Shell, part1);
         IEnumerable<LinearRing> resPart2 = _weilerAthertonAlghorithm.WeilerAtherton(polygon.Shell, part2);
-
+        /*
+        GeoJsonFileService.WriteGeometryToFile(polygon, "Out/source.geojson.ignore");
+        GeoJsonFileService.WriteGeometryToFile(part1, "Out/part1.geojson.ignore");
+        GeoJsonFileService.WriteGeometryToFile(part2, "Out/part2.geojson.ignore");
+        GeoJsonFileService.WriteGeometryToFile(new MultiLineString(resPart1.ToArray()), "Out/resPart1.geojson.ignore");
+        GeoJsonFileService.WriteGeometryToFile(new MultiLineString(resPart2.ToArray()), "Out/resPart2.geojson.ignore");
+        */
         return resPart1.Concat(resPart2).Select(ring => new Polygon(ring));
     }
 }
