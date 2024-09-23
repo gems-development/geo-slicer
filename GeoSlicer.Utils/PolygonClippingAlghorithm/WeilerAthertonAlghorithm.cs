@@ -553,13 +553,13 @@ public class WeilerAthertonAlghorithm
             do
             {
                 numberOfEnteringMarks--;
-
+                int count = 0;
                 for (LinkedListNode<CoordinateSupport>? nodeFromEToLInClipped = startInClipped;
-                     nodeFromEToLInClipped!.Value.Type != PointType.Living && (nodeFromEToLInClipped!.Value.Type != PointType.SelfIntersection || !figure.Any());
+                     nodeFromEToLInClipped!.Value.Type != PointType.Living && (nodeFromEToLInClipped!.Value.Type != PointType.SelfIntersection || count == 0);
                      nodeFromEToLInClipped = nodeFromEToLInClipped.Next)
                 {
                     figure.Add(nodeFromEToLInClipped.Value);
-
+                    count = 1;
                     if (nodeFromEToLInClipped.Next == null)
                     {
                         nodeFromEToLInClipped = clipped.First;
@@ -578,13 +578,13 @@ public class WeilerAthertonAlghorithm
                         startInCutting = nodeFromEToLInClipped.Next.Value.Coord;
                     }
                 }
-
+                count = 0;
                 for (LinkedListNode<CoordinateSupport>? nodeFromLToEInCutting = startInCutting;
-                     nodeFromLToEInCutting!.Value.Type != PointType.Entering && (nodeFromLToEInCutting!.Value.Type != PointType.SelfIntersection || !figure.Any());
+                     nodeFromLToEInCutting!.Value.Type != PointType.Entering && (nodeFromLToEInCutting!.Value.Type != PointType.SelfIntersection || count == 0);
                      nodeFromLToEInCutting = nodeFromLToEInCutting.Next)
                 {
                     figure.Add(nodeFromLToEInCutting.Value);
-
+                    count = 1;
                     if (nodeFromLToEInCutting.Next == null)
                     {
                         nodeFromLToEInCutting = cutting.First;
