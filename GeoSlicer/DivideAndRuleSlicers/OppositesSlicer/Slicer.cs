@@ -93,10 +93,10 @@ public class Slicer
         Envelope envelope = polygon.EnvelopeInternal;
 
         // Создаем нахлест чтобы наверняка
-        double minY = envelope.MinY - Math.Abs(envelope.MinY) * 0.1;
-        double maxY = envelope.MaxY + Math.Abs(envelope.MaxY) * 0.1;
-        double minX = envelope.MinX - Math.Abs(envelope.MinX) * 0.1;
-        double maxX = envelope.MaxX + Math.Abs(envelope.MaxX) * 0.1;
+        double minY = envelope.MinY - (envelope.MaxY - envelope.MinY) * 0.1;
+        double maxY = envelope.MaxY + (envelope.MaxY - envelope.MinY) * 0.1;
+        double minX = envelope.MinX -(envelope.MaxY - envelope.MinY) * 0.1;
+        double maxX = envelope.MaxX + (envelope.MaxY - envelope.MinY) * 0.1;
         if (isVertical)
         {
             if (minY < a.Y)
@@ -155,13 +155,16 @@ public class Slicer
                 { a, b, new(maxX, minY), new(minX, minY), a });
         }
 
-
-        IEnumerable<LinearRing> resPart1 = _weilerAthertonAlghorithm.WeilerAtherton(polygon.Shell, part1);
-        IEnumerable<LinearRing> resPart2 = _weilerAthertonAlghorithm.WeilerAtherton(polygon.Shell, part2);
         /*
         GeoJsonFileService.WriteGeometryToFile(polygon, "Out/source.geojson.ignore");
         GeoJsonFileService.WriteGeometryToFile(part1, "Out/part1.geojson.ignore");
         GeoJsonFileService.WriteGeometryToFile(part2, "Out/part2.geojson.ignore");
+        */
+
+        IEnumerable<LinearRing> resPart1 = _weilerAthertonAlghorithm.WeilerAtherton(polygon.Shell, part1);
+        IEnumerable<LinearRing> resPart2 = _weilerAthertonAlghorithm.WeilerAtherton(polygon.Shell, part2);
+        
+        /*
         GeoJsonFileService.WriteGeometryToFile(new MultiLineString(resPart1.ToArray()), "Out/resPart1.geojson.ignore");
         GeoJsonFileService.WriteGeometryToFile(new MultiLineString(resPart2.ToArray()), "Out/resPart2.geojson.ignore");
         */
