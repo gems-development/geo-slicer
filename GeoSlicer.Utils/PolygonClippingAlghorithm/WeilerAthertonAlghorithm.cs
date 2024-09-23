@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using GeoSlicer.Utils.Intersectors;
 using GeoSlicer.Utils.Intersectors.CoordinateComparators;
@@ -268,6 +269,16 @@ public class WeilerAthertonAlghorithm
                             numberOne.Value.Coord = numberThree;
                             numberThree.Value.Coord = numberOne;
                         }
+                        
+                        else if (_lineService.VectorProduct(
+                                     prevOne.Value, numberOne.Value,
+                                     numberOne.Value, numberTwo.Value) > 0
+                                 && numberOne.Value.Type != PointType.SelfIntersection)
+                        {
+                            numberOne.Value.Type = PointType.SelfIntersection;
+                            numberThree.Value.Type = PointType.SelfIntersection;
+                            numberOfEnteringMarks++;
+                        }
                     }
 
                     if (_coordinateComparator.IsEquals(numberTwo.Value, numberFour.Value))
@@ -298,6 +309,16 @@ public class WeilerAthertonAlghorithm
                             numberFour.Value.Type = PointType.Entering;
                             numberTwo.Value.Coord = numberFour;
                             numberFour.Value.Coord = numberTwo;
+                        }
+                        
+                        else if (_lineService.VectorProduct(
+                                     numberOne.Value, numberTwo.Value,
+                                     numberTwo.Value, nextTwo.Value) > 0
+                                 && numberTwo.Value.Type != PointType.SelfIntersection)
+                        {
+                            numberTwo.Value.Type = PointType.SelfIntersection;
+                            numberFour.Value.Type = PointType.SelfIntersection;
+                            numberOfEnteringMarks++;
                         }
                     }
                 }
@@ -507,6 +528,8 @@ public class WeilerAthertonAlghorithm
                 return new List<LinearRing>() { cuttingCoordinates };
             }
         }
+        
+        Print(clipped,cutting);
 
         //обход списков, формирование пересечений многоугольников
 
@@ -516,11 +539,11 @@ public class WeilerAthertonAlghorithm
              nodeInClipped != null;
              nodeInClipped = nodeInClipped.Next)
         {
-            if (nodeInClipped.Value.Type != PointType.Entering) continue;
+            if (nodeInClipped.Value.Type != PointType.Entering && nodeInClipped.Value.Type != PointType.SelfIntersection) continue;
+            
             List<Coordinate> figure = new();
 
             LinkedListNode<CoordinateSupport>? startInCutting = nodeInClipped;
-
             LinkedListNode<CoordinateSupport>? startInClipped = nodeInClipped;
 
             do
@@ -528,7 +551,7 @@ public class WeilerAthertonAlghorithm
                 numberOfEnteringMarks--;
 
                 for (LinkedListNode<CoordinateSupport>? nodeFromEToLInClipped = startInClipped;
-                     nodeFromEToLInClipped!.Value.Type != PointType.Living;
+                     nodeFromEToLInClipped!.Value.Type != PointType.Living && nodeFromEToLInClipped!.Value.Type != PointType.SelfIntersection;
                      nodeFromEToLInClipped = nodeFromEToLInClipped.Next)
                 {
                     figure.Add(nodeFromEToLInClipped.Value);
@@ -537,7 +560,7 @@ public class WeilerAthertonAlghorithm
                     {
                         nodeFromEToLInClipped = clipped.First;
 
-                        if (nodeFromEToLInClipped!.Value.Type == PointType.Living)
+                        if (nodeFromEToLInClipped!.Value.Type == PointType.Living || nodeFromEToLInClipped!.Value.Type == PointType.SelfIntersection)
                         {
                             startInCutting = nodeFromEToLInClipped.Value.Coord;
                             break;
@@ -546,14 +569,14 @@ public class WeilerAthertonAlghorithm
                         figure.Add(nodeFromEToLInClipped.Value);
                     }
 
-                    if (nodeFromEToLInClipped.Next!.Value.Type == PointType.Living)
+                    if (nodeFromEToLInClipped.Next!.Value.Type == PointType.Living || nodeFromEToLInClipped.Next!.Value.Type == PointType.SelfIntersection)
                     {
                         startInCutting = nodeFromEToLInClipped.Next.Value.Coord;
                     }
                 }
 
                 for (LinkedListNode<CoordinateSupport>? nodeFromLToEInCutting = startInCutting;
-                     nodeFromLToEInCutting!.Value.Type != PointType.Entering;
+                     nodeFromLToEInCutting!.Value.Type != PointType.Entering && nodeFromLToEInCutting!.Value.Type != PointType.SelfIntersection;
                      nodeFromLToEInCutting = nodeFromLToEInCutting.Next)
                 {
                     figure.Add(nodeFromLToEInCutting.Value);
@@ -562,7 +585,7 @@ public class WeilerAthertonAlghorithm
                     {
                         nodeFromLToEInCutting = cutting.First;
 
-                        if (nodeFromLToEInCutting!.Value.Type == PointType.Entering)
+                        if (nodeFromLToEInCutting!.Value.Type == PointType.Entering || nodeFromLToEInCutting!.Value.Type == PointType.SelfIntersection)
                         {
                             startInClipped = nodeFromLToEInCutting.Value.Coord;
                             startInClipped!.Value.Type = PointType.Useless;
@@ -572,7 +595,7 @@ public class WeilerAthertonAlghorithm
                         figure.Add(nodeFromLToEInCutting.Value);
                     }
 
-                    if (nodeFromLToEInCutting.Next!.Value.Type == PointType.Entering)
+                    if (nodeFromLToEInCutting.Next!.Value.Type == PointType.Entering || nodeFromLToEInCutting.Next!.Value.Type == PointType.SelfIntersection)
                     {
                         startInClipped = nodeFromLToEInCutting.Next.Value.Coord;
                         startInClipped!.Value.Type = PointType.Useless;
@@ -590,5 +613,106 @@ public class WeilerAthertonAlghorithm
         }
 
         return result.Select(enumerable => new LinearRing(enumerable.ToArray()));
+    }
+ // / / / / // / / / ////////////////////////////////////////////////////////////////////////////////////////////////
+    /*public IEnumerable<LinearRing> CreateFiguresUsingDuplicatingPoints(IEnumerable<LinearRing> listRings)
+    {
+        List<IEnumerable<Coordinate>> result = new();
+
+        LinkedList<LinkedList<CoordinateSupport>> list = new();
+        foreach (LinearRing ring in listRings)
+        {
+            list.AddLast(CoordinateToCoordinateSupport(ring));
+        }
+
+        foreach (LinkedList<CoordinateSupport> figure in list)
+        {                
+            for (LinkedListNode<CoordinateSupport>? nodeI = figure.First; nodeI != null; nodeI = nodeI.Next)
+            {
+                bool flagNotNullRef;
+                for (LinkedListNode<CoordinateSupport>? nodeJ = nodeI.Next; nodeJ != nodeI; nodeJ = flagNotNullRef ? nodeJ!.Next : nodeJ)
+                {
+                    flagNotNullRef = true;
+                    if (_coordinateComparator.IsEquals(nodeI.Value, nodeJ!.Value))
+                    {
+                        List<Coordinate> newFigure = new();
+                        for (LinkedListNode<CoordinateSupport>? node = nodeI; node != nodeJ; node = node.Next)
+                        {
+                            newFigure.Add(node!.Value);
+                            if (node.Next == null)
+                            {
+                                node = figure.First;
+                                newFigure.Add(node!.Value);
+                            }
+                        }
+                        newFigure.Add(nodeI.Value);
+                        result.Add(newFigure);
+                    }
+                    if (nodeJ.Next == null)
+                    {
+                        nodeJ = figure.First;
+                        flagNotNullRef = false;
+                    }
+                }
+            }
+        }
+        
+        return result.Select(enumerable => new LinearRing(enumerable.ToArray()));
+    }
+    */
+    void Print(LinkedList<CoordinateSupport> clipped, LinkedList<CoordinateSupport> cutting)
+    {
+        try
+        {
+            //Pass the filepath and filename to the StreamWriter Constructor
+            StreamWriter sw =
+                new StreamWriter(
+                    "C:\\Users\\micha\\Desktop\\Миша\\work\\C#\\Geo\\geo-slicer\\GeoSlicer.Utils\\PolygonClippingAlghorithm\\Bad.txt.ignore");
+            //Write a line of text
+            sw.WriteLine("clipped\n");
+            for (LinkedListNode<CoordinateSupport>? i = clipped.First; i != null; i = i.Next)
+            {
+                sw.Write(i.Value + " " + i.Value.Type);
+                if (i.Value.Coord is not null)
+                {
+                    sw.Write(" ссылка на " + i.Value.Coord.Value + " ");
+                }
+                else
+                {
+                    sw.WriteLine();
+                }
+
+                if (i.Value.Coord is { Next: not null })
+                {
+                    sw.WriteLine("Value.Coord.Next = " + i.Value.Coord.Next.Value);
+                }
+            }
+
+            sw.WriteLine("\n\n\ncutting\n");
+            for (LinkedListNode<CoordinateSupport>? i = cutting.First; i != null; i = i.Next)
+            {
+                sw.Write(i.Value + " " + i.Value.Type);
+                if (i.Value.Coord is not null)
+                {
+                    sw.Write(" ссылка на " + i.Value.Coord.Value + " ");
+                }
+                else
+                {
+                    sw.WriteLine();
+                }
+
+                if (i.Value.Coord is { Next: not null })
+                {
+                    sw.WriteLine("Value.Coord.Next = " + i.Value.Coord.Next.Value);
+                }
+            }
+
+            //Close the file
+            sw.Close();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("Exception: " + e.Message);
+        }
     }
 }
