@@ -410,4 +410,64 @@ public class PolygonIntersectionTests
         //Assert
         Assert.Equal(expected, actual);
     }
+    
+    [Fact]
+    public void TwoResultFiguresTangentByOnePoint()
+    {
+        //Arrange
+        Coordinate[] clipped =
+        {
+            new(2,0), new(-2,3), new(2,3), new(5,0), new(2,-2), new(-2,0), new(2,0)
+        };
+        LinearRing clippedRing = new LinearRing(clipped);
+
+        Coordinate[] cutting =
+        {
+            new(-2,5), new(2,5), new(2,-3), new(-2,-3), new(-2,5)
+        };
+        LinearRing cuttingRing = new LinearRing(cutting);
+
+        List<LinearRing> expected = new()
+        {
+            new LinearRing(new Coordinate[]
+            {
+                
+            })
+        };
+
+        //Act
+        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+        //Assert
+        Assert.Equal(expected, actual);
+    }
+    
+    [Fact]
+    public void FourResultFiguresTangentByThreePoints()
+    {
+        //Arrange
+        Coordinate[] clipped =
+        {
+            new(0,0), new(-3,1), new(0,2), new(-3,3), new(0,4), new(4,0), new(3,-3), new(2,0), new(1,-3), new(0,0)
+        };
+        LinearRing clippedRing = new LinearRing(clipped);
+
+        Coordinate[] cutting =
+        {
+            new(-3,-3), new(-3,4), new(0,4), new(0,0), new(4,0), new(4,-3), new(-3,-3)
+        };
+        LinearRing cuttingRing = new LinearRing(cutting);
+
+        List<LinearRing> expected = new()
+        {
+            new LinearRing(new Coordinate[]
+            {
+                
+            })
+        };
+
+        //Act
+        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+        //Assert
+        Assert.Equal(expected, actual);
+    }
 }
