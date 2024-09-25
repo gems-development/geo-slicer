@@ -431,7 +431,11 @@ public class PolygonIntersectionTests
         {
             new LinearRing(new Coordinate[]
             {
-                
+                new(2, 0), new(-2, 3), new(2, 3), new(2, 0)
+            }),
+            new LinearRing(new Coordinate[]
+            {
+                new(2, -2), new(-2, 0), new(2, 0), new(2, -2)
             })
         };
 
@@ -461,7 +465,57 @@ public class PolygonIntersectionTests
         {
             new LinearRing(new Coordinate[]
             {
-                
+                new(0, 0), new(-3, 1), new(0, 2), new(0, 0)
+            }),
+            new LinearRing(new Coordinate[]
+            {
+                new(0, 2), new(-3, 3), new(0, 4), new(0, 2)
+            }),
+            new LinearRing(new Coordinate[]
+            {
+                new(4, 0), new(3, -3), new(2, 0), new(4, 0)
+            }),
+            new LinearRing(new Coordinate[]
+            {
+                new(2, 0), new(1, -3), new(0, 0), new(2, 0)
+            })
+        };
+
+        //Act
+        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+        //Assert
+        Assert.Equal(expected, actual);
+    }
+    
+    [Fact]
+    public void ThreeResultFiguresTangentByTwoPoints()
+    {
+        //Arrange
+        Coordinate[] clipped =
+        {
+            new(-9,2), new(6,7), new(6,0), new(3,0), new(3,4), new(-9,2)
+        };
+        LinearRing clippedRing = new LinearRing(clipped);
+
+        Coordinate[] cutting =
+        {
+            new(9,2), new(-6,7), new(-6,0), new(-3,0), new(-3,4), new(9,2)
+        };
+        LinearRing cuttingRing = new LinearRing(cutting);
+
+        List<LinearRing> expected = new()
+        {
+            new LinearRing(new Coordinate[]
+            {
+                new(-6, 3), new(-3, 4), new(-3, 3), new(-6, 2.5), new(-6, 3)
+            }),
+            new LinearRing(new Coordinate[]
+            {
+                new(-3, 4), new(0, 5), new(3, 4), new(0, 3.5), new(-3, 4)
+            }),
+            new LinearRing(new Coordinate[]
+            {
+                new(6, 3), new(6, 2.5), new(3, 3), new(3, 4), new(6, 3)
             })
         };
 
