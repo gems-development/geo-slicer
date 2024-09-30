@@ -23,8 +23,7 @@ public class Slicer
         _weilerAthertonAlghorithm = weilerAthertonAlghorithm;
     }
 
-
-    // todo О направлении обхода
+    
     public IEnumerable<Polygon> Slice(Polygon input)
     {
         LinkedList<Polygon> result = new LinkedList<Polygon>();
@@ -73,7 +72,6 @@ public class Slicer
     }
 
     // todo Возможно можно исправить проблемы при повторяющихся точках
-    // todo Заменить заглушку после написания алгоритма
     // todo Вынести в отдельный класс Вэйлера-Азертона с набором надстроек над основным алгоритмом)
     private IEnumerable<Polygon> SliceByLine(Polygon polygon, Coordinate a, Coordinate b)
     {
@@ -101,8 +99,6 @@ public class Slicer
         {
             if (minY < a.Y)
             {
-                // todo Возможны проблемы с созданием новых точек в алгоритме пересечения, потому что точки прямой
-                // для разрезания сдвигаются и больше не соответствуют существующим
 
                 // Продлеваем прямую
                 a.X += (a.X - b.X) * (a.Y - minY) / (b.Y - a.Y);

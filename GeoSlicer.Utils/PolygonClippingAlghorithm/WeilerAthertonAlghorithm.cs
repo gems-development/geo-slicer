@@ -42,48 +42,6 @@ public class WeilerAthertonAlghorithm
         //Вернёт LinkedList с координатами всех точек кольца без последней (равной первой)
     }
 
-    public IEnumerable<LinearRing> WeilerAthertonStub(LinearRing clipped, LinearRing cutting)
-    {
-        var intersection = new Polygon(clipped).Intersection(new Polygon(cutting));
-
-        if (intersection is Polygon polygon)
-        {
-            return new[] { polygon.Shell };
-        }
-
-        if (intersection is MultiPolygon multiPolygon)
-        {
-            return multiPolygon.Select(geometry => ((Polygon)geometry).Shell);
-        }
-
-        if (intersection is GeometryCollection geometryCollection)
-        {
-            LinkedList<LinearRing> res = new LinkedList<LinearRing>();
-            foreach (Geometry geometry in geometryCollection)
-            {
-                if (geometry is Polygon pol)
-                {
-                    res.AddLast(pol.Shell);
-                }
-                else if (geometry is Point || geometry is LineString)
-                {
-                    
-                }
-                else
-                {
-                    GeoJsonFileService.WriteGeometryToFile(clipped, "OutData/clp.geojson.ignore");
-                    GeoJsonFileService.WriteGeometryToFile(cutting, "OutData/ctt.geojson.ignore");
-                    GeoJsonFileService.WriteGeometryToFile(intersection, "OutData/res.geojson.ignore");
-                    GeoJsonFileService.WriteGeometryToFile(geometry, "OutData/geom.geojson.ignore");
-                    throw new NotImplementedException(
-                        "Пойман нерассмотренный вариант типа вложнной геометрии, возвращаемого 'Intersection'");
-                }
-            }
-
-            return res;
-        }
-        throw new NotImplementedException("Пойман нерассмотренный вариант типа, возвращаемого 'Intersection'");
-    }
 
     public IntersectionType WeilerAtherton(
         LinearRing clipped, double xDown, double xUp, double yDown, double yUp, out IEnumerable<LinearRing> result)

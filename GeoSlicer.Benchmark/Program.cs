@@ -17,7 +17,7 @@ namespace GeoSlicer.Benchmark
                 .AddLogger(ConsoleLogger.Default)
                 .AddColumnProvider(DefaultColumnProviders.Instance)
                 .AddColumn(StatisticColumn.Max);
-            BenchmarkRunner.Run<OppositesSlicersCompareBench>(config);
+            BenchmarkRunner.Run<IntersectorBench>(config);
         }
     }
 }
