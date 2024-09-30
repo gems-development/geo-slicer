@@ -91,7 +91,6 @@ public class WeilerAthertonAlghorithm
         return IntersectionType.IntersectionWithEdge;
     }
 
-    
 
     //На вход передаются координаты колец
     public IEnumerable<LinearRing> WeilerAtherton(
@@ -269,15 +268,15 @@ public class WeilerAthertonAlghorithm
                             numberOne.Value.Coord = numberThree;
                             numberThree.Value.Coord = numberOne;
                         }
-                        
+
                         else if ((!_lineService.InsideTheAngle(numberOne.Value, numberTwo.Value,
-                                     prevOne.Value, numberThree.Value, prevThree.Value)
+                                      prevOne.Value, numberThree.Value, prevThree.Value)
                                   && _lineService.InsideTheAngleWithoutBorders(numberOne.Value, numberFour.Value,
-                                     prevOne.Value, numberThree.Value, prevThree.Value)
+                                      prevOne.Value, numberThree.Value, prevThree.Value)
                                   || _lineService.InsideTheAngleWithoutBorders(numberOne.Value, numberTwo.Value,
-                                     prevOne.Value, numberThree.Value, prevThree.Value)
+                                      prevOne.Value, numberThree.Value, prevThree.Value)
                                   && !_lineService.InsideTheAngle(numberOne.Value, numberFour.Value,
-                                     prevOne.Value, numberThree.Value, prevThree.Value))
+                                      prevOne.Value, numberThree.Value, prevThree.Value))
                                  && (LineService.VectorProduct(
                                          prevOne.Value, numberOne.Value,
                                          numberOne.Value, numberTwo.Value) > _epsilon
@@ -324,7 +323,7 @@ public class WeilerAthertonAlghorithm
                             numberFour.Value.Coord = numberTwo;
                         }
 
-                        
+
                         else if ((!_lineService.InsideTheAngle(numberTwo.Value, nextTwo.Value,
                                       numberOne.Value, numberTwo.Value, numberThree.Value)
                                   && _lineService.InsideTheAngleWithoutBorders(numberTwo.Value, nextFour.Value,
@@ -556,7 +555,28 @@ public class WeilerAthertonAlghorithm
             }
         }
         
-        Print(clipped,cutting);
+        for (LinkedListNode<CoordinateSupport>? node = clipped.First!;
+             node.Next != null;
+             node = node.Next)
+        {
+            if (node.Value.Type != PointType.Useless && node.Value.Type != PointType.SelfIntersection && node.Value.Type == node.Next.Value.Type)
+            {
+                node.Value.Type = PointType.Useless;
+                node.Value.Coord!.Value.Type = PointType.Useless;
+            }
+        }
+        for (LinkedListNode<CoordinateSupport>? node = cutting.First!;
+             node.Next != null;
+             node = node.Next)
+        {
+            if (node.Value.Type != PointType.Useless && node.Value.Type != PointType.SelfIntersection && node.Value.Type == node.Next.Value.Type)
+            {
+                node.Value.Type = PointType.Useless;
+                node.Value.Coord!.Value.Type = PointType.Useless;
+            }
+        }
+
+        Print(clipped, cutting);
 
         //обход списков, формирование пересечений многоугольников
 
@@ -566,8 +586,9 @@ public class WeilerAthertonAlghorithm
              nodeInClipped != null;
              nodeInClipped = nodeInClipped.Next)
         {
-            if (nodeInClipped.Value.Type != PointType.Entering && nodeInClipped.Value.Type != PointType.SelfIntersection) continue;
-            
+            if (nodeInClipped.Value.Type != PointType.Entering &&
+                nodeInClipped.Value.Type != PointType.SelfIntersection) continue;
+
             List<Coordinate> figure = new();
 
             LinkedListNode<CoordinateSupport>? startInCutting = nodeInClipped;
@@ -578,7 +599,8 @@ public class WeilerAthertonAlghorithm
                 numberOfEnteringMarks--;
                 int count = 0;
                 for (LinkedListNode<CoordinateSupport>? nodeFromEToLInClipped = startInClipped;
-                     nodeFromEToLInClipped!.Value.Type != PointType.Living && (nodeFromEToLInClipped!.Value.Type != PointType.SelfIntersection || count == 0);
+                     nodeFromEToLInClipped!.Value.Type != PointType.Living &&
+                     (nodeFromEToLInClipped!.Value.Type != PointType.SelfIntersection || count == 0);
                      nodeFromEToLInClipped = nodeFromEToLInClipped.Next)
                 {
                     figure.Add(nodeFromEToLInClipped.Value);
@@ -587,7 +609,8 @@ public class WeilerAthertonAlghorithm
                     {
                         nodeFromEToLInClipped = clipped.First;
 
-                        if (nodeFromEToLInClipped!.Value.Type == PointType.Living || nodeFromEToLInClipped!.Value.Type == PointType.SelfIntersection)
+                        if (nodeFromEToLInClipped!.Value.Type == PointType.Living ||
+                            nodeFromEToLInClipped!.Value.Type == PointType.SelfIntersection)
                         {
                             startInCutting = nodeFromEToLInClipped.Value.Coord;
                             break;
@@ -607,9 +630,11 @@ public class WeilerAthertonAlghorithm
                         //startInCutting!.Value.Type = PointType.Entering;
                     }
                 }
+
                 count = 0;
                 for (LinkedListNode<CoordinateSupport>? nodeFromLToEInCutting = startInCutting;
-                     nodeFromLToEInCutting!.Value.Type != PointType.Entering && (nodeFromLToEInCutting!.Value.Type != PointType.SelfIntersection || count == 0);
+                     nodeFromLToEInCutting!.Value.Type != PointType.Entering &&
+                     (nodeFromLToEInCutting!.Value.Type != PointType.SelfIntersection || count == 0);
                      nodeFromLToEInCutting = nodeFromLToEInCutting.Next)
                 {
                     figure.Add(nodeFromLToEInCutting.Value);
@@ -618,7 +643,8 @@ public class WeilerAthertonAlghorithm
                     {
                         nodeFromLToEInCutting = cutting.First;
 
-                        if (nodeFromLToEInCutting!.Value.Type == PointType.Entering || nodeFromLToEInCutting!.Value.Type == PointType.SelfIntersection)
+                        if (nodeFromLToEInCutting!.Value.Type == PointType.Entering ||
+                            nodeFromLToEInCutting!.Value.Type == PointType.SelfIntersection)
                         {
                             startInClipped = nodeFromLToEInCutting.Value.Coord;
                             startInClipped!.Value.Type = PointType.Useless;
@@ -653,7 +679,8 @@ public class WeilerAthertonAlghorithm
 
         return result.Select(enumerable => new LinearRing(enumerable.ToArray()));
     }
- // / / / / // / / / ////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // / / / / // / / / ////////////////////////////////////////////////////////////////////////////////////////////////
     /*public IEnumerable<LinearRing> CreateFiguresUsingDuplicatingPoints(IEnumerable<LinearRing> listRings)
     {
         List<IEnumerable<Coordinate>> result = new();
@@ -665,7 +692,7 @@ public class WeilerAthertonAlghorithm
         }
 
         foreach (LinkedList<CoordinateSupport> figure in list)
-        {                
+        {
             for (LinkedListNode<CoordinateSupport>? nodeI = figure.First; nodeI != null; nodeI = nodeI.Next)
             {
                 bool flagNotNullRef;
@@ -695,7 +722,7 @@ public class WeilerAthertonAlghorithm
                 }
             }
         }
-        
+
         return result.Select(enumerable => new LinearRing(enumerable.ToArray()));
     }
     */
