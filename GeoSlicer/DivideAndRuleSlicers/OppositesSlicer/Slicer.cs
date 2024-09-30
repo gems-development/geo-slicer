@@ -140,19 +140,74 @@ public class Slicer
         LinearRing part2;
         if (isVertical)
         {
-            part1 = new LinearRing(new[]
-                { a, new(minX, minY), new(minX, maxY), b, a });
-            part2 = new LinearRing(new[]
-                { a, b, new(maxX, maxY), new(maxX, minY), a });
+            // Чтобы избежать создания треугольника с лишним дублем точки
+            if (minX == b.X)
+            {
+                part1 = new LinearRing(new[]
+                    { a, new(minX, minY), b, a });
+            }
+            else if (minX == a.X)
+            {
+                part1 = new LinearRing(new[]
+                    { a, new(minX, maxY), b, a });
+            }
+            else
+            {
+                part1 = new LinearRing(new[]
+                    { a, new(minX, minY), new(minX, maxY), b, a });
+            }
+
+            if (maxX == a.X)
+            {
+                part2 = new LinearRing(new[]
+                    { a, b, new(maxX, maxY), a });
+            }
+            else if (maxX == b.X)
+            {
+                part2 = new LinearRing(new[]
+                    { a, b, new(maxX, minY), a });
+            }
+            else
+            {
+                part2 = new LinearRing(new[]
+                    { a, b, new(maxX, maxY), new(maxX, minY), a });
+            }
         }
         else
         {
             // part1 максы и Б part2 минимумы и А
-            // todo Исправить создание треугольников
-            part1 = new LinearRing(new[]
-                { a, new(minX, maxY), new(maxX, maxY), b, a });
-            part2 = new LinearRing(new[]
-                { a, b, new(maxX, minY), new(minX, minY), a });
+
+            if (maxY == a.Y)
+            {
+                part1 = new LinearRing(new[]
+                    { a, new(maxX, maxY), b, a });
+            }
+            else if (maxY == b.Y)
+            {
+                part1 = new LinearRing(new[]
+                    { a, new(minX, maxY), b, a });
+            }
+            else
+            {
+                part1 = new LinearRing(new[]
+                    { a, new(minX, maxY), new(maxX, maxY), b, a });
+            }
+
+            if (minY == a.Y)
+            {
+                part2 = new LinearRing(new[]
+                    { a, b, new(maxX, minY), a });
+            }
+            else if (minY == b.Y)
+            {
+                part2 = new LinearRing(new[]
+                    { a, b, new(minX, minY), a });
+            }
+            else
+            {
+                part2 = new LinearRing(new[]
+                    { a, b, new(maxX, minY), new(minX, minY), a });
+            }
         }
 
         /*
