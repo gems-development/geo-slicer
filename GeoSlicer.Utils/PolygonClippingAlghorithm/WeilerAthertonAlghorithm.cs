@@ -14,14 +14,16 @@ public class WeilerAthertonAlghorithm
     private readonly LineService _lineService;
     private readonly ICoordinateComparator _coordinateComparator;
     private readonly ContainsChecker _containsChecker;
+    private readonly double _epsilon;
 
     public WeilerAthertonAlghorithm(LinesIntersector linesIntersector, LineService lineService,
-        ICoordinateComparator coordinateComparator, ContainsChecker containsChecker)
+        ICoordinateComparator coordinateComparator, ContainsChecker containsChecker, double epsilon)
     {
         _linesIntersector = linesIntersector;
         _lineService = lineService;
         _coordinateComparator = coordinateComparator;
         _containsChecker = containsChecker;
+        _epsilon = epsilon;
     }
 
     // todo Переделать на массивы
@@ -278,10 +280,10 @@ public class WeilerAthertonAlghorithm
                                      prevOne.Value, numberThree.Value, prevThree.Value))
                                  && (LineService.VectorProduct(
                                          prevOne.Value, numberOne.Value,
-                                         numberOne.Value, numberTwo.Value) > 0
+                                         numberOne.Value, numberTwo.Value) > _epsilon
                                      || LineService.VectorProduct(
                                          prevThree.Value, numberThree.Value,
-                                         numberThree.Value, numberFour.Value) > 0)
+                                         numberThree.Value, numberFour.Value) > _epsilon)
                                  && numberOne.Value.Type == PointType.Useless)
                         {
                             numberOne.Value.Type = PointType.SelfIntersection;
@@ -333,10 +335,10 @@ public class WeilerAthertonAlghorithm
                                       numberOne.Value, numberTwo.Value, numberThree.Value))
                                  && (LineService.VectorProduct(
                                          numberOne.Value, numberTwo.Value,
-                                         numberTwo.Value, nextTwo.Value) > 0
+                                         numberTwo.Value, nextTwo.Value) > _epsilon
                                      || LineService.VectorProduct(
                                          numberThree.Value, numberFour.Value,
-                                         numberFour.Value, nextFour.Value) > 0)
+                                         numberFour.Value, nextFour.Value) > _epsilon)
                                  && numberTwo.Value.Type == PointType.Useless)
                         {
                             numberTwo.Value.Type = PointType.SelfIntersection;

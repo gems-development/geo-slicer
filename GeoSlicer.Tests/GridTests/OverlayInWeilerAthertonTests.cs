@@ -15,7 +15,7 @@ public class OverlayInWeilerAthertonTests
 
     private static readonly WeilerAthertonAlghorithm SlicerHelper =
         new(new LinesIntersector(new EpsilonCoordinateComparator(Epsilon), LineService, Epsilon), LineService,
-            new EpsilonCoordinateComparator(), new ContainsChecker(LineService, Epsilon));
+            new EpsilonCoordinateComparator(), new ContainsChecker(LineService, Epsilon), Epsilon);
 
 /*
     [Theory]
