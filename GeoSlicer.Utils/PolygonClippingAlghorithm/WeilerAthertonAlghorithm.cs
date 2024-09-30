@@ -318,10 +318,10 @@ public class WeilerAthertonAlghorithm
                                      prevOne.Value, numberThree.Value, prevThree.Value)
                                   && !_lineService.InsideTheAngle(numberOne.Value, numberFour.Value,
                                      prevOne.Value, numberThree.Value, prevThree.Value))
-                                 && (_lineService.VectorProduct(
+                                 && (LineService.VectorProduct(
                                          prevOne.Value, numberOne.Value,
                                          numberOne.Value, numberTwo.Value) > 0
-                                     || _lineService.VectorProduct(
+                                     || LineService.VectorProduct(
                                          prevThree.Value, numberThree.Value,
                                          numberThree.Value, numberFour.Value) > 0)
                                  && numberOne.Value.Type == PointType.Useless)
@@ -373,10 +373,10 @@ public class WeilerAthertonAlghorithm
                                       numberOne.Value, numberTwo.Value, numberThree.Value)
                                   && !_lineService.InsideTheAngle(numberTwo.Value, nextFour.Value,
                                       numberOne.Value, numberTwo.Value, numberThree.Value))
-                                 && (_lineService.VectorProduct(
-                                     numberOne.Value, numberTwo.Value,
-                                     numberTwo.Value, nextTwo.Value) > 0
-                                     || _lineService.VectorProduct(
+                                 && (LineService.VectorProduct(
+                                         numberOne.Value, numberTwo.Value,
+                                         numberTwo.Value, nextTwo.Value) > 0
+                                     || LineService.VectorProduct(
                                          numberThree.Value, numberFour.Value,
                                          numberFour.Value, nextFour.Value) > 0)
                                  && numberTwo.Value.Type == PointType.Useless)
