@@ -94,7 +94,7 @@ public class WeilerAthertonAlghorithm
     
 
     //На вход передаются координаты колец
-    public IEnumerable<LinearRing> WeilerAtherton(
+    /*public IEnumerable<LinearRing> WeilerAtherton(
         LinearRing clippedCoordinates, LinearRing cuttingCoordinates)
     {
         int numberOfEnteringMarks = 0;
@@ -652,7 +652,7 @@ public class WeilerAthertonAlghorithm
 
 
         return result.Select(enumerable => new LinearRing(enumerable.ToArray()));   
-    }
+    }*/
 
 
     
@@ -1289,23 +1289,45 @@ public class WeilerAthertonAlghorithm
         for (int i = 0; i < result.Count; i++)
         {
             Coordinate[] arrayCoordinates = result[i].ToArray();
-            LinearRing ring = new LinearRing(arrayCoordinates);
+            LinearRing ringShell = new LinearRing(arrayCoordinates);
             List<LinearRing> holes = new List<LinearRing>();
 
             foreach (var maybeInnerRing in maybeInnerRings){
-                if (_containsChecker.IsPointInLinearRing(maybeInnerRing.Coordinates[0], ring))
+                if (_containsChecker.IsPointInLinearRing(maybeInnerRing.Coordinates[0], ringShell))
                 {
                     holes.Add(maybeInnerRing);
                 }
             }
 
-            resultPolygons[i] = new Polygon(new LinearRing(arrayCoordinates), holes.ToArray());
+            resultPolygons[i] = new Polygon(ringShell, holes.ToArray());
         }
 
         return resultPolygons;
     }
-    
- // / / / / // / / / ////////////////////////////////////////////////////////////////////////////////////////////////
+
+    //метод, который нужен для тестов, которые использовали метод с другой сигнатурой
+    public IEnumerable<LinearRing> WeilerAtherton(
+        LinearRing clippedCoordinates, LinearRing cuttingCoordinates)
+    {
+        Polygon clippedPolygon = new Polygon(clippedCoordinates);
+        Polygon cuttingPolygon = new Polygon(cuttingCoordinates);
+        Polygon[] resultAfterNewWeilerAtherton = WeilerAtherton(clippedPolygon, cuttingPolygon);
+
+        List<LinearRing> result = new List<LinearRing>(resultAfterNewWeilerAtherton.Length);
+        foreach (var polygon in resultAfterNewWeilerAtherton)
+        {
+            result.Add(polygon.Shell);
+            var holes = polygon.Holes;
+            foreach (var hole in holes)
+            {
+                result.Add(hole);
+            }
+        }
+
+        return result;
+    }
+
+    // / / / / // / / / ////////////////////////////////////////////////////////////////////////////////////////////////
     /*public IEnumerable<LinearRing> CreateFiguresUsingDuplicatingPoints(IEnumerable<LinearRing> listRings)
     {
         List<IEnumerable<Coordinate>> result = new();
