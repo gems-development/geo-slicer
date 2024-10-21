@@ -5,7 +5,6 @@ using System.Linq;
 using GeoSlicer.Utils.Intersectors;
 using GeoSlicer.Utils.Intersectors.CoordinateComparators;
 using NetTopologySuite.Geometries;
-using NetTopologySuite.IO;
 
 namespace GeoSlicer.Utils.PolygonClippingAlghorithm;
 
