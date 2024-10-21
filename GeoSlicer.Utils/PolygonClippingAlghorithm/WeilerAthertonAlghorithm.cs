@@ -1130,29 +1130,32 @@ public class WeilerAthertonAlghorithm
         for(int i = 0; i < clippedListArray.Length; i++)
         {
             Envelope envelopeClipped = new Envelope(allRingsClipped[i].Coordinates);
-            if (envelopeClipped.MinY < cuttingMaxY && envelopeClipped.MaxY > cuttingMaxY && 
-                envelopeClipped.MaxX > cuttingMinX && envelopeClipped.MinX < cuttingMinX ||
+            if (envelopeClipped.MinY <= cuttingMaxY && envelopeClipped.MaxY >= cuttingMaxY && 
+                envelopeClipped.MaxX >= cuttingMinX && envelopeClipped.MinX <= cuttingMinX ||
                 
-                envelopeClipped.MinY < cuttingMaxY && envelopeClipped.MaxY > cuttingMaxY && 
-                envelopeClipped.MinX < cuttingMaxX && envelopeClipped.MaxX > cuttingMaxX ||
+                envelopeClipped.MinY <= cuttingMaxY && envelopeClipped.MaxY >= cuttingMaxY && 
+                envelopeClipped.MinX <= cuttingMaxX && envelopeClipped.MaxX >= cuttingMaxX ||
                 
-                envelopeClipped.MaxY > cuttingMinY && envelopeClipped.MinY < cuttingMinY && 
-                envelopeClipped.MinX < cuttingMaxX && envelopeClipped.MaxX > cuttingMaxX ||
+                envelopeClipped.MaxY >= cuttingMinY && envelopeClipped.MinY <= cuttingMinY && 
+                envelopeClipped.MinX <= cuttingMaxX && envelopeClipped.MaxX >= cuttingMaxX ||
                 
-                envelopeClipped.MaxY > cuttingMinY && envelopeClipped.MinY < cuttingMinY && 
-                envelopeClipped.MaxX > cuttingMinX && envelopeClipped.MinX < cuttingMinX ||
+                envelopeClipped.MaxY >= cuttingMinY && envelopeClipped.MinY <= cuttingMinY && 
+                envelopeClipped.MaxX >= cuttingMinX && envelopeClipped.MinX <= cuttingMinX ||
                 
-                envelopeClipped.MinY < cuttingMaxY && envelopeClipped.MaxY > cuttingMaxY &&
-                envelopeClipped.MinX > cuttingMinX && envelopeClipped.MaxX < cuttingMaxX ||
+                envelopeClipped.MinY <= cuttingMaxY && envelopeClipped.MaxY >= cuttingMaxY &&
+                envelopeClipped.MinX >= cuttingMinX && envelopeClipped.MaxX <= cuttingMaxX ||
                 
-                envelopeClipped.MinY < cuttingMinY && envelopeClipped.MaxY > cuttingMinY &&
-                envelopeClipped.MinX > cuttingMinX && envelopeClipped.MaxX < cuttingMaxX ||
+                envelopeClipped.MinY < cuttingMinY && envelopeClipped.MaxY >= cuttingMinY &&
+                envelopeClipped.MinX >= cuttingMinX && envelopeClipped.MaxX <= cuttingMaxX ||
                 
-                envelopeClipped.MinY > cuttingMinY && envelopeClipped.MaxY < cuttingMaxY &&
-                envelopeClipped.MinX < cuttingMaxX && envelopeClipped.MaxX > cuttingMaxX ||
+                envelopeClipped.MinY >= cuttingMinY && envelopeClipped.MaxY < cuttingMaxY &&
+                envelopeClipped.MinX <= cuttingMaxX && envelopeClipped.MaxX > cuttingMaxX ||
                 
-                envelopeClipped.MinY > cuttingMinY && envelopeClipped.MaxY < cuttingMaxY &&
-                envelopeClipped.MinX < cuttingMinX && envelopeClipped.MaxX > cuttingMinX)
+                envelopeClipped.MinY >= cuttingMinY && envelopeClipped.MaxY <= cuttingMaxY &&
+                envelopeClipped.MinX <= cuttingMinX && envelopeClipped.MaxX >= cuttingMinX ||
+                
+                envelopeClipped.MaxY <= cuttingMaxY && envelopeClipped.MinY >= cuttingMinY && 
+                envelopeClipped.MaxX <= cuttingMaxX && envelopeClipped.MinX >= cuttingMinX)
             {
                 var tuple = MakeNotes(clippedListArray[i], cutting);
                 bool flagWereIntersection = tuple.Item1;
@@ -1165,11 +1168,6 @@ public class WeilerAthertonAlghorithm
                 }
                 
                 Print(clippedListArray[i], cutting, "Bad" + i + ".txt.ignore");
-            }
-            else if(envelopeClipped.MaxY < cuttingMaxY && envelopeClipped.MinY > cuttingMinY && 
-                    envelopeClipped.MaxX < cuttingMaxX && envelopeClipped.MinX > cuttingMinX)
-            {
-                maybeInnerRings.Add(allRingsClipped[i]);
             }
         }
 
