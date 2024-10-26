@@ -51,7 +51,8 @@ public class HolesTests
 
         Polygon[] expected = new Polygon[] { new Polygon(new LinearRing(new Coordinate[]
         {
-            new(3,-2), new(-2,-2), new(-3,0), new(3,0), new(2,-1), new(3,-1), new(3,-2)
+            new(3,-2), new(-2,-2), new(-3,0), new(-2,0), new(0,0), 
+            new(3,0), new(2,-1), new(3,-1), new(3,-2)
         }))};
 
         Assert.Equal(expected,actual);

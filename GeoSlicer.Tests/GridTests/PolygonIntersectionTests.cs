@@ -249,7 +249,7 @@ public class PolygonIntersectionTests
         var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
 
         //Assert
-        Assert.Equal(expected, actual);
+            Assert.Equal(expected, actual);
     }
 
     [Fact]
