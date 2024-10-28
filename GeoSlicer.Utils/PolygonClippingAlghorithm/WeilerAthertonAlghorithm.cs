@@ -1093,7 +1093,6 @@ public class WeilerAthertonAlghorithm
 
         if (!TraverseDirection.IsClockwiseBypass(clippedRingShell)) 
         {
-            //throw new ArgumentException();
             TraverseDirection.ChangeDirection(clippedRingShell);
         }
 
@@ -1106,7 +1105,6 @@ public class WeilerAthertonAlghorithm
         {
             if (TraverseDirection.IsClockwiseBypass(hole))
             {
-                //throw new ArgumentException();
                 TraverseDirection.ChangeDirection(hole);
             }
         }
@@ -1162,10 +1160,10 @@ public class WeilerAthertonAlghorithm
                 envelopeClipped.MinX <= cuttingMinX && envelopeClipped.MaxX >= cuttingMinX ||
                 
                 envelopeClipped.MaxY <= cuttingMaxY && envelopeClipped.MinY >= cuttingMinY && 
-                envelopeClipped.MaxX <= cuttingMaxX && envelopeClipped.MinX >= cuttingMinX ||
+                envelopeClipped.MaxX <= cuttingMaxX && envelopeClipped.MinX >= cuttingMinX /*||
                 
                 envelopeClipped.MinX <= cuttingMinX && envelopeClipped.MaxX >= cuttingMaxX &&
-                envelopeClipped.MaxY >= cuttingMaxY && envelopeClipped.MinY <= cuttingMinY)
+                envelopeClipped.MaxY >= cuttingMaxY && envelopeClipped.MinY <= cuttingMinY*/)
             {
                 var tuple = MakeNotes(clippedListArray[i], cutting);
                 bool flagWereIntersection = tuple.Item1;
@@ -1176,11 +1174,11 @@ public class WeilerAthertonAlghorithm
                 {
                     maybeInnerRings.Add(allRingsClipped[i]);
                     
-                    if (envelopeClipped.MinX <= cuttingMinX && envelopeClipped.MaxX >= cuttingMaxX &&
+                    /*if (envelopeClipped.MinX <= cuttingMinX && envelopeClipped.MaxX >= cuttingMaxX &&
                         envelopeClipped.MaxY >= cuttingMaxY && envelopeClipped.MinY <= cuttingMinY)
                     {
                         maybeInnerRings.Add(cuttingRingShell);
-                    }
+                    }*/
                 }
                 
                 PrintMarks(clippedListArray[i], cutting, "Bad" + i + ".txt.ignore");
@@ -1190,10 +1188,30 @@ public class WeilerAthertonAlghorithm
         //обход списков, формирование пересечений многоугольников
 
         List<IEnumerable<Coordinate>> result = new();
-
-   //     int currentClipped = 0;//////нужно было для определения того, в каком из списков массива я нахожусь
-
-        for (LinkedListNode<CoordinateSupport>? nodeInClipped = clippedListArray[0].First;
+        
+        //Найдём лист, в котором есть метка Entering, чтобы из него стартовать.
+        //Если во внешней оболочке clipped нет Entering, то перейдём в дыру
+        
+        int startedClipped = 0;
+        bool findEntering = false;
+        
+        for(int i = 0; i < clippedListArray.Length && findEntering == false; i++) 
+        {
+            for (LinkedListNode<CoordinateSupport>? nodeInClipped = clippedListArray[i].First;
+                 nodeInClipped != null;
+                 nodeInClipped = nodeInClipped.Next)
+            {
+                if (nodeInClipped.Value.Type == PointType.Entering)
+                {
+                    startedClipped = i;
+                    findEntering = true;
+                    break;
+                }
+            }
+        }
+        
+        
+        for (LinkedListNode<CoordinateSupport>? nodeInClipped = clippedListArray[startedClipped].First;
              nodeInClipped != null;
              nodeInClipped = nodeInClipped.Next)
         {
@@ -1298,39 +1316,11 @@ public class WeilerAthertonAlghorithm
                 break;
             }
         }
-
-        PrintMaybeInnerRings(maybeInnerRings);
         
-        Polygon[] resultPolygons = new Polygon[result.Count];
-        for (int i = 0; i < result.Count; i++)
-        {
-            //todo: использование ToArray не оптимально, это одна из причин, почему желательно linked list заменить на массивы координат
-            Coordinate[] arrayCoordinates = result[i].ToArray();
-            LinearRing ringShell = new LinearRing(arrayCoordinates);
-            List<LinearRing> holes = new List<LinearRing>();
-
-            
-            foreach (var maybeInnerRing in maybeInnerRings){
-                bool isPoligonInPoligon = true;
-
-                for (int j = 0; j < maybeInnerRing.Coordinates.Length; j++)
-                {
-                    if (!_containsChecker.IsPointInLinearRing(maybeInnerRing.Coordinates[j], ringShell))
-                    {
-                        isPoligonInPoligon = false;
-                    }
-                }
-
-                if (isPoligonInPoligon)
-                {
-                    holes.Add(maybeInnerRing);
-                }
-            }
-
-            resultPolygons[i] = new Polygon(ringShell, holes.ToArray());
-        }
-
-        if (result.Count == 0)
+        PrintMaybeInnerRings(maybeInnerRings);
+        PrintResult(result);
+        
+        if (result.Count == 0 && maybeInnerRings.Count == 0)
         {
             bool flagCuttingInClipped = true;
             foreach (CoordinateSupport coordinate in cutting)
@@ -1381,8 +1371,78 @@ public class WeilerAthertonAlghorithm
                 };
             }
         }
+        
+        
+        if (result.Count != 0)
+        { 
+            Polygon[] resultPolygons = new Polygon[result.Count];
+            for (int i = 0; i < result.Count; i++)
+            {
+                //todo:linked list заменить на массивы координат, т.к. использование ToArray не оптимально
+                Coordinate[] arrayCoordinates = result[i].ToArray();
+                LinearRing ringShell = new LinearRing(arrayCoordinates);
+                List<LinearRing> holes = new List<LinearRing>();
 
-        return resultPolygons;
+                foreach (var maybeInnerRing in maybeInnerRings)
+                {
+                    bool isPolygonInPolygon = true;
+
+                    for (int j = 0; j < maybeInnerRing.Coordinates.Length; j++)
+                    {
+                        if (!_containsChecker.IsPointInLinearRing(maybeInnerRing.Coordinates[j], ringShell))
+                        {
+                            isPolygonInPolygon = false;
+                        }
+                    }
+
+                    if (isPolygonInPolygon)
+                    {
+                        holes.Add(maybeInnerRing);
+                    }
+                }
+
+                resultPolygons[i] = new Polygon(ringShell, holes.ToArray());
+            }
+
+            return resultPolygons;
+        }
+
+        
+        bool isCuttingInClipped = true;
+        
+        for (int i = 0; i < cuttingRingShell.Coordinates.Length; i++)
+        {
+            if (!_containsChecker.IsPointInLinearRing(cuttingRingShell.Coordinates[i], clippedRingShell))
+            {
+                isCuttingInClipped = false;
+            }
+        }
+
+        if (isCuttingInClipped)
+        {
+            List<LinearRing> holes = new List<LinearRing>();
+            foreach (var maybeInnerRing in maybeInnerRings)
+            {
+                bool isPolygonInCutting = true;
+
+                for (int i = 0; i < maybeInnerRing.Coordinates.Length; i++)
+                {
+                    if (!_containsChecker.IsPointInLinearRing(maybeInnerRing.Coordinates[i], cuttingRingShell))
+                    {
+                        isPolygonInCutting = false;
+                    }
+                }
+
+                if (isPolygonInCutting)
+                {
+                    holes.Add(maybeInnerRing);
+                }
+            }
+
+            return new []{ new Polygon(cuttingRingShell, holes.ToArray()) };
+        }
+        
+        return new Polygon[]{ };
     }
 
     //метод, который нужен для тестов, которые использовали старый метод с другой сигнатурой
@@ -1407,61 +1467,13 @@ public class WeilerAthertonAlghorithm
         return result;
     }
 
-    // / / / / // / / / ////////////////////////////////////////////////////////////////////////////////////////////////
-    /*public IEnumerable<LinearRing> CreateFiguresUsingDuplicatingPoints(IEnumerable<LinearRing> listRings)
-    {
-        List<IEnumerable<Coordinate>> result = new();
-
-        LinkedList<LinkedList<CoordinateSupport>> list = new();
-        foreach (LinearRing ring in listRings)
-        {
-            list.AddLast(CoordinateToCoordinateSupport(ring));
-        }
-
-        foreach (LinkedList<CoordinateSupport> figure in list)
-        {                
-            for (LinkedListNode<CoordinateSupport>? nodeI = figure.First; nodeI != null; nodeI = nodeI.Next)
-            {
-                bool flagNotNullRef;
-                for (LinkedListNode<CoordinateSupport>? nodeJ = nodeI.Next; nodeJ != nodeI; nodeJ = flagNotNullRef ? nodeJ!.Next : nodeJ)
-                {
-                    flagNotNullRef = true;
-                    if (_coordinateComparator.IsEquals(nodeI.Value, nodeJ!.Value))
-                    {
-                        List<Coordinate> newFigure = new();
-                        for (LinkedListNode<CoordinateSupport>? node = nodeI; node != nodeJ; node = node.Next)
-                        {
-                            newFigure.Add(node!.Value);
-                            if (node.Next == null)
-                            {
-                                node = figure.First;
-                                newFigure.Add(node!.Value);
-                            }
-                        }
-                        newFigure.Add(nodeI.Value);
-                        result.Add(newFigure);
-                    }
-                    if (nodeJ.Next == null)
-                    {
-                        nodeJ = figure.First;
-                        flagNotNullRef = false;
-                    }
-                }
-            }
-        }
-        
-        return result.Select(enumerable => new LinearRing(enumerable.ToArray()));
-    }
-    */
-
-    void PrintMaybeInnerRings(List<LinearRing> maybeInnerRings, String path)
+    void PrintMaybeInnerRings(List<LinearRing> maybeInnerRings, String path = "Maybe.txt.ignore")
     {
         try
         {
-            //Pass the filepath and filename to the StreamWriter Constructor
             StreamWriter sw =
                 new StreamWriter("..\\..\\..\\" + path);
-            //Write a line of text
+            
             foreach (var ring in maybeInnerRings)
             {
                 sw.WriteLine();
@@ -1482,19 +1494,41 @@ public class WeilerAthertonAlghorithm
         }
     }
 
-    void PrintMaybeInnerRings(List<LinearRing> maybeInnerRings)
-    {
-        PrintMaybeInnerRings(maybeInnerRings, "Maybe.txt.ignore");
-    }
-    
-    void PrintMarks(LinkedList<CoordinateSupport> clipped, LinkedList<CoordinateSupport> cutting, String path)
+    void PrintResult(List<IEnumerable<Coordinate>> result, String path = "Result.txt.ignore")
     {
         try
         {
-            //Pass the filepath and filename to the StreamWriter Constructor
             StreamWriter sw =
                 new StreamWriter("..\\..\\..\\" + path);
-            //Write a line of text
+            
+            foreach (var ring in result)
+            {
+                sw.WriteLine();
+
+                foreach (Coordinate coord in ring)
+                {
+                    sw.Write(coord + " ");
+                }
+
+                sw.WriteLine();
+                sw.WriteLine("**********************************");
+            }
+            
+            sw.Close();
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine("Exception: " + e.Message);
+        }
+    }
+    
+    void PrintMarks(LinkedList<CoordinateSupport> clipped, LinkedList<CoordinateSupport> cutting, String path = "Bad.txt.ignore")
+    {
+        try
+        {
+            StreamWriter sw =
+                new StreamWriter("..\\..\\..\\" + path);
+            
             sw.WriteLine("clipped\n");
             for (LinkedListNode<CoordinateSupport>? i = clipped.First; i != null; i = i.Next)
             {
@@ -1541,17 +1575,11 @@ public class WeilerAthertonAlghorithm
                 }
             }
 
-            //Close the file
             sw.Close();
         }
         catch (Exception e)
         {
             Console.WriteLine("Exception: " + e.Message);
         }
-    }
-    
-    void PrintMarks(LinkedList<CoordinateSupport> clipped, LinkedList<CoordinateSupport> cutting)
-    {
-        PrintMarks(clipped, cutting, "Bad.txt.ignore");
     }
 }
