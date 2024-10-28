@@ -2,5 +2,5 @@
 
 public enum PointType
 {
-    Useless, Entering, Living, SelfIntersection
+    Useless, Entering, Leaving, SelfIntersection
 }
