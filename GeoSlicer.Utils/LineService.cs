@@ -70,6 +70,11 @@ public class LineService
             return y >= Math.Min(first.Y, second.Y) - _epsilon &&
                    y <= Math.Max(first.Y, second.Y) + _epsilon;
         }
+        if (Math.Abs(first.Y - second.Y) <= _epsilon)
+        {
+            return x >= Math.Min(first.X, second.X) - _epsilon &&
+                   x <= Math.Max(first.X, second.X) + _epsilon;
+        }
 
         return y >= Math.Min(first.Y, second.Y) - _epsilon
                && y <= Math.Max(first.Y, second.Y) + _epsilon
