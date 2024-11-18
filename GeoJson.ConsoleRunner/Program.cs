@@ -16,7 +16,7 @@ EpsilonCoordinateComparator coordinateComparator = new EpsilonCoordinateComparat
 //SlicerOld slicer = new SlicerOld(lineService, 5,
 Slicer slicer = new Slicer(lineService, 1500,
     new WeilerAthertonAlghorithm(new LinesIntersector(coordinateComparator, lineService, epsilon), lineService,
-        coordinateComparator, new ContainsChecker(lineService, epsilon)));
+        coordinateComparator, new ContainsChecker(lineService, epsilon), epsilon));
 
 
 var polygon =
