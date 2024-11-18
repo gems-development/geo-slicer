@@ -31,7 +31,7 @@ LinearRing shell = polygon.Shell;
 RepeatingPointsValidator repeatingPointsValidator =
     new RepeatingPointsValidator(new EpsilonCoordinateComparator(epsilon));
 
-Console.WriteLine(repeatingPointsValidator.Check(shell, true));
+Console.WriteLine(repeatingPointsValidator.GetErrorsString(shell, true));
 
 if (!TraverseDirection.IsClockwiseBypass(shell))
 {
