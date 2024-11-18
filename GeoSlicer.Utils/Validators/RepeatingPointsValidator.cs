@@ -16,7 +16,7 @@ public class RepeatingPointsValidator
         _coordinateComparator = coordinateComparator;
     }
 
-    public string Check(LineString lineString, bool isFull = false)
+    public string GetErrorsString(LineString lineString, bool isFull = false)
     {
         StringBuilder stringBuilder = new StringBuilder();
         for (int i = 0; i < lineString.Count - 1; i++)
@@ -32,6 +32,16 @@ public class RepeatingPointsValidator
         }
 
         return stringBuilder.ToString();
+    }
+    
+    public bool IsValid(LineString lineString, bool isFull = false)
+    {
+        if (string.IsNullOrEmpty(GetErrorsString(lineString, isFull)))
+        {
+            return true;
+        }
+
+        return false;
     }
 
     public T Fix<T>(T linear, Func<Coordinate[], T> creator) where T : LineString, new()

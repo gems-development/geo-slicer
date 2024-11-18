@@ -16,7 +16,8 @@ public class RepeatingPointsValidatorTests
     [MemberData(nameof(Data.DataCheckValid), MemberType = typeof(Data))]
     private void TestCheckValid(LineString checkable)
     {
-        Assert.Empty(_repeatingPointsValidator.Check(checkable));
+        Assert.Empty(_repeatingPointsValidator.GetErrorsString(checkable));
+        Assert.True(_repeatingPointsValidator.IsValid(checkable));
     }
 
     [Theory]
@@ -25,8 +26,9 @@ public class RepeatingPointsValidatorTests
     private void TestCheckFail(LineString checkable, int _)
 #pragma warning restore xUnit1026
     {
-        String result = _repeatingPointsValidator.Check(checkable);
+        String result = _repeatingPointsValidator.GetErrorsString(checkable);
         Assert.NotEmpty(result);
+        Assert.False(_repeatingPointsValidator.IsValid(checkable));
         Assert.Equal(1, result.Count(c => c == '\n'));
     }
 
@@ -34,8 +36,9 @@ public class RepeatingPointsValidatorTests
     [MemberData(nameof(Data.DataCheckFail), MemberType = typeof(Data))]
     private void TestCheckFailFull(LineString checkable, int errorsCount)
     {
-        String result = _repeatingPointsValidator.Check(checkable, true);
+        String result = _repeatingPointsValidator.GetErrorsString(checkable, true);
         Assert.NotEmpty(result);
+        Assert.False(_repeatingPointsValidator.IsValid(checkable));
         Assert.Equal(errorsCount, result.Count(c => c == '\n'));
     }
 
