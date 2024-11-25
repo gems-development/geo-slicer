@@ -17,4 +17,36 @@ public static class LineStringExtensions
 
         return null;
     }
+
+    public static (double, double, double, double) GetMinAndMaxPoints(this LineString ring)
+    {
+        Coordinate[] coordinates = ring.Coordinates;
+
+        var coordMinX = coordinates[0].X;
+        var coordMinY = coordinates[0].Y;
+        var coordMaxX = coordinates[0].X;
+        var coordMaxY = coordinates[0].Y;
+
+        for (var i = 1; i < coordinates.Length; i++)
+        {
+            if (coordinates[i].X < coordMinX)
+            {
+                coordMinX = coordinates[i].X;
+            }
+            if (coordinates[i].Y < coordMinY)
+            {
+                coordMinY = coordinates[i].Y;
+            }
+            if (coordinates[i].X > coordMaxX)
+            {
+                coordMaxX = coordinates[i].X;
+            }
+            if (coordinates[i].Y > coordMaxY)
+            {
+                coordMaxY = coordinates[i].Y;
+            }
+            
+        }
+        return (coordMinX, coordMinY, coordMaxX, coordMaxY);
+    }
 }

@@ -555,43 +555,39 @@ public class WeilerAthertonAlghorithm
         int numberOfEnteringMarks = 0;
         int numberOfLivingMarks = 0;//может понадобиться для отладки: должно быть равно numberOfEnteringMarks
         
-        Envelope envelopeCutting = new Envelope(cuttingRingShell.Coordinates);
-        double cuttingMaxX = envelopeCutting.MaxX;
-        double cuttingMaxY = envelopeCutting.MaxY;
-        double cuttingMinX = envelopeCutting.MinX;
-        double cuttingMinY = envelopeCutting.MinY;
+        var (cuttingMinX, cuttingMinY, cuttingMaxX, cuttingMaxY) = cuttingRingShell.GetMinAndMaxPoints();
 
         List<LinearRing> maybeInnerRings = new List<LinearRing>();
 
         for(int i = 0; i < clippedListArray.Length; i++)
         {
-            Envelope envelopeClipped = new Envelope(allRingsClipped[i].Coordinates);
-            if (envelopeClipped.MinY <= cuttingMaxY && envelopeClipped.MaxY >= cuttingMaxY && 
-                envelopeClipped.MaxX >= cuttingMinX && envelopeClipped.MinX <= cuttingMinX ||
+            var (clippedMinX, clippedMinY, clippedMaxX, clippedMaxY) = allRingsClipped[i].GetMinAndMaxPoints();
+            if (clippedMinY <= cuttingMaxY && clippedMaxY >= cuttingMaxY && 
+                clippedMaxX >= cuttingMinX && clippedMinX <= cuttingMinX ||
                 
-                envelopeClipped.MinY <= cuttingMaxY && envelopeClipped.MaxY >= cuttingMaxY && 
-                envelopeClipped.MinX <= cuttingMaxX && envelopeClipped.MaxX >= cuttingMaxX ||
+                clippedMinY <= cuttingMaxY && clippedMaxY >= cuttingMaxY && 
+                clippedMinX <= cuttingMaxX && clippedMaxX >= cuttingMaxX ||
                 
-                envelopeClipped.MaxY >= cuttingMinY && envelopeClipped.MinY <= cuttingMinY && 
-                envelopeClipped.MinX <= cuttingMaxX && envelopeClipped.MaxX >= cuttingMaxX ||
+                clippedMaxY >= cuttingMinY && clippedMinY <= cuttingMinY && 
+                clippedMinX <= cuttingMaxX && clippedMaxX >= cuttingMaxX ||
                 
-                envelopeClipped.MaxY >= cuttingMinY && envelopeClipped.MinY <= cuttingMinY && 
-                envelopeClipped.MaxX >= cuttingMinX && envelopeClipped.MinX <= cuttingMinX ||
+                clippedMaxY >= cuttingMinY && clippedMinY <= cuttingMinY && 
+                clippedMaxX >= cuttingMinX && clippedMinX <= cuttingMinX ||
                 
-                envelopeClipped.MinY <= cuttingMaxY && envelopeClipped.MaxY >= cuttingMaxY &&
-                envelopeClipped.MinX >= cuttingMinX && envelopeClipped.MaxX <= cuttingMaxX ||
+                clippedMinY <= cuttingMaxY && clippedMaxY >= cuttingMaxY &&
+                clippedMinX >= cuttingMinX && clippedMaxX <= cuttingMaxX ||
                 
-                envelopeClipped.MinY <= cuttingMinY && envelopeClipped.MaxY >= cuttingMinY &&
-                envelopeClipped.MinX >= cuttingMinX && envelopeClipped.MaxX <= cuttingMaxX ||
+                clippedMinY <= cuttingMinY && clippedMaxY >= cuttingMinY &&
+                clippedMinX >= cuttingMinX && clippedMaxX <= cuttingMaxX ||
                 
-                envelopeClipped.MinY >= cuttingMinY && envelopeClipped.MaxY < cuttingMaxY &&
-                envelopeClipped.MinX <= cuttingMaxX && envelopeClipped.MaxX > cuttingMaxX ||
+                clippedMinY >= cuttingMinY && clippedMaxY < cuttingMaxY &&
+                clippedMinX <= cuttingMaxX && clippedMaxX > cuttingMaxX ||
                 
-                envelopeClipped.MinY >= cuttingMinY && envelopeClipped.MaxY <= cuttingMaxY &&
-                envelopeClipped.MinX <= cuttingMinX && envelopeClipped.MaxX >= cuttingMinX ||
+                clippedMinY >= cuttingMinY && clippedMaxY <= cuttingMaxY &&
+                clippedMinX <= cuttingMinX && clippedMaxX >= cuttingMinX ||
                 
-                envelopeClipped.MaxY <= cuttingMaxY && envelopeClipped.MinY >= cuttingMinY && 
-                envelopeClipped.MaxX <= cuttingMaxX && envelopeClipped.MinX >= cuttingMinX)
+                clippedMaxY <= cuttingMaxY && clippedMinY >= cuttingMinY && 
+                clippedMaxX <= cuttingMaxX && clippedMinX >= cuttingMinX)
             {
                 var tuple = MakeNotes(clippedListArray[i], cutting);
                 bool flagWereIntersection = tuple.Item1;
