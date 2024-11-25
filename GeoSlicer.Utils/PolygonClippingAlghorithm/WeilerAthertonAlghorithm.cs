@@ -11,6 +11,8 @@ namespace GeoSlicer.Utils.PolygonClippingAlghorithm;
 public class WeilerAthertonAlghorithm
 {
     private readonly LinesIntersector _linesIntersector;
+    private readonly AreasIntersector _areasIntersector = new();
+    private const AreasIntersectionType SuitableAreaAreaIntersectionType = AreasIntersectionType.Inside;
     private readonly LineService _lineService;
     private readonly ICoordinateComparator _coordinateComparator;
     private readonly ContainsChecker _containsChecker;
@@ -90,7 +92,17 @@ public class WeilerAthertonAlghorithm
 
         return IntersectionType.IntersectionWithEdge;
     }
-    
+
+    public (LinesIntersectionType, Coordinate?) GetIntersection(CoordinateSupport line1Point1, CoordinateSupport line1Point2, CoordinateSupport line2Point1, CoordinateSupport line2Point2)
+    {
+        if (line1Point1.Equals2D(line1Point2)) return (LinesIntersectionType.NoIntersection, null);
+        if (_areasIntersector.CheckIntersection(SuitableAreaAreaIntersectionType,
+                line1Point1, line1Point2, line2Point1, line2Point2))
+        {
+            return _linesIntersector.GetIntersection(line1Point1, line1Point2, line2Point1, line2Point2);
+        }
+        return (LinesIntersectionType.NoIntersection, null);
+    }
     
     //функция расстановки меток и создания ссылок между списками
     private (bool, int, int) MakeNotes(LinkedList<CoordinateSupport> clipped, LinkedList<CoordinateSupport> cutting)
@@ -119,27 +131,23 @@ public class WeilerAthertonAlghorithm
                 (LinesIntersectionType, Coordinate?) intersection;
                 if (nodeI.Next != null && nodeJ.Next != null)
                 {
-                    intersection = _linesIntersector.GetIntersection(
-                        nodeI.Value, nodeI.Next!.Value, nodeJ.Value, nodeJ.Next!.Value);
+                    intersection = GetIntersection(nodeI.Value, nodeI.Next!.Value, nodeJ.Value, nodeJ.Next!.Value);
                 }
                 else if (nodeI.Next != null)
                 {
-                    intersection = _linesIntersector.GetIntersection(
-                        nodeI.Value, nodeI.Next!.Value, nodeJ.Value, cutting.First!.Value);
+                    intersection = GetIntersection(nodeI.Value, nodeI.Next!.Value, nodeJ.Value, cutting.First!.Value);
 
                     numberFour = cutting.First;
                 }
                 else if (nodeJ.Next != null)
                 {
-                    intersection = _linesIntersector.GetIntersection(
-                        nodeI.Value, clipped.First!.Value, nodeJ.Value, nodeJ.Next!.Value);
+                    intersection = GetIntersection(nodeI.Value, clipped.First!.Value, nodeJ.Value, nodeJ.Next!.Value);
 
                     numberTwo = clipped.First;
                 }
                 else
                 {
-                    intersection = _linesIntersector.GetIntersection(
-                        nodeI.Value, clipped.First!.Value, nodeJ.Value, cutting.First!.Value);
+                    intersection = GetIntersection(nodeI.Value, clipped.First!.Value, nodeJ.Value, cutting.First!.Value);
 
                     numberTwo = clipped.First;
                     numberFour = cutting.First;
