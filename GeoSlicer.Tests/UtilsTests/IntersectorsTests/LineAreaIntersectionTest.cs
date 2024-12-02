@@ -11,7 +11,7 @@ public class LineAreaIntersectionTest
     private static readonly EpsilonCoordinateComparator EpsilonCoordinateComparator = new(Epsilon);
 
     private static readonly LineAreaIntersector LineAreaIntersector =
-        new(new LineService(1E-5), Epsilon);
+        new(new LineService(1E-5, new EpsilonCoordinateComparator(Epsilon)), Epsilon);
 
     [Theory]
     [InlineData(0, 2, 2, 0, 0, 2, 2, 0, LineAreaIntersectionType.Inside)]

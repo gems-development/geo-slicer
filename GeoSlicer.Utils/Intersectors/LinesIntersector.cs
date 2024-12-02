@@ -76,8 +76,10 @@ public class LinesIntersector
         if (!isIntersects)
         {
             // Проверка, есть ли между прямыми расстояние
-            if (_lineService.IsLineEquals(canonical1A, canonical1B, canonical1C,
-                    canonical2A, canonical2B, canonical2C))
+
+            //   if (_lineService.IsLineEquals(canonical1A, canonical1B, canonical1C,
+            //           canonical2A, canonical2B, canonical2C))
+            if (_lineService.IsCoordinateAtLine(a1, b1, b2) && _lineService.IsCoordinateAtLine(a2, b1, b2))
             {
                 return GetParallelIntersection(a1, a2, b1, b2, ref result);
             }

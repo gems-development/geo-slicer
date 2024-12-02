@@ -13,7 +13,7 @@ public class GetSegmentIntersectionTests
     private static readonly EpsilonCoordinateComparator EpsilonCoordinateComparator = new(Epsilon);
 
     private static readonly LinesIntersector LinesIntersector =
-        new(EpsilonCoordinateComparator, new LineService(1E-5), Epsilon);
+        new(EpsilonCoordinateComparator, new LineService(Epsilon, new EpsilonCoordinateComparator(Epsilon)), Epsilon);
 
 
     [Theory]

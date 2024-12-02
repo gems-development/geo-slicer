@@ -1,4 +1,5 @@
 ﻿using GeoSlicer.Utils;
+using GeoSlicer.Utils.Intersectors.CoordinateComparators;
 using NetTopologySuite.Geometries;
 
 namespace GeoSlicer.Tests.UtilsTests;
@@ -7,7 +8,7 @@ public class ContainsCheckerTests
 {
     private static readonly double Epsilon = 1E-9;
 
-    private static readonly LineService LineService = new LineService(Epsilon);
+    private static readonly LineService LineService = new LineService(Epsilon, new EpsilonCoordinateComparator(Epsilon));
 
     private static readonly ContainsChecker ContainsChecker =
         new(LineService, Epsilon);

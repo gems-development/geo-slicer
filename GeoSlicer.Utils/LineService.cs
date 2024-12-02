@@ -7,11 +7,13 @@ namespace GeoSlicer.Utils;
 public class LineService
 {
     private readonly double _epsilon;
+    private readonly EpsilonCoordinateComparator _coordinateComparator;
 
 
-    public LineService(double epsilon)
+    public LineService(double epsilon, EpsilonCoordinateComparator coordinateComparator)
     {
         _epsilon = epsilon;
+        _coordinateComparator = coordinateComparator;
     }
 
     public static double VectorProduct(Coordinate firstVec, Coordinate secondVec)
@@ -65,12 +67,12 @@ public class LineService
 
     public bool IsCoordinateInSegmentBorders(double x, double y, Coordinate first, Coordinate second)
     {
-        if (Math.Abs(first.X - second.X) <= _epsilon)
+        if (_coordinateComparator.IsEquals(first.X, second.X))
         {
             return y >= Math.Min(first.Y, second.Y) - _epsilon &&
                    y <= Math.Max(first.Y, second.Y) + _epsilon;
         }
-        if (Math.Abs(first.Y - second.Y) <= _epsilon)
+        if (_coordinateComparator.IsEquals(first.Y, second.Y))
         {
             return x >= Math.Min(first.X, second.X) - _epsilon &&
                    x <= Math.Max(first.X, second.X) + _epsilon;
@@ -84,24 +86,14 @@ public class LineService
     
     public bool IsCoordinateInIntervalBorders(Coordinate coordinate, Coordinate first, Coordinate second)
     {
-        ICoordinateComparator coordinateComparator = new EpsilonCoordinateComparator();
-
-        if (coordinateComparator.IsEquals(coordinate, first) || coordinateComparator.IsEquals(coordinate, second))
+        if (_coordinateComparator.IsEquals(coordinate, first) || _coordinateComparator.IsEquals(coordinate, second))
         {
             return false;
         }
 
         return IsCoordinateInSegmentBorders(coordinate.X, coordinate.Y, first, second);
     }
-
-
-    public bool IsLineEquals(double a1, double b1, double c1, double a2, double b2, double c2)
-    {
-        bool res = Math.Abs(a1 * b2 - b1 * a2) <= _epsilon
-                   && Math.Abs(a1 * c2 - c1 * a2) <= _epsilon
-                   && Math.Abs(b1 * c2 - c1 * b2) <= _epsilon;
-        return res;
-    }
+    
 
     public bool IsRectangleOnOneSideOfLine(Coordinate linePoint1, Coordinate linePoint2, Coordinate currentPoint1,
         Coordinate currentPoint2)

@@ -11,7 +11,7 @@ public class EqualEdgeTests
 {
     private static readonly double Epsilon = 1E-9;
  
-    private static readonly LineService LineService = new(Epsilon);
+    private static readonly LineService LineService = new(Epsilon, new EpsilonCoordinateComparator(Epsilon));
  
     private static readonly WeilerAthertonAlghorithm SlicerHelper =
         new(new LinesIntersector(new EpsilonCoordinateComparator(Epsilon), LineService, Epsilon), LineService,

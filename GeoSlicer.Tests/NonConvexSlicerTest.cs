@@ -16,7 +16,7 @@ public class NonConvexSlicerTest
     private static readonly GeometryFactory Gf =
         NetTopologySuite.NtsGeometryServices.Instance.CreateGeometryFactory(4326);
 
-    private static readonly LineService LineService = new LineService(Epsilon);
+    private static readonly LineService LineService = new LineService(Epsilon, new EpsilonCoordinateComparator(Epsilon));
     private static readonly SegmentService SegmentService = new SegmentService(LineService);
 
     private static readonly NonConvexSlicerHelper NonConvexSlicerHelper = new NonConvexSlicerHelper(

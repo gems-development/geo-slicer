@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using GeoSlicer.Utils;
 using GeoSlicer.Utils.PolygonClippingAlghorithm;
 using NetTopologySuite.Geometries;
 
@@ -9,9 +11,9 @@ namespace GeoSlicer.GridSlicer;
 
 public class Slicer
 {
-    private readonly IEnumerable<LinearRing> _outside = new LinearRing[0];
-    private readonly IEnumerable<LinearRing> _inner = new LinearRing[0];
-    private readonly IEnumerable<LinearRing> _inQueue = new LinearRing[0];
+    private readonly IEnumerable<Polygon> _outside = new Polygon[0];
+    private readonly IEnumerable<Polygon> _inner = new Polygon[0];
+    private readonly IEnumerable<Polygon> _inQueue = new Polygon[0];
 
     private readonly WeilerAthertonAlghorithm _helper;
 
@@ -20,8 +22,8 @@ public class Slicer
         _helper = helper;
     }
 
-    public IEnumerable<LinearRing>?[,] Slice(
-        LinearRing inputRing,
+    public IEnumerable<Polygon>?[,] Slice(
+        Polygon inputPolygon,
         double xScale, double yScale,
         bool uniqueOnly = false)
     {
@@ -33,7 +35,7 @@ public class Slicer
         double yUp = Double.MinValue;
 
         // todo Рассмотреть возможность избежания копирования
-        foreach (Coordinate coordinate in inputRing.Coordinates)
+        foreach (Coordinate coordinate in inputPolygon.Coordinates)
         {
             xDown = Math.Min(xDown, coordinate.X);
             yDown = Math.Min(yDown, coordinate.Y);
@@ -44,27 +46,8 @@ public class Slicer
         int xCount = (int)Math.Ceiling((xUp - xDown) / xScale);
         int yCount = (int)Math.Ceiling((yUp - yDown) / yScale);
 
-        /*
-        LinkedList<LineString> grid = new LinkedList<LineString>();
-        for (int x = 0; x < xCount; x++)
-        {
-            for (int y = 0; y < yCount; y++)
-            {
-                grid.AddLast(new LineString(new[]
-                {
-                    new Coordinate(xDown + x * xScale, yDown + y * yScale),
-                    new Coordinate(xDown + (x + 1) * xScale, yDown + y * yScale),
-                    new Coordinate(xDown + (x + 1) * xScale, yDown + (y + 1) * yScale),
-                    new Coordinate(xDown + x * xScale, yDown + (y + 1) * yScale),
-                    new Coordinate(xDown + x * xScale, yDown + y * yScale),
-                }));
-            }
-        }
-        GeoJsonFileService.WriteGeometryToFile(new MultiLineString(grid.ToArray()), "TestFiles\\grid.geojson.ignore");
-        */
 
-
-        IEnumerable<LinearRing>?[,] result = new IEnumerable<LinearRing>?[xCount, yCount];
+        IEnumerable<Polygon>?[,] result = new IEnumerable<Polygon>?[xCount, yCount];
 
         int GetXIndex(Coordinate coordinate) => (int)Math.Ceiling((coordinate.X - xDown) / xScale);
         int GetYIndex(Coordinate coordinate) => (int)Math.Ceiling((coordinate.Y - yDown) / yScale);
@@ -88,11 +71,11 @@ public class Slicer
             }
         }
 
-        xQueue.Enqueue(GetXIndex(inputRing.Coordinate));
-        yQueue.Enqueue(GetYIndex(inputRing.Coordinate));
+        xQueue.Enqueue(GetXIndex(inputPolygon.Coordinate));
+        yQueue.Enqueue(GetYIndex(inputPolygon.Coordinate));
 
 
-        Console.WriteLine($"xCount: {xCount}, yCount: {yCount}");
+        // Console.WriteLine($"xCount: {xCount}, yCount: {yCount}");
         int total = xCount * yCount;
         int current = 0;
 
@@ -103,10 +86,11 @@ public class Slicer
             current++;
             int x = xQueue.Dequeue();
             int y = yQueue.Dequeue();
-            IntersectionType intersectionType = _helper.WeilerAtherton(inputRing,
+            IntersectionType intersectionType = _helper.WeilerAthertonForGrid(inputPolygon,
                 xDown + x * xScale, xDown + (x + 1) * xScale,
-                yDown + y * yScale, yDown + (y + 1) * yScale, out IEnumerable<LinearRing> weilerResult);
-
+                yDown + y * yScale, yDown + (y + 1) * yScale, out IEnumerable<Polygon> weilerResult);
+            
+            
             // Заполнение текущей клетки
             switch (intersectionType)
             {
@@ -120,7 +104,7 @@ public class Slicer
                     result[x, y] = _inner;
                     break;
                 case IntersectionType.GeometryInBox:
-                    result[x, y] = new[] { inputRing };
+                    result[x, y] = new[] { inputPolygon };
                     break;
             }
 
@@ -137,14 +121,14 @@ public class Slicer
         ProcessInner(result,
             (xStart, xEnd, yStart, yEnd) => new[]
             {
-                new LinearRing(new Coordinate[]
+                new Polygon(new LinearRing(new []
                 {
                     new Coordinate(xDown + xStart * xScale, yDown + yStart * yScale),
                     new Coordinate(xDown + xEnd * xScale, yDown + yStart * yScale),
                     new Coordinate(xDown + xEnd * xScale, yDown + yEnd * yScale),
                     new Coordinate(xDown + xStart * xScale, yDown + yEnd * yScale),
                     new Coordinate(xDown + xStart * xScale, yDown + yStart * yScale),
-                })
+                }))
             },
             uniqueOnly);
 
@@ -152,8 +136,8 @@ public class Slicer
     }
 
     // rectangleCreator принимает xStart, xEnd, yStart, yEnd
-    private void ProcessInner(IEnumerable<LinearRing>?[,] grid,
-        Func<int, int, int, int, IEnumerable<LinearRing>> rectangleCreator,
+    private void ProcessInner(IEnumerable<Polygon>?[,] grid,
+        Func<int, int, int, int, IEnumerable<Polygon>> rectangleCreator,
         bool uniqueOnly)
     {
         int xLen = grid.GetLength(0);
@@ -191,7 +175,7 @@ public class Slicer
                     ySide++;
                 }
 
-                IEnumerable<LinearRing> rectangle = rectangleCreator.Invoke(x, x + xSide + 1, y, y + ySide + 1);
+                IEnumerable<Polygon> rectangle = rectangleCreator.Invoke(x, x + xSide + 1, y, y + ySide + 1);
 
 
                 for (int i = 0; i <= xSide; i++)

@@ -1,11 +1,12 @@
 ﻿using GeoSlicer.Utils;
+using GeoSlicer.Utils.Intersectors.CoordinateComparators;
 using NetTopologySuite.Geometries;
 
 namespace GeoSlicer.Tests.UtilsTests;
 
 public class InsideTheAngleTests
 {
-    private readonly LineService _lineService = new(1e-9);
+    private readonly LineService _lineService = new(1e-9, new EpsilonCoordinateComparator(1e-9));
     [Fact]
     public void TestInsideTheAngleLeft()
     {

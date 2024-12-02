@@ -15,10 +15,10 @@ public class IntersectorBench
     private readonly RobustLineIntersector _robustLineIntersector = new RobustLineIntersector();
 
     private readonly LinesIntersector _linesIntersector =
-        new LinesIntersector(new EpsilonCoordinateComparator(Epsilon), new LineService(Epsilon), Epsilon);
+        new LinesIntersector(new EpsilonCoordinateComparator(Epsilon), new LineService(Epsilon, new EpsilonCoordinateComparator(Epsilon)), Epsilon);
 
     private readonly LineAreaIntersector _lineAreaIntersector =
-        new LineAreaIntersector(new LineService(Epsilon), Epsilon);
+        new LineAreaIntersector(new LineService(Epsilon, new EpsilonCoordinateComparator(Epsilon)), Epsilon);
 
     private readonly AreasIntersector _areasIntersector = new AreasIntersector();
 

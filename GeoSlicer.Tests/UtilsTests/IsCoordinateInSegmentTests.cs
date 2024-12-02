@@ -1,4 +1,5 @@
 ﻿using GeoSlicer.Utils;
+using GeoSlicer.Utils.Intersectors.CoordinateComparators;
 using NetTopologySuite.Geometries;
 
 namespace GeoSlicer.Tests.UtilsTests;
@@ -6,7 +7,7 @@ namespace GeoSlicer.Tests.UtilsTests;
 public class IsCoordinateInSegmentTests
 {
     private const double Epsilon = 1E-9;
-    private readonly LineService _lineService = new LineService(Epsilon);
+    private readonly LineService _lineService = new LineService(Epsilon, new EpsilonCoordinateComparator(Epsilon));
 
     [Theory]
     [InlineData(0, 0, -1, -1, 1, 1)]
