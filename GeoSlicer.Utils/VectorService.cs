@@ -72,4 +72,28 @@ public static class VectorService
         y2 *= 10;
         return (x1 * x2 + y1 * y2) / (Math.Sqrt(x1 * x1 + y1 * y1) * Math.Sqrt(x2 * x2 + y2 * y2));
     }
+
+    public static double Cos(Coordinate a, Coordinate b, Coordinate c)
+    {
+        double x1 = a.X - b.X;
+        double y1 = a.Y - b.Y;
+        double x2 = c.X - b.X;
+        double y2 = c.Y - b.Y;
+        return Cos(x1, y1, x2, y2);
+    }
+    
+    //Находит угол между прямыми (x, y) и (a, b)
+    public static double Cos(Coordinate x, Coordinate y, Coordinate a, Coordinate b)
+    {
+        double x1 = x.X - y.X;
+        double y1 = x.Y - y.Y;
+        double x2 = a.X - b.X;
+        double y2 = a.Y - b.Y;
+        return Cos(x1, y1, x2, y2);
+    }
+    
+    public static bool AngleIsZeroOr180Degrees(Coordinate x, Coordinate y, Coordinate a, Coordinate b, double epsilon)
+    {
+        return Math.Abs(Math.Abs(Cos(x, y, a, b)) - 1) < epsilon;
+    }
 }

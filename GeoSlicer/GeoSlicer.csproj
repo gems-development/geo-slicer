@@ -13,5 +13,5 @@
     <ItemGroup>
         <ProjectReference Include="..\GeoSlicer.Utils\GeoSlicer.Utils.csproj"/>
     </ItemGroup>
-
+    
 </Project>

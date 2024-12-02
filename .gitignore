@@ -1,4 +1,4 @@
-*.geojson.ignore
+*.ignore
 *.txt.ignore
 
 ## Ignore Visual Studio temporary files, build results, and

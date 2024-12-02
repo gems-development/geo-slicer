@@ -33,7 +33,7 @@ public class RepeatingPointsValidator
 
         return stringBuilder.ToString();
     }
-
+    
     public bool IsValid(LineString lineString, bool isFull = false)
     {
         if (string.IsNullOrEmpty(GetErrorsString(lineString, isFull)))
@@ -43,7 +43,7 @@ public class RepeatingPointsValidator
 
         return false;
     }
-
+    
     public T Fix<T>(T linear, Func<Coordinate[], T> creator) where T : LineString, new()
     {
         List<Coordinate> resultCoordinates = new List<Coordinate>(linear.Count) { linear.Coordinate };
