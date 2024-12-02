@@ -212,13 +212,13 @@ public class Slicer
         GeoJsonFileService.WriteGeometryToFile(part2, "Out/part2.geojson.ignore");
         */
 
-        IEnumerable<LinearRing> resPart1 = _weilerAthertonAlghorithm.WeilerAtherton(polygon.Shell, part1);
-        IEnumerable<LinearRing> resPart2 = _weilerAthertonAlghorithm.WeilerAtherton(polygon.Shell, part2);
+        IEnumerable<Polygon> resPart1 = _weilerAthertonAlghorithm.WeilerAtherton(polygon, new Polygon(part1));
+        IEnumerable<Polygon> resPart2 = _weilerAthertonAlghorithm.WeilerAtherton(polygon, new Polygon(part2));
         
         /*
         GeoJsonFileService.WriteGeometryToFile(new MultiLineString(resPart1.ToArray()), "Out/resPart1.geojson.ignore");
         GeoJsonFileService.WriteGeometryToFile(new MultiLineString(resPart2.ToArray()), "Out/resPart2.geojson.ignore");
         */
-        return resPart1.Concat(resPart2).Select(ring => new Polygon(ring));
+        return resPart1.Concat(resPart2);
     }
 }

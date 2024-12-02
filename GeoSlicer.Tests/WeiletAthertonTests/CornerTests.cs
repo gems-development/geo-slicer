@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using GeoSlicer.Utils;
 using GeoSlicer.Utils.Intersectors;
 using GeoSlicer.Utils.Intersectors.CoordinateComparators;
@@ -25,31 +26,31 @@ public class CornerTests
         {
             new(-2, -1), new(-2, 2), new(2, 2), new(2, -2), new(0, 0), new(-2, -1)
         };
-        LinearRing ringA = new LinearRing(figureA);
+        Polygon polygonA = new Polygon(new LinearRing(figureA));
         Coordinate[] figureB =
         {
             new(0, 0), new(-4, 2), new(4, 5), new(4, -5), new(0, -5), new(0, 0)
         };
-        LinearRing ringB = new LinearRing(figureB);
+        Polygon polygonB = new Polygon(new LinearRing(figureB));
 
-        List<LinearRing> expectedB = new()
+        List<Polygon> expectedB = new()
         {
-            new LinearRing(new Coordinate[]
+            new Polygon(new LinearRing(new Coordinate[]
             {
                 new(0, 0), new(-2, 1), new(-2, 2), new(2, 2), new(2, -2), new(0, 0)
-            })
+            }))
         };
-        List<LinearRing> expectedA = new()
+        List<Polygon> expectedA = new()
         {
-            new LinearRing(new Coordinate[]
+            new Polygon(new LinearRing(new Coordinate[]
             {
                 new(-2, 1), new(-2, 2), new(2, 2), new(2, -2), new(0, 0), new(-2, 1)
-            })
+            }))
         };
 
         //Act
-        var actualA = SlicerHelper.WeilerAtherton(ringA, ringB);
-        var actualB = SlicerHelper.WeilerAtherton(ringB, ringA);
+        var actualA = SlicerHelper.WeilerAtherton(polygonA, polygonB);
+        var actualB = SlicerHelper.WeilerAtherton(polygonB, polygonA);
 
         //Assert
         Assert.Equal(expectedA, actualA);
@@ -65,28 +66,27 @@ public class CornerTests
         {
             new(-3, 0), new(-3, 2), new(2, 2), new(2, -3), new(0, 0), new(-3, 0)
         };
-        LinearRing ringA = new LinearRing(figureA);
+        Polygon polygonA = new Polygon(new LinearRing(figureA));
         Coordinate[] figureB =
         {
             new(0, 0), new(-4, -5), new(-4, 4), new(0, 0)
         };
-        LinearRing ringB = new LinearRing(figureB);
+        Polygon polygonB = new Polygon(new LinearRing(figureB));
 
-        List<LinearRing> expected = new()
+        LinearRing expected = new LinearRing(new Coordinate[]
         {
-            new LinearRing(new Coordinate[]
-            {
-                new(0, 0), new(-3, 0), new(-3, 2), new(-2, 2), new(0, 0)
-            })
-        };
+            new(0, 0), new(-3, 0), new(-3, 2), new(-2, 2), new(0, 0)
+        });
 
         //Act
-        var actualA = SlicerHelper.WeilerAtherton(ringA, ringB);
-        var actualB = SlicerHelper.WeilerAtherton(ringA, ringB);
+        var actualA = SlicerHelper.WeilerAtherton(polygonA, polygonB).Select(polygon => polygon.Shell);
+        ;
+        var actualB = SlicerHelper.WeilerAtherton(polygonB, polygonA).Select(polygon => polygon.Shell);
+        ;
 
         //Assert
-        Assert.Equal(expected, actualA);
-        Assert.Equal(expected, actualB);
+        Assert.True(actualA.All(ring => ring.IsEqualsRing(expected)));
+        Assert.True(actualB.All(ring => ring.IsEqualsRing(expected)));
     }
 
     [Fact]
@@ -97,28 +97,27 @@ public class CornerTests
         {
             new(0, 0), new(3, -3), new(-2, -3), new(0, 0)
         };
-        LinearRing ringA = new LinearRing(figureA);
+        Polygon polygonA = new Polygon(new LinearRing(figureA));
         Coordinate[] figureB =
         {
             new(-4, 0), new(4, 3), new(4, -6), new(0, -6), new(0, 0), new(-4, 0)
         };
-        LinearRing ringB = new LinearRing(figureB);
+        Polygon polygonB = new Polygon(new LinearRing(figureB));
 
-        List<LinearRing> expected = new()
+        LinearRing expected = new LinearRing(new Coordinate[]
         {
-            new LinearRing(new Coordinate[]
-            {
-                new(0, 0), new(3, -3), new(0, -3), new(0, 0)
-            })
-        };
+            new(0, 0), new(3, -3), new(0, -3), new(0, 0)
+        });
 
         //Act
-        var actualA = SlicerHelper.WeilerAtherton(ringA, ringB);
-        var actualB = SlicerHelper.WeilerAtherton(ringA, ringB);
+        var actualA = SlicerHelper.WeilerAtherton(polygonA, polygonB).Select(polygon => polygon.Shell);
+        ;
+        var actualB = SlicerHelper.WeilerAtherton(polygonB, polygonA).Select(polygon => polygon.Shell);
+        ;
 
         //Assert
-        Assert.Equal(expected, actualA);
-        Assert.Equal(expected, actualB);
+        Assert.True(actualA.All(ring => ring.IsEqualsRing(expected)));
+        Assert.True(actualB.All(ring => ring.IsEqualsRing(expected)));
     }
 
     [Fact]
@@ -129,27 +128,24 @@ public class CornerTests
         {
             new(0, 0), new(-2, -3), new(-2, -1), new(0, 0)
         };
-        LinearRing ringA = new LinearRing(figureA);
+        Polygon polygonA = new Polygon(new LinearRing(figureA));
         Coordinate[] figureB =
         {
             new(0, 0), new(-3, -3), new(-3, 4), new(0, 0)
         };
-        LinearRing ringB = new LinearRing(figureB);
+        Polygon polygonB = new Polygon(new LinearRing(figureB));
 
-        List<LinearRing> expected = new()
+        LinearRing expected = new LinearRing(new Coordinate[]
         {
-            new LinearRing(new Coordinate[]
-            {
-                new(-2, -2), new(-2, -1), new(0, 0), new(-2, -2)
-            })
-        };
+            new(-2, -2), new(-2, -1), new(0, 0), new(-2, -2)
+        });
 
         //Act
-        var actualA = SlicerHelper.WeilerAtherton(ringA, ringB);
-        var actualB = SlicerHelper.WeilerAtherton(ringA, ringB);
-        
+        var actualA = SlicerHelper.WeilerAtherton(polygonA, polygonB).Select(polygon => polygon.Shell);
+        var actualB = SlicerHelper.WeilerAtherton(polygonB, polygonA).Select(polygon => polygon.Shell);
+
         //Assert
-        Assert.Equal(expected, actualA);
-        Assert.Equal(expected, actualB);
+        Assert.True(actualA.All(ring => ring.IsEqualsRing(expected)));
+        Assert.True(actualB.All(ring => ring.IsEqualsRing(expected)));
     }
 }

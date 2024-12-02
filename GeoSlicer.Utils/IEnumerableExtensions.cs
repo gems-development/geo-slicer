@@ -42,4 +42,9 @@ public static class MyIEnumerableExtensions
         return source.Skip(1).Concat(source.Skip(1)).Contains(other.Skip(1));
     }
     
+    public static bool IsEqualsRing(this LinearRing source, LinearRing other)
+    {
+        return IsEqualsRing(source.Coordinates, other.Coordinates);
+    }
+    
 }

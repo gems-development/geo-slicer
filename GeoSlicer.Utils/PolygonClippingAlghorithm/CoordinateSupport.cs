@@ -8,6 +8,8 @@ public class CoordinateSupport : Coordinate
     public PointType Type { get; set; }
     public LinkedListNode<CoordinateSupport>? Coord { get; set; }
 
+    public bool IsProcessed;
+
     public CoordinateSupport(double x, double y, LinkedListNode<CoordinateSupport>? coord = null, bool b = false, PointType type = PointType.Useless) : base(x, y)
     {
         Coord = coord;
