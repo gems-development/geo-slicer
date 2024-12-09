@@ -527,6 +527,9 @@ public class WeilerAthertonAlghorithm
             TraverseDirection.ChangeDirection(cuttingRingShell);
         }
 
+        LinkedList<LinkedListNode<CoordinateSupport>> enteringNodes =
+            new LinkedList<LinkedListNode<CoordinateSupport>>();
+
         foreach (var hole in clippedRingsHoles)
         {
             if (TraverseDirection.IsClockwiseBypass(hole))
@@ -600,7 +603,7 @@ public class WeilerAthertonAlghorithm
         // Найдём лист, в котором есть метка Entering, чтобы из него стартовать.
         // Если во внешней оболочке clipped нет Entering, то перейдём в дыру
 
-        int startedClipped = 0;
+        /*int startedClipped = 0;
         bool findEntering = false;
 
         for (int i = 0; i < clippedListArray.Length && findEntering == false; i++)
@@ -616,20 +619,20 @@ public class WeilerAthertonAlghorithm
                     break;
                 }
             }
-        }
+        }*/
 
 
-        for (LinkedListNode<CoordinateSupport>? nodeInClipped = clippedListArray[startedClipped].First;
-             nodeInClipped != null;
-             nodeInClipped = nodeInClipped.Next)
+        for (LinkedListNode<CoordinateSupport>? nodeInCutting = cutting.First;
+             nodeInCutting != null;
+             nodeInCutting = nodeInCutting.Next)
         {
-            if (nodeInClipped.Value.Type != PointType.Entering &&
-                nodeInClipped.Value.Type != PointType.SelfIntersection) continue;
+            if (nodeInCutting.Value.Type != PointType.Entering &&
+                nodeInCutting.Value.Type != PointType.SelfIntersection) continue;
 
             List<Coordinate> figure = new();
 
-            LinkedListNode<CoordinateSupport>? startInCutting = nodeInClipped;
-            LinkedListNode<CoordinateSupport>? startInClipped = nodeInClipped;
+            LinkedListNode<CoordinateSupport>? startInCutting = nodeInCutting;
+            LinkedListNode<CoordinateSupport>? startInClipped = nodeInCutting.Value.Coord;
 
             do
             {
@@ -713,9 +716,9 @@ public class WeilerAthertonAlghorithm
                         startInClipped = nodeFromLToEInCutting.Next.Value.Coord;
                     }
                 }
-            } while (startInClipped != nodeInClipped);
+            } while (startInClipped != nodeInCutting.Value.Coord);
 
-            figure.Add(nodeInClipped.Value);
+            figure.Add(nodeInCutting.Value);
             result.Add(figure);
 
             if (numberOfEnteringMarks == 0)
@@ -782,7 +785,6 @@ public class WeilerAthertonAlghorithm
             Polygon[] resultPolygons = new Polygon[result.Count];
             for (int i = 0; i < result.Count; i++)
             {
-                //todo:linked list заменить на массивы координат, т.к. использование ToArray не оптимально
                 Coordinate[] arrayCoordinates = result[i].ToArray();
                 LinearRing ringShell = new LinearRing(arrayCoordinates);
                 List<LinearRing> holes = new List<LinearRing>();
