@@ -850,29 +850,6 @@ public class WeilerAthertonAlghorithm
 
         return new Polygon[] { };
     }
-
     
-    // Метод, который нужен для тестов, которые использовали старый метод с другой сигнатурой
-    public IEnumerable<LinearRing> WeilerAtherton(
-        LinearRing clippedCoordinates, LinearRing cuttingCoordinates)
-    {
-        Polygon clippedPolygon = new Polygon(clippedCoordinates);
-        Polygon cuttingPolygon = new Polygon(cuttingCoordinates);
-        Polygon[] resultAfterNewWeilerAtherton = WeilerAtherton(clippedPolygon, cuttingPolygon);
-
-        List<LinearRing> result = new List<LinearRing>(resultAfterNewWeilerAtherton.Length);
-        foreach (var polygon in resultAfterNewWeilerAtherton)
-        {
-            result.Add(polygon.Shell);
-            var holes = polygon.Holes;
-            foreach (var hole in holes)
-            {
-                result.Add(hole);
-            }
-        }
-
-        return result;
-    }
-
     
 }

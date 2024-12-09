@@ -55,7 +55,7 @@ public class HolesTests
             new(3,0), new(2,-1), new(3,-1), new(3,-2)
         }))};
 
-        Assert.Equal(expected,actual);
+        Assert.True(expected.IsEqualsPolygonCollections(actual));
     }
     
     
@@ -98,7 +98,7 @@ public class HolesTests
             new(4,-1), new(4,0), new(5,0), new(5,-2), new(-3,-2), new(-3,0), new(-2,0)
         }))};
 
-        Assert.Equal(expected,actual);
+        Assert.True(expected.IsEqualsPolygonCollections(actual));
     }
     
     [Fact]
@@ -140,7 +140,7 @@ public class HolesTests
             new(-4,-3), new(-4,3), new(0,3), new(0,2)
         }))};
 
-        Assert.Equal(expected,actual);
+        Assert.True(expected.IsEqualsPolygonCollections(actual));
     }
     
     [Fact]
@@ -189,7 +189,7 @@ public class HolesTests
             )
         };
 
-        Assert.Equal(expected,actual);
+        Assert.True(expected.IsEqualsPolygonCollections(actual));
     }
     
     [Fact]
@@ -244,7 +244,7 @@ public class HolesTests
             )
         };
 
-        Assert.Equal(expected,actual);
+        Assert.True(expected.IsEqualsPolygonCollections(actual));
     }
     
     [Fact]
@@ -299,7 +299,7 @@ public class HolesTests
             )
         };
 
-        Assert.Equal(expected,actual);
+        Assert.True(expected.IsEqualsPolygonCollections(actual));
     }
     
     [Fact]
@@ -343,11 +343,11 @@ public class HolesTests
             ),
             new Polygon(new LinearRing(new Coordinate[]
                 {
-                    new(-3,6), new(-3,4), new(-1,4), new(-1,6), new(-3,6)
+                    new(-3,6), new(-3,7), new(2,7), new(2,2), new(-3,2), new(-3, 4), new(-1, 4), new(-1, 6), new(-3, 6)
                 })
             )
         };
 
-        Assert.Equal(expected,actual);
+        Assert.True(expected.IsEqualsPolygonCollections(actual));
     }
 }

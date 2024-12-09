@@ -26,12 +26,12 @@ public class PolygonIntersectionTests
         {
             new(-2, 1), new(-2, 7), new(4, 7), new(4, 1), new(-2, 1)
         };
-        LinearRing clippedRing = new LinearRing(clipped);
+        Polygon clippedPolygon = new Polygon(new LinearRing(clipped));
         Coordinate[] cutting =
         {
             new(3, 2), new(5, 6), new(8, 2), new(3, 2)
         };
-        LinearRing cuttingRing = new LinearRing(cutting);
+        Polygon cuttingPolygon = new Polygon(new LinearRing(cutting));
 
         List<LinearRing> expected = new()
         {
@@ -42,10 +42,10 @@ public class PolygonIntersectionTests
         };
 
         //Act
-        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingPolygon).Select(polygon => polygon.Shell).ToList();
 
         //Assert
-        Assert.Equal(expected, actual);
+        Assert.True(expected.IsEqualsRingCollection(actual));
     }
 
     [Fact]
@@ -56,12 +56,12 @@ public class PolygonIntersectionTests
         {
             new(8, 2), new(2, -2), new(-1, 2), new(1, 6), new(8, 6), new(8, 2)
         };
-        LinearRing clippedRing = new LinearRing(clipped);
+        Polygon clippedPolygon = new Polygon(new LinearRing(clipped));
         Coordinate[] cutting =
         {
             new(5, 4), new(10, 4), new(10, -2), new(5, -2), new(5, 4)
         };
-        LinearRing cuttingRing = new LinearRing(cutting);
+        Polygon cuttingPolygon = new Polygon(new LinearRing(cutting));
 
         List<LinearRing> expected = new()
         {
@@ -72,10 +72,10 @@ public class PolygonIntersectionTests
         };
 
         //Act
-        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingPolygon).Select(polygon => polygon.Shell).ToList();
 
         //Assert
-        Assert.Equal(expected, actual);
+        Assert.True(expected.IsEqualsRingCollection(actual));
     }
 
     [Fact]
@@ -87,12 +87,12 @@ public class PolygonIntersectionTests
             new(-2, 3), new(-4, 3), new(-4, 6), new(-2, 9), new(6, 9), new(6, 4), new(1, 4), new(1, 6), new(-2, 6),
             new(-2, 3)
         };
-        LinearRing clippedRing = new LinearRing(clipped);
+        Polygon clippedPolygon = new Polygon(new LinearRing(clipped));
         Coordinate[] cutting =
         {
             new(-3, 2), new(-3, 5), new(2, 5), new(2, 2), new(-3, 2)
         };
-        LinearRing cuttingRing = new LinearRing(cutting);
+        Polygon cuttingPolygon = new Polygon(new LinearRing(cutting));
 
         List<LinearRing> expected = new()
         {
@@ -108,10 +108,10 @@ public class PolygonIntersectionTests
         };
 
         //Act
-        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingPolygon).Select(polygon => polygon.Shell).ToList();
 
         //Assert
-        Assert.Equal(expected, actual);
+        Assert.True(expected.IsEqualsRingCollection(actual));
     }
 
     [Fact]
@@ -122,12 +122,12 @@ public class PolygonIntersectionTests
         {
             new(3, 3), new(3, -3), new(-3, -3), new(-3, 3), new(3, 3)
         };
-        LinearRing clippedRing = new LinearRing(clipped);
+        Polygon clippedPolygon = new Polygon(new LinearRing(clipped));
         Coordinate[] cutting =
         {
             new(-1, -4), new(4, 1), new(4, -4), new(-1, -4)
         };
-        LinearRing cuttingRing = new LinearRing(cutting);
+        Polygon cuttingPolygon = new Polygon(new LinearRing(cutting));
 
         List<LinearRing> expected = new()
         {
@@ -138,10 +138,10 @@ public class PolygonIntersectionTests
         };
 
         //Act
-        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingPolygon).Select(polygon => polygon.Shell).ToList();
 
         //Assert
-        Assert.Equal(expected, actual);
+        Assert.True(expected.IsEqualsRingCollection(actual));
     }
 
     [Fact]
@@ -152,12 +152,12 @@ public class PolygonIntersectionTests
         {
             new(4, 1), new(-1, -2), new(-1, 4), new(3, 4), new(4, 1)
         };
-        LinearRing clippedRing = new LinearRing(clipped);
+        Polygon clippedPolygon = new Polygon(new LinearRing(clipped));
         Coordinate[] cutting =
         {
             new(4, 1), new(2, 1), new(2, 4), new(4, 4), new(4, 1)
         };
-        LinearRing cuttingRing = new LinearRing(cutting);
+        Polygon cuttingPolygon = new Polygon(new LinearRing(cutting));
 
         List<LinearRing> expected = new()
         {
@@ -168,10 +168,10 @@ public class PolygonIntersectionTests
         };
 
         //Act
-        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingPolygon).Select(polygon => polygon.Shell).ToList();
 
         //Assert
-        Assert.Equal(expected, actual);
+        Assert.True(expected.IsEqualsRingCollection(actual));
     }
 
     [Fact]
@@ -182,20 +182,20 @@ public class PolygonIntersectionTests
         {
             new(-2, 2), new(0, 2), new(0, 0), new(-2, 0), new(-2, 2)
         };
-        LinearRing clippedRing = new LinearRing(clipped);
+        Polygon clippedPolygon = new Polygon(new LinearRing(clipped));
         Coordinate[] cutting =
         {
             new(0, 0), new(2, 0), new(2, -2), new(0, -2), new(0, 0)
         };
-        LinearRing cuttingRing = new LinearRing(cutting);
+        Polygon cuttingPolygon = new Polygon(new LinearRing(cutting));
 
         IEnumerable<LinearRing> expected = Enumerable.Empty<LinearRing>();
 
         //Act
-        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingPolygon).Select(polygon => polygon.Shell).ToList();
 
         //Assert
-        Assert.Equal(expected, actual);
+        Assert.True(expected.IsEqualsRingCollection(actual));
     }
 
     [Fact]
@@ -206,20 +206,20 @@ public class PolygonIntersectionTests
         {
             new(-2, 2), new(0, 2), new(0, 0), new(-2, 0), new(-2, 2)
         };
-        LinearRing clippedRing = new LinearRing(clipped);
+        Polygon clippedPolygon = new Polygon(new LinearRing(clipped));
         Coordinate[] cutting =
         {
             new(1, -1), new(2, -1), new(2, -2), new(1, -2), new(1, -1)
         };
-        LinearRing cuttingRing = new LinearRing(cutting);
+        Polygon cuttingPolygon = new Polygon(new LinearRing(cutting));
 
         IEnumerable<LinearRing> expected = Enumerable.Empty<LinearRing>();
 
         //Act
-        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingPolygon).Select(polygon => polygon.Shell).ToList();
 
         //Assert
-        Assert.Equal(expected, actual);
+        Assert.True(expected.IsEqualsRingCollection(actual));
     }
 
     [Fact]
@@ -230,12 +230,12 @@ public class PolygonIntersectionTests
         {
             new(0, 0), new(2, 0), new(2, -2), new(0, -2), new(0, 0)
         };
-        LinearRing clippedRing = new LinearRing(clipped);
+        Polygon clippedPolygon = new Polygon(new LinearRing(clipped));
         Coordinate[] cutting =
         {
             new(1, -1), new(2, -1), new(2, -2), new(1, -2), new(1, -1)
         };
-        LinearRing cuttingRing = new LinearRing(cutting);
+        Polygon cuttingPolygon = new Polygon(new LinearRing(cutting));
 
         List<LinearRing> expected = new()
         {
@@ -246,10 +246,10 @@ public class PolygonIntersectionTests
         };
 
         //Act
-        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingPolygon).Select(polygon => polygon.Shell).ToList();
 
         //Assert
-            Assert.Equal(expected, actual);
+            Assert.True(expected.IsEqualsRingCollection(actual));
     }
 
     [Fact]
@@ -260,12 +260,12 @@ public class PolygonIntersectionTests
         {
             new(-1, -1), new(-1, 2), new(2, 2), new(2, -1), new(-1, -1)
         };
-        LinearRing clippedRing = new LinearRing(clipped);
+        Polygon clippedPolygon = new Polygon(new LinearRing(clipped));
         Coordinate[] cutting =
         {
             new(0, 0), new(0, 1), new(1, 1), new(1, 0), new(0, 0)
         };
-        LinearRing cuttingRing = new LinearRing(cutting);
+        Polygon cuttingPolygon = new Polygon(new LinearRing(cutting));
 
         List<LinearRing> expected = new()
         {
@@ -276,10 +276,10 @@ public class PolygonIntersectionTests
         };
 
         //Act
-        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingPolygon).Select(polygon => polygon.Shell).ToList();
 
         //Assert
-        Assert.Equal(expected, actual);
+        Assert.True(expected.IsEqualsRingCollection(actual));
     }
 
     [Fact]
@@ -290,13 +290,13 @@ public class PolygonIntersectionTests
         {
             new(-2, 0), new(0, 0), new(0, 3), new(2, 3), new(2, -4), new(-2, 0)
         };
-        LinearRing clippedRing = new LinearRing(clipped);
+        Polygon clippedPolygon = new Polygon(new LinearRing(clipped));
 
         Coordinate[] cutting =
         {
             new(-2, -2), new(0, 0), new(-2, 2), new(3, 2), new(3, -2), new(-2, -2)
         };
-        LinearRing cuttingRing = new LinearRing(cutting);
+        Polygon cuttingPolygon = new Polygon(new LinearRing(cutting));
 
         List<LinearRing> expected = new()
         {
@@ -308,10 +308,10 @@ public class PolygonIntersectionTests
 
 
         //Act
-        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingPolygon).Select(polygon => polygon.Shell).ToList();
 
         //Assert
-        Assert.Equal(expected, actual);
+        Assert.True(expected.IsEqualsRingCollection(actual));
     }
 
     [Fact]
@@ -322,14 +322,14 @@ public class PolygonIntersectionTests
         {
             new(-4, 2), new(4, 2), new(4, -1), new(1, -1), new(1, -2), new(-4, -2), new(-4, 2)
         };
-        LinearRing clippedRing = new LinearRing(clipped);
+        Polygon clippedPolygon = new Polygon(new LinearRing(clipped));
 
         Coordinate[] cutting =
         {
             new(0, 1), new(0, 2), new(2, 2), new(2, 3), new(5, 3), new(5, 1), new(4, 1), new(4, 0),
             new(3, 0), new(2, 1), new(2, -2), new(-3, -2), new(-3, 3), new(-2, 3), new(0, 1)
         };
-        LinearRing cuttingRing = new LinearRing(cutting);
+        Polygon cuttingPolygon = new Polygon(new LinearRing(cutting));
 
         List<LinearRing> expected = new()
         {
@@ -343,10 +343,10 @@ public class PolygonIntersectionTests
 
 
         //Act
-        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingPolygon).Select(polygon => polygon.Shell).ToList();
 
         //Assert
-        Assert.Equal(expected, actual);
+        Assert.True(expected.IsEqualsRingCollection(actual));
     }
 
     [Fact]
@@ -357,13 +357,13 @@ public class PolygonIntersectionTests
         {
             new(-2, 2), new(0, 2), new(2, 4), new(3, 4), new(3, 0), new(-2, 0), new(-2, 2)
         };
-        LinearRing clippedRing = new LinearRing(clipped);
+        Polygon clippedPolygon = new Polygon(new LinearRing(clipped));
 
         Coordinate[] cutting =
         {
             new(1, 2), new(-2, 2), new(-2, 5), new(1, 5), new(1, 2)
         };
-        LinearRing cuttingRing = new LinearRing(cutting);
+        Polygon cuttingPolygon = new Polygon(new LinearRing(cutting));
 
         List<LinearRing> expected = new()
         {
@@ -374,10 +374,10 @@ public class PolygonIntersectionTests
         };
 
         //Act
-        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingPolygon).Select(polygon => polygon.Shell).ToList();
 
         //Assert
-        Assert.Equal(expected, actual);
+        Assert.True(expected.IsEqualsRingCollection(actual));
     }
 
     [Fact]
@@ -388,13 +388,13 @@ public class PolygonIntersectionTests
         {
             new(-2, 0), new(-2, 3), new(0, 3), new(0, 0), new(-2, 0)
         };
-        LinearRing clippedRing = new LinearRing(clipped);
+        Polygon clippedPolygon = new Polygon(new LinearRing(clipped));
 
         Coordinate[] cutting =
         {
             new(-3, 1), new(-2, 3), new(0, 4), new(1, 1), new(-3, 1)
         };
-        LinearRing cuttingRing = new LinearRing(cutting);
+        Polygon cuttingPolygon = new Polygon(new LinearRing(cutting));
 
         List<LinearRing> expected = new()
         {
@@ -405,10 +405,10 @@ public class PolygonIntersectionTests
         };
 
         //Act
-        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingPolygon).Select(polygon => polygon.Shell).ToList();
 
         //Assert
-        Assert.Equal(expected, actual);
+        Assert.True(expected.IsEqualsRingCollection(actual));
     }
     
     [Fact]
@@ -419,13 +419,13 @@ public class PolygonIntersectionTests
         {
             new(2,0), new(-2,3), new(2,3), new(5,0), new(2,-2), new(-2,0), new(2,0)
         };
-        LinearRing clippedRing = new LinearRing(clipped);
+        Polygon clippedPolygon = new Polygon(new LinearRing(clipped));
 
         Coordinate[] cutting =
         {
             new(-2,5), new(2,5), new(2,-3), new(-2,-3), new(-2,5)
         };
-        LinearRing cuttingRing = new LinearRing(cutting);
+        Polygon cuttingPolygon = new Polygon(new LinearRing(cutting));
 
         List<LinearRing> expected = new()
         {
@@ -440,9 +440,9 @@ public class PolygonIntersectionTests
         };
 
         //Act
-        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingPolygon).Select(polygon => polygon.Shell).ToList();
         //Assert
-        Assert.Equal(expected, actual);
+        Assert.True(expected.IsEqualsRingCollection(actual));
     }
     
     [Fact]
@@ -453,13 +453,13 @@ public class PolygonIntersectionTests
         {
             new(0,0), new(-3,1), new(0,2), new(-3,3), new(0,4), new(4,0), new(3,-3), new(2,0), new(1,-3), new(0,0)
         };
-        LinearRing clippedRing = new LinearRing(clipped);
+        Polygon clippedPolygon = new Polygon(new LinearRing(clipped));
 
         Coordinate[] cutting =
         {
             new(-3,-3), new(-3,4), new(0,4), new(0,0), new(4,0), new(4,-3), new(-3,-3)
         };
-        LinearRing cuttingRing = new LinearRing(cutting);
+        Polygon cuttingPolygon = new Polygon(new LinearRing(cutting));
 
         List<LinearRing> expected = new()
         {
@@ -482,9 +482,9 @@ public class PolygonIntersectionTests
         };
 
         //Act
-        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingPolygon).Select(polygon => polygon.Shell).ToList();
         //Assert
-        Assert.Equal(expected, actual);
+        Assert.True(expected.IsEqualsRingCollection(actual));
     }
     
     [Fact]
@@ -495,13 +495,13 @@ public class PolygonIntersectionTests
         {
             new(-9,2), new(6,7), new(6,0), new(3,0), new(3,4), new(-9,2)
         };
-        LinearRing clippedRing = new LinearRing(clipped);
+        Polygon clippedPolygon = new Polygon(new LinearRing(clipped));
 
         Coordinate[] cutting =
         {
             new(9,2), new(-6,7), new(-6,0), new(-3,0), new(-3,4), new(9,2)
         };
-        LinearRing cuttingRing = new LinearRing(cutting);
+        Polygon cuttingPolygon = new Polygon(new LinearRing(cutting));
 
         List<LinearRing> expected = new()
         {
@@ -520,8 +520,8 @@ public class PolygonIntersectionTests
         };
 
         //Act
-        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingPolygon).Select(polygon => polygon.Shell).ToList();
         //Assert
-        Assert.Equal(expected, actual);
+        Assert.True(expected.IsEqualsRingCollection(actual));
     }
 }

@@ -27,12 +27,12 @@ public class PolygonTangencyTests
             new(-4, 2), new(0, 2), new(4, 4), new(2, 0),
             new(2, -4), new(-2, -4), new(-2, 0), new(-4, 2)
         };
-        LinearRing clippedRing = new LinearRing(clipped);
+        Polygon clippedPolygon = new Polygon(new LinearRing(clipped));
         Coordinate[] cutting =
         {
             new(-2, 2), new(2, 2), new(2, -2), new(-2, -2), new(-2, 2)
         };
-        LinearRing cuttingRing = new LinearRing(cutting);
+        Polygon cuttingPolygon = new Polygon(new LinearRing(cutting));
         List<LinearRing> expected = new List<LinearRing>()
         {
             new LinearRing(new Coordinate[]
@@ -44,7 +44,7 @@ public class PolygonTangencyTests
 
 
         //Act
-        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing).ToList();
+        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingPolygon).Select(polygon => polygon.Shell).ToList();
 
         //Assert
         Assert.Equal(expected, actual);
@@ -59,13 +59,13 @@ public class PolygonTangencyTests
         {
             new(-2, 2), new(2, 2), new(2, -2), new(-2, -2), new(-2, 2)
         };
-        LinearRing clippedRing = new LinearRing(clipped);
+        Polygon clippedPolygon = new Polygon(new LinearRing(clipped));
         Coordinate[] cutting =
         {
             new(-4, 2), new(0, 2), new(4, 4), new(2, 0),
             new(2, -4), new(-2, -4), new(-2, 0), new(-4, 2)
         };
-        LinearRing cuttingRing = new LinearRing(cutting);
+        Polygon cuttingPolygon = new Polygon(new LinearRing(cutting));
 
         List<LinearRing> expected = new List<LinearRing>()
         {
@@ -77,7 +77,7 @@ public class PolygonTangencyTests
         };
 
         //Act
-        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing).ToList();
+        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingPolygon).Select(polygon => polygon.Shell).ToList();
 
         //Assert
         Assert.Equal(expected, actual);
@@ -92,15 +92,15 @@ public class PolygonTangencyTests
         {
             new(-2, 1), new(-1, 2), new(0, 1), new(-2, 1)
         };
-        LinearRing clippedRing = new LinearRing(clipped);
+        Polygon clippedPolygon = new Polygon(new LinearRing(clipped));
         Coordinate[] cutting =
         {
             new(-1, 1), new(1, 1), new(0, 0), new(-1, 1)
         };
-        LinearRing cuttingRing = new LinearRing(cutting);
+        Polygon cuttingPolygon = new Polygon(new LinearRing(cutting));
 
         //Act
-        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingPolygon);
 
         //Assert
         Assert.Empty(actual);
@@ -114,15 +114,15 @@ public class PolygonTangencyTests
         {
             new(-1, 1), new(1, 1), new(0, 0), new(-1, 1)
         };
-        LinearRing clippedRing = new LinearRing(clipped);
+        Polygon clippedPolygon = new Polygon(new LinearRing(clipped));
         Coordinate[] cutting =
         {
             new(-2, 1), new(-1, 2), new(0, 1), new(-2, 1)
         };
-        LinearRing cuttingRing = new LinearRing(cutting);
+        Polygon cuttingPolygon = new Polygon(new LinearRing(cutting));
 
         //Act
-        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingPolygon);
 
         //Assert
         Assert.Empty(actual);
@@ -136,15 +136,15 @@ public class PolygonTangencyTests
         {
             new(-1, 1), new(1, 1), new(0, 0), new(-1, 1)
         };
-        LinearRing clippedRing = new LinearRing(clipped);
+        Polygon clippedPolygon = new Polygon(new LinearRing(clipped));
         Coordinate[] cutting =
         {
             new(0, 1), new(1, 2), new(2, 1), new(0, 1)
         };
-        LinearRing cuttingRing = new LinearRing(cutting);
+        Polygon cuttingPolygon = new Polygon(new LinearRing(cutting));
 
         //Act
-        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingPolygon);
 
         //Assert
         Assert.Empty(actual);
@@ -158,15 +158,15 @@ public class PolygonTangencyTests
         {
             new(0, 1), new(1, 2), new(2, 1), new(0, 1)
         };
-        LinearRing clippedRing = new LinearRing(clipped);
+        Polygon clippedPolygon = new Polygon(new LinearRing(clipped));
         Coordinate[] cutting =
         {
             new(-1, 1), new(1, 1), new(0, 0), new(-1, 1)
         };
-        LinearRing cuttingRing = new LinearRing(cutting);
+        Polygon cuttingPolygon = new Polygon(new LinearRing(cutting));
 
         //Act
-        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingPolygon);
 
         //Assert
         Assert.Empty(actual);
@@ -180,15 +180,15 @@ public class PolygonTangencyTests
         {
             new(-2, 4), new(2, 4), new(2, 0), new(-2, 0), new(-2, 4)
         };
-        LinearRing clippedRing = new LinearRing(clipped);
+        Polygon clippedPolygon = new Polygon(new LinearRing(clipped));
         Coordinate[] cutting =
         {
             new(2, 4), new(-2, 4), new(-2, 6), new(2, 6), new(2, 4)
         };
-        LinearRing cuttingRing = new LinearRing(cutting);
+        Polygon cuttingPolygon = new Polygon(new LinearRing(cutting));
 
         //Act
-        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingPolygon);
 
         //Assert
         Assert.Empty(actual);

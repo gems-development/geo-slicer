@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using GeoSlicer.Utils;
 using GeoSlicer.Utils.Intersectors;
 using GeoSlicer.Utils.Intersectors.CoordinateComparators;
@@ -25,12 +26,12 @@ public class EqualEdgeTests
         {
             new(0,0), new(3,0), new(5,-4), new(-2,-4), new(-2,4), new(0,0)
         };
-        LinearRing clippedRing = new LinearRing(clipped);
+        Polygon clippedPolygon = new Polygon(new LinearRing(clipped));
         Coordinate[] cutting =
         {
             new(0, 0), new(3,0), new(3,-4), new(-3,-4), new(-3,2), new(0,2), new(0,0) 
         };
-        LinearRing cuttingRing = new LinearRing(cutting);
+        Polygon cuttingPolygon = new Polygon(new LinearRing(cutting));
  
         List<LinearRing> expected = new()
         {
@@ -41,10 +42,10 @@ public class EqualEdgeTests
         };
  
         //Act
-        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingPolygon).Select(polygon => polygon.Shell);
  
         //Assert
-        Assert.Equal(expected, actual);
+        Assert.True(expected.IsEqualsRingCollection(actual));
     }
  
     [Fact]
@@ -55,12 +56,12 @@ public class EqualEdgeTests
         {
             new(0,0), new(3,0), new(5,-4), new(-2,-4), new(-2,4), new(0,0)
         };
-        LinearRing clippedRing = new LinearRing(clipped);
+        Polygon clippedPolygon = new Polygon(new LinearRing(clipped));
         Coordinate[] cutting =
         {
             new(0, 0), new(0,3), new(5,3), new(5,-2), new(3,-2), new(3,0), new(0,0) 
         };
-        LinearRing cuttingRing = new LinearRing(cutting);
+        Polygon cuttingPolygon = new Polygon(new LinearRing(cutting));
  
         List<LinearRing> expected = new()
         {
@@ -71,10 +72,10 @@ public class EqualEdgeTests
         };
  
         //Act
-        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingPolygon).Select(polygon => polygon.Shell);
  
         //Assert
-        Assert.Equal(expected, actual);
+        Assert.True(expected.IsEqualsRingCollection(actual));
     }
  
     [Fact]
@@ -85,12 +86,12 @@ public class EqualEdgeTests
         {
             new(0,0), new(-2,4), new(4,4), new(4,-4), new(2,0), new(0,0)
         };
-        LinearRing clippedRing = new LinearRing(clipped);
+        Polygon clippedPolygon = new Polygon(new LinearRing(clipped));
         Coordinate[] cutting =
         {
             new(0, 0), new(0,4), new(3,4), new(3,-2), new(2,-2), new(2,0), new(0,0) 
         };
-        LinearRing cuttingRing = new LinearRing(cutting);
+        Polygon cuttingPolygon = new Polygon(new LinearRing(cutting));
  
         List<LinearRing> expected = new()
         {
@@ -101,10 +102,10 @@ public class EqualEdgeTests
         };
  
         //Act
-        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingPolygon).Select(polygon => polygon.Shell);
  
         //Assert
-        Assert.Equal(expected, actual);
+        Assert.True(expected.IsEqualsRingCollection(actual));
     }
  
     [Fact]
@@ -115,15 +116,15 @@ public class EqualEdgeTests
         {
             new(0,0), new(2,0), new(4,-4), new(-2,-4), new(-2,4), new(0,0)
         };
-        LinearRing clippedRing = new LinearRing(clipped);
+        Polygon clippedPolygon = new Polygon(new LinearRing(clipped));
         Coordinate[] cutting =
         {
             new(0, 0), new(0,4), new(4,4), new(4,-2), new(2,0), new(0,0) 
         };
-        LinearRing cuttingRing = new LinearRing(cutting);
+        Polygon cuttingPolygon = new Polygon(new LinearRing(cutting));
  
         //Act
-        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingPolygon).Select(polygon => polygon.Shell);
  
         //Assert
         Assert.Empty(actual);
@@ -137,12 +138,12 @@ public class EqualEdgeTests
         {
             new(0,0), new(-2,4), new(4,4), new(4,-4), new(2,0), new(0,0)
         };
-        LinearRing clippedRing = new LinearRing(clipped);
+        Polygon clippedPolygon = new Polygon(new LinearRing(clipped));
         Coordinate[] cutting =
         {
             new(0, 0), new(0,3), new(5,3), new(5,-1), new(3,-1), new(2,0), new(0,0) 
         };
-        LinearRing cuttingRing = new LinearRing(cutting);
+        Polygon cuttingPolygon = new Polygon(new LinearRing(cutting));
  
         List<LinearRing> expected = new()
         {
@@ -153,10 +154,10 @@ public class EqualEdgeTests
         };
  
         //Act
-        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingPolygon).Select(polygon => polygon.Shell);
  
         //Assert
-        Assert.Equal(expected, actual);
+        Assert.True(expected.IsEqualsRingCollection(actual));
     }
  
     [Fact]
@@ -167,13 +168,13 @@ public class EqualEdgeTests
         {
             new(-2,-2), new(-2,4), new(0,0), new(3,0), new(5,-2), new(-2,-2)
         };
-        LinearRing clippedRing = new LinearRing(clipped);
+        Polygon clippedPolygon = new Polygon(new LinearRing(clipped));
  
         Coordinate[] cutting =
         {
             new(0, 0), new(3,0), new(3,-4), new(-3,-4), new(-3,3), new(0,0) 
         };
-        LinearRing cuttingRing = new LinearRing(cutting);
+        Polygon cuttingPolygon = new Polygon(new LinearRing(cutting));
  
         List<LinearRing> expected = new()
         {
@@ -184,10 +185,10 @@ public class EqualEdgeTests
         };
  
         //Act
-        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingPolygon).Select(polygon => polygon.Shell);
  
         //Assert
-        Assert.Equal(expected, actual);
+        Assert.True(expected.IsEqualsRingCollection(actual));
     }
  
     [Fact]
@@ -198,13 +199,13 @@ public class EqualEdgeTests
         {
             new(-2,0), new(-2,4), new(4,4), new(4,-4), new(2,0), new(-2,0)
         };
-        LinearRing clippedRing = new LinearRing(clipped);
+        Polygon clippedPolygon = new Polygon(new LinearRing(clipped));
  
         Coordinate[] cutting =
         {
             new(-2,0), new(-4,4), new(5,4), new(5,-4), new(2,-4), new(2,0), new(-2,0) 
         };
-        LinearRing cuttingRing = new LinearRing(cutting);
+        Polygon cuttingPolygon = new Polygon(new LinearRing(cutting));
  
         List<LinearRing> expected = new()
         {
@@ -215,10 +216,10 @@ public class EqualEdgeTests
         };
  
         //Act
-        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingPolygon).Select(polygon => polygon.Shell);
  
         //Assert
-        Assert.Equal(expected, actual);
+        Assert.True(expected.IsEqualsRingCollection(actual));
     }
  
     [Fact]
@@ -229,13 +230,13 @@ public class EqualEdgeTests
         {
             new(-1,4), new(0,0), new(2,0), new(4,-2), new(-1,-2), new(-1,4)
         };
-        LinearRing clippedRing = new LinearRing(clipped);
+        Polygon clippedPolygon = new Polygon(new LinearRing(clipped));
  
         Coordinate[] cutting =
         {
             new(0,0), new(-2,4), new(4,4), new(4,-4), new(2,0), new(0,0)
         };
-        LinearRing cuttingRing = new LinearRing(cutting);
+        Polygon cuttingPolygon = new Polygon(new LinearRing(cutting));
  
         List<LinearRing> expected = new()
         {
@@ -251,10 +252,10 @@ public class EqualEdgeTests
         };
  
         //Act
-        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingPolygon).Select(polygon => polygon.Shell);
  
         //Assert
-        Assert.Equal(expected, actual);
+        Assert.True(expected.IsEqualsRingCollection(actual));
     }
  
     [Fact]
@@ -265,13 +266,13 @@ public class EqualEdgeTests
         {
             new(-2,0), new(2,0), new(2,-3), new(-3,-3), new(-3,4), new(-2,0)
         };
-        LinearRing clippedRing = new LinearRing(clipped);
+        Polygon clippedPolygon = new Polygon(new LinearRing(clipped));
  
         Coordinate[] cutting =
         {
             new(-2,0), new(2,0), new(4,-3), new(-4,-3), new(-4,2), new(-2,0) 
         };
-        LinearRing cuttingRing = new LinearRing(cutting);
+        Polygon cuttingPolygon = new Polygon(new LinearRing(cutting));
  
         List<LinearRing> expected = new()
         {
@@ -282,10 +283,10 @@ public class EqualEdgeTests
         };
  
         //Act
-        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingPolygon).Select(polygon => polygon.Shell);
  
         //Assert
-        Assert.Equal(expected, actual);
+        Assert.True(expected.IsEqualsRingCollection(actual));
     }
  
     [Fact]
@@ -296,13 +297,13 @@ public class EqualEdgeTests
         {
             new(-5,-2), new(-2,4), new(-2,0), new(2,0), new(2,-2), new(-5,-2)
         };
-        LinearRing clippedRing = new LinearRing(clipped);
+        Polygon clippedPolygon = new Polygon(new LinearRing(clipped));
  
         Coordinate[] cutting =
         {
             new(-2,0), new(-4,4), new(4,4), new(4,-4), new(2,0), new(-2,0)
         };
-        LinearRing cuttingRing = new LinearRing(cutting);
+        Polygon cuttingPolygon = new Polygon(new LinearRing(cutting));
  
         List<LinearRing> expected = new()
         {
@@ -313,10 +314,10 @@ public class EqualEdgeTests
         };
  
         //Act
-        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingPolygon).Select(polygon => polygon.Shell);
  
         //Assert
-        Assert.Equal(expected, actual);
+        Assert.True(expected.IsEqualsRingCollection(actual));
     }
  
     [Fact]
@@ -327,12 +328,12 @@ public class EqualEdgeTests
         {
             new(-2, 4), new(0, 0), new(3, 0), new(5, -4), new(-2, -4), new(-2, 4)
         };
-        LinearRing clippedRing = new LinearRing(clipped);
+        Polygon clippedPolygon = new Polygon(new LinearRing(clipped));
         Coordinate[] cutting =
         {
             new(0, 0), new(3, 0), new(6, 4), new(6, -5), new(0, -5), new(0, 0)
         };
-        LinearRing cuttingRing = new LinearRing(cutting);
+        Polygon cuttingPolygon = new Polygon(new LinearRing(cutting));
  
         List<LinearRing> expected = new()
         {
@@ -343,10 +344,10 @@ public class EqualEdgeTests
         };
  
         //Act
-        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingPolygon).Select(polygon => polygon.Shell);
  
         //Assert
-        Assert.Equal(expected, actual);
+        Assert.True(expected.IsEqualsRingCollection(actual));
     }
  
     [Fact]
@@ -357,12 +358,12 @@ public class EqualEdgeTests
         {
             new(-2, 4), new(0, 0), new(3, 0), new(5, -4), new(-2, -4), new(-2, 4)
         };
-        LinearRing clippedRing = new LinearRing(clipped);
+        Polygon clippedPolygon = new Polygon(new LinearRing(clipped));
         Coordinate[] cutting =
         {
             new(0, 0), new(3, 0), new(5, 4), new(-3, 6), new(-3, -6), new(0, -6), new(0, 0)
         };
-        LinearRing cuttingRing = new LinearRing(cutting);
+        Polygon cuttingPolygon = new Polygon(new LinearRing(cutting));
  
         List<LinearRing> expected = new()
         {
@@ -373,10 +374,10 @@ public class EqualEdgeTests
         };
  
         //Act
-        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingPolygon).Select(polygon => polygon.Shell);
  
         //Assert
-        Assert.Equal(expected, actual);
+        Assert.True(expected.IsEqualsRingCollection(actual));
     }
  
     [Fact]
@@ -387,12 +388,12 @@ public class EqualEdgeTests
         {
             new(-2, 4), new(0, 0), new(6, 0), new(3, 4), new(-2, 4)
         };
-        LinearRing clippedRing = new LinearRing(clipped);
+        Polygon clippedPolygon = new Polygon(new LinearRing(clipped));
         Coordinate[] cutting =
         {
             new(0, 0), new(-2, -2), new(-2, 1), new(3, 6), new(3, 0), new(0, 0)
         };
-        LinearRing cuttingRing = new LinearRing(cutting);
+        Polygon cuttingPolygon = new Polygon(new LinearRing(cutting));
  
         List<LinearRing> expected = new()
         {
@@ -403,10 +404,10 @@ public class EqualEdgeTests
         };
  
         //Act
-        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingPolygon).Select(polygon => polygon.Shell);
  
         //Assert
-        Assert.Equal(expected, actual);
+        Assert.True(expected.IsEqualsRingCollection(actual));
     }
  
     [Fact]
@@ -417,12 +418,12 @@ public class EqualEdgeTests
         {
             new(-2, 4), new(0, 0), new(6, 0), new(6, -3), new(-2, -3), new(-2, 4)
         };
-        LinearRing clippedRing = new LinearRing(clipped);
+        Polygon clippedPolygon = new Polygon(new LinearRing(clipped));
         Coordinate[] cutting =
         {
             new(0, 0), new(4, 0), new(4, -4), new(5, -4), new(5, 5), new(-2, 5), new(-4, 2), new(0, 0)
         };
-        LinearRing cuttingRing = new LinearRing(cutting);
+        Polygon cuttingPolygon = new Polygon(new LinearRing(cutting));
  
         List<LinearRing> expected = new()
         {
@@ -437,10 +438,10 @@ public class EqualEdgeTests
         };
  
         //Act
-        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingPolygon).Select(polygon => polygon.Shell);
  
         //Assert
-        Assert.Equal(expected, actual);
+        Assert.True(expected.IsEqualsRingCollection(actual));
     }
  
     [Fact]
@@ -451,12 +452,12 @@ public class EqualEdgeTests
         {
             new(-2, 4), new(0, 0), new(4, 0), new(4, -2), new(-2, -2), new(-2, 4)
         };
-        LinearRing clippedRing = new LinearRing(clipped);
+        Polygon clippedPolygon = new Polygon(new LinearRing(clipped));
         Coordinate[] cutting =
         {
             new(0, 0), new(-3, -3), new(-3, 2), new(2, 2), new(2, 0), new(0, 0)
         };
-        LinearRing cuttingRing = new LinearRing(cutting);
+        Polygon cuttingPolygon = new Polygon(new LinearRing(cutting));
  
         List<LinearRing> expected = new()
         {
@@ -467,10 +468,10 @@ public class EqualEdgeTests
         };
  
         //Act
-        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingPolygon).Select(polygon => polygon.Shell);
  
         //Assert
-        Assert.Equal(expected, actual);
+        Assert.True(expected.IsEqualsRingCollection(actual));
     }
  
     [Fact]
@@ -481,13 +482,13 @@ public class EqualEdgeTests
         {
             new(0,0), new(-2,4), new(3,4), new(6,0), new(0,0)
         };
-        LinearRing clippedRing = new LinearRing(clipped);
+        Polygon clippedPolygon = new Polygon(new LinearRing(clipped));
  
         Coordinate[] cutting =
         {
             new(4,-2), new(3,0), new(0,0), new(-2,2), new(4,2), new(4,-2)
         };
-        LinearRing cuttingRing = new LinearRing(cutting);
+        Polygon cuttingPolygon = new Polygon(new LinearRing(cutting));
  
         List<LinearRing> expected = new()
         {
@@ -498,10 +499,10 @@ public class EqualEdgeTests
         };
  
         //Act
-        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingPolygon).Select(polygon => polygon.Shell);
  
         //Assert
-        Assert.Equal(expected, actual);
+        Assert.True(expected.IsEqualsRingCollection(actual));
     }
  
     [Fact]
@@ -512,13 +513,13 @@ public class EqualEdgeTests
         {
             new(-4,0), new(-4,6), new(3,6), new(3,0), new(-4,0)
         };
-        LinearRing clippedRing = new LinearRing(clipped);
+        Polygon clippedPolygon = new Polygon(new LinearRing(clipped));
  
         Coordinate[] cutting =
         {
             new(1,0), new(2,4), new(2,-2), new(-4,-2), new(-4,0), new(1,0)
         };
-        LinearRing cuttingRing = new LinearRing(cutting);
+        Polygon cuttingPolygon = new Polygon(new LinearRing(cutting));
  
         List<LinearRing> expected = new()
         {
@@ -529,10 +530,10 @@ public class EqualEdgeTests
         };
  
         //Act
-        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingPolygon).Select(polygon => polygon.Shell);
  
         //Assert
-        Assert.Equal(expected, actual);
+        Assert.True(expected.IsEqualsRingCollection(actual));
     }
  
     [Fact]
@@ -543,13 +544,13 @@ public class EqualEdgeTests
         {
             new(-1,-1), new(-1,5), new(0,0), new(5,0), new(5,-1), new(-1,-1)
         };
-        LinearRing clippedRing = new LinearRing(clipped);
+        Polygon clippedPolygon = new Polygon(new LinearRing(clipped));
  
         Coordinate[] cutting =
         {
             new(-2,-2), new(-2,4), new(0,0), new(3,0), new(3,-2), new(-2,-2)
         };
-        LinearRing cuttingRing = new LinearRing(cutting);
+        Polygon cuttingPolygon = new Polygon(new LinearRing(cutting));
  
         List<LinearRing> expected = new()
         {
@@ -560,10 +561,10 @@ public class EqualEdgeTests
         };
  
         //Act
-        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingPolygon).Select(polygon => polygon.Shell);
  
         //Assert
-        Assert.Equal(expected, actual);
+        Assert.True(expected.IsEqualsRingCollection(actual));
     }
  
     [Fact]
@@ -574,13 +575,13 @@ public class EqualEdgeTests
         {
             new(-2,0), new(4,0), new(4,-3), new(-4,-3), new(-4,4), new(-2,0)
         };
-        LinearRing clippedRing = new LinearRing(clipped);
+        Polygon clippedPolygon = new Polygon(new LinearRing(clipped));
  
         Coordinate[] cutting =
         {
             new(-2,0), new(2,0), new(3,4), new(3,-2), new(-2,-2), new(-2,0) 
         };
-        LinearRing cuttingRing = new LinearRing(cutting);
+        Polygon cuttingPolygon = new Polygon(new LinearRing(cutting));
  
         List<LinearRing> expected = new()
         {
@@ -591,10 +592,10 @@ public class EqualEdgeTests
         };
  
         //Act
-        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingPolygon).Select(polygon => polygon.Shell);
  
         //Assert
-        Assert.Equal(expected, actual);
+        Assert.True(expected.IsEqualsRingCollection(actual));
     }
  
     [Fact]
@@ -605,16 +606,16 @@ public class EqualEdgeTests
         {
             new(0,0), new(-2,4), new(4,4), new(5,0), new(0,0)
         };
-        LinearRing clippedRing = new LinearRing(clipped);
+        Polygon clippedPolygon = new Polygon(new LinearRing(clipped));
  
         Coordinate[] cutting =
         {
             new(0,0), new(3,0), new(3,-2), new(-2,-2), new(-2,2), new(0,0)
         };
-        LinearRing cuttingRing = new LinearRing(cutting);
+        Polygon cuttingPolygon = new Polygon(new LinearRing(cutting));
  
         //Act
-        var actual = SlicerHelper.WeilerAtherton(clippedRing, cuttingRing);
+        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingPolygon).Select(polygon => polygon.Shell);
  
         //Assert
         Assert.Empty(actual);

@@ -37,9 +37,6 @@ public static class MyIEnumerableExtensions
 
     }
 
-    public static bool IsEqualsRing(this IEnumerable<Coordinate> source, IEnumerable<Coordinate> other)
-    {
-        return source.Skip(1).Concat(source.Skip(1)).Contains(other.Skip(1));
-    }
+
     
 }
