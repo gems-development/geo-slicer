@@ -212,8 +212,8 @@ public class Slicer
         GeoJsonFileService.WriteGeometryToFile(part2, "Out/part2.geojson.ignore");
         */
 
-        IEnumerable<Polygon> resPart1 = _weilerAthertonAlghorithm.WeilerAtherton(polygon, new Polygon(part1));
-        IEnumerable<Polygon> resPart2 = _weilerAthertonAlghorithm.WeilerAtherton(polygon, new Polygon(part2));
+        IEnumerable<Polygon> resPart1 = _weilerAthertonAlghorithm.WeilerAtherton(polygon, part1);
+        IEnumerable<Polygon> resPart2 = _weilerAthertonAlghorithm.WeilerAtherton(polygon, part2);
         
         /*
         GeoJsonFileService.WriteGeometryToFile(new MultiLineString(resPart1.ToArray()), "Out/resPart1.geojson.ignore");

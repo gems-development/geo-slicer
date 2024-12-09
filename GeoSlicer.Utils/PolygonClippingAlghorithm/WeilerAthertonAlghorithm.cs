@@ -63,7 +63,7 @@ public class WeilerAthertonAlghorithm
         result = Array.Empty<Polygon>();
 
 
-        result = WeilerAtherton(clipped, new Polygon(boxLinearRing));
+        result = WeilerAtherton(clipped, boxLinearRing);
 
         if (result.Count() == 1)
         {
@@ -500,7 +500,7 @@ public class WeilerAthertonAlghorithm
     }
 
 
-    public Polygon[] WeilerAtherton(Polygon clippedPolygon, Polygon cuttingPolygon)
+    public Polygon[] WeilerAtherton(Polygon clippedPolygon, LinearRing cuttingRingShell)
     {
         LinearRing clippedRingShell = clippedPolygon.Shell;
         LinearRing[] clippedRingsHoles = clippedPolygon.Holes;
@@ -512,8 +512,6 @@ public class WeilerAthertonAlghorithm
         {
             allRingsClipped[i + 1] = clippedRingsHoles[i];
         }
-
-        LinearRing cuttingRingShell = cuttingPolygon.Shell;
 
         // Проверка: внешняя оболочка должна обходиться по часовой стрелке, внутренние границы - против часовой
 

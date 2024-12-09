@@ -43,11 +43,9 @@ public class HolesTests
         LinearRing[] ringsHolesClipped =
             { new(coordinatesFirstHoleClipped), new(coordinatesSecondHoleClipped) };
         Polygon clippedPolygon = new Polygon(ringShellClipped, ringsHolesClipped);
+        LinearRing cuttingRing = new LinearRing(coordinatesShellCutting);
 
-        LinearRing ringShellCutting = new LinearRing(coordinatesShellCutting);
-        Polygon cuttingPolygon = new Polygon(ringShellCutting);
-
-        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingPolygon);
+        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingRing);
 
         Polygon[] expected = new Polygon[] { new Polygon(new LinearRing(new Coordinate[]
         {
@@ -86,11 +84,9 @@ public class HolesTests
         LinearRing[] ringsHolesClipped =
             { new(coordinatesFirstHoleClipped), new(coordinatesSecondHoleClipped) };
         Polygon clippedPolygon = new Polygon(ringShellClipped, ringsHolesClipped);
+        LinearRing cuttingRing = new LinearRing(coordinatesShellCutting);
 
-        LinearRing ringShellCutting = new LinearRing(coordinatesShellCutting);
-        Polygon cuttingPolygon = new Polygon(ringShellCutting);
-
-        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingPolygon);
+        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingRing);
 
         Polygon[] expected = new Polygon[] { new Polygon(new LinearRing(new Coordinate[]
         {
@@ -129,10 +125,9 @@ public class HolesTests
             { new(coordinatesFirstHoleClipped), new(coordinatesSecondHoleClipped) };
         Polygon clippedPolygon = new Polygon(ringShellClipped, ringsHolesClipped);
 
-        LinearRing ringShellCutting = new LinearRing(coordinatesShellCutting);
-        Polygon cuttingPolygon = new Polygon(ringShellCutting);
+        LinearRing cuttingRing = new LinearRing(coordinatesShellCutting);
 
-        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingPolygon);
+        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingRing);
 
         Polygon[] expected = new Polygon[] { new Polygon(new LinearRing(new Coordinate[]
         {
@@ -171,10 +166,9 @@ public class HolesTests
             { new(coordinatesFirstHoleClipped), new(coordinatesSecondHoleClipped) };
         Polygon clippedPolygon = new Polygon(ringShellClipped, ringsHolesClipped);
 
-        LinearRing ringShellCutting = new LinearRing(coordinatesShellCutting);
-        Polygon cuttingPolygon = new Polygon(ringShellCutting);
+        LinearRing cuttingRing = new LinearRing(coordinatesShellCutting);
 
-        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingPolygon);
+        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingRing);
 
         Polygon[] expected = { new Polygon(
                 new LinearRing(new Coordinate[]
@@ -225,10 +219,9 @@ public class HolesTests
             { new(coordinatesFirstHoleClipped), new(coordinatesSecondHoleClipped), new(coordinatesThirdHoleClipped) };
         Polygon clippedPolygon = new Polygon(ringShellClipped, ringsHolesClipped);
 
-        LinearRing ringShellCutting = new LinearRing(coordinatesShellCutting);
-        Polygon cuttingPolygon = new Polygon(ringShellCutting);
+        LinearRing cuttingRing = new LinearRing(coordinatesShellCutting);
 
-        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingPolygon);
+        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingRing);
 
         Polygon[] expected = { new Polygon(
             new LinearRing(new Coordinate[]
@@ -280,10 +273,9 @@ public class HolesTests
             { new(coordinatesFirstHoleClipped), new(coordinatesSecondHoleClipped), new(coordinatesThirdHoleClipped) };
         Polygon clippedPolygon = new Polygon(ringShellClipped, ringsHolesClipped);
 
-        LinearRing ringShellCutting = new LinearRing(coordinatesShellCutting);
-        Polygon cuttingPolygon = new Polygon(ringShellCutting);
+        LinearRing cuttingRing = new LinearRing(coordinatesShellCutting);
 
-        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingPolygon);
+        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingRing);
 
         Polygon[] expected = { new Polygon(
                 new LinearRing(new Coordinate[]
@@ -330,10 +322,9 @@ public class HolesTests
             { new(coordinatesFirstHoleClipped), new(coordinatesSecondHoleClipped) };
         Polygon clippedPolygon = new Polygon(ringShellClipped, ringsHolesClipped);
 
-        LinearRing ringShellCutting = new LinearRing(coordinatesShellCutting);
-        Polygon cuttingPolygon = new Polygon(ringShellCutting);
+        LinearRing cuttingRing = new LinearRing(coordinatesShellCutting);
 
-        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingPolygon);
+        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingRing);
 
         Polygon[] expected = { new Polygon(
                 new LinearRing(new Coordinate[]
@@ -374,10 +365,9 @@ public class HolesTests
             { new(coordinatesFirstHoleClipped) };
         Polygon clippedPolygon = new Polygon(ringShellClipped, ringsHolesClipped);
 
-        LinearRing ringShellCutting = new LinearRing(coordinatesShellCutting);
-        Polygon cuttingPolygon = new Polygon(ringShellCutting);
+        LinearRing cuttingRing = new LinearRing(coordinatesShellCutting);
 
-        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingPolygon);
+        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingRing);
 
         Polygon[] expected = { new Polygon(
                 new LinearRing(new Coordinate[]

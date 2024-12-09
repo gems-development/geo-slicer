@@ -26,12 +26,12 @@ public class CornerTests
         {
             new(-2, -1), new(-2, 2), new(2, 2), new(2, -2), new(0, 0), new(-2, -1)
         };
-        Polygon polygonA = new Polygon(new LinearRing(figureA));
+        LinearRing ringA = new LinearRing(figureA);
         Coordinate[] figureB =
         {
             new(0, 0), new(-4, 2), new(4, 5), new(4, -5), new(0, -5), new(0, 0)
         };
-        Polygon polygonB = new Polygon(new LinearRing(figureB));
+        LinearRing ringB = new LinearRing(figureB);
 
         List<LinearRing> expectedB = new()
         {
@@ -49,8 +49,8 @@ public class CornerTests
         };
 
         //Act
-        var actualA = SlicerHelper.WeilerAtherton(polygonA, polygonB).Select(polygon => polygon.Shell);
-        var actualB = SlicerHelper.WeilerAtherton(polygonB, polygonA).Select(polygon => polygon.Shell);
+        var actualA = SlicerHelper.WeilerAtherton(new Polygon(ringA), ringB).Select(polygon => polygon.Shell);
+        var actualB = SlicerHelper.WeilerAtherton(new Polygon(ringB), ringA).Select(polygon => polygon.Shell);
 
         //Assert
         Assert.Equal(expectedA, actualA);
@@ -66,12 +66,12 @@ public class CornerTests
         {
             new(-3, 0), new(-3, 2), new(2, 2), new(2, -3), new(0, 0), new(-3, 0)
         };
-        Polygon polygonA = new Polygon(new LinearRing(figureA));
+        LinearRing ringA = new LinearRing(figureA);
         Coordinate[] figureB =
         {
             new(0, 0), new(-4, -5), new(-4, 4), new(0, 0)
         };
-        Polygon polygonB = new Polygon(new LinearRing(figureB));
+        LinearRing ringB = new LinearRing(figureB);
 
         List<LinearRing> expected = new()
         {
@@ -82,8 +82,8 @@ public class CornerTests
         };
 
         //Act
-        var actualA = SlicerHelper.WeilerAtherton(polygonA, polygonB).Select(polygon => polygon.Shell);
-        var actualB = SlicerHelper.WeilerAtherton(polygonB, polygonA).Select(polygon => polygon.Shell);
+        var actualA = SlicerHelper.WeilerAtherton(new Polygon(ringA), ringB).Select(polygon => polygon.Shell);
+        var actualB = SlicerHelper.WeilerAtherton(new Polygon(ringB), ringA).Select(polygon => polygon.Shell);
 
         //Assert
         Assert.True(expected.IsEqualsRingCollection(actualA));
@@ -98,12 +98,12 @@ public class CornerTests
         {
             new(0, 0), new(3, -3), new(-2, -3), new(0, 0)
         };
-        Polygon polygonA = new Polygon(new LinearRing(figureA));
+        LinearRing ringA = new LinearRing(figureA);
         Coordinate[] figureB =
         {
             new(-4, 0), new(4, 3), new(4, -6), new(0, -6), new(0, 0), new(-4, 0)
         };
-        Polygon polygonB = new Polygon(new LinearRing(figureB));
+        LinearRing ringB = new LinearRing(figureB);
 
         List<LinearRing> expected = new()
         {
@@ -114,8 +114,8 @@ public class CornerTests
         };
 
         //Act
-        var actualA = SlicerHelper.WeilerAtherton(polygonA, polygonB).Select(polygon => polygon.Shell);
-        var actualB = SlicerHelper.WeilerAtherton(polygonB, polygonA).Select(polygon => polygon.Shell);
+        var actualA = SlicerHelper.WeilerAtherton(new Polygon(ringA), ringB).Select(polygon => polygon.Shell);
+        var actualB = SlicerHelper.WeilerAtherton(new Polygon(ringB), ringA).Select(polygon => polygon.Shell);
 
         //Assert
         Assert.True(expected.IsEqualsRingCollection(actualA));
@@ -130,12 +130,12 @@ public class CornerTests
         {
             new(0, 0), new(-2, -3), new(-2, -1), new(0, 0)
         };
-        Polygon polygonA = new Polygon(new LinearRing(figureA));
+        LinearRing ringA = new LinearRing(figureA);
         Coordinate[] figureB =
         {
             new(0, 0), new(-3, -3), new(-3, 4), new(0, 0)
         };
-        Polygon polygonB = new Polygon(new LinearRing(figureB));
+        LinearRing ringB = new LinearRing(figureB);
 
         List<LinearRing> expected = new()
         {
@@ -146,8 +146,8 @@ public class CornerTests
         };
 
         //Act
-        var actualA = SlicerHelper.WeilerAtherton(polygonA, polygonB).Select(polygon => polygon.Shell);
-        var actualB = SlicerHelper.WeilerAtherton(polygonB, polygonA).Select(polygon => polygon.Shell);
+        var actualA = SlicerHelper.WeilerAtherton(new Polygon(ringA), ringB).Select(polygon => polygon.Shell);
+        var actualB = SlicerHelper.WeilerAtherton(new Polygon(ringB), ringA).Select(polygon => polygon.Shell);
         
         //Assert
         Assert.True(expected.IsEqualsRingCollection(actualA));
