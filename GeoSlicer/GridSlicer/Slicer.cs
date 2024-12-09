@@ -96,7 +96,7 @@ public class Slicer
         // Начало итеративного алгоритма
         while (xQueue.Count > 0)
         {
-            Console.WriteLine($"{current}/{total}");
+            // Console.WriteLine($"{current}/{total}");
             current++;
             int x = xQueue.Dequeue();
             int y = yQueue.Dequeue();

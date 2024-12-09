@@ -44,7 +44,7 @@ public class RepeatingPointsValidator
         return false;
     }
     
-    public T Fix<T>(T linear, Func<Coordinate[], T> creator) where T : LineString, new()
+    public T Fix<T>(T linear, Func<Coordinate[], T> creator) where T : LineString
     {
         List<Coordinate> resultCoordinates = new List<Coordinate>(linear.Count) { linear.Coordinate };
         foreach (Coordinate coordinate in linear.Coordinates)
