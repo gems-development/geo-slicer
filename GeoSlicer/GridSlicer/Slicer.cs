@@ -49,8 +49,11 @@ public class Slicer
 
         IEnumerable<Polygon>?[,] result = new IEnumerable<Polygon>?[xCount, yCount];
 
-        int GetXIndex(Coordinate coordinate) => (int)Math.Ceiling((coordinate.X - xDown) / xScale);
-        int GetYIndex(Coordinate coordinate) => (int)Math.Ceiling((coordinate.Y - yDown) / yScale);
+        int GetXIndex(Coordinate coordinate) => (int)Math.Floor((coordinate.X - xDown) / xScale);
+        int GetXIndexCeil(Coordinate coordinate) => (int)Math.Ceiling((coordinate.X - xDown) / xScale);
+        int GetYIndex(Coordinate coordinate) => (int)Math.Floor((coordinate.Y - yDown) / yScale);
+        int GetYIndexCeil(Coordinate coordinate) => (int)Math.Ceiling((coordinate.Y - yDown) / yScale);
+
 
         Queue<int> xQueue = new Queue<int>();
         Queue<int> yQueue = new Queue<int>();
@@ -71,8 +74,19 @@ public class Slicer
             }
         }
 
-        xQueue.Enqueue(GetXIndex(inputPolygon.Coordinate));
-        yQueue.Enqueue(GetYIndex(inputPolygon.Coordinate));
+        int indexX1 = GetXIndex(inputPolygon.Coordinate);
+        int indexX2 = GetXIndexCeil(inputPolygon.Coordinate);
+        xQueue.Enqueue(indexX1);
+ 
+        int indexY1 = GetYIndex(inputPolygon.Coordinate);
+        int indexY2 = GetYIndexCeil(inputPolygon.Coordinate);
+        yQueue.Enqueue(indexY1);
+
+        if (indexX1 != indexX2 || indexY1 != indexY2)
+        {
+            xQueue.Enqueue(indexX2);
+            yQueue.Enqueue(indexY2);
+        }
 
 
         // Console.WriteLine($"xCount: {xCount}, yCount: {yCount}");
