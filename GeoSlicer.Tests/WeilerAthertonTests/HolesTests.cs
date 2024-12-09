@@ -350,4 +350,47 @@ public class HolesTests
 
         Assert.True(expected.IsEqualsPolygonCollections(actual));
     }
+    [Fact]
+    
+    public void UFormHole_TwoResults_Test()
+    {
+        Coordinate[] coordinatesShellClipped =
+        {
+            new(-3, -2), new(-3, 5), new(4, 5), new(4, -2), new(-3, -2)
+        };
+
+        Coordinate[] coordinatesFirstHoleClipped =
+        {
+            new(3,-1), new(-2,-1), new(-2,3), new(1,3), new(1,2), new(-1, 2), new(-1, 0), new(3, 0), new(3, -1)
+        };
+
+        Coordinate[] coordinatesShellCutting =
+        {
+            new(0,4), new(2,4), new(2,-3), new(0,-3), new(0,4)
+        };
+
+        LinearRing ringShellClipped = new LinearRing(coordinatesShellClipped);
+        LinearRing[] ringsHolesClipped =
+            { new(coordinatesFirstHoleClipped) };
+        Polygon clippedPolygon = new Polygon(ringShellClipped, ringsHolesClipped);
+
+        LinearRing ringShellCutting = new LinearRing(coordinatesShellCutting);
+        Polygon cuttingPolygon = new Polygon(ringShellCutting);
+
+        var actual = SlicerHelper.WeilerAtherton(clippedPolygon, cuttingPolygon);
+
+        Polygon[] expected = { new Polygon(
+                new LinearRing(new Coordinate[]
+                {
+                    new(0, -2), new(0, -1), new(2, -1), new(2, -2), new(0, -2)
+                })
+            ),
+            new Polygon(new LinearRing(new Coordinate[]
+            {
+                new(0, 0), new(0, 2), new(1, 2), new(1, 3), new(0, 3), new(0, 4), new(2, 4), new(2, 0), new(0, 0)
+            }))
+        };
+
+        Assert.True(expected.IsEqualsPolygonCollections(actual));
+    }
 }
