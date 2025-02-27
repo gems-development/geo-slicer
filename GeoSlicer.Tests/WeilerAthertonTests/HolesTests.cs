@@ -4,7 +4,7 @@ using GeoSlicer.Utils.Intersectors.CoordinateComparators;
 using GeoSlicer.Utils.PolygonClippingAlghorithm;
 using NetTopologySuite.Geometries;
 
-namespace GeoSlicer.Tests.GridTests;
+namespace GeoSlicer.Tests.WeilerAthertonTests;
 
 public class HolesTests
 {

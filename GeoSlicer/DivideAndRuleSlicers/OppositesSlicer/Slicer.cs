@@ -16,6 +16,8 @@ public class Slicer
     // todo После вынесения метода пересечения заменить на нужный класс
     private readonly WeilerAthertonAlghorithm _weilerAthertonAlghorithm;
 
+    private int _debugVar = 0;
+
     public Slicer(LineService lineService, int maxPointsCount, WeilerAthertonAlghorithm weilerAthertonAlghorithm)
     {
         _lineService = lineService;
@@ -23,7 +25,7 @@ public class Slicer
         _weilerAthertonAlghorithm = weilerAthertonAlghorithm;
     }
 
-    
+
     public IEnumerable<Polygon> Slice(Polygon input)
     {
         LinkedList<Polygon> result = new LinkedList<Polygon>();
@@ -36,11 +38,11 @@ public class Slicer
 
         Queue<Polygon> queue = new Queue<Polygon>();
         queue.Enqueue(input);
-        int i = 0;
+        _debugVar = 0;
         while (queue.Count != 0)
         {
             Console.WriteLine(
-                $"Number: {i}. Queue count: {queue.Count}. Max points count: {queue.Select(polygon => polygon.Shell.Count).Max()}");
+                $"Number: {_debugVar}. Queue count: {queue.Count}. Max points count: {queue.Select(polygon => polygon.Shell.Count).Max()}");
 
             // todo Кажется, есть лишние разрезания
             Polygon current = queue.Dequeue();
@@ -50,7 +52,7 @@ public class Slicer
                 current,
                 current.Shell.GetCoordinateN(oppositesIndex),
                 current.Shell.GetCoordinateN((oppositesIndex + current.Shell.Count / 2) % current.Shell.Count));
-            
+
 
             foreach (Polygon ring in sliced)
             {
@@ -63,9 +65,10 @@ public class Slicer
                     queue.Enqueue(ring);
                 }
             }
-          //  GeoJsonFileService.WriteGeometryToFile(new MultiPolygon(queue.Concat(result).ToArray())
-          //      , $"Out\\iter{i}.geojson.ignore");
-            i++;
+
+            // GeoJsonFileService.WriteGeometryToFile(new MultiPolygon(queue.Concat(result).ToArray())
+            //    , $"Out\\iter{_debugVar}.geojson.ignore");
+            _debugVar++;
         }
 
         return result;
@@ -81,7 +84,7 @@ public class Slicer
         // Если isVertical == true, создается 2 области: слева и справа от вертикального разделителя
         bool isVertical = Math.Abs(a.Y - b.Y) > Math.Abs(a.X - b.X);
 
-        
+
         // Сортировка к a<b
         if (isVertical && a.Y > b.Y || !isVertical && a.X > b.X)
         {
@@ -93,13 +96,12 @@ public class Slicer
         // Создаем нахлест чтобы наверняка
         double minY = envelope.MinY - (envelope.MaxY - envelope.MinY) * 0.1;
         double maxY = envelope.MaxY + (envelope.MaxY - envelope.MinY) * 0.1;
-        double minX = envelope.MinX -(envelope.MaxY - envelope.MinY) * 0.1;
+        double minX = envelope.MinX - (envelope.MaxY - envelope.MinY) * 0.1;
         double maxX = envelope.MaxX + (envelope.MaxY - envelope.MinY) * 0.1;
         if (isVertical)
         {
             if (minY < a.Y)
             {
-
                 // Продлеваем прямую
                 a.X += (a.X - b.X) * (a.Y - minY) / (b.Y - a.Y);
                 a.Y = minY;
@@ -206,19 +208,22 @@ public class Slicer
             }
         }
 
-        /*
-        GeoJsonFileService.WriteGeometryToFile(polygon, "Out/source.geojson.ignore");
-        GeoJsonFileService.WriteGeometryToFile(part1, "Out/part1.geojson.ignore");
-        GeoJsonFileService.WriteGeometryToFile(part2, "Out/part2.geojson.ignore");
-        */
+        if (_debugVar == 683)
+        {
+            GeoJsonFileService.WriteGeometryToFile(polygon, "Out/source.geojson.ignore");
+            GeoJsonFileService.WriteGeometryToFile(part1, "Out/part1.geojson.ignore");
+            GeoJsonFileService.WriteGeometryToFile(part2, "Out/part2.geojson.ignore");
+        }
 
         IEnumerable<Polygon> resPart1 = _weilerAthertonAlghorithm.WeilerAtherton(polygon, part1);
         IEnumerable<Polygon> resPart2 = _weilerAthertonAlghorithm.WeilerAtherton(polygon, part2);
-        
-        /*
-        GeoJsonFileService.WriteGeometryToFile(new MultiLineString(resPart1.ToArray()), "Out/resPart1.geojson.ignore");
-        GeoJsonFileService.WriteGeometryToFile(new MultiLineString(resPart2.ToArray()), "Out/resPart2.geojson.ignore");
-        */
+
+
+        // GeoJsonFileService.WriteGeometryToFile(new MultiPolygon(resPart1.ToArray()),
+        //      "Out/resPart1.geojson.ignore");
+        // GeoJsonFileService.WriteGeometryToFile(new MultiPolygon(resPart2.ToArray()),
+        //     "Out/resPart2.geojson.ignore");
+
         return resPart1.Concat(resPart2);
     }
 }

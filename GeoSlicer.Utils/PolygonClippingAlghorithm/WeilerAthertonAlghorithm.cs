@@ -608,13 +608,14 @@ public class WeilerAthertonAlghorithm
             {
                 bool isEntering = true;
                 LinkedListNode<CoordinateSupport>? temp;
-                for (temp = nodeInCutting.Next;
+                for (temp = nodeInCutting.Value.Coord!.Next;
                      temp != null;
                      temp = temp.Next)
                 {
                     if (temp.Value.Type == PointType.Entering)
                     {
                         isEntering = false;
+                        nodeInCutting = nodeInCutting.Previous;
                         break;
                     }
 
@@ -626,13 +627,20 @@ public class WeilerAthertonAlghorithm
 
                 if (temp == null)
                 {
-                    for (temp = cutting.First;
-                         temp != nodeInCutting;
+                    LinkedListNode<CoordinateSupport> firstInRing = nodeInCutting!.Value.Coord!;
+                    while (firstInRing.Previous != null)
+                    {
+                        firstInRing = firstInRing.Previous;
+                    }
+                    LinkedListNode<CoordinateSupport> endOfCycle = nodeInCutting.Value.Coord!;
+                    for (temp = firstInRing;
+                         temp != endOfCycle;
                          temp = temp.Next)
                     {
                         if (temp!.Value.Type == PointType.Entering)
                         {
                             isEntering = false;
+                            nodeInCutting = nodeInCutting.Previous;
                             break;
                         }
 
@@ -642,13 +650,13 @@ public class WeilerAthertonAlghorithm
                         }
                     }
 
-                    if (temp == nodeInCutting)
+                    if (temp == firstInRing)
                     {
-                        isEntering = false;
+                        //isEntering = false;
                         // todo Разобраться с одним selfIntersection без входов и выходов
-                        
-                        // throw new Exception(
-                        //     "Встретили ситуацию, существование которой считали невозможным. Надо фиксить");
+
+                        throw new Exception(
+                            "Встретили ситуацию, существование которой считали невозможным. Надо фиксить");
                     }
                 }
 
@@ -664,9 +672,9 @@ public class WeilerAthertonAlghorithm
             {
                 numberOfEnteringMarks--;
                 int count = 0;
-                for (LinkedListNode<CoordinateSupport>? nodeFromEToLInClipped = startInClipped;
+                for (LinkedListNode<CoordinateSupport> nodeFromEToLInClipped = startInClipped!;
                      nodeFromEToLInClipped!.Value.Type != PointType.Leaving &&
-                     (nodeFromEToLInClipped!.Value.Type != PointType.SelfIntersection || count == 0);
+                     nodeFromEToLInClipped!.Value.Type != PointType.SelfIntersection || count == 0;
                      nodeFromEToLInClipped = nodeFromEToLInClipped.Next)
                 {
                     figure.Add(nodeFromEToLInClipped.Value);
@@ -677,7 +685,7 @@ public class WeilerAthertonAlghorithm
                         // можно в цикле дойти до начала через Previous: while(node.Previous!=null)
                         // или можно придумать что-то с метками (у каждой точки листа хранить ссылку на первый элемент листа)
 
-
+                        nodeFromEToLInClipped = startInClipped!;
                         while (nodeFromEToLInClipped.Previous != null)
                         {
                             nodeFromEToLInClipped = nodeFromEToLInClipped.Previous;
@@ -686,9 +694,18 @@ public class WeilerAthertonAlghorithm
                         if (nodeFromEToLInClipped!.Value.Type == PointType.Leaving ||
                             nodeFromEToLInClipped!.Value.Type == PointType.SelfIntersection)
                         {
-                            nodeFromEToLInClipped!.Value.Type = PointType.Useless;
                             startInCutting = nodeFromEToLInClipped.Value.Coord;
-                            startInCutting!.Value.Type = PointType.Useless;
+                            if (nodeFromEToLInClipped!.Value.Type == PointType.SelfIntersection)
+                            {
+                                nodeFromEToLInClipped!.Value.Type = PointType.Entering;
+                                startInCutting!.Value.Type = PointType.Entering;
+                            }
+                            else
+                            {
+                                nodeFromEToLInClipped!.Value.Type = PointType.Useless;
+                                startInCutting!.Value.Type = PointType.Useless;
+                            }
+
                             break;
                         }
 
@@ -697,8 +714,8 @@ public class WeilerAthertonAlghorithm
 
                     if (nodeFromEToLInClipped.Next!.Value.Type == PointType.Leaving)
                     {
-                        nodeFromEToLInClipped.Next!.Value.Type = PointType.Useless;
                         startInCutting = nodeFromEToLInClipped.Next.Value.Coord;
+                        nodeFromEToLInClipped.Next!.Value.Type = PointType.Useless;
                         startInCutting!.Value.Type = PointType.Useless;
                         break;
                     }
@@ -706,19 +723,23 @@ public class WeilerAthertonAlghorithm
                     if (nodeFromEToLInClipped.Next!.Value.Type == PointType.SelfIntersection)
                     {
                         startInCutting = nodeFromEToLInClipped.Next.Value.Coord;
+                        nodeFromEToLInClipped.Next!.Value.Type = PointType.Entering;
+                        startInCutting!.Value.Type = PointType.Entering;
+                        break;
                     }
                 }
 
                 count = 0;
-                for (LinkedListNode<CoordinateSupport>? nodeFromLToEInCutting = startInCutting;
+                for (LinkedListNode<CoordinateSupport> nodeFromLToEInCutting = startInCutting!;
                      nodeFromLToEInCutting!.Value.Type != PointType.Entering &&
-                     (nodeFromLToEInCutting!.Value.Type != PointType.SelfIntersection || count == 0);
+                     nodeFromLToEInCutting!.Value.Type != PointType.SelfIntersection || count == 0;
                      nodeFromLToEInCutting = nodeFromLToEInCutting.Next)
                 {
                     figure.Add(nodeFromLToEInCutting.Value);
                     count = 1;
                     if (nodeFromLToEInCutting.Next == null)
                     {
+                        nodeFromLToEInCutting = startInCutting!;
                         while (nodeFromLToEInCutting.Previous != null)
                         {
                             nodeFromLToEInCutting = nodeFromLToEInCutting.Previous;
@@ -727,9 +748,18 @@ public class WeilerAthertonAlghorithm
                         if (nodeFromLToEInCutting!.Value.Type == PointType.Entering ||
                             nodeFromLToEInCutting!.Value.Type == PointType.SelfIntersection)
                         {
-                            nodeFromLToEInCutting!.Value.Type = PointType.Useless;
                             startInClipped = nodeFromLToEInCutting.Value.Coord;
-                            startInClipped!.Value.Type = PointType.Useless;
+                            if (nodeFromLToEInCutting!.Value.Type == PointType.SelfIntersection)
+                            {
+                                nodeFromLToEInCutting!.Value.Type = PointType.Leaving;
+                                startInClipped!.Value.Type = PointType.Leaving;
+                            }
+                            else
+                            {
+                                nodeFromLToEInCutting!.Value.Type = PointType.Useless;
+                                startInClipped!.Value.Type = PointType.Useless;
+                            }
+
                             break;
                         }
 
@@ -747,6 +777,9 @@ public class WeilerAthertonAlghorithm
                     if (nodeFromLToEInCutting.Next!.Value.Type == PointType.SelfIntersection)
                     {
                         startInClipped = nodeFromLToEInCutting.Next.Value.Coord;
+                        startInClipped!.Value.Type = PointType.Leaving;
+                        nodeFromLToEInCutting.Next!.Value.Type = PointType.Leaving;
+                        break;
                     }
                 }
             } while (startInClipped != nodeInCutting.Value.Coord);
@@ -854,6 +887,7 @@ public class WeilerAthertonAlghorithm
             if (!_containsChecker.IsPointInLinearRing(cuttingRingShell.Coordinates[i], clippedRingShell))
             {
                 isCuttingInClipped = false;
+                break;
             }
         }
 
