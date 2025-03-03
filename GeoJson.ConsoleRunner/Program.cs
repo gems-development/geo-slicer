@@ -14,11 +14,11 @@ EpsilonCoordinateComparator coordinateComparator = new EpsilonCoordinateComparat
 LineService lineService = new LineService(epsilon, coordinateComparator);
 
 //SlicerOld slicer = new SlicerOld(lineService, 5,
-WeilerAthertonAlghorithm weilerAthertonAlghorithm = new WeilerAthertonAlghorithm(
+WeilerAthertonForLine weilerAthertonAlghorithm = new WeilerAthertonForLine(
     new LinesIntersector(coordinateComparator, lineService, epsilon), lineService,
     coordinateComparator, new ContainsChecker(lineService, epsilon), epsilon);
-Slicer slicer = new Slicer(lineService, 50,
-    weilerAthertonAlghorithm);
+//Slicer slicer = new Slicer(lineService, 140,
+//    weilerAthertonAlghorithm);
 
 /*
 var polygon =
@@ -34,8 +34,8 @@ GeoJsonFileService.WriteGeometryToFile(multiPolygon, "Out\\darBaikal1500New.geoj
 
 
 Polygon source = GeoJsonFileService.ReadGeometryFromFile<Polygon>("Out\\source.geojson.ignore");
-LinearRing part =
-    new LinearRing(GeoJsonFileService.ReadGeometryFromFile<LineString>("Out\\part2.geojson.ignore").Coordinates);
+LineString part =
+    GeoJsonFileService.ReadGeometryFromFile<LineString>("Out\\partForLine.geojson.ignore");
 
 IEnumerable<Polygon> result = weilerAthertonAlghorithm.WeilerAtherton(source, part);
 MultiPolygon multiPolygon = new MultiPolygon(result.ToArray());
