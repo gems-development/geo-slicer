@@ -650,7 +650,7 @@ public class WeilerAthertonAlghorithm
                         }
                     }
 
-                    if (temp == firstInRing)
+                    if (temp == endOfCycle)
                     {
                         //isEntering = false;
                         // todo Разобраться с одним selfIntersection без входов и выходов
