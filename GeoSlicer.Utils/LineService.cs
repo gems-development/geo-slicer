@@ -168,30 +168,6 @@ public class LineService
         return ax * bx + ay * by;
     }
 
-    public bool InsideTheAngleOld(
-        Coordinate vectorPointA1,
-        Coordinate vectorPointA2,
-        Coordinate anglePointB1,
-        Coordinate anglePointB2,
-        Coordinate anglePointB3)
-    {
-        var vectorB1 = new Coordinate(anglePointB3.X - anglePointB2.X,
-            anglePointB3.Y - anglePointB2.Y);
-        var phiB1 = CalculatePhiFromMinusPiToPlusPi(vectorB1.X, vectorB1.Y);
-        if (phiB1 == null) return true;
-        const int sign = -1;
-        var rotatedVectorAx = (vectorPointA2.X - vectorPointA1.X) * Math.Cos(sign * (double)phiB1) -
-                              (vectorPointA2.Y - vectorPointA1.Y) * Math.Sin(sign * (double)phiB1);
-        var rotatedVectorAy = (vectorPointA2.X - vectorPointA1.X) * Math.Sin(sign * (double)phiB1) +
-                              (vectorPointA2.Y - vectorPointA1.Y) * Math.Cos(sign * (double)phiB1);
-        var phiA = CalculatePhiFromZeroTo2Pi(rotatedVectorAx, rotatedVectorAy);
-        var rotatedVectorB2X = (anglePointB1.X - anglePointB2.X) * Math.Cos(sign * (double)phiB1) -
-                               (anglePointB1.Y - anglePointB2.Y) * Math.Sin(sign * (double)phiB1);
-        var rotatedVectorB2Y = (anglePointB1.X - anglePointB2.X) * Math.Sin(sign * (double)phiB1) +
-                               (anglePointB1.Y - anglePointB2.Y) * Math.Cos(sign * (double)phiB1);
-        var phiB2 = CalculatePhiFromZeroTo2Pi(rotatedVectorB2X, rotatedVectorB2Y);
-        return phiA <= phiB2 + _epsilon;
-    }
     public bool InsideTheAngle(
         Coordinate vectorPointA1,
         Coordinate vectorPointA2,
@@ -199,41 +175,10 @@ public class LineService
         Coordinate anglePointB2,
         Coordinate anglePointB3)
     {
-        bool oldRes =
-            InsideTheAngleOld(vectorPointA1, vectorPointA2, anglePointB1, anglePointB2, anglePointB3);
-        bool newRes = InsideTheAngle(vectorPointA1, vectorPointA2, anglePointB1, anglePointB2, anglePointB3, true);
-        if (oldRes != newRes)
-        {
-            throw new Exception("Результаты InsideTheAngle расходятся");
-        }
+
         return InsideTheAngle(vectorPointA1, vectorPointA2, anglePointB1, anglePointB2, anglePointB3, true);
     }
 
-    public bool InsideTheAngleWithoutBordersOld(
-        Coordinate vectorPointA1,
-        Coordinate vectorPointA2,
-        Coordinate anglePointB1,
-        Coordinate anglePointB2,
-        Coordinate anglePointB3)
-    {
-        var vectorB1 = new Coordinate(anglePointB3.X - anglePointB2.X,
-            anglePointB3.Y - anglePointB2.Y);
-        var phiB1 = CalculatePhiFromMinusPiToPlusPi(vectorB1.X, vectorB1.Y);
-        if (phiB1 == null) return true;
-        const int sign = -1;
-        var rotatedVectorAx = (vectorPointA2.X - vectorPointA1.X) * Math.Cos(sign * (double)phiB1) -
-                              (vectorPointA2.Y - vectorPointA1.Y) * Math.Sin(sign * (double)phiB1);
-        var rotatedVectorAy = (vectorPointA2.X - vectorPointA1.X) * Math.Sin(sign * (double)phiB1) +
-                              (vectorPointA2.Y - vectorPointA1.Y) * Math.Cos(sign * (double)phiB1);
-        var phiA = CalculatePhiFromZeroTo2Pi(rotatedVectorAx, rotatedVectorAy);
-        var rotatedVectorB2X = (anglePointB1.X - anglePointB2.X) * Math.Cos(sign * (double)phiB1) -
-                               (anglePointB1.Y - anglePointB2.Y) * Math.Sin(sign * (double)phiB1);
-        var rotatedVectorB2Y = (anglePointB1.X - anglePointB2.X) * Math.Sin(sign * (double)phiB1) +
-                               (anglePointB1.Y - anglePointB2.Y) * Math.Cos(sign * (double)phiB1);
-        var phiB2 = CalculatePhiFromZeroTo2Pi(rotatedVectorB2X, rotatedVectorB2Y);
-        return phiA > 0 + _epsilon && phiA < phiB2 - _epsilon;
-    }
-    
     public bool InsideTheAngleWithoutBorders(
         Coordinate vectorPointA1,
         Coordinate vectorPointA2,
@@ -241,13 +186,6 @@ public class LineService
         Coordinate anglePointB2,
         Coordinate anglePointB3)
     {
-        bool oldRes =
-            InsideTheAngleWithoutBordersOld(vectorPointA1, vectorPointA2, anglePointB1, anglePointB2, anglePointB3);
-        bool newRes = InsideTheAngle(vectorPointA1, vectorPointA2, anglePointB1, anglePointB2, anglePointB3, false);
-        if (oldRes != newRes)
-        {
-            throw new Exception("Результаты InsideTheAngleWithoutBorders расходятся");
-        }
         return InsideTheAngle(vectorPointA1, vectorPointA2, anglePointB1, anglePointB2, anglePointB3, false);
     }
 
