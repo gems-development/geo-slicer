@@ -38,4 +38,20 @@ public class InsideTheAngleTests
         Assert.False(_lineService.InsideTheAngleWithoutBorders(vecBegin, vecEnd,
             angleA, angleB, angleC));
     } 
+    
+    [Fact]
+    public void TestInsideTheAngleReversed()
+    {
+        Coordinate vecBegin = new Coordinate(0, 0);
+        Coordinate vecEnd = new Coordinate(4, 0);
+
+        Coordinate angleA = new Coordinate(4,0);
+        Coordinate angleB = new Coordinate(0,0);
+        Coordinate angleC = new Coordinate(-2,0);
+
+        Assert.False(_lineService.InsideTheAngleWithoutBorders(vecBegin, vecEnd,
+            angleC, angleB, angleA));
+        Assert.False(_lineService.InsideTheAngleWithoutBorders(vecBegin, vecEnd,
+            angleA, angleB, angleC));
+    }
 }
