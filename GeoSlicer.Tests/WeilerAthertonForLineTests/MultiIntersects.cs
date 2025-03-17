@@ -1,13 +1,10 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using GeoSlicer.DivideAndRuleSlicers.OppositesSlicer;
-using GeoSlicer.Utils;
+﻿using GeoSlicer.Utils;
 using GeoSlicer.Utils.Intersectors;
 using GeoSlicer.Utils.Intersectors.CoordinateComparators;
 using GeoSlicer.Utils.PolygonClippingAlghorithm;
 using NetTopologySuite.Geometries;
 
-namespace GeoSlicer.Tests.WeilerAthertonTests;
+namespace GeoSlicer.Tests.WeilerAthertonForLineTests;
 
 public class MultiIntersects
 {

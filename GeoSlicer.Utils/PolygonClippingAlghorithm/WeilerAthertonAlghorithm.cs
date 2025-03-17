@@ -87,7 +87,7 @@ public class WeilerAthertonAlghorithm
         return IntersectionType.IntersectionWithEdge;
     }
 
-    public (LinesIntersectionType, Coordinate?) GetIntersection(CoordinateSupport line1Point1,
+    private (LinesIntersectionType, Coordinate?) GetIntersection(CoordinateSupport line1Point1,
         CoordinateSupport line1Point2, CoordinateSupport line2Point1, CoordinateSupport line2Point2)
     {
         if (line1Point1.Equals2D(line1Point2)) return (LinesIntersectionType.NoIntersection, null);
@@ -154,28 +154,26 @@ public class WeilerAthertonAlghorithm
 
                 else if (intersection is { Item2: not null, Item1: LinesIntersectionType.TyShaped })
                 {
+                    flagWereIntersectionOnCurrentIteration = true;
+                    
                     LinkedListNode<CoordinateSupport> intersectionNode =
                         new LinkedListNode<CoordinateSupport>(new CoordinateSupport(intersection.Item2));
 
                     if (_coordinateComparator.IsEquals(intersectionNode.Value, numberOne.Value))
                     {
                         cutting.AddAfter(numberThree, intersectionNode);
-                        flagWereIntersectionOnCurrentIteration = true;
                     }
                     else if (_coordinateComparator.IsEquals(intersectionNode.Value, numberTwo.Value))
                     {
                         cutting.AddAfter(numberThree, intersectionNode);
-                        flagWereIntersectionOnCurrentIteration = true;
                     }
                     else if (_coordinateComparator.IsEquals(intersectionNode.Value, numberThree.Value))
                     {
                         clipped.AddAfter(numberOne, intersectionNode);
-                        flagWereIntersectionOnCurrentIteration = true;
                     }
                     else
                     {
                         clipped.AddAfter(numberOne, intersectionNode);
-                        flagWereIntersectionOnCurrentIteration = true;
                     }
                 }
 
@@ -566,7 +564,7 @@ public class WeilerAthertonAlghorithm
                 clippedMaxX <= cuttingMaxX && clippedMinX >= cuttingMinX)
             {
                 var tuple = MakeNotes(clippedListArray[i], cutting);
-                 PrintMarks(clippedListArray[i], cutting, "Bad" + i + ".txt.ignore");
+                // PrintMarks(clippedListArray[i], cutting, "Bad" + i + ".txt.ignore");
                 bool flagWereIntersection = tuple.Item1;
                 numberOfEnteringMarks += tuple.Item2;
                 numberOfLeavingMarks += tuple.Item3;
