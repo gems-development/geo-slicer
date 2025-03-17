@@ -4,6 +4,9 @@ using NetTopologySuite.Geometries;
 
 namespace GeoSlicer.Utils;
 
+/// <summary>
+/// Проверяет, находится ли точка в чем-либо
+/// </summary>
 public class ContainsChecker
 {
     private readonly LineService _lineService;
@@ -14,19 +17,47 @@ public class ContainsChecker
         _lineService = lineService;
         _epsilon = epsilon;
     }
-
+    
+    /// <summary>
+    /// Проверяет, находится ли точка внутри геометрии
+    /// </summary>
     public bool IsPointInPolygon(Coordinate point, Polygon polygon)
     {
         return IsPointInLinearRing(point, polygon.Shell) &&
                polygon.Holes.All(ring => !IsPointInLinearRing(point, ring));
     }
 
+    /// <summary>
+    /// Проверяет, находится ли точка внутри геометрии
+    /// </summary>
     public bool IsPointInLinearRing(Coordinate point, LinearRing ring)
     {
+        // Если точка за пределами оболочки кольца, выходим сразу
         if (!IsPointInBorders(point, ring))
         {
             return false;
         }
+
+        // Метод трассировки луча
+        int count = 0;
+        for (int i = 0; i < ring.Count - 1; i++)
+        {
+            if (_lineService.IsCoordinateInSegment(point, ring[(i + ring.Count) % ring.Count],
+                    ring[(i + 1 + ring.Count) % ring.Count]))
+            {
+                count = 1;
+                break;
+            }
+
+            if (IsIntersectHorizontalRayWithSegment(point, ring[(i + ring.Count) % ring.Count],
+                    ring[(i + 1 + ring.Count) % ring.Count]))
+            {
+                count++;
+            }
+        }
+
+        return count % 2 != 0;
+
         bool IsIntersectHorizontalRayWithSegment(Coordinate p, Coordinate l1, Coordinate l2)
         {
             Coordinate maxCoord;
@@ -50,34 +81,19 @@ public class ContainsChecker
 
             return minCoord.Y < p.Y - _epsilon && maxCoord.Y >= p.Y && product < 0;
         }
-        // Метод трассировки луча
-        int count = 0;
-        for (int i = 0; i < ring.Count - 1; i++)
-        {
-            if (_lineService.IsCoordinateInSegment(point, ring[(i + ring.Count) % ring.Count],
-                    ring[(i + 1 + ring.Count) % ring.Count]))
-            {
-                count = 1;
-                break;
-            }
-
-            if (IsIntersectHorizontalRayWithSegment(point, ring[(i + ring.Count) % ring.Count],
-                    ring[(i + 1 + ring.Count) % ring.Count]))
-            {
-                count++;
-            }
-        }
-
-        return count % 2 != 0;
     }
-    
-    
 
+    /// <summary>
+    /// Проверяет, находится ли точка внутри оболочки отрезка
+    /// </summary>
     public bool IsPointInBorders(Coordinate coordinate, Coordinate a, Coordinate b)
     {
         return IsPointInBorders(coordinate.X, coordinate.Y, a.X, a.Y, b.X, b.Y);
     }
-    
+
+    /// <summary>
+    /// Проверяет, находится ли точка внутри оболочки геометрии
+    /// </summary>
     public bool IsPointInBorders(Coordinate coordinate, Geometry geometry)
     {
         Envelope envelope = geometry.EnvelopeInternal;
@@ -87,9 +103,11 @@ public class ContainsChecker
             envelope.MaxY, envelope.MinY);
     }
 
+    /// <summary>
+    /// Проверяет, находится ли точка внутри оболочки отрезка
+    /// </summary>
     public bool IsPointInBorders(double targetX, double targetY, double x1, double x2, double y1, double y2)
     {
-        // todo Разобраться с дублированием кода (мб внедрить в LineService, а VectorProduct вынести как static
         if (Math.Abs(x1 - x2) <= _epsilon)
         {
             return targetY >= Math.Min(y1, y2) - _epsilon &&
@@ -101,5 +119,4 @@ public class ContainsChecker
                && targetX >= Math.Min(x1, x2) - _epsilon
                && targetX <= Math.Max(x1, x2) + _epsilon;
     }
-
 }

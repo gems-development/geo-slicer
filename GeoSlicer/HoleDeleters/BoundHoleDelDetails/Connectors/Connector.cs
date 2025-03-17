@@ -105,7 +105,7 @@ internal static class Connector
             secondSideCoordRing2 = new Coordinate(ring2.Value.PointMin.X, ring2.Value.PointMax.Y);
         }
 
-        else throw new ArgumentException("incorrect zonesUnion");
+        else throw new ArgumentException("Incorrect " + nameof(zonesUnion));
     }
     
     private static void FindCorrectConnectCoord(

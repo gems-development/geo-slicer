@@ -15,7 +15,7 @@ internal class RingAndZones
         Zones = zones;
     }
 
-    protected bool Equals(RingAndZones other)
+    private bool Equals(RingAndZones other)
     {
         return BoundRing.Equals(other.BoundRing) && Zones.Equals(other.Zones);
     }

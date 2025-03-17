@@ -7,10 +7,13 @@ namespace GeoSlicer.HoleDeleters.BoundHoleDelDetails.Connectors;
 
 internal static class WithIntersectRing
 {
-    // Метод пытается соединить кольцо thisRing с каким-либо кольцом из списка cache.FramesContainThis.
-    // Перебор начинается с какого-либо кольца из cache.NearSegmentIntersect.
-    // возвращает True в случае успеха.
-    internal static bool BruteforceConnect(
+    /// <summary>
+    /// Метод пытается соединить кольцо <paramref name="thisRing"/> с каким-либо кольцом
+    /// из списка <paramref name="cache.FramesContainThis"/>.
+    /// Перебор начинается с какого-либо кольца из <paramref name="cache.NearSegmentIntersect"/>.
+    /// </summary>
+    /// <returns>True, если соединение было успешно произведено.</returns>
+    internal static bool TryBruteforceConnect(
         LinkedListNode<BoundingRing> thisRing,
         LinkedList<BoundingRing> listOfHoles,
         Cache cache,
@@ -18,36 +21,41 @@ internal static class WithIntersectRing
     {
         if (cache.NearSegmentIntersect.TryGetValue(Zones.Abc, out var ringAndPoint))
         {
-           ConnectWithBoundRFrameWhoContainThisRing(ringAndPoint, thisRing, listOfHoles, Zones.Abc, cache, intersectsChecker); 
-           return true;
+            ConnectWithBoundRFrameWhoContainThisRing(ringAndPoint, thisRing, listOfHoles, Zones.Abc, cache,
+                intersectsChecker);
+            return true;
         }
+
         if (cache.NearSegmentIntersect.TryGetValue(Zones.Cde, out ringAndPoint))
         {
-            ConnectWithBoundRFrameWhoContainThisRing(ringAndPoint, thisRing, listOfHoles, Zones.Cde, cache, intersectsChecker);
+            ConnectWithBoundRFrameWhoContainThisRing(ringAndPoint, thisRing, listOfHoles, Zones.Cde, cache,
+                intersectsChecker);
             return true;
         }
+
         if (cache.NearSegmentIntersect.TryGetValue(Zones.Efg, out ringAndPoint))
         {
-            ConnectWithBoundRFrameWhoContainThisRing(ringAndPoint, thisRing, listOfHoles, Zones.Efg, cache, intersectsChecker);
+            ConnectWithBoundRFrameWhoContainThisRing(ringAndPoint, thisRing, listOfHoles, Zones.Efg, cache,
+                intersectsChecker);
             return true;
         }
+
         if (cache.NearSegmentIntersect.TryGetValue(Zones.Ahg, out ringAndPoint))
         {
-            ConnectWithBoundRFrameWhoContainThisRing(ringAndPoint, thisRing, listOfHoles, Zones.Ahg, cache, intersectsChecker);
+            ConnectWithBoundRFrameWhoContainThisRing(ringAndPoint, thisRing, listOfHoles, Zones.Ahg, cache,
+                intersectsChecker);
             return true;
         }
 
         return false;
     }
     
-    
-    
-    //todo добавить проверку на пересечение соединения с прямоугольниками
+    // todo: добавить проверку на пересечение соединения с прямоугольниками
     private static void ConnectWithBoundRFrameWhoContainThisRing(
         RingAndPoint? nearSegmentIntersect,
         LinkedListNode<BoundingRing> thisRing,
-        LinkedList<BoundingRing> listOfHoles, 
-        Zones zonesUnion, 
+        LinkedList<BoundingRing> listOfHoles,
+        Zones zonesUnion,
         Cache cache,
         IntersectsChecker intersectsChecker)
     {
@@ -55,10 +63,10 @@ internal static class WithIntersectRing
             RearrangePoints(nearSegmentIntersect!.Start, zonesUnion, thisRing);
         SwapValuesInFramesContainThis(cache, nearSegmentIntersect);
         LinkedNode<Coordinate> connectCoordThisR = FindConnectCoordThisR(zonesUnion, thisRing);
-        
+
         var frameContainThis = cache.FramesContainThis.First!.Value;
         bool findFrameContainThisIntersectsLine = true;
-        while(findFrameContainThisIntersectsLine)
+        while (findFrameContainThisIntersectsLine)
         {
             findFrameContainThisIntersectsLine = false;
             foreach (var frame in cache.FramesContainThis)
@@ -67,28 +75,27 @@ internal static class WithIntersectRing
                 do
                 {
                     intersectSegment = intersectsChecker.GetIntersectRingWithSegmentNotExtPoint(
-                        frame, 
+                        frame,
                         connectCoordThisR.Elem, connectCoordFrameContainThis.Elem);
-                    
+
                     if (intersectSegment is not null)
                     {
                         findFrameContainThisIntersectsLine = true;
                         connectCoordFrameContainThis =
                             RearrangePoints(intersectSegment.Value._start, zonesUnion, thisRing);
-                        
+
                         frameContainThis = frame;
                     }
-                    
                 } while (intersectSegment is not null);
             }
         }
+
         Connector.Connect(
             thisRing, frameContainThis,
             connectCoordThisR, connectCoordFrameContainThis, listOfHoles);
     }
-    
-    
-    
+
+
     private static LinkedNode<Coordinate> RearrangePoints(
         LinkedNode<Coordinate> coord,
         Zones zones,
@@ -132,13 +139,13 @@ internal static class WithIntersectRing
     {
         if (zonesUnion == Zones.Abc)
             return thisRing.Value.PointUpNode;
-        
+
         if (zonesUnion == Zones.Cde)
             return thisRing.Value.PointLeftNode;
-        
+
         if (zonesUnion == Zones.Efg)
-            return thisRing.Value.PointDownNode; 
-        
+            return thisRing.Value.PointDownNode;
+
         return thisRing.Value.PointRightNode;
     }
 

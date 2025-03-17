@@ -1,41 +1,44 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using GeoSlicer.Utils;
 using GeoSlicer.Utils.PolygonClippingAlghorithm;
 using NetTopologySuite.Geometries;
 
 namespace GeoSlicer.DivideAndRuleSlicers.OppositesSlicer;
 
+/// <summary>
+/// Разрезает полигон на куски, количество точек в которых не превышает переданное в конструкторе ограничение.
+/// Разрезает путем проведения линии по точкам, что противоположны по индексам (разница индексов = length / 2)
+/// </summary>
 public class Slicer
 {
-    private readonly LineService _lineService;
-
     private readonly int _maxPointsCount;
 
-    // todo После вынесения метода пересечения заменить на нужный класс
-    private readonly WeilerAthertonForLine _weilerAthertonAlghorithm;
+    private readonly WeilerAthertonForLine _weilerAtherton;
+    private readonly OppositesSlicerUtils _utils;
 
-    private int _debugVar = 0;
+    // todo: Удалить после отладки
+    private int _debugVar;
 
-    public Slicer(LineService lineService, int maxPointsCount, WeilerAthertonForLine weilerAthertonAlghorithm)
+    public Slicer(int maxPointsCount, WeilerAthertonForLine weilerAtherton, OppositesSlicerUtils utils)
     {
-        _lineService = lineService;
         _maxPointsCount = maxPointsCount;
-        _weilerAthertonAlghorithm = weilerAthertonAlghorithm;
+        _weilerAtherton = weilerAtherton;
+        _utils = utils;
     }
-
 
     public IEnumerable<Polygon> Slice(Polygon input)
     {
         LinkedList<Polygon> result = new LinkedList<Polygon>();
 
+        // Если геометрия сразу достаточно мала, возвращаем ее
         if (input.NumPoints <= _maxPointsCount)
         {
             result.AddLast(input);
             return result;
         }
 
+        // Очередь на разрезание. Туда попадают только геометрии, в которых точек больше, чем _maxPointsCount
         Queue<Polygon> queue = new Queue<Polygon>();
         queue.Enqueue(input);
         _debugVar = 0;
@@ -44,16 +47,18 @@ public class Slicer
             Console.WriteLine(
                 $"Number: {_debugVar}. Queue count: {queue.Count}. Max points count: {queue.Select(polygon => polygon.Shell.Count).Max()}");
 
-            // todo Кажется, есть лишние разрезания
             Polygon current = queue.Dequeue();
 
-            int oppositesIndex = Utils.GetOppositesIndexByTriangles(current.Shell);
+            // Получаем индексы точек для разрезания.
+            // Варьирование метода получения индексов может сильно изменить результат.
+            int oppositesIndex = _utils.GetOppositesIndexByTriangles(current.Shell);
             IEnumerable<Polygon> sliced = SliceByLine(
                 current,
                 current.Shell.GetCoordinateN(oppositesIndex),
                 current.Shell.GetCoordinateN((oppositesIndex + current.Shell.Count / 2) % current.Shell.Count));
 
 
+            // Итерируемся по результату, отправляя маленькие геометрии в результат, большие в очередь на обработку
             foreach (Polygon ring in sliced)
             {
                 if (ring.NumPoints <= _maxPointsCount)
@@ -73,14 +78,12 @@ public class Slicer
 
         return result;
     }
-
-    // todo Возможно можно исправить проблемы при повторяющихся точках
-    // todo Вынести в отдельный класс Вэйлера-Азертона с набором надстроек над основным алгоритмом)
+    
     private IEnumerable<Polygon> SliceByLine(Polygon polygon, Coordinate a, Coordinate b)
     {
         LineString line1 = new LineString(new[] { a, b });
         LineString line2 = new LineString(new[] { b, a });
-        
+
         //if (_debugVar == 683)
         //{
         //    GeoJsonFileService.WriteGeometryToFile(polygon, "Out/source.geojson.ignore");
@@ -88,8 +91,11 @@ public class Slicer
         //    GeoJsonFileService.WriteGeometryToFile(line2, "Out/line2.geojson.ignore");
         //}
 
-        IEnumerable<Polygon> resPart1 = _weilerAthertonAlghorithm.WeilerAtherton(polygon, line1);
-        IEnumerable<Polygon> resPart2 = _weilerAthertonAlghorithm.WeilerAtherton(polygon, line1);
+        // Необходимы оба вызова, так как Атертон возвращает только те геометрии, что в одной
+        // некоторой стороны от линии.
+        // Во втором вызове мы разворачиваем линию.
+        IEnumerable<Polygon> resPart1 = _weilerAtherton.WeilerAtherton(polygon, line1);
+        IEnumerable<Polygon> resPart2 = _weilerAtherton.WeilerAtherton(polygon, line2);
 
 
         // GeoJsonFileService.WriteGeometryToFile(new MultiPolygon(resPart1.ToArray()),

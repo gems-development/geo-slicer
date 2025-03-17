@@ -17,6 +17,7 @@ public class LinkedNode<T>
         Previous = this;
         Elem = elem;
     }
+
     public LinkedNode(T elem, LinkedNode<T> previous)
     {
         Previous = previous;
@@ -25,6 +26,7 @@ public class LinkedNode<T>
         previous.Next.Previous = this;
         previous.Next = this;
     }
+
     public LinkedNode(T elem, LinkedNode<T> previous, LinkedNode<T> next)
     {
         Elem = elem;
@@ -34,31 +36,27 @@ public class LinkedNode<T>
         previous.Next = this;
     }
 
-    protected bool Equals(LinkedNode<T> other)
+    private bool Equals(LinkedNode<T> other)
     {
-        if (EqualityComparer<T>.Default.Equals(Elem, other.Elem))
+        if (!EqualityComparer<T>.Default.Equals(Elem, other.Elem)) return false;
+        LinkedNode<T> otherNext = other.Next;
+        LinkedNode<T> thisNext = Next;
+        while (!ReferenceEquals(this, thisNext))
         {
-            LinkedNode<T> otherNext = other.Next;
-            LinkedNode<T> thisNext = Next;
-            while (!ReferenceEquals(this, thisNext))
-            {
-                if (!EqualityComparer<T>.Default.Equals(thisNext.Elem, otherNext.Elem))
-                    return false;
-                otherNext = otherNext.Next;
-                thisNext = thisNext.Next;
-            }
-
-            return ReferenceEquals(other, otherNext);
+            if (!EqualityComparer<T>.Default.Equals(thisNext.Elem, otherNext.Elem))
+                return false;
+            otherNext = otherNext.Next;
+            thisNext = thisNext.Next;
         }
-        return false;
+
+        return ReferenceEquals(other, otherNext);
     }
 
     public override bool Equals(object? obj)
     {
         if (ReferenceEquals(null, obj)) return false;
         if (ReferenceEquals(this, obj)) return true;
-        if (obj.GetType() != this.GetType()) return false;
-        return Equals((LinkedNode<T>)obj);
+        return obj.GetType() == GetType() && Equals((LinkedNode<T>)obj);
     }
 
     public override int GetHashCode()

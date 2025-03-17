@@ -47,45 +47,6 @@ public class WeilerAthertonAlghorithm
     }
 
 
-    public IntersectionType WeilerAthertonForGrid(
-        Polygon clipped, double xDown, double xUp, double yDown, double yUp, out IEnumerable<Polygon> result)
-    {
-        Coordinate[] boxCoordinated =
-        {
-            new(xDown, yDown),
-            new(xDown, yUp),
-            new(xUp, yUp),
-            new(xUp, yDown),
-            new(xDown, yDown)
-        };
-        LinearRing boxLinearRing = new LinearRing(boxCoordinated);
-
-        result = Array.Empty<Polygon>();
-
-
-        result = WeilerAtherton(clipped, boxLinearRing);
-
-        if (result.Count() == 1)
-        {
-            if (result.First().Shell == boxLinearRing)
-            {
-                return IntersectionType.BoxInGeometry;
-            }
-
-            if (result.First() == clipped)
-            {
-                return IntersectionType.GeometryInBox;
-            }
-        }
-
-        if (!result.Any())
-        {
-            return IntersectionType.BoxOutsideGeometry;
-        }
-
-
-        return IntersectionType.IntersectionWithEdge;
-    }
 
     public (LinesIntersectionType, Coordinate?) GetIntersection(CoordinateSupport line1Point1,
         CoordinateSupport line1Point2, CoordinateSupport line2Point1, CoordinateSupport line2Point2)

@@ -3,6 +3,10 @@ using NetTopologySuite.Geometries;
 
 namespace GeoSlicer.Utils.Intersectors;
 
+/// <summary>
+/// Проверяет, пересекаются ли прямоугольные оболочки.
+/// Вызов перед методом определения пересечения может ускорить ваш код. 
+/// </summary>
 public class AreasIntersector
 {
     public bool CheckIntersection(AreasIntersectionType requiredType, LineSegment areaLine1, LineSegment areaLine2)

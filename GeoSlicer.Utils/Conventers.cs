@@ -5,6 +5,9 @@ namespace GeoSlicer.Utils;
 
 public static class Converters
 {
+    /// <summary>
+    /// Преобразует LineString (ломаную) в последовательность отрезков
+    /// </summary>
     public static IEnumerable<LineSegment> LineStringToLineSegments(LineString lineString)
     {
         foreach ((Coordinate, Coordinate) pair in lineString.Coordinates.Pairwise())
