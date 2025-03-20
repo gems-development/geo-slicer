@@ -31,7 +31,7 @@ public class RepeatingPointsValidator
         {
             if (_coordinateComparator.IsEquals(lineString[i], lineString[i + 1]))
             {
-                stringBuilder.Append($"Equals points at {i} and {i + 1}\n");
+                stringBuilder.Append($"Equals points at {i} and {i + 1}\n: {lineString[i]}, {lineString[i + 1]}");
                 if (!isFull)
                 {
                     return stringBuilder.ToString();
@@ -41,7 +41,7 @@ public class RepeatingPointsValidator
 
         return stringBuilder.ToString();
     }
-    
+
     /// <summary>
     /// Проверяет, является ли последовательность координат корректной (не содержит она повторений)
     /// </summary>
@@ -54,18 +54,23 @@ public class RepeatingPointsValidator
 
         return false;
     }
-    
+
     /// <summary>
     /// Удаляет повторения в геометрии
     /// </summary>
     public T Fix<T>(T linear, Func<Coordinate[], T> creator) where T : LineString
     {
         List<Coordinate> resultCoordinates = new List<Coordinate>(linear.Count) { linear.Coordinate };
-        foreach (Coordinate coordinate in linear.Coordinates)
+        for (int i = 0; i < linear.Coordinates.Length; i++)
         {
+            Coordinate coordinate = linear.Coordinates[i];
             if (!_coordinateComparator.IsEquals(resultCoordinates.Last(), coordinate))
             {
                 resultCoordinates.Add(coordinate);
+            }
+            else if (i == linear.Coordinates.Length - 1)
+            {
+                resultCoordinates[^1] = coordinate;
             }
         }
 

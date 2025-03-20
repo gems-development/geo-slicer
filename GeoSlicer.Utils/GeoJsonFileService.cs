@@ -3,57 +3,52 @@ using NetTopologySuite.IO;
 
 namespace GeoSlicer.Utils;
 
-public static class GeoJsonFileService
+public class GeoJsonFileService
 {
-    private static readonly GeoJsonWriter Writer =
-        new GeoJsonWriter();
+    private readonly GeoJsonWriter _writer = new();
 
-    private static readonly GeoJsonReader Reader =
-        new GeoJsonReader();
+    private readonly GeoJsonReader _reader = new();
 
-    private static readonly string RootName = "geo-slicer";
+    private readonly string _fullRootName;
 
-    private static string? _fullRootName;
+    public GeoJsonFileService(string rootName = "geo-slicer")
+    {
+        _fullRootName = GetFullRoot(rootName);
+    }
 
-    public static void WriteGeometryToFile<T>(T geometry, string path, bool flagOfGlobalPath = false) where T : class
+    public void WriteGeometryToFile<T>(T geometry, string path, bool flagOfGlobalPath = false) where T : class
     {
         if (!flagOfGlobalPath)
             path = GetGlobalPath(path);
         Directory.CreateDirectory(Directory.GetParent(path)!.FullName);
-        string geoJson = Writer.Write(geometry);
+        string geoJson = _writer.Write(geometry);
         File.WriteAllText(path, geoJson);
     }
 
-    public static T ReadGeometryFromFile<T>(string path, bool flagOfGlobalPath = false) where T : class
+    public T ReadGeometryFromFile<T>(string path, bool flagOfGlobalPath = false) where T : class
     {
         if (!flagOfGlobalPath)
             path = GetGlobalPath(path);
         string geoJson = File.ReadAllText(path);
 
-        var geometry = Reader.Read<T>(geoJson);
+        var geometry = _reader.Read<T>(geoJson);
 
         return geometry;
     }
 
-    private static string GetGlobalPath(string path)
+    private string GetGlobalPath(string path)
     {
-        string root = GetRoot();
-        return Path.Combine(root, path);
+        return Path.Combine(_fullRootName, path);
     }
-
-    private static string GetRoot()
+    
+    private string GetFullRoot(string rootName)
     {
-        if (_fullRootName is null)
+        DirectoryInfo directoryInfo = new(Directory.GetCurrentDirectory());
+        while (directoryInfo.Name != rootName)
         {
-            DirectoryInfo directoryInfo = new DirectoryInfo(Directory.GetCurrentDirectory());
-            while (directoryInfo.Name != RootName)
-            {
-                directoryInfo = directoryInfo.Parent!;
-            }
-
-            _fullRootName = directoryInfo.FullName;
+            directoryInfo = directoryInfo.Parent!;
         }
 
-        return _fullRootName;
+        return directoryInfo.FullName;
     }
 }

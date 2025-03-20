@@ -53,17 +53,10 @@ public class Slicer
         double xUp = envelope.MaxX;
         double yUp = envelope.MaxY;
 
-        // Количество ячеек
         int xCount = (int)Math.Ceiling((xUp - xDown) / xScale);
         int yCount = (int)Math.Ceiling((yUp - yDown) / yScale);
 
         IEnumerable<Polygon>?[,] result = new IEnumerable<Polygon>?[xCount, yCount];
-
-        // Методы получения номера ячейки, куда попадает координата
-        int GetXIndex(Coordinate coordinate) => (int)Math.Floor((coordinate.X - xDown) / xScale);
-        int GetXIndexCeil(Coordinate coordinate) => (int)Math.Ceiling((coordinate.X - xDown) / xScale);
-        int GetYIndex(Coordinate coordinate) => (int)Math.Floor((coordinate.Y - yDown) / yScale);
-        int GetYIndexCeil(Coordinate coordinate) => (int)Math.Ceiling((coordinate.Y - yDown) / yScale);
 
         // Очереди эмитируют очередь кортежей X-Y. Индексы ячеек, что надо проверить.
         // Если для ячейки все соседние ячейки не пересекаются с полигоном, она не будет добавлена в очередь 
@@ -73,79 +66,34 @@ public class Slicer
         Queue<int> xQueue = new Queue<int>();
         Queue<int> yQueue = new Queue<int>();
 
-        // Добавление индексов в очереди, если клетка не за пределами сетки и она еще не была назначена на проверку
-        void CheckAndAdd(int x, int y)
-        {
-            if (x < 0 || x >= xCount || y < 0 || y >= yCount)
-            {
-                return;
-            }
+        EnqueueFirstIntersectsCell();
 
-            // Если не null, то там либо результат (ячейка обработана), либо вспомогательная ссылка, означающая,
-            // что ячейка добавлена в очередь на обработку
-            if (result[x, y] is null)
-            {
-                xQueue.Enqueue(x);
-                yQueue.Enqueue(y);
-                result[x, y] = _inQueue;
-            }
-        }
-
-        // Добавляем в очередь какую либо ячейку, что пересекается с полигоном 
-        int indexX1 = GetXIndex(inputPolygon.Coordinate);
-        int indexX2 = GetXIndexCeil(inputPolygon.Coordinate);
-        xQueue.Enqueue(indexX1);
-
-        int indexY1 = GetYIndex(inputPolygon.Coordinate);
-        int indexY2 = GetYIndexCeil(inputPolygon.Coordinate);
-        yQueue.Enqueue(indexY1);
-
-        // Добавляем еще одну ячейку. Необходимо в случае, если первая пересекается с полигоном только в одной точке
-        if (indexX1 != indexX2 || indexY1 != indexY2)
-        {
-            xQueue.Enqueue(indexX2);
-            yQueue.Enqueue(indexY2);
-        }
-
-        // Начало итеративного алгоритма
         while (xQueue.Count > 0)
         {
             int x = xQueue.Dequeue();
             int y = yQueue.Dequeue();
-            // Получаем пересечение
             IntersectionType intersectionType = WeilerAthertonForGrid(inputPolygon,
                 xDown + x * xScale, xDown + (x + 1) * xScale,
                 yDown + y * yScale, yDown + (y + 1) * yScale, out IEnumerable<Polygon> weilerResult);
 
-
-            // Заполнение текущей клетки
-            switch (intersectionType)
+            result[x, y] = intersectionType switch
             {
-                case IntersectionType.BoxOutsideGeometry:
-                    result[x, y] = _outside;
-                    break;
-                case IntersectionType.IntersectionWithEdge:
-                    result[x, y] = weilerResult;
-                    break;
-                case IntersectionType.BoxInGeometry:
-                    result[x, y] = _inner;
-                    break;
-                case IntersectionType.GeometryInBox:
-                    result[x, y] = new[] { inputPolygon };
-                    break;
-            }
+                IntersectionType.BoxOutsideGeometry => _outside,
+                IntersectionType.IntersectionWithEdge => weilerResult,
+                IntersectionType.BoxInGeometry => _inner,
+                IntersectionType.GeometryInBox => new[] { inputPolygon },
+                _ => result[x, y]
+            };
 
+            if (intersectionType is not (IntersectionType.IntersectionWithEdge or IntersectionType.BoxInGeometry))
+                continue;
             // Добавление окружающих клеток в очередь (идем "волной" во все стороны)
-            if (intersectionType is IntersectionType.IntersectionWithEdge or IntersectionType.BoxInGeometry)
-            {
-                CheckAndAdd(x - 1, y);
-                CheckAndAdd(x + 1, y);
-                CheckAndAdd(x, y - 1);
-                CheckAndAdd(x, y + 1);
-            }
+            CheckAndAdd(x - 1, y);
+            CheckAndAdd(x + 1, y);
+            CheckAndAdd(x, y - 1);
+            CheckAndAdd(x, y + 1);
         }
 
-        // Объединяем внутренние прямоугольники
         ProcessInner(result,
             (xStart, xEnd, yStart, yEnd) => new[]
             {
@@ -161,6 +109,42 @@ public class Slicer
             uniqueOnly);
 
         return result;
+
+
+        // Методы получения номера ячейки, куда попадает координата
+        int GetXIndex(Coordinate coordinate) => (int)Math.Floor((coordinate.X - xDown) / xScale);
+        int GetXIndexCeil(Coordinate coordinate) => (int)Math.Ceiling((coordinate.X - xDown) / xScale);
+        int GetYIndex(Coordinate coordinate) => (int)Math.Floor((coordinate.Y - yDown) / yScale);
+        int GetYIndexCeil(Coordinate coordinate) => (int)Math.Ceiling((coordinate.Y - yDown) / yScale);
+
+        void CheckAndAdd(int x, int y)
+        {
+            if (x < 0 || x >= xCount || y < 0 || y >= yCount)
+            {
+                return;
+            }
+
+            if (result[x, y] is not null) return;
+            xQueue.Enqueue(x);
+            yQueue.Enqueue(y);
+            result[x, y] = _inQueue;
+        }
+
+        void EnqueueFirstIntersectsCell()
+        {
+            int indexX1 = GetXIndex(inputPolygon.Coordinate);
+            int indexX2 = GetXIndexCeil(inputPolygon.Coordinate);
+            xQueue.Enqueue(indexX1);
+
+            int indexY1 = GetYIndex(inputPolygon.Coordinate);
+            int indexY2 = GetYIndexCeil(inputPolygon.Coordinate);
+            yQueue.Enqueue(indexY1);
+
+            if (indexX1 == indexX2 && indexY1 == indexY2) return;
+            // Добавляем еще одну ячейку. Необходимо в случае, если первая пересекается с полигоном только в одной точке
+            xQueue.Enqueue(indexX2);
+            yQueue.Enqueue(indexY2);
+        }
     }
 
 
@@ -176,65 +160,64 @@ public class Slicer
         {
             for (int y = 0; y < yLen; y++)
             {
-                // Пропускаем все не внутренние ячейки
                 if (!ReferenceEquals(grid[x, y], _inner))
                 {
                     continue;
                 }
 
-                // Нашли внутреннюю ячейку
-
-                // Длины сторон прямоугольника (в количестве ячеек)
-                int xSide = 0;
-                int ySide = 0;
-                // Смотрим, на сколько ячеек вправо можем расширить прямоугольник
-                while (xSide + x < xLen && ReferenceEquals(grid[x + xSide + 1, y], _inner)) xSide++;
-                // Смотрим, на сколько ячеек вниз можем расширить прямоугольник (его ширина больше 1 ячейки)
-                while (ySide + y < yLen)
-                {
-                    // Флаг, показывающий, находится ли вся линия внутри прямоугольника
-                    bool isInnerLine = true;
-                    for (int i = x; i <= x + xSide; i++)
-                    {
-                        if (!ReferenceEquals(grid[i, y + ySide + 1], _inner))
-                        {
-                            isInnerLine = false;
-                            break;
-                        }
-                    }
-
-                    if (!isInnerLine)
-                    {
-                        break;
-                    }
-
-                    ySide++;
-                }
+                GetRectangleSides(x, y, out int xSide, out int ySide);
 
                 IEnumerable<Polygon> rectangle = rectangleCreator.Invoke(x, x + xSide + 1, y, y + ySide + 1);
 
-                // Заменяем ссылки с константного значения на большой прямоугольник / null
-                for (int i = 0; i <= xSide; i++)
-                {
-                    for (int j = 0; j <= ySide; j++)
-                    {
-                        grid[x + i, y + j] = uniqueOnly ? null : rectangle;
-                    }
-                }
-
-                if (uniqueOnly)
-                {
-                    grid[x, y] = rectangle;
-                }
+                SetRefs(xSide, ySide, x, y, rectangle);
 
                 y += ySide;
             }
         }
+
+        void GetRectangleSides(int x, int y, out int xSide, out int ySide)
+        {
+            xSide = 0;
+            ySide = 0;
+            while (xSide + x < xLen && ReferenceEquals(grid[x + xSide + 1, y], _inner)) xSide++;
+            while (ySide + y < yLen)
+            {
+                bool isInnerLine = true;
+                for (int i = x; i <= x + xSide; i++)
+                {
+                    if (!ReferenceEquals(grid[i, y + ySide + 1], _inner))
+                    {
+                        isInnerLine = false;
+                        break;
+                    }
+                }
+
+                if (!isInnerLine)
+                {
+                    break;
+                }
+
+                ySide++;
+            }
+        }
+
+        void SetRefs(int xSide, int ySide, int x, int y, IEnumerable<Polygon> rectangle)
+        {
+            for (int i = 0; i <= xSide; i++)
+            {
+                for (int j = 0; j <= ySide; j++)
+                {
+                    grid[x + i, y + j] = uniqueOnly ? null : rectangle;
+                }
+            }
+
+            if (uniqueOnly)
+            {
+                grid[x, y] = rectangle;
+            }
+        }
     }
 
-    /// <summary>
-    /// Надстройка над Атертоном. Возвращает пересечение прямоугольной ячейки с полигоном и тип этого пересечения
-    /// </summary>
     private IntersectionType WeilerAthertonForGrid(
         Polygon clipped, double xDown, double xUp, double yDown, double yUp, out IEnumerable<Polygon> result)
     {

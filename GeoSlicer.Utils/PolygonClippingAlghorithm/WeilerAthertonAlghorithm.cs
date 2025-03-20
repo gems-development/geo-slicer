@@ -500,13 +500,15 @@ public class WeilerAthertonAlghorithm
 
         // Может понадобиться для отладки: должно быть равно numberOfEnteringMarks
 
-        var (cuttingMinX, cuttingMinY, cuttingMaxX, cuttingMaxY) = cuttingRingShell.GetMinAndMaxPoints();
+        cuttingRingShell.GetMinAndMaxOrdinates(
+            out double cuttingMinX, out double cuttingMinY, out double cuttingMaxX, out double cuttingMaxY);
 
         List<LinearRing> maybeInnerRings = new List<LinearRing>();
 
         for (int i = 0; i < clippedListArray.Length; i++)
         {
-            var (clippedMinX, clippedMinY, clippedMaxX, clippedMaxY) = allRingsClipped[i].GetMinAndMaxPoints();
+            allRingsClipped[i].GetMinAndMaxOrdinates(
+                out double clippedMinX, out double clippedMinY, out double clippedMaxX, out double clippedMaxY);
             if (clippedMinY <= cuttingMaxY && clippedMaxY >= cuttingMaxY &&
                 clippedMaxX >= cuttingMinX && clippedMinX <= cuttingMinX ||
                 clippedMinY <= cuttingMaxY && clippedMaxY >= cuttingMaxY &&

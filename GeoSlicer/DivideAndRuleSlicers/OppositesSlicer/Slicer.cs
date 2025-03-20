@@ -31,15 +31,13 @@ public class Slicer
     {
         LinkedList<Polygon> result = new LinkedList<Polygon>();
 
-        // Если геометрия сразу достаточно мала, возвращаем ее
         if (input.NumPoints <= _maxPointsCount)
         {
             result.AddLast(input);
             return result;
         }
 
-        // Очередь на разрезание. Туда попадают только геометрии, в которых точек больше, чем _maxPointsCount
-        Queue<Polygon> queue = new Queue<Polygon>();
+        Queue<Polygon> queue = new();
         queue.Enqueue(input);
         _debugVar = 0;
         while (queue.Count != 0)
@@ -49,16 +47,12 @@ public class Slicer
 
             Polygon current = queue.Dequeue();
 
-            // Получаем индексы точек для разрезания.
-            // Варьирование метода получения индексов может сильно изменить результат.
             int oppositesIndex = _utils.GetOppositesIndexByTriangles(current.Shell);
             IEnumerable<Polygon> sliced = SliceByLine(
                 current,
                 current.Shell.GetCoordinateN(oppositesIndex),
                 current.Shell.GetCoordinateN((oppositesIndex + current.Shell.Count / 2) % current.Shell.Count));
 
-
-            // Итерируемся по результату, отправляя маленькие геометрии в результат, большие в очередь на обработку
             foreach (Polygon ring in sliced)
             {
                 if (ring.NumPoints <= _maxPointsCount)
@@ -78,7 +72,7 @@ public class Slicer
 
         return result;
     }
-    
+
     private IEnumerable<Polygon> SliceByLine(Polygon polygon, Coordinate a, Coordinate b)
     {
         LineString line1 = new LineString(new[] { a, b });
@@ -91,9 +85,6 @@ public class Slicer
         //    GeoJsonFileService.WriteGeometryToFile(line2, "Out/line2.geojson.ignore");
         //}
 
-        // Необходимы оба вызова, так как Атертон возвращает только те геометрии, что в одной
-        // некоторой стороны от линии.
-        // Во втором вызове мы разворачиваем линию.
         IEnumerable<Polygon> resPart1 = _weilerAtherton.WeilerAtherton(polygon, line1);
         IEnumerable<Polygon> resPart2 = _weilerAtherton.WeilerAtherton(polygon, line2);
 

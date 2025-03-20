@@ -16,11 +16,17 @@ public class LineService
         _coordinateComparator = coordinateComparator;
     }
 
+    /// <summary>
+    /// Вычисляет Z-ординату результата векторного произведения
+    /// </summary>
     public static double VectorProduct(Coordinate firstVec, Coordinate secondVec)
     {
         return firstVec.X * secondVec.Y - secondVec.X * firstVec.Y;
     }
 
+    /// <summary>
+    /// Вычисляет Z-ординату результата векторного произведения
+    /// </summary>
     public static double VectorProduct(Coordinate firstVecPoint1, Coordinate firstVecPoint2, Coordinate secondVecPoint1,
         Coordinate secondVecPoint2)
     {
@@ -28,6 +34,9 @@ public class LineService
                (secondVecPoint2.X - secondVecPoint1.X) * (firstVecPoint2.Y - firstVecPoint1.Y);
     }
 
+    /// <summary>
+    /// Вычисляет Z-ординату результата векторного произведения
+    /// </summary>
     public static double VectorProduct(Coordinate firstVecPoint1, Coordinate firstVecPoint2, Coordinate secondVecPoint1,
         double secondVecPoint2X, double secondVecPoint2Y)
     {
@@ -35,11 +44,17 @@ public class LineService
                (secondVecPoint2X - secondVecPoint1.X) * (firstVecPoint2.Y - firstVecPoint1.Y);
     }
 
+    /// <summary>
+    /// Вычисляет Z-ординату результата векторного произведения
+    /// </summary>
     public static double VectorProduct(double firstVecX, double firstVecY, double secondVecX, double secondVecY)
     {
         return firstVecX * secondVecY - secondVecX * firstVecY;
     }
 
+    /// <summary>
+    /// Преобразует прямую, заданную 2-мя точками в канонический вид, записывая результат в out переменные
+    /// </summary>
     public static void ToCanonical(Coordinate first, Coordinate second,
         out double a, out double b, out double c)
     {
@@ -48,23 +63,38 @@ public class LineService
         c = a * first.X + b * first.Y;
     }
 
+    /// <summary>
+    /// Проверяет, находится ли точка на отрезке,
+    /// заданном <paramref name="first"/> и <paramref name="second"/>
+    /// </summary>
     public bool IsCoordinateInSegment(Coordinate coordinate, Coordinate first, Coordinate second)
     {
         return IsCoordinateInSegmentBorders(coordinate, first, second) && IsCoordinateAtLine(coordinate, first, second);
     }
 
+    /// <summary>
+    /// Проверяет, находится ли точка на прямой,
+    /// заданной <paramref name="first"/> и <paramref name="second"/>
+    /// </summary>
     public bool IsCoordinateAtLine(Coordinate coordinate, Coordinate first, Coordinate second)
     {
         return Math.Abs(VectorProduct(coordinate.X - first.X, coordinate.Y - first.Y,
             second.X - coordinate.X, second.Y - coordinate.Y)) < _epsilon;
     }
 
-
+    /// <summary>
+    /// Проверяет, находится ли точка внутри прямоугольной оболочки отрезка,
+    /// заданного <paramref name="first"/> и <paramref name="second"/>
+    /// </summary>
     public bool IsCoordinateInSegmentBorders(Coordinate coordinate, Coordinate first, Coordinate second)
     {
         return IsCoordinateInSegmentBorders(coordinate.X, coordinate.Y, first, second);
     }
 
+    /// <summary>
+    /// Проверяет, находится ли точка внутри прямоугольной оболочки отрезка,
+    /// заданного <paramref name="first"/> и <paramref name="second"/>
+    /// </summary>
     public bool IsCoordinateInSegmentBorders(double x, double y, Coordinate first, Coordinate second)
     {
         if (_coordinateComparator.IsEquals(first.X, second.X))
@@ -85,6 +115,10 @@ public class LineService
                && x <= Math.Max(first.X, second.X) + _epsilon;
     }
 
+    /// <summary>
+    /// Проверяет, находится ли точка внутри прямоугольной оболочки отрезка,
+    /// заданного <paramref name="first"/> и <paramref name="second"/>, при этом не равняясь этим точкам отрезка
+    /// </summary>
     public bool IsCoordinateInIntervalBorders(Coordinate coordinate, Coordinate first, Coordinate second)
     {
         if (_coordinateComparator.IsEquals(coordinate, first) || _coordinateComparator.IsEquals(coordinate, second))
@@ -95,8 +129,15 @@ public class LineService
         return IsCoordinateInSegmentBorders(coordinate.X, coordinate.Y, first, second);
     }
 
-
-    public bool IsRectangleOnOneSideOfLine(Coordinate linePoint1, Coordinate linePoint2, Coordinate currentPoint1,
+    /// <summary>
+    /// Проверяет, находится ли прямоугольник, заданный <paramref name="currentPoint1"/> и <paramref name="currentPoint2"/>
+    /// полностью по одну сторону от прямой, заданной <paramref name="linePoint1"/> и <paramref name="linePoint2"/>.
+    /// Иначе говоря, проверяет, пересекает ли прямоугольник прямую
+    /// </summary>
+    public bool IsRectangleOnOneSideOfLine(
+        Coordinate linePoint1,
+        Coordinate linePoint2,
+        Coordinate currentPoint1,
         Coordinate currentPoint2)
     {
         //Проверить, что все VectorProduct имеют один знак
@@ -110,37 +151,12 @@ public class LineService
                && VectorProduct(linePoint1, linePoint2, linePoint2, currentPoint2.X, currentPoint1.Y) > 0;
     }
 
-    private double? CalculatePhiFromZeroTo2Pi(double x, double y)
-    {
-        return x switch
-        {
-            > 0 when y >= 0 => Math.Atan(y / x),
-            > 0 when y < 0 => Math.Atan(y / x) + 2 * Math.PI,
-            < 0 => Math.Atan(y / x) + Math.PI,
-            0 when y > 0 => Math.PI / 2,
-            0 when y < 0 => 3 * Math.PI / 2,
-            0 when y == 0 => null,
-            _ => null
-        };
-    }
 
-    private double? CalculatePhiFromMinusPiToPlusPi(double x, double y)
-    {
-        return x switch
-        {
-            > 0 => Math.Atan(y / x),
-            < 0 when y >= 0 => Math.Atan(y / x) + Math.PI,
-            < 0 when y < 0 => Math.Atan(y / x) - Math.PI,
-            0 when y > 0 => Math.PI / 2,
-            0 when y < 0 => -Math.PI / 2,
-            0 when y == 0 => null,
-            _ => null
-        };
-    }
-
-    // Возвращает четверть, в которой расположен вектор,
-    // с учетом погрешности в пользу направления "по часовой стрелке"
-    // Передаваемый вектор должен иметь длину на порядки больше, чем epsilon 
+    /// <summary>
+    /// Возвращает четверть, в которой расположен вектор,
+    /// с учетом погрешности в пользу направления "по часовой стрелке".
+    /// Передаваемый вектор должен иметь длину на порядки больше, чем epsilon (должен быть хоть сколь нибудь нормирован)
+    /// </summary>
     public int GetQuadrant(double x, double y)
     {
         if (Math.Abs(x) < _epsilon)
@@ -148,7 +164,7 @@ public class LineService
             // Так как длина больше epsilon, а X близок к 0, Y далек от нуля. Сравниваем без эпсилона
             return y > 0 ? 1 : 3;
         }
-        
+
         if (Math.Abs(y) < _epsilon)
         {
             return x > 0 ? 4 : 2;
@@ -168,6 +184,10 @@ public class LineService
         return ax * bx + ay * by;
     }
 
+    /// <summary>
+    /// Проверяет, находится ли вектор, заданный точками <paramref name="vectorPointA1"/> и <paramref name="vectorPointA2"/>
+    /// внутри угла <paramref name="anglePointB1"/> <paramref name="anglePointB2"/> <paramref name="anglePointB3"/>
+    /// </summary>
     public bool InsideTheAngle(
         Coordinate vectorPointA1,
         Coordinate vectorPointA2,
@@ -175,10 +195,14 @@ public class LineService
         Coordinate anglePointB2,
         Coordinate anglePointB3)
     {
-
         return InsideTheAngle(vectorPointA1, vectorPointA2, anglePointB1, anglePointB2, anglePointB3, true);
     }
 
+    /// <summary>
+    /// Проверяет, находится ли вектор, заданный точками <paramref name="vectorPointA1"/> и <paramref name="vectorPointA2"/>
+    /// внутри угла <paramref name="anglePointB1"/> <paramref name="anglePointB2"/> <paramref name="anglePointB3"/>,
+    /// исключая границы этого угла
+    /// </summary>
     public bool InsideTheAngleWithoutBorders(
         Coordinate vectorPointA1,
         Coordinate vectorPointA2,
@@ -189,7 +213,12 @@ public class LineService
         return InsideTheAngle(vectorPointA1, vectorPointA2, anglePointB1, anglePointB2, anglePointB3, false);
     }
 
-    // vectorPointA1 == anglePointB2
+    private bool IsEqualsRays(double vectorProduct, double scalarProduct)
+    {
+        return Math.Abs(vectorProduct) < _epsilon && scalarProduct > 0;
+    }
+
+
     private bool InsideTheAngle(
         Coordinate vectorPointA1,
         Coordinate vectorPointA2,
@@ -198,84 +227,94 @@ public class LineService
         Coordinate anglePointB3,
         bool isWithBorders)
     {
-        double ax = vectorPointA2.X - vectorPointA1.X;
-        double ay = vectorPointA2.Y - vectorPointA1.Y;
-        // Нам не обязательно нормировать к 1 длине, достаточно исключить слишком короткие вектора
-        double lenA = ax * ax + ay * ay;
-        ax /= lenA;
-        ay /= lenA;
-        double b1X = anglePointB1.X - anglePointB2.X;
-        double b1Y = anglePointB1.Y - anglePointB2.Y;
-        double lenB1 = b1X * b1X + b1Y * b1Y;
-        b1X /= lenB1;
-        b1Y /= lenB1;
-        double b3X = anglePointB3.X - anglePointB2.X;
-        double b3Y = anglePointB3.Y - anglePointB2.Y;
-        double len3 = b3X * b3X + b3Y * b3Y;
-        b3X /= len3;
-        b3Y /= len3;
-
-        double vectorProductB3ToB1 = VectorProduct(b3X, b3Y, b1X, b1Y);
-        double vectorProductB3ToA = VectorProduct(b3X, b3Y, ax, ay);
-        double vectorProductAToB1 = VectorProduct(ax, ay, b1X, b1Y);
-        double scalarProductAToB1 = ScalarProduct(ax, ay, b1X, b1Y);
-        double scalarProductAToB3 = ScalarProduct(ax, ay, b3X, b3Y);
+        SetUp(
+            out double ax, out double ay, 
+            out double b1X, out double b1Y, out double b3X, out double b3Y,
+            out double vectorProductB3ToB1, out double vectorProductB3ToA, out double vectorProductAToB1,
+            out double scalarProductAToB1, out double scalarProductAToB3, out double scalarProductB1ToB3);
 
 
-        if (Math.Abs(vectorProductB3ToB1) < _epsilon && ScalarProduct(b1X, b1Y, b3X, b3Y) > 0)
+        if (IsEqualsRays(vectorProductB3ToB1, scalarProductB1ToB3))
         {
-            // Линии угла в 0 градусов
-
-            if (vectorProductB3ToB1 > 0)
-            {
-                // Угол внутренний (очень маленький)
-
-                if (!isWithBorders)
-                {
-                    // Либо за границей, либо на границе
-                    return false;
-                }
-
-                // Возвращаем условия равенства вектора линиям угла
-                return Math.Abs(vectorProductAToB1) < _epsilon && scalarProductAToB1 > 0;
-            }
-
-            // Угол внешний
-            if (isWithBorders)
-            {
-                // Либо на границе, либо в границах
-                return true;
-            }
-
-            // Возвращаем условия неравенства вектора линиям угла
-            return Math.Abs(vectorProductAToB1) > _epsilon || scalarProductAToB1 < 0;
+            return InsideTheZeroAngle();
         }
 
         // Линии угла не близки
 
-        if (Math.Abs(vectorProductAToB1) < _epsilon && scalarProductAToB1 > 0
-            || Math.Abs(vectorProductB3ToA) < _epsilon && scalarProductAToB3 > 0)
+        if (IsEqualsRays(vectorProductAToB1, scalarProductAToB1)
+            || IsEqualsRays(vectorProductB3ToA, scalarProductAToB3))
         {
             // Вектор А близок к B1 или к B3
             return isWithBorders;
         }
 
         // Все 3 линии достаточно далеки.
-        // Можем считать четверти в одном направлении, без "сжимания" и "убегания".
-
-
+        
         int quadrantB1 = GetQuadrant(b1X, b1Y);
         int quadrantB3 = GetQuadrant(b3X, b3Y);
         int quadrantA = GetQuadrant(ax, ay);
-
-        // Поворачиваем плоскость на 0||90||180||270 градусов, чтобы b3 был в 1ой четверти
         
-        // quadrantB1 - 1 + 4 - quadrantB3 + 1 ||| (- 1 + 1)
         quadrantB1 = (quadrantB1 + 4 - quadrantB3) % 4 + 1;
         quadrantA = (quadrantA + 4 - quadrantB3) % 4 + 1;
         quadrantB3 = 1;
 
         if (quadrantB1 == quadrantB3)
+        {
+            return InsideTheAngleInOneQuadrant();
+        }
+
+
+        return
+            // A против часовой от B3
+            (quadrantA > quadrantB3 || quadrantA == quadrantB3 && vectorProductB3ToA > 0)
+            &&
+            // A по часовой от B1
+            (quadrantA < quadrantB1 || quadrantA == quadrantB1 && vectorProductAToB1 > 0);
+        
+        bool InsideTheZeroAngle()
+        {
+            if (vectorProductB3ToB1 > 0)
+            {
+                // Угол внутренний (очень маленький)
+                return isWithBorders && IsEqualsRays(vectorProductAToB1, scalarProductAToB1);
+            }
+
+            // Угол внешний
+            return isWithBorders || !IsEqualsRays(vectorProductAToB1, scalarProductAToB1);
+        }
+        
+        void SetUp(out double axLocal, out double ayLocal,
+            out double b1XLocal, out double b1YLocal, out double b3XLocal, out double b3YLocal,
+            out double vectorProductB3ToB1Local, out double vectorProductB3ToALocal, out double vectorProductAToB1Local,
+            out double scalarProductAToB1Local, out double scalarProductAToB3Local, out double scalarProductB1ToB3Local)
+        {
+            axLocal = vectorPointA2.X - vectorPointA1.X;
+            ayLocal = vectorPointA2.Y - vectorPointA1.Y;
+            // +- нормируем
+            // Нам не обязательно нормировать к 1 длине, достаточно исключить слишком короткие вектора
+            double lenA = axLocal * axLocal + ayLocal * ayLocal;
+            axLocal /= lenA;
+            ayLocal /= lenA;
+            b1XLocal = anglePointB1.X - anglePointB2.X;
+            b1YLocal = anglePointB1.Y - anglePointB2.Y;
+            double lenB1 = b1XLocal * b1XLocal + b1YLocal * b1YLocal;
+            b1XLocal /= lenB1;
+            b1YLocal /= lenB1;
+            b3XLocal = anglePointB3.X - anglePointB2.X;
+            b3YLocal = anglePointB3.Y - anglePointB2.Y;
+            double len3 = b3XLocal * b3XLocal + b3YLocal * b3YLocal;
+            b3XLocal /= len3;
+            b3YLocal /= len3;
+
+            vectorProductB3ToB1Local = VectorProduct(b3XLocal, b3YLocal, b1XLocal, b1YLocal);
+            vectorProductB3ToALocal = VectorProduct(b3XLocal, b3YLocal, axLocal, ayLocal);
+            vectorProductAToB1Local = VectorProduct(axLocal, ayLocal, b1XLocal, b1YLocal);
+            scalarProductAToB1Local = ScalarProduct(axLocal, ayLocal, b1XLocal, b1YLocal);
+            scalarProductAToB3Local = ScalarProduct(axLocal, ayLocal, b3XLocal, b3YLocal);
+            scalarProductB1ToB3Local = ScalarProduct(b1XLocal, b1YLocal, b3XLocal, b3YLocal);
+        }
+
+        bool InsideTheAngleInOneQuadrant()
         {
             if (quadrantA != quadrantB3)
             {
@@ -289,17 +328,10 @@ public class LineService
             {
                 return vectorProductAToB1 > 0 && vectorProductB3ToA > 0;
             }
+
             return vectorProductAToB1 > 0 || vectorProductB3ToA > 0;
         }
-
-
-        return
-            // A против часовой от B3
-            (quadrantA > quadrantB3 || quadrantA == quadrantB3 && vectorProductB3ToA > 0)
-            &&
-            // A по часовой от B1
-            (quadrantA < quadrantB1 || quadrantA == quadrantB1 && vectorProductAToB1 > 0);
-        // Так как мы повернули плоскость, а B1 и B3 в разных четвертях,
-        // то можем сравнивать четверти просто на неравенство, без учета зацикливания
     }
+
+
 }

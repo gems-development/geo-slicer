@@ -23,6 +23,8 @@ public class NonConvexSlicerBench
             SegmentService,
             new NonConvexSlicerHelper(
                 new LinesIntersector(new EpsilonCoordinateComparator(Epsilon), LineService, Epsilon), LineService));
+    
+    private static readonly GeoJsonFileService GeoJsonFileService = new ();
 
     private readonly LinearRing _ring = Gf.CreateLinearRing(
         GeoJsonFileService.ReadGeometryFromFile<LineString>(

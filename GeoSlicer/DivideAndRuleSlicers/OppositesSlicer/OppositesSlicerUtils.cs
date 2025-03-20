@@ -26,19 +26,10 @@ public class OppositesSlicerUtils
         int minDistanceIndex = -1;
         for (int i = 1; i < halfOfLen + 1; i++)
         {
-            // Исключает разрезание по линиям, что проходят вне геометрии (разрезание по углам полумесяца)
-            if (!_lineService.InsideTheAngleWithoutBorders(
-                    coordinates[i], coordinates[(i + halfOfLen) % coordinates.Length],
-                    coordinates[i - 1], coordinates[i], coordinates[i + 1])
-                || !_lineService.InsideTheAngleWithoutBorders(
-                    coordinates[(i + halfOfLen) % coordinates.Length], coordinates[i],
-                    coordinates[i + halfOfLen - 1],
-                    coordinates[(i + halfOfLen) % coordinates.Length],
-                    coordinates[(i + halfOfLen + 1) % coordinates.Length]))
+            if (IsOuterLine(coordinates, i, halfOfLen))
             {
                 continue;
             }
-
 
             double currentDistance = Math.Abs(coordinates[i].X - coordinates[(i + halfOfLen) % coordinates.Length].X)
                                      + Math.Abs(coordinates[i].Y - coordinates[(i + halfOfLen) % coordinates.Length].Y);
@@ -58,6 +49,8 @@ public class OppositesSlicerUtils
         return minDistanceIndex;
     }
 
+
+
     /// <summary>
     /// Возвращает индекс одной точки из 2‑х противоположных по индексам.
     /// Лучшим вариантом разрезания считаются точки, для которых больше коэффициент выпуклости 2-х треугольников,
@@ -67,17 +60,6 @@ public class OppositesSlicerUtils
     /// </summary>
     public int GetOppositesIndexByTriangles(LinearRing ring)
     {
-        double CalculateConvexity(Coordinate a, Coordinate b, Coordinate c)
-        {
-            // min, mid и max - длины сторон треугольника 
-            // Convexity = min+mid-max = min+(a+b+c-max-min)-max = a+b+c-2max
-            // Div it at (a+b+c) -> Convexity = 1 - 2max / (a+b+c)
-            double ab = a.Distance(b);
-            double bc = b.Distance(c);
-            double ca = c.Distance(a);
-            return 1 - 2 * Math.Max(ab, Math.Max(bc, ca)) / (ab + bc + ca);
-        }
-
         Coordinate[] coordinates = ring.Coordinates;
         int halfOfLen = coordinates.Length / 2;
         int quarterOfLen = coordinates.Length / 4;
@@ -87,20 +69,11 @@ public class OppositesSlicerUtils
 
         for (int i = 1; i < halfOfLen + 1; i++)
         {
-            // Исключает разрезание по линиям, что проходят вне геометрии (разрезание по углам полумесяца)
-            if (!_lineService.InsideTheAngleWithoutBorders(
-                    coordinates[i], coordinates[(i + halfOfLen) % coordinates.Length],
-                    coordinates[i - 1], coordinates[i], coordinates[i + 1])
-                || !_lineService.InsideTheAngleWithoutBorders(
-                    coordinates[(i + halfOfLen) % coordinates.Length], coordinates[i],
-                    coordinates[i + halfOfLen - 1],
-                    coordinates[(i + halfOfLen) % coordinates.Length],
-                    coordinates[(i + halfOfLen + 1) % coordinates.Length]))
+            if (IsOuterLine(coordinates, i, halfOfLen))
             {
                 continue;
             }
-
-
+            
             double currentConv = Math.Min(
                 CalculateConvexity(
                     coordinates[(i + quarterOfLen) % coordinates.Length],
@@ -124,5 +97,29 @@ public class OppositesSlicerUtils
         }
 
         return betterIndex;
+
+        double CalculateConvexity(Coordinate a, Coordinate b, Coordinate c)
+        {
+            // min, mid и max - длины сторон треугольника 
+            // Convexity = min+mid-max = min+(a+b+c-max-min)-max = a+b+c-2max
+            // Div it at (a+b+c) -> Convexity = 1 - 2max / (a+b+c)
+            double ab = a.Distance(b);
+            double bc = b.Distance(c);
+            double ca = c.Distance(a);
+            return 1 - 2 * Math.Max(ab, Math.Max(bc, ca)) / (ab + bc + ca);
+        }
     }
+
+    private bool IsOuterLine(Coordinate[] coordinates, int i, int halfOfLen)
+    {
+        return !_lineService.InsideTheAngleWithoutBorders(
+                   coordinates[i], coordinates[(i + halfOfLen) % coordinates.Length],
+                   coordinates[i - 1], coordinates[i], coordinates[i + 1])
+               || !_lineService.InsideTheAngleWithoutBorders(
+                   coordinates[(i + halfOfLen) % coordinates.Length], coordinates[i],
+                   coordinates[i + halfOfLen - 1],
+                   coordinates[(i + halfOfLen) % coordinates.Length],
+                   coordinates[(i + halfOfLen + 1) % coordinates.Length]);
+    }
+
 }

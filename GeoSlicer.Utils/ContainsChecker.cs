@@ -4,9 +4,6 @@ using NetTopologySuite.Geometries;
 
 namespace GeoSlicer.Utils;
 
-/// <summary>
-/// Проверяет, находится ли точка в чем-либо
-/// </summary>
 public class ContainsChecker
 {
     private readonly LineService _lineService;

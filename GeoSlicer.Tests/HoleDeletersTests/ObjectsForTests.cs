@@ -11,6 +11,9 @@ namespace GeoSlicer.Tests.HoleDeletersTests;
 
 public static class ObjectsForTests
 { 
+    
+    private static readonly GeoJsonFileService GeoJsonFileService = new ();
+    
     public static ZeroTunnelDivider GetZeroTunnelDivider()
     {
         IList<(int countOfSteps, double stepSize)> stepCharacteristic = new List<(int countOfSteps, double stepSize)>();

@@ -41,11 +41,7 @@ public class LinesIntersector
             GetIntersection(a1, a2, b1, b2, out Coordinate? _, out double _, out double _, out bool _);
         return (actualType & requiredType) != 0;
     }
-
-    /// <summary>
-    /// Ищет пересечение отрезков
-    /// </summary>
-    /// <returns>Кортеж из типа пересечения и точки пересечения (null при параллельном пересечении)</returns>
+    
     public (LinesIntersectionType, Coordinate?) GetIntersection(Coordinate a1, Coordinate a2, Coordinate b1,
         Coordinate b2)
     {
@@ -54,8 +50,7 @@ public class LinesIntersector
                 out Coordinate? resultCoordinate,
                 out double x, out double y,
                 out bool isIntersects);
-
-        //  Прямые пересекаются, но в какой-то новой (не равной переданным) точке. Создаем ее
+        
         if (resultCoordinate is null && isIntersects)
         {
             resultCoordinate = new Coordinate(x, y);
@@ -69,25 +64,20 @@ public class LinesIntersector
         return GetIntersection(a.P0, a.P1, b.P0, b.P1);
     }
 
-    /// <summary>
-    /// Возвращает тип пересечения.
-    /// Возвращает точку пересечения в out переменных. Если точка пересечения равна существующей,
-    /// то возвращает Coordinate в <paramref name="result"/>,
-    /// иначе <paramref name="x"/> и <paramref name="y"/> координаты точки
-    /// </summary>
+    // Возвращает точку пересечения в out переменных. Если точка пересечения равна существующей,
+    // то возвращает Coordinate в result,
+    // иначе x и y координаты точки
     private LinesIntersectionType GetIntersection(Coordinate a1, Coordinate a2, Coordinate b1, Coordinate b2,
         out Coordinate? result, out double x,
         out double y, out bool isIntersects)
     {
         result = null;
 
-        // Преобразуем прямые, построенные на отрезках, в канонический вид
         LineService.ToCanonical(a1, a2,
             out double canonical1A, out double canonical1B, out double canonical1C);
         LineService.ToCanonical(b1, b2,
             out double canonical2A, out double canonical2B, out double canonical2C);
-
-        // Получаем координаты пересечения прямых
+        
         // IsIntersects = false <=> они параллельны
         GetIntersectionCoordinate(canonical1A, canonical1B, canonical1C,
             canonical2A, canonical2B, canonical2C,
@@ -227,12 +217,7 @@ public class LinesIntersector
             return LinesIntersectionType.Extension;
         }
     }
-
-    /// <summary>
-    /// Проверяет пересечение прямых.
-    /// Если прямые пересекаются, возвращает точку пересечения в out переменных.
-    /// Возвращает в <paramref name="isIntersects"/> флаг, пересекаются ли прямые.
-    /// </summary>
+    
     private void GetIntersectionCoordinate(
         double a1, double b1, double c1,
         double a2, double b2, double c2,
@@ -242,7 +227,6 @@ public class LinesIntersector
     {
         double delta = a1 * b2 - a2 * b1;
 
-        // Прямые параллельны, найти точку пересечения невозможно
         if (Math.Abs(delta) <= _epsilon)
         {
             isIntersects = false;
