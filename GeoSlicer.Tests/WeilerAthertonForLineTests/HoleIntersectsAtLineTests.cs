@@ -46,7 +46,7 @@ public class HoleIntersectsAtLineTests
         Polygon expectedA = new Polygon(
             new LinearRing(new Coordinate[]
             {
-                new(4, 4), new(4, -4), new(-4, -4), new(0, 0), new(2, 1), new(1, 1), new(4, 4)
+                new(4, 4), new(4, -4), new(-4, -4), new(0, 0), new(2, -1), new(1, 1), new(4, 4)
             }));
         Polygon expectedB = new Polygon(
             new LinearRing(new Coordinate[]

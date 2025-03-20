@@ -261,6 +261,7 @@ public class WeilerAthertonAlghorithm
                             numberOne.Value.Coord = numberThree;
                             numberThree.Value.Coord = numberOne;
                             numberOfEnteringMarks++;
+                            numberOfLeavingMarks++;
                         }
                     }
 
@@ -316,6 +317,7 @@ public class WeilerAthertonAlghorithm
                             numberTwo.Value.Coord = numberFour;
                             numberFour.Value.Coord = numberTwo;
                             numberOfEnteringMarks++;
+                            numberOfLeavingMarks++;
                         }
                     }
                 }
@@ -482,6 +484,11 @@ public class WeilerAthertonAlghorithm
                 }
             }
         }
+        
+        if (numberOfEnteringMarks != numberOfLeavingMarks)
+        {
+            throw new DifferentNumbersOfPointTypes();
+        }
 
         return (flagWereIntersection, numberOfEnteringMarks, numberOfLeavingMarks);
     }
@@ -556,8 +563,8 @@ public class WeilerAthertonAlghorithm
                 clippedMinX >= cuttingMinX && clippedMaxX <= cuttingMaxX ||
                 clippedMinY <= cuttingMinY && clippedMaxY >= cuttingMinY &&
                 clippedMinX >= cuttingMinX && clippedMaxX <= cuttingMaxX ||
-                clippedMinY >= cuttingMinY && clippedMaxY < cuttingMaxY &&
-                clippedMinX <= cuttingMaxX && clippedMaxX > cuttingMaxX ||
+                clippedMinY >= cuttingMinY && clippedMaxY <= cuttingMaxY &&
+                clippedMinX <= cuttingMaxX && clippedMaxX >= cuttingMaxX ||
                 clippedMinY >= cuttingMinY && clippedMaxY <= cuttingMaxY &&
                 clippedMinX <= cuttingMinX && clippedMaxX >= cuttingMinX ||
                 clippedMaxY <= cuttingMaxY && clippedMinY >= cuttingMinY &&
@@ -843,11 +850,12 @@ public class WeilerAthertonAlghorithm
                 {
                     bool isPolygonInPolygon = true;
 
-                    for (int j = 0; j < maybeInnerRing.Coordinates.Length; j++)
+                    foreach (var arrCoordinate in maybeInnerRing.Coordinates)
                     {
-                        if (!_containsChecker.IsPointInLinearRing(maybeInnerRing.Coordinates[j], ringShell))
+                        if (!_containsChecker.IsPointInLinearRing(arrCoordinate, ringShell))
                         {
                             isPolygonInPolygon = false;
+                            break;
                         }
                     }
 
