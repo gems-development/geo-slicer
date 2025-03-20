@@ -2,7 +2,6 @@
 using GeoSlicer.Utils;
 using GeoSlicer.Utils.Intersectors;
 using NetTopologySuite.Geometries;
-using static GeoSlicer.Utils.SegmentService;
 
 namespace GeoSlicer.NonConvexSlicer.Helpers;
 
@@ -26,7 +25,7 @@ public class NonConvexSlicerHelper
         _lineService = lineService;
     }
 
-    public bool CurrentPointIsSpecial(Coordinate previousPoint, Coordinate currentPoint, Coordinate nextPoint)
+    public bool IsCurrentPointSpecial(Coordinate previousPoint, Coordinate currentPoint, Coordinate nextPoint)
     {
         return LineService.VectorProduct(
             currentPoint.X - previousPoint.X,

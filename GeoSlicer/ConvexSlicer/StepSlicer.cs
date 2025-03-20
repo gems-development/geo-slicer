@@ -56,17 +56,16 @@ public class StepSlicer : ISlicer
             ringNumber++;
         }
 
-        if (ringNumber < ringsCount)
+        if (ringNumber >= ringsCount) return result;
+        
+        newRingCoordinates = new Coordinate[right - left + 2];
+        for (int i = 0; i <= right - left + 1; i++)
         {
-            newRingCoordinates = new Coordinate[right - left + 2];
-            for (int i = 0; i <= right - left + 1; i++)
-            {
-                newRingCoordinates[i] = coordinates[left + i];
-            }
-
-            newRingCoordinates[^1] = coordinates[left];
-            result[ringNumber] = _gf.CreateLinearRing(newRingCoordinates);
+            newRingCoordinates[i] = coordinates[left + i];
         }
+
+        newRingCoordinates[^1] = coordinates[left];
+        result[ringNumber] = _gf.CreateLinearRing(newRingCoordinates);
 
         return result;
     }

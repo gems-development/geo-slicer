@@ -1,30 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using GeoSlicer.Utils;
 using GeoSlicer.Utils.PolygonClippingAlghorithm;
 using NetTopologySuite.Geometries;
 
 namespace GeoSlicer.DivideAndRuleSlicers.OppositesSlicer;
 
+/// <summary>
+/// Разрезает полигон на куски, количество точек в которых не превышает переданное в конструкторе ограничение.
+/// Разрезает путем проведения линии по точкам, что противоположны по индексам (разница индексов = length / 2)
+/// </summary>
 public class Slicer
 {
-    private readonly LineService _lineService;
-
     private readonly int _maxPointsCount;
 
-    // todo После вынесения метода пересечения заменить на нужный класс
-    private readonly WeilerAthertonAlghorithm _weilerAthertonAlghorithm;
+    private readonly WeilerAthertonForLine _weilerAtherton;
+    private readonly OppositesSlicerUtils _utils;
 
-    private int _debugVar = 0;
+    // todo: Удалить после отладки
+    private int _debugVar;
 
-    public Slicer(LineService lineService, int maxPointsCount, WeilerAthertonAlghorithm weilerAthertonAlghorithm)
+    public Slicer(int maxPointsCount, WeilerAthertonForLine weilerAtherton, OppositesSlicerUtils utils)
     {
-        _lineService = lineService;
         _maxPointsCount = maxPointsCount;
-        _weilerAthertonAlghorithm = weilerAthertonAlghorithm;
+        _weilerAtherton = weilerAtherton;
+        _utils = utils;
     }
-
 
     public IEnumerable<Polygon> Slice(Polygon input)
     {
@@ -36,7 +37,7 @@ public class Slicer
             return result;
         }
 
-        Queue<Polygon> queue = new Queue<Polygon>();
+        Queue<Polygon> queue = new();
         queue.Enqueue(input);
         _debugVar = 0;
         while (queue.Count != 0)
@@ -44,15 +45,13 @@ public class Slicer
             Console.WriteLine(
                 $"Number: {_debugVar}. Queue count: {queue.Count}. Max points count: {queue.Select(polygon => polygon.Shell.Count).Max()}");
 
-            // todo Кажется, есть лишние разрезания
             Polygon current = queue.Dequeue();
 
-            int oppositesIndex = Utils.GetOppositesIndexByTriangles(current.Shell);
+            int oppositesIndex = _utils.GetOppositesIndexByTriangles(current.Shell);
             IEnumerable<Polygon> sliced = SliceByLine(
                 current,
                 current.Shell.GetCoordinateN(oppositesIndex),
                 current.Shell.GetCoordinateN((oppositesIndex + current.Shell.Count / 2) % current.Shell.Count));
-
 
             foreach (Polygon ring in sliced)
             {
@@ -74,149 +73,20 @@ public class Slicer
         return result;
     }
 
-    // todo Возможно можно исправить проблемы при повторяющихся точках
-    // todo Вынести в отдельный класс Вэйлера-Азертона с набором надстроек над основным алгоритмом)
     private IEnumerable<Polygon> SliceByLine(Polygon polygon, Coordinate a, Coordinate b)
     {
-        a = a.Copy();
-        b = b.Copy();
-        //GeoJsonFileService.WriteGeometryToFile(polygon, "Out/wrong.geojson.ignore");
-        // Если isVertical == true, создается 2 области: слева и справа от вертикального разделителя
-        bool isVertical = Math.Abs(a.Y - b.Y) > Math.Abs(a.X - b.X);
+        LineString line1 = new LineString(new[] { a, b });
+        LineString line2 = new LineString(new[] { b, a });
 
+        //if (_debugVar == 683)
+        //{
+        //    GeoJsonFileService.WriteGeometryToFile(polygon, "Out/source.geojson.ignore");
+        //    GeoJsonFileService.WriteGeometryToFile(line1, "Out/line1.geojson.ignore");
+        //    GeoJsonFileService.WriteGeometryToFile(line2, "Out/line2.geojson.ignore");
+        //}
 
-        // Сортировка к a<b
-        if (isVertical && a.Y > b.Y || !isVertical && a.X > b.X)
-        {
-            (a, b) = (b, a);
-        }
-
-        Envelope envelope = polygon.EnvelopeInternal;
-
-        // Создаем нахлест чтобы наверняка
-        double minY = envelope.MinY - (envelope.MaxY - envelope.MinY) * 0.1;
-        double maxY = envelope.MaxY + (envelope.MaxY - envelope.MinY) * 0.1;
-        double minX = envelope.MinX - (envelope.MaxY - envelope.MinY) * 0.1;
-        double maxX = envelope.MaxX + (envelope.MaxY - envelope.MinY) * 0.1;
-        if (isVertical)
-        {
-            if (minY < a.Y)
-            {
-                // Продлеваем прямую
-                a.X += (a.X - b.X) * (a.Y - minY) / (b.Y - a.Y);
-                a.Y = minY;
-            }
-
-            if (b.Y < maxY)
-            {
-                b.X -= (a.X - b.X) * (maxY - b.Y) / (b.Y - a.Y);
-                b.Y = maxY;
-            }
-        }
-        else
-        {
-            if (minX < a.X)
-            {
-                a.Y += (a.Y - b.Y) * (a.X - minX) / (b.X - a.X);
-                a.X = minX;
-            }
-
-            if (b.X < maxX)
-            {
-                b.Y -= (a.Y - b.Y) * (maxX - b.X) / (b.X - a.X);
-                b.X = maxX;
-            }
-        }
-
-        // Если пересекается с 2мя смежными сторонами, в результате будет треугольник, у которого в одной точке
-        // будет на самом деле 2 точки. Без этого будет самопересечения а-ля бантик
-        minX = Math.Min(minX, Math.Min(a.X, b.X));
-        minY = Math.Min(minY, Math.Min(a.Y, b.Y));
-        maxX = Math.Max(maxX, Math.Max(a.X, b.X));
-        maxY = Math.Max(maxY, Math.Max(a.Y, b.Y));
-        LinearRing part1;
-        LinearRing part2;
-        if (isVertical)
-        {
-            // Чтобы избежать создания треугольника с лишним дублем точки
-            if (minX == b.X)
-            {
-                part1 = new LinearRing(new[]
-                    { a, new(minX, minY), b, a });
-            }
-            else if (minX == a.X)
-            {
-                part1 = new LinearRing(new[]
-                    { a, new(minX, maxY), b, a });
-            }
-            else
-            {
-                part1 = new LinearRing(new[]
-                    { a, new(minX, minY), new(minX, maxY), b, a });
-            }
-
-            if (maxX == a.X)
-            {
-                part2 = new LinearRing(new[]
-                    { a, b, new(maxX, maxY), a });
-            }
-            else if (maxX == b.X)
-            {
-                part2 = new LinearRing(new[]
-                    { a, b, new(maxX, minY), a });
-            }
-            else
-            {
-                part2 = new LinearRing(new[]
-                    { a, b, new(maxX, maxY), new(maxX, minY), a });
-            }
-        }
-        else
-        {
-            // part1 максы и Б part2 минимумы и А
-
-            if (maxY == a.Y)
-            {
-                part1 = new LinearRing(new[]
-                    { a, new(maxX, maxY), b, a });
-            }
-            else if (maxY == b.Y)
-            {
-                part1 = new LinearRing(new[]
-                    { a, new(minX, maxY), b, a });
-            }
-            else
-            {
-                part1 = new LinearRing(new[]
-                    { a, new(minX, maxY), new(maxX, maxY), b, a });
-            }
-
-            if (minY == a.Y)
-            {
-                part2 = new LinearRing(new[]
-                    { a, b, new(maxX, minY), a });
-            }
-            else if (minY == b.Y)
-            {
-                part2 = new LinearRing(new[]
-                    { a, b, new(minX, minY), a });
-            }
-            else
-            {
-                part2 = new LinearRing(new[]
-                    { a, b, new(maxX, minY), new(minX, minY), a });
-            }
-        }
-
-        if (_debugVar == 683)
-        {
-            GeoJsonFileService.WriteGeometryToFile(polygon, "Out/source.geojson.ignore");
-            GeoJsonFileService.WriteGeometryToFile(part1, "Out/part1.geojson.ignore");
-            GeoJsonFileService.WriteGeometryToFile(part2, "Out/part2.geojson.ignore");
-        }
-
-        IEnumerable<Polygon> resPart1 = _weilerAthertonAlghorithm.WeilerAtherton(polygon, part1);
-        IEnumerable<Polygon> resPart2 = _weilerAthertonAlghorithm.WeilerAtherton(polygon, part2);
+        IEnumerable<Polygon> resPart1 = _weilerAtherton.WeilerAtherton(polygon, line1);
+        IEnumerable<Polygon> resPart2 = _weilerAtherton.WeilerAtherton(polygon, line2);
 
 
         // GeoJsonFileService.WriteGeometryToFile(new MultiPolygon(resPart1.ToArray()),

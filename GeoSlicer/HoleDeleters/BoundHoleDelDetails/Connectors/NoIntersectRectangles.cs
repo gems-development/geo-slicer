@@ -21,7 +21,7 @@ internal class NoIntersectRectangles
         public double Epsilon;
     }
 
-    private LineService _lineService;
+    private readonly LineService _lineService;
     private readonly Data _data = new ();
 
     public NoIntersectRectangles(double epsilon, LineService lineService)

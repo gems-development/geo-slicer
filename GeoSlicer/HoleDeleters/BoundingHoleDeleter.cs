@@ -65,11 +65,11 @@ public class BoundingHoleDeleter
             {
                 isConnected = 
                     _noIntersectRectangles.Connect(thisRing, listOfHoles, _cache, _intersectChecker) ||
-                    WithIntersectRing.BruteforceConnect(thisRing, listOfHoles, _cache, _intersectChecker);
+                    WithIntersectRing.TryBruteforceConnect(thisRing, listOfHoles, _cache, _intersectChecker);
             }
             else
             {
-                isConnected = _intersectionBoundRFrames.BruteforceConnect(thisRing, listOfHoles, _cache, _intersectChecker);
+                isConnected = _intersectionBoundRFrames.TryBruteforceConnect(thisRing, listOfHoles, _cache, _intersectChecker);
             }
 
             if (!isConnected)

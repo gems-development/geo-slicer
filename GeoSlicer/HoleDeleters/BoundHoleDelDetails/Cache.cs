@@ -5,17 +5,20 @@ using NetTopologySuite.Geometries;
 using GeoSlicer.HoleDeleters.BoundHoleDelDetails.Structures;
 
 namespace GeoSlicer.HoleDeleters.BoundHoleDelDetails;
-//Кэш алгоритма BoundingHoleDeleter.
-//Например в списке ListA хранятся рамки, расположенные севернее рамки,
-//относительно которой проводилось заполнение кэша. Соотвествие букв и сторон света описано в PartitioningZones.
+
+/// <summary>
+/// Кэш алгоритма BoundingHoleDeleter.
+/// Например, в списке ListA хранятся рамки, расположенные севернее рамки,
+/// относительно которой проводилось заполнение кэша. Соответствие букв и сторон света описано в PartitioningZones.
+/// </summary>
 internal class Cache
 {
     private readonly double _epsilon;
-    private IntersectsChecker _intersectsChecker;
+    private readonly IntersectsChecker _intersectsChecker;
 
     internal readonly IReadOnlyDictionary<Zones, LinkedList<RingAndZones>> RingsInZone;
-    
-    internal readonly LinkedList<LinkedListNode<BoundingRing>>IntersectFrames = new();
+
+    internal readonly LinkedList<LinkedListNode<BoundingRing>> IntersectFrames = new();
     internal readonly LinkedList<LinkedListNode<BoundingRing>> FramesContainThis = new();
 
     internal readonly Dictionary<Zones, RingAndZones> NearRing = new();
@@ -25,15 +28,17 @@ internal class Cache
     {
         _epsilon = epsilon;
         _intersectsChecker = checker;
-        var thisRingsInZone = new Dictionary<Zones, LinkedList<RingAndZones>>();
-        thisRingsInZone.Add(Zones.A, new LinkedList<RingAndZones>());
-        thisRingsInZone.Add(Zones.B, new LinkedList<RingAndZones>());
-        thisRingsInZone.Add(Zones.C, new LinkedList<RingAndZones>());
-        thisRingsInZone.Add(Zones.D, new LinkedList<RingAndZones>());
-        thisRingsInZone.Add(Zones.E, new LinkedList<RingAndZones>());
-        thisRingsInZone.Add(Zones.F, new LinkedList<RingAndZones>());
-        thisRingsInZone.Add(Zones.G, new LinkedList<RingAndZones>());
-        thisRingsInZone.Add(Zones.H, new LinkedList<RingAndZones>());
+        var thisRingsInZone = new Dictionary<Zones, LinkedList<RingAndZones>>
+        {
+            { Zones.A, new LinkedList<RingAndZones>() },
+            { Zones.B, new LinkedList<RingAndZones>() },
+            { Zones.C, new LinkedList<RingAndZones>() },
+            { Zones.D, new LinkedList<RingAndZones>() },
+            { Zones.E, new LinkedList<RingAndZones>() },
+            { Zones.F, new LinkedList<RingAndZones>() },
+            { Zones.G, new LinkedList<RingAndZones>() },
+            { Zones.H, new LinkedList<RingAndZones>() }
+        };
         RingsInZone = thisRingsInZone;
     }
 
@@ -50,8 +55,14 @@ internal class Cache
         NearSegmentIntersect.Clear();
     }
 
-    // Метод вычисляет местоположение рамок из boundRings относительно boundRing и помещает информацию в кэш.
-    // Возвращает true, если были обнаружены кольца, рамки которых пересекают рамку кольца boundRing.
+    /// <summary>
+    /// Метод вычисляет местоположение рамок из <paramref name="boundRings"/> относительно
+    /// <paramref name="boundRing"/> и помещает информацию в кэш.
+    /// </summary>
+    /// <returns>
+    /// Возвращает true, если были обнаружены кольца, рамки которых пересекают
+    /// рамку кольца <paramref name="boundRing"/>.
+    /// </returns>
     internal bool FillListsRelativeRing(
         LinkedListNode<BoundingRing> boundRing,
         LinkedList<BoundingRing> boundRings)
@@ -67,14 +78,14 @@ internal class Cache
                 {
                     if (!DetectSeparatingZone(boundRing, thisRing))
                     {
-                        hasIntersectFrames = IntersectOrContainFrames(boundRing, thisRing);
+                        hasIntersectFrames = CheckIntersectsOrContainsFrames(boundRing, thisRing);
                         if (hasIntersectFrames)
                             IntersectFrames.AddFirst(thisRing);
                     }
                 }
-                else if (_intersectsChecker.NotIntersect(boundRing.Value, thisRing.Value, _epsilon))
+                else if (_intersectsChecker.CheckNotIntersects(boundRing.Value, thisRing.Value, _epsilon))
                 {
-                    if (IntersectOrContainFrames(boundRing, thisRing))
+                    if (CheckIntersectsOrContainsFrames(boundRing, thisRing))
                         DetectSeparatingZone(boundRing, thisRing);
                 }
                 else
@@ -85,13 +96,17 @@ internal class Cache
 
             thisRing = thisRing.Next;
         }
+
         return hasIntersectFrames;
     }
 
-    //возращает false если рамка boundRing содержится в рамке relativeBoundRing
-    //или рамка relativeBoundRing содержится в boundRing.
-    //true в противном случае(могут пересекаться и не пересекаться)
-    private bool IntersectOrContainFrames(
+
+    /// <summary>
+    /// Проверяет, содержится ли <paramref name="boundRing"/> в рамке <paramref name="relativeBoundRing"/>
+    /// или наоборот.
+    /// </summary>
+    /// <returns> True, если не содержатся (могут пересекаться и не пересекаться), false иначе</returns>
+    private bool CheckIntersectsOrContainsFrames(
         LinkedListNode<BoundingRing> relativeBoundRing,
         LinkedListNode<BoundingRing> boundRing)
     {
@@ -113,13 +128,15 @@ internal class Cache
             FramesContainThis.AddFirst(boundRing);
             return false;
         }
-        
+
         return true;
     }
 
-    //Возращает false если рамки пересекаются(не важно как).
-    //Метод вычисляет местоположение рамки boundRing относительно relativeBoundRing
-    //и запоминает это местоположение в кэше.
+    /// <summary>
+    /// Метод вычисляет местоположение рамки <paramref name="boundRing"/> относительно
+    /// <paramref name="relativeBoundRing"/> и запоминает это местоположение в кэше.
+    /// </summary>
+    /// <returns> False если рамки пересекаются (не важно как).</returns>
     private bool DetectSeparatingZone(
         LinkedListNode<BoundingRing> relativeBoundRing,
         LinkedListNode<BoundingRing> boundRing)
@@ -133,6 +150,7 @@ internal class Cache
         bool flagCde = false;
         bool flagEfg = false;
         bool flagAhg = false;
+
         if (boundRing.Value.PointMin.Y > relativeBoundRing.Value.PointMax.Y &&
             !_intersectsChecker
                 .CompareEquality(boundRing.Value.PointMin.Y, relativeBoundRing.Value.PointMax.Y, _epsilon))
@@ -145,7 +163,7 @@ internal class Cache
                 relativeBoundRing.Value.PointMin.X,
                 relativeBoundRing.Value.PointMax.X,
                 Zones.C,
-                Zones.A, 
+                Zones.A,
                 Zones.B,
                 ref flagC,
                 ref flagA,
@@ -164,7 +182,7 @@ internal class Cache
                 relativeBoundRing.Value.PointMin.Y,
                 relativeBoundRing.Value.PointMax.Y,
                 Zones.E,
-                Zones.C, 
+                Zones.C,
                 Zones.D,
                 ref flagE,
                 ref flagC,
@@ -174,7 +192,7 @@ internal class Cache
         else if (boundRing.Value.PointMax.Y < relativeBoundRing.Value.PointMin.Y &&
                  !_intersectsChecker
                      .CompareEquality(relativeBoundRing.Value.PointMin.Y, boundRing.Value.PointMax.Y, _epsilon))
-        { 
+        {
             flagEfg = true;
             SetFlags(
                 boundRing,
@@ -183,14 +201,14 @@ internal class Cache
                 relativeBoundRing.Value.PointMin.X,
                 relativeBoundRing.Value.PointMax.X,
                 Zones.E,
-                Zones.G, 
+                Zones.G,
                 Zones.F,
                 ref flagE,
                 ref flagG,
                 list);
         }
 
-        else if (boundRing.Value.PointMin.X > relativeBoundRing.Value.PointMax.X && 
+        else if (boundRing.Value.PointMin.X > relativeBoundRing.Value.PointMax.X &&
                  !_intersectsChecker
                      .CompareEquality(boundRing.Value.PointMin.X, relativeBoundRing.Value.PointMax.X, _epsilon))
         {
@@ -202,14 +220,14 @@ internal class Cache
                 relativeBoundRing.Value.PointMin.Y,
                 relativeBoundRing.Value.PointMax.Y,
                 Zones.G,
-                Zones.A, 
+                Zones.A,
                 Zones.H,
                 ref flagG,
                 ref flagA,
                 list);
         }
         else return false;
-        
+
         if ((!NearRing.ContainsKey(Zones.Abc) ||
              boundRing.Value.PointMin.Y < NearRing[Zones.Abc].BoundRing.Value.PointMin.Y) &&
             (flagAbc || (list.Count == 1 && (flagA || flagC))))
@@ -217,6 +235,7 @@ internal class Cache
             NearRing.Remove(Zones.Abc);
             NearRing.Add(Zones.Abc, new RingAndZones(boundRing, list));
         }
+
         if ((!NearRing.ContainsKey(Zones.Cde) ||
              boundRing.Value.PointMax.X > NearRing[Zones.Cde].BoundRing.Value.PointMax.X) &&
             (flagCde || (list.Count == 1 && (flagC || flagE))))
@@ -240,15 +259,15 @@ internal class Cache
             NearRing.Remove(Zones.Ahg);
             NearRing.Add(Zones.Ahg, new RingAndZones(boundRing, list));
         }
-        
+
         return true;
     }
-    
+
     private void SetFlags(
         LinkedListNode<BoundingRing> boundRing,
         double boundMin,
         double boundMax,
-        double relativeMin, 
+        double relativeMin,
         double relativeMax,
         Zones first,
         Zones second,
@@ -256,7 +275,7 @@ internal class Cache
         ref bool firstFlag,
         ref bool secondFlag,
         List<Zones> list
-        )
+    )
     {
         if (boundMin < relativeMin ||
             _intersectsChecker
@@ -277,7 +296,7 @@ internal class Cache
         }
 
         if (firstFlag == secondFlag
-            || _intersectsChecker.SegmentContainAtLeastOneNumber
+            || _intersectsChecker.CheckSegmentContainsAtLeastOneNumber
             (relativeMin,
                 relativeMax,
                 new[] { boundMin, boundMax }))

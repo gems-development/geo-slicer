@@ -87,7 +87,7 @@ internal static class Bruteforce
             findIntersectCheckedR = false;
             foreach (var checkedRing in checkedRings)
             {
-                if (intersectsChecker.LineIntersectsOrContainsInBoundRFrame(
+                if (intersectsChecker.CheckLineIntersectsOrContainsInBoundRFrame(
                         checkedRing.Value, 
                         connectPointThisR, connectPoint.Elem))
                 {

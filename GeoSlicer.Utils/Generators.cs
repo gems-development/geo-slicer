@@ -11,17 +11,17 @@ public static class Generators
     /// <summary>
     /// Создает выпуклый многоугольник
     /// </summary>
-    /// <param name="pointCount">Количество точек, должно быть кратно 4м</param>
+    /// <param name="pointCount">Количество точек, должно быть кратно 4-м</param>
     /// <param name="gf">Генератор геометрии. Если не передать, используется вариант по умолчанию</param>
     /// <returns>Созданный многоугольник</returns>
-    /// <exception cref="ArgumentException">Если требуемое число точек не кратно 4м</exception>
+    /// <exception cref="ArgumentException">Если требуемое число точек не кратно 4-м</exception>
     public static LinearRing GenerateConvexLinearRing(int pointCount, GeometryFactory? gf = null)
     {
         gf ??= Gf;
 
         if (pointCount % 4 != 0)
         {
-            throw new ArgumentException("Количество точек должно быть кратно 4м");
+            throw new ArgumentException("Количество точек должно быть кратно 4-м");
         }
 
         Coordinate[] coordinates = new Coordinate[pointCount + 1];

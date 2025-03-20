@@ -27,28 +27,28 @@ internal class BoundRService
         LinearRing ring, bool counterClockwiseBypass, LineService lineService)
     {
         Coordinate[] coordinates = ring.Coordinates;
-        LinkedNode <Coordinate> ringNode = new LinkedNode<Coordinate>(coordinates[0]);
+        LinkedNode<Coordinate> ringNode = new LinkedNode<Coordinate>(coordinates[0]);
         LinkedNode<Coordinate> pointLeftNode = ringNode;
         LinkedNode<Coordinate> pointRightNode = ringNode;
         LinkedNode<Coordinate> pointUpNode = ringNode;
         LinkedNode<Coordinate> pointDownNode = ringNode;
         bool clockwise = TraverseDirection.IsClockwiseBypass(ring);
         bool counterClockwiseBypassBuff = counterClockwiseBypass;
-        
-        if (!counterClockwiseBypass) 
+
+        if (!counterClockwiseBypass)
         {
             clockwise = !clockwise;
         }
-        
+
         if (clockwise)
         {
             for (int i = 1; i < coordinates.Length - 1; i++)
             {
                 ringNode = new LinkedNode<Coordinate>(coordinates[i], ringNode);
-                pointLeftNode = CoordinateNodeService.MinByX(pointLeftNode, ringNode);
-                pointRightNode = CoordinateNodeService.MaxByX(pointRightNode, ringNode);
-                pointUpNode = CoordinateNodeService.MaxByY(pointUpNode, ringNode);
-                pointDownNode = CoordinateNodeService.MinByY(pointDownNode, ringNode);
+                pointLeftNode = CoordinateNodeService.GetMinByX(pointLeftNode, ringNode);
+                pointRightNode = CoordinateNodeService.GetMaxByX(pointRightNode, ringNode);
+                pointUpNode = CoordinateNodeService.GetMaxByY(pointUpNode, ringNode);
+                pointDownNode = CoordinateNodeService.GetMinByY(pointDownNode, ringNode);
             }
         }
         else
@@ -56,36 +56,37 @@ internal class BoundRService
             for (int i = coordinates.Length - 2; i >= 1; i--)
             {
                 ringNode = new LinkedNode<Coordinate>(coordinates[i], ringNode);
-                pointLeftNode = CoordinateNodeService.MinByX(pointLeftNode, ringNode);
-                pointRightNode = CoordinateNodeService.MaxByX(pointRightNode, ringNode);
-                pointUpNode = CoordinateNodeService.MaxByY(pointUpNode, ringNode);
-                pointDownNode = CoordinateNodeService.MinByY(pointDownNode, ringNode);
+                pointLeftNode = CoordinateNodeService.GetMinByX(pointLeftNode, ringNode);
+                pointRightNode = CoordinateNodeService.GetMaxByX(pointRightNode, ringNode);
+                pointUpNode = CoordinateNodeService.GetMaxByY(pointUpNode, ringNode);
+                pointDownNode = CoordinateNodeService.GetMinByY(pointDownNode, ringNode);
             }
         }
-        
+
         Coordinate pointMax = new Coordinate(
             Math.Max(pointUpNode.Elem.X, pointRightNode.Elem.X),
             Math.Max(pointUpNode.Elem.Y, pointRightNode.Elem.Y));
-        
+
         Coordinate pointMin = new Coordinate(
             Math.Min(pointDownNode.Elem.X, pointLeftNode.Elem.X),
             Math.Min(pointDownNode.Elem.Y, pointLeftNode.Elem.Y));
-        
+
         return new BoundingRing(pointMin, pointMax, pointLeftNode, pointRightNode,
             pointUpNode, pointDownNode, ringNode.Next, coordinates.Length - 1, counterClockwiseBypassBuff, lineService);
     }
 
-    //Ищет точку, которая совпадает с point1Node, но соединение с ней не будет пересекать другие нулевые туннели.
+    // Ищет точку, которая совпадает с point1Node, но соединение с ней не будет пересекать другие нулевые туннели.
     internal static LinkedNode<Coordinate> FindCorrectLinkedCoord(
         LinkedNode<Coordinate> point1Node, Coordinate point2, bool thisCounterClockwiseBypass, LineService lineService)
     {
         if (point1Node.AdditionalNext is null)
             return point1Node;
-        
+
         while (ReferenceEquals(point1Node.AdditionalPrevious!.Elem, point1Node.Elem))
         {
             point1Node = point1Node.AdditionalPrevious;
         }
+
         while (true)
         {
             if (!ReferenceEquals(point1Node.AdditionalNext!.Elem, point1Node.Elem))
@@ -108,7 +109,7 @@ internal class BoundRService
                 res = lineService.InsideTheAngle(
                     point1Node.Elem, point2, b1, b2, b3);
             }
-            
+
             if (res)
             {
                 return point1Node;
@@ -124,24 +125,23 @@ internal class BoundRService
     {
         LinkedNode<Coordinate> ring1NodeNext = ring1Node.Next;
         LinkedNode<Coordinate> ring2NodePrevious = ring2Node.Previous;
-        
+
         ring1Node.Next = ring2Node;
         ring2Node.Previous = ring1Node;
 
         ring2NodePrevious.Next = ring1NodeNext;
         ring1NodeNext.Previous = ring2NodePrevious;
-        
-        new LinkedNode<Coordinate>(
+
+        _ = new LinkedNode<Coordinate>(
             ring1Node.Elem,
             new LinkedNode<Coordinate>(ring2Node.Elem, ring2NodePrevious, ring1NodeNext),
             ring1NodeNext);
-        
-        //меняем ссылки у первого кольца
-        if (ring1Node.AdditionalPrevious == null)
-            ring1Node.AdditionalPrevious = ring1Node.Previous;
+
+        // Меняем ссылки у первого кольца
+        ring1Node.AdditionalPrevious ??= ring1Node.Previous;
         var oldRing1NodeAdditionalNext = ring1Node.AdditionalNext;
         ring1Node.AdditionalNext = ring1NodeNext.Previous;
-        
+
         ring1NodeNext.Previous.AdditionalPrevious = ring1Node;
         if (oldRing1NodeAdditionalNext == null)
         {
@@ -150,16 +150,15 @@ internal class BoundRService
         else
         {
             ring1NodeNext.Previous.AdditionalNext = oldRing1NodeAdditionalNext;
-            if (ReferenceEquals(oldRing1NodeAdditionalNext.Elem, ring1Node.Elem)) 
+            if (ReferenceEquals(oldRing1NodeAdditionalNext.Elem, ring1Node.Elem))
                 oldRing1NodeAdditionalNext.AdditionalPrevious = ring1NodeNext.Previous;
         }
-        
-        //меняем ссылки у второго кольца
-        if(ring2Node.AdditionalNext == null)
-            ring2Node.AdditionalNext = ring2Node.Next;
+
+        // Меняем ссылки у второго кольца
+        ring2Node.AdditionalNext ??= ring2Node.Next;
         var oldRing2NodeAdditionalPrevious = ring2Node.AdditionalPrevious;
         ring2Node.AdditionalPrevious = ring2NodePrevious.Next;
-        
+
         ring2NodePrevious.Next.AdditionalNext = ring2Node;
         if (oldRing2NodeAdditionalPrevious == null)
         {

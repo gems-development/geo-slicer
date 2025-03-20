@@ -6,12 +6,16 @@ namespace GeoSlicer.Utils;
 public static class VectorService
 {
     
-    
-    //Перемещает координату firstCoord по биссектрисе угла, образуемого прямыми (coordAdjacentLine, firstCoord)
-    //и (firstCoord, secondCoord), на длинну stepSize.
-    //Возвращает массив из двух координат - сдвинутую координату внутрь угла и за угол, либо наоборот.
-    //С погрешностью tolerance сравнивается угол между  прямыми (coordAdjacentLine, firstCoord) и (firstCoord, secondCoord)
-    //на равенство со 180°.
+    /// <summary>
+    /// Перемещает координату <paramref name="firstCoord"/> по биссектрисе угла, образуемого прямыми
+    /// (<paramref name="coordAdjacentLine"/>, <paramref name="firstCoord"/>)
+    /// и (<paramref name="firstCoord"/>, <paramref name="secondCoord"/>), на длину <paramref name="stepSize"/>.
+    /// Возвращает массив из двух координат - сдвинутую координату внутрь угла и за угол, либо наоборот.
+    /// С погрешностью <paramref name="tolerance"/> сравнивается угол между  прямыми
+    /// (<paramref name="coordAdjacentLine"/>, <paramref name="firstCoord"/>) и
+    /// (<paramref name="firstCoord"/>, <paramref name="secondCoord"/>)
+    /// на равенство со 180°.
+    /// </summary>
     public static Coordinate[] ShiftPointAlongBisector(
         Coordinate coordAdjacentLine,
         Coordinate firstCoord, 
@@ -57,8 +61,6 @@ public static class VectorService
 
     public static void OrthonormalizeVector(ref double x1, ref double y1)
     {
-        x1 *= 10;
-        y1 *= 10;
         double vectorLength = Math.Sqrt(x1 * x1 + y1 * y1);
         x1 /= vectorLength;
         y1 /= vectorLength;
@@ -66,10 +68,6 @@ public static class VectorService
 
     public static double Cos(double x1, double y1, double x2, double y2)
     {
-        x1 *= 10;
-        y1 *= 10;
-        x2 *= 10;
-        y2 *= 10;
         return (x1 * x2 + y1 * y2) / (Math.Sqrt(x1 * x1 + y1 * y1) * Math.Sqrt(x2 * x2 + y2 * y2));
     }
 
@@ -82,13 +80,12 @@ public static class VectorService
         return Cos(x1, y1, x2, y2);
     }
     
-    //Находит угол между прямыми (x, y) и (a, b)
-    public static double Cos(Coordinate x, Coordinate y, Coordinate a, Coordinate b)
+    public static double Cos(Coordinate aStart, Coordinate aEnd, Coordinate bStart, Coordinate bEnd)
     {
-        double x1 = x.X - y.X;
-        double y1 = x.Y - y.Y;
-        double x2 = a.X - b.X;
-        double y2 = a.Y - b.Y;
+        double x1 = aStart.X - aEnd.X;
+        double y1 = aStart.Y - aEnd.Y;
+        double x2 = bStart.X - bEnd.X;
+        double y2 = bStart.Y - bEnd.Y;
         return Cos(x1, y1, x2, y2);
     }
     

@@ -47,45 +47,6 @@ public class WeilerAthertonAlghorithm
     }
 
 
-    public IntersectionType WeilerAthertonForGrid(
-        Polygon clipped, double xDown, double xUp, double yDown, double yUp, out IEnumerable<Polygon> result)
-    {
-        Coordinate[] boxCoordinated =
-        {
-            new(xDown, yDown),
-            new(xDown, yUp),
-            new(xUp, yUp),
-            new(xUp, yDown),
-            new(xDown, yDown)
-        };
-        LinearRing boxLinearRing = new LinearRing(boxCoordinated);
-
-        result = Array.Empty<Polygon>();
-
-
-        result = WeilerAtherton(clipped, boxLinearRing);
-
-        if (result.Count() == 1)
-        {
-            if (result.First().Shell == boxLinearRing)
-            {
-                return IntersectionType.BoxInGeometry;
-            }
-
-            if (result.First() == clipped)
-            {
-                return IntersectionType.GeometryInBox;
-            }
-        }
-
-        if (!result.Any())
-        {
-            return IntersectionType.BoxOutsideGeometry;
-        }
-
-
-        return IntersectionType.IntersectionWithEdge;
-    }
 
     private (LinesIntersectionType, Coordinate?) GetIntersection(CoordinateSupport line1Point1,
         CoordinateSupport line1Point2, CoordinateSupport line2Point1, CoordinateSupport line2Point2)
@@ -544,13 +505,15 @@ public class WeilerAthertonAlghorithm
 
         // Может понадобиться для отладки: должно быть равно numberOfEnteringMarks
 
-        var (cuttingMinX, cuttingMinY, cuttingMaxX, cuttingMaxY) = cuttingRingShell.GetMinAndMaxPoints();
+        cuttingRingShell.GetMinAndMaxOrdinates(
+            out double cuttingMinX, out double cuttingMinY, out double cuttingMaxX, out double cuttingMaxY);
 
         List<LinearRing> maybeInnerRings = new List<LinearRing>();
 
         for (int i = 0; i < clippedListArray.Length; i++)
         {
-            var (clippedMinX, clippedMinY, clippedMaxX, clippedMaxY) = allRingsClipped[i].GetMinAndMaxPoints();
+            allRingsClipped[i].GetMinAndMaxOrdinates(
+                out double clippedMinX, out double clippedMinY, out double clippedMaxX, out double clippedMaxY);
             if (clippedMinY <= cuttingMaxY && clippedMaxY >= cuttingMaxY &&
                 clippedMaxX >= cuttingMinX && clippedMinX <= cuttingMinX ||
                 clippedMinY <= cuttingMaxY && clippedMaxY >= cuttingMaxY &&

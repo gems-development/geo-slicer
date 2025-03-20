@@ -3,6 +3,10 @@ using NetTopologySuite.Geometries;
 
 namespace GeoSlicer.Utils.Intersectors.CoordinateComparators;
 
+/// <summary>
+/// Проверяет координаты на равенство,
+/// считая координаты равными, если Манхеттенское расстояние между ними меньше espilon
+/// </summary>
 public class EpsilonCoordinateComparator : ICoordinateComparator
 {
     private readonly double _epsilon;
@@ -26,7 +30,7 @@ public class EpsilonCoordinateComparator : ICoordinateComparator
     {
         return Math.Abs(a.X - x) <= _epsilon && Math.Abs(a.Y - y) <= _epsilon;
     }
-
+    
     public bool IsEquals(double a, double b)
     {
         return Math.Abs(a - b) <= _epsilon;

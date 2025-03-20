@@ -10,7 +10,7 @@ public static class TraverseDirection
     {
         Coordinate[] coordinates = ring.Coordinates;
 
-        //точка с минимальным х среди минимальных у
+        // Точка с минимальным х среди минимальных у
         var coordB = coordinates[0];
 
         var coordA = coordinates[^2];
