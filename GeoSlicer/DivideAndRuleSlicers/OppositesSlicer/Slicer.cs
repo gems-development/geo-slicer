@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using GeoSlicer.Utils;
 using GeoSlicer.Utils.PolygonClippingAlghorithm;
 using NetTopologySuite.Geometries;
 
@@ -27,9 +29,10 @@ public class Slicer
         _utils = utils;
     }
 
-    public IEnumerable<Polygon> Slice(Polygon input)
+    public IEnumerable<Polygon> Slice(Polygon input, out LinkedList<int> skippedGeometries)
     {
         LinkedList<Polygon> result = new LinkedList<Polygon>();
+        skippedGeometries = new LinkedList<int>();
 
         if (input.NumPoints <= _maxPointsCount)
         {
@@ -47,11 +50,23 @@ public class Slicer
 
             Polygon current = queue.Dequeue();
 
-            int oppositesIndex = _utils.GetOppositesIndexByTriangles(current.Shell);
-            IEnumerable<Polygon> sliced = SliceByLine(
-                current,
-                current.Shell.GetCoordinateN(oppositesIndex),
-                current.Shell.GetCoordinateN((oppositesIndex + current.Shell.Count / 2) % current.Shell.Count));
+            _utils.GetOppositesIndexByTriangles(current.Shell, out int firstIndex, out int secondIndex);
+            IEnumerable<Polygon> sliced;
+            
+            try
+            {
+                sliced = SliceByLine(
+                    current,
+                    current.Shell.GetCoordinateN(firstIndex),
+                    current.Shell.GetCoordinateN(secondIndex));
+            }
+            catch (DifferentNumbersOfPointTypes _)
+            {
+                Console.WriteLine($"Skip part with {current.Shell.Count} points");
+                result.AddLast(current);
+                skippedGeometries.AddLast(result.Count);
+                continue;
+            }
 
             foreach (Polygon ring in sliced)
             {
@@ -81,7 +96,7 @@ public class Slicer
         //if (_debugVar == 683)
         //{
         //    GeoJsonFileService.WriteGeometryToFile(polygon, "Out/source.geojson.ignore");
-        //    GeoJsonFileService.WriteGeometryToFile(line1, "Out/line1.geojson.ignore");
+        //    
         //    GeoJsonFileService.WriteGeometryToFile(line2, "Out/line2.geojson.ignore");
         //}
 
@@ -93,7 +108,6 @@ public class Slicer
         //      "Out/resPart1.geojson.ignore");
         // GeoJsonFileService.WriteGeometryToFile(new MultiPolygon(resPart2.ToArray()),
         //     "Out/resPart2.geojson.ignore");
-
         return resPart1.Concat(resPart2);
     }
 }

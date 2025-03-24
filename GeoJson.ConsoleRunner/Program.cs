@@ -11,32 +11,35 @@ using NetTopologySuite.Geometries;
 const double epsilon = 1E-15;
 
 EpsilonCoordinateComparator coordinateComparator = new EpsilonCoordinateComparator(1e-8);
-LineService lineService = new LineService(epsilon, coordinateComparator);
+LineService lineService = new LineService(1E-15, coordinateComparator);
 
-//SlicerOld slicer = new SlicerOld(lineService, 5,
-WeilerAthertonForLine weilerAthertonAlghorithm = new WeilerAthertonForLine(
-    new LinesIntersector(coordinateComparator, lineService, epsilon), lineService,
+WeilerAthertonForLine weilerAtherton = new WeilerAthertonForLine(
+    new LinesIntersector(new EpsilonCoordinateComparator(1E-15), new LineService(1E-10, coordinateComparator), 1E-12), lineService,
     coordinateComparator, new ContainsChecker(lineService, epsilon), epsilon);
-//Slicer slicer = new Slicer(lineService, 140,
-//    weilerAthertonAlghorithm);
+Slicer slicer = new Slicer(5,
+    weilerAtherton, new OppositesSlicerUtils(new LineService(1E-10, coordinateComparator)));
 
-/*
+GeoJsonFileService geoJsonFileService = new GeoJsonFileService();
+
+
 var polygon =
-    (Polygon)((MultiPolygon)GeoJsonFileService.ReadGeometryFromFile<FeatureCollection>("TestFiles\\kazan.geojson")[0]
+    (Polygon)((MultiPolygon)geoJsonFileService.ReadGeometryFromFile<FeatureCollection>("TestFiles\\kazan.geojson")[0]
         .Geometry)[0];
 
-IEnumerable<Polygon> result = slicer.Slice(polygon);
+IEnumerable<Polygon> result = slicer.Slice(polygon, out _);
 
 MultiPolygon multiPolygon = new MultiPolygon(result.ToArray());
 
-GeoJsonFileService.WriteGeometryToFile(multiPolygon, "Out\\darBaikal1500New.geojson.ignore");
-*/
+geoJsonFileService.WriteGeometryToFile(multiPolygon, "Out\\darBaikal1500New.geojson.ignore");
 
 
-Polygon source = GeoJsonFileService.ReadGeometryFromFile<Polygon>("Out\\source.geojson.ignore");
+/*
+Polygon source = geoJsonFileService.ReadGeometryFromFile<Polygon>("Out\\polygon.geojson.ignore");
 LineString part =
-    GeoJsonFileService.ReadGeometryFromFile<LineString>("Out\\partForLine.geojson.ignore");
+    geoJsonFileService.ReadGeometryFromFile<LineString>("Out\\line2.geojson.ignore");
 
-IEnumerable<Polygon> result = weilerAthertonAlghorithm.WeilerAtherton(source, part);
+
+
+IEnumerable<Polygon> result = weilerAtherton.WeilerAtherton(source, part);
 MultiPolygon multiPolygon = new MultiPolygon(result.ToArray());
-GeoJsonFileService.WriteGeometryToFile(multiPolygon, "Out\\res.geojson.ignore");
+geoJsonFileService.WriteGeometryToFile(multiPolygon, "Out\\res.geojson.ignore");*/

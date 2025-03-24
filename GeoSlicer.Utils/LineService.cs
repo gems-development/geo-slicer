@@ -290,19 +290,17 @@ public class LineService
         {
             axLocal = vectorPointA2.X - vectorPointA1.X;
             ayLocal = vectorPointA2.Y - vectorPointA1.Y;
-            // +- нормируем
-            // Нам не обязательно нормировать к 1 длине, достаточно исключить слишком короткие вектора
-            double lenA = axLocal * axLocal + ayLocal * ayLocal;
+            double lenA = Math.Sqrt(axLocal * axLocal + ayLocal * ayLocal);
             axLocal /= lenA;
             ayLocal /= lenA;
             b1XLocal = anglePointB1.X - anglePointB2.X;
             b1YLocal = anglePointB1.Y - anglePointB2.Y;
-            double lenB1 = b1XLocal * b1XLocal + b1YLocal * b1YLocal;
+            double lenB1 = Math.Sqrt(b1XLocal * b1XLocal + b1YLocal * b1YLocal);
             b1XLocal /= lenB1;
             b1YLocal /= lenB1;
             b3XLocal = anglePointB3.X - anglePointB2.X;
             b3YLocal = anglePointB3.Y - anglePointB2.Y;
-            double len3 = b3XLocal * b3XLocal + b3YLocal * b3YLocal;
+            double len3 = Math.Sqrt(b3XLocal * b3XLocal + b3YLocal * b3YLocal);
             b3XLocal /= len3;
             b3YLocal /= len3;
 

@@ -63,9 +63,6 @@ public class WeilerAthertonForLine
     }
 
 
-    
-
-
     // Функция расстановки меток и создания ссылок между списками
     private (bool, int, int) MakeNotes(
         LinkedList<CoordinateSupport> clipped, LinkedList<CoordinateSupport> cutting, bool isShell)
@@ -74,6 +71,7 @@ public class WeilerAthertonForLine
         int numberOfLeavingMarks = 0;
 
         bool flagWereIntersection = false;
+        PointType prevoiusType = PointType.Useless;
 
         LinkedListNode<CoordinateSupport> firstPointInCutting = cutting.First!;
         LinkedListNode<CoordinateSupport> lastPointInCutting = cutting.Last!;
@@ -115,12 +113,12 @@ public class WeilerAthertonForLine
                     new LinkedListNode<CoordinateSupport>(new CoordinateSupport(intersection.Item2));
                 LinkedListNode<CoordinateSupport> intersectionNodeInCut =
                     new LinkedListNode<CoordinateSupport>(new CoordinateSupport(intersection.Item2));
-
-                clipped.AddAfter(currentPointInClipped, intersectionNodeInClip);
-                AddToCutting(intersectionNodeInCut);
+                
 
                 if (vecProdNext < 0)
                 {
+                    if (prevoiusType == PointType.Entering) continue;
+                    prevoiusType = PointType.Entering;
                     intersectionNodeInClip.Value.Type = PointType.Entering;
                     intersectionNodeInCut.Value.Type = PointType.Entering;
 
@@ -128,12 +126,17 @@ public class WeilerAthertonForLine
                 }
                 else if (vecProdNext > 0)
                 {
+                    if (prevoiusType == PointType.Leaving) continue;
+                    prevoiusType = PointType.Leaving;
                     intersectionNodeInClip.Value.Type = PointType.Leaving;
                     intersectionNodeInCut.Value.Type = PointType.Leaving;
 
                     numberOfLeavingMarks++;
                 }
                 
+                clipped.AddAfter(currentPointInClipped, intersectionNodeInClip);
+                AddToCutting(intersectionNodeInCut);
+
                 intersectionNodeInClip.Value.Coord = intersectionNodeInCut;
                 intersectionNodeInCut.Value.Coord = intersectionNodeInClip;
 
@@ -154,40 +157,16 @@ public class WeilerAthertonForLine
                 {
                     //cutting.AddAfter(currentPointInCutting, intersectionNode);
 
-                    type = AssistTyShapedMakeNotes( vecProdNext, vecProdPrev, currentPointInClipped,
+                    type = AssistTyShapedMakeNotes(vecProdNext, vecProdPrev, currentPointInClipped,
                         intersectionNode);
 
                     if (type != PointType.Useless)
                     {
+                        if (type != PointType.SelfIntersection && type == prevoiusType) continue;
+                        prevoiusType = type;
                         AddToCutting(intersectionNode);
                     }
 
-                    flagWereIntersection = true;
-                }
-                else if (_coordinateComparator.IsEquals(intersection.Item2, firstPointInCutting.Value))
-                {
-                    //clipped.AddAfter(currentPointInClipped, intersectionNode);
-
-                    type = AssistTyShapedMakeNotes(vecProdNext, vecProdPrev, firstPointInCutting,
-                        intersectionNode);
-
-                    if (type != PointType.Useless)
-                    {
-                        clipped.AddAfter(currentPointInClipped, intersectionNode);
-                    }
-                    
-                    flagWereIntersection = true;
-                }
-                else if (_coordinateComparator.IsEquals(intersection.Item2, lastPointInCutting.Value))
-                {
-                    type = AssistTyShapedMakeNotes(vecProdNext, vecProdPrev, lastPointInCutting,
-                        intersectionNode);
-
-                    if (type != PointType.Useless)
-                    {
-                        clipped.AddAfter(currentPointInClipped, intersectionNode);
-                    }
-                    
                     flagWereIntersection = true;
                 }
 
@@ -210,6 +189,8 @@ public class WeilerAthertonForLine
 
                         if (vecProdPrev < 0)
                         {
+                            if (prevoiusType == PointType.Leaving) continue;
+                            prevoiusType = PointType.Leaving;
                             currentPointInClipped.Value.Type = PointType.Leaving;
                             intersectionNodeInCut.Value.Type = PointType.Leaving;
 
@@ -217,6 +198,8 @@ public class WeilerAthertonForLine
                         }
                         else if (vecProdPrev > 0)
                         {
+                            if (prevoiusType == PointType.Entering) continue;
+                            prevoiusType = PointType.Entering;
                             currentPointInClipped.Value.Type = PointType.Entering;
                             intersectionNodeInCut.Value.Type = PointType.Entering;
 
@@ -244,6 +227,8 @@ public class WeilerAthertonForLine
                 {
                     LinkedListNode<CoordinateSupport> intersectionNodeFirst =
                         new LinkedListNode<CoordinateSupport>(new CoordinateSupport(currentPointInClipped.Value));
+                    if (prevoiusType == PointType.Leaving) continue;
+                    prevoiusType = PointType.Leaving;
                     intersectionNodeFirst.Value.Type = PointType.Leaving;
                     currentPointInClipped.Value.Type = PointType.Leaving;
 
@@ -270,6 +255,8 @@ public class WeilerAthertonForLine
                             nextPointInClipped.Value, currentPointInClipped.Value, prevPointInClipped.Value) &&
                         firstPointInCutting.Value.Type == PointType.Useless)
                     {
+                        if (prevoiusType == PointType.Leaving) continue;
+                        prevoiusType = PointType.Leaving;
                         firstPointInCutting.Value.Type = PointType.Leaving;
                         currentPointInClipped.Value.Type = PointType.Leaving;
 
@@ -286,6 +273,8 @@ public class WeilerAthertonForLine
                                  nextPointInClipped.Value, currentPointInClipped.Value, prevPointInClipped.Value) &&
                              lastPointInCutting.Value.Type == PointType.Useless)
                     {
+                        if (prevoiusType == PointType.Entering) continue;
+                        prevoiusType = PointType.Entering;
                         lastPointInCutting.Value.Type = PointType.Entering;
                         currentPointInClipped.Value.Type = PointType.Entering;
 
@@ -300,17 +289,13 @@ public class WeilerAthertonForLine
             }
         }
 
-        if (numberOfEnteringMarks != numberOfLeavingMarks)
-        {
-            throw new DifferentNumbersOfPointTypes();
-        }
-
         return (flagWereIntersection, numberOfEnteringMarks, numberOfLeavingMarks);
-        
+
+
         PointType AssistTyShapedMakeNotes(
-            double vecProdNext, 
+            double vecProdNext,
             double vecProdPrev,
-            LinkedListNode<CoordinateSupport> existNode, 
+            LinkedListNode<CoordinateSupport> existNode,
             LinkedListNode<CoordinateSupport> newNode)
         {
             PointType type = PointType.Useless;
@@ -323,7 +308,6 @@ public class WeilerAthertonForLine
                     newNode.Value.Type = PointType.SelfIntersection;
 
                     type = PointType.SelfIntersection;
-                    
                 }
                 else if (vecProdNext < 0 && vecProdPrev > -_epsilon)
                 {
@@ -361,6 +345,7 @@ public class WeilerAthertonForLine
             {
                 prevNode = prevNode.Previous!;
             }
+
             cutting.AddAfter(prevNode, intersectionNode);
         }
     }
@@ -370,14 +355,6 @@ public class WeilerAthertonForLine
     {
         LinearRing clippedRingShell = clippedPolygon.Shell;
         LinearRing[] clippedRingsHoles = clippedPolygon.Holes;
-
-        LinearRing[] allRingsClipped = new LinearRing[clippedRingsHoles.Length + 1];
-
-        allRingsClipped[0] = clippedRingShell;
-        for (int i = 0; i < clippedRingsHoles.Length; i++)
-        {
-            allRingsClipped[i + 1] = clippedRingsHoles[i];
-        }
 
         // Проверка: внешняя оболочка должна обходиться по часовой стрелке, внутренние границы - против часовой
 
@@ -394,11 +371,12 @@ public class WeilerAthertonForLine
             }
         }
 
-        LinkedList<CoordinateSupport>[] clippedListArray = new LinkedList<CoordinateSupport>[allRingsClipped.Length];
+        LinkedList<CoordinateSupport>[] clippedListArray = new LinkedList<CoordinateSupport>[clippedRingsHoles.Length + 1];
 
-        for (int i = 0; i < allRingsClipped.Length; i++)
+        clippedListArray[0] = CoordinateToCoordinateSupport(clippedRingShell, isRing: true);
+        for (int i = 0; i < clippedRingsHoles.Length; i++)
         {
-            clippedListArray[i] = CoordinateToCoordinateSupport(allRingsClipped[i], isRing: true);
+            clippedListArray[i + 1] = CoordinateToCoordinateSupport(clippedRingsHoles[i], isRing: true);
         }
 
         LinkedList<CoordinateSupport> cutting = CoordinateToCoordinateSupport(cuttingRingShell, isRing: false);
@@ -432,15 +410,20 @@ public class WeilerAthertonForLine
 
                 var (flagWereIntersection, e, l) = MakeNotes(clippedListArray[i], cutting, i == 0);
 
-                PrintMarks(clippedListArray[i], cutting, "Bad" + i + ".txt.ignore");
+                 //PrintMarks(clippedListArray[i], cutting, "Bad" + i + ".txt.ignore");
+
+                if (e != l)
+                {
+                    throw new DifferentNumbersOfPointTypes();
+                }
 
                 numberOfEnteringMarks += e;
                 numberOfLeavingMarks += l;
 
                 if (!flagWereIntersection)
                 {
-                    maybeInnerRings.Add(allRingsClipped[i]);
-                    PrintMarks(clippedListArray[i], cutting, "Maybe" + i + ".txt.ignore");
+                    maybeInnerRings.Add(clippedRingsHoles[i - 1]);
+                    //PrintMarks(clippedListArray[i], cutting, "Maybe" + i + ".txt.ignore");
                 }
 
                 break;
@@ -509,10 +492,10 @@ public class WeilerAthertonForLine
                     if (temp == endOfCycle)
                     {
                         isEntering = true;
-                        // todo Разобраться с одним selfIntersection без входов и выходов
+                        // todo: Разобраться с одним selfIntersection без входов и выходов
 
-                       // throw new Exception(
-                       //     "Встретили ситуацию, существование которой считали невозможным. Надо фиксить");
+                        // throw new Exception(
+                        //     "Встретили ситуацию, существование которой считали невозможным. Надо фиксить");
                     }
                 }
 
@@ -746,7 +729,7 @@ public class WeilerAthertonForLine
 
     private enum RingType
     {
-        Clipped, 
+        Clipped,
         Cutting
     }
 }
