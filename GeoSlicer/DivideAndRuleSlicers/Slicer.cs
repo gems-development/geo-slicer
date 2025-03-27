@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using GeoSlicer.Utils;
 using GeoSlicer.Utils.PolygonClippingAlghorithm;
 using NetTopologySuite.Geometries;
 
-namespace GeoSlicer.DivideAndRuleSlicers.OppositesSlicer;
+namespace GeoSlicer.DivideAndRuleSlicers;
 
 /// <summary>
 /// Разрезает полигон на куски, количество точек в которых не превышает переданное в конструкторе ограничение.
@@ -17,22 +15,23 @@ public class Slicer
     private readonly int _maxPointsCount;
 
     private readonly WeilerAthertonForLine _weilerAtherton;
-    private readonly OppositesSlicerUtils _utils;
+    private readonly IDivisionIndexesGiver _indexesGiver;
 
     // todo: Удалить после отладки
     private int _debugVar;
 
-    public Slicer(int maxPointsCount, WeilerAthertonForLine weilerAtherton, OppositesSlicerUtils utils)
+    public Slicer(int maxPointsCount, WeilerAthertonForLine weilerAtherton, IDivisionIndexesGiver indexesGiver)
     {
         _maxPointsCount = maxPointsCount;
         _weilerAtherton = weilerAtherton;
-        _utils = utils;
+        _indexesGiver = indexesGiver;
     }
 
-    public IEnumerable<Polygon> Slice(Polygon input, out LinkedList<int> skippedGeometries)
+    public ICollection<Polygon> Slice(Polygon input, out ICollection<int> skippedGeometries)
     {
         LinkedList<Polygon> result = new LinkedList<Polygon>();
-        skippedGeometries = new LinkedList<int>();
+        LinkedList<int> skippedList = new LinkedList<int>();
+        skippedGeometries = skippedList;
 
         if (input.NumPoints <= _maxPointsCount)
         {
@@ -45,12 +44,12 @@ public class Slicer
         _debugVar = 0;
         while (queue.Count != 0)
         {
-            Console.WriteLine(
-                $"Number: {_debugVar}. Queue count: {queue.Count}. Max points count: {queue.Select(polygon => polygon.Shell.Count).Max()}");
+          //  Console.WriteLine(
+                //       $"Number: {_debugVar}. Queue count: {queue.Count}. Max points count: {queue.Select(polygon => polygon.Shell.Count).Max()}");
 
             Polygon current = queue.Dequeue();
 
-            _utils.GetOppositesIndexByTriangles(current.Shell, out int firstIndex, out int secondIndex);
+            _indexesGiver.GetIndexes(current.Shell, out int firstIndex, out int secondIndex);
             IEnumerable<Polygon> sliced;
             
             try
@@ -60,11 +59,10 @@ public class Slicer
                     current.Shell.GetCoordinateN(firstIndex),
                     current.Shell.GetCoordinateN(secondIndex));
             }
-            catch (DifferentNumbersOfPointTypes _)
+            catch (DifferentNumbersOfPointTypes)
             {
-                Console.WriteLine($"Skip part with {current.Shell.Count} points");
                 result.AddLast(current);
-                skippedGeometries.AddLast(result.Count);
+                skippedList.AddLast(result.Count - 1);
                 continue;
             }
 
@@ -92,22 +90,10 @@ public class Slicer
     {
         LineString line1 = new LineString(new[] { a, b });
         LineString line2 = new LineString(new[] { b, a });
-
-        //if (_debugVar == 683)
-        //{
-        //    GeoJsonFileService.WriteGeometryToFile(polygon, "Out/source.geojson.ignore");
-        //    
-        //    GeoJsonFileService.WriteGeometryToFile(line2, "Out/line2.geojson.ignore");
-        //}
-
+        
         IEnumerable<Polygon> resPart1 = _weilerAtherton.WeilerAtherton(polygon, line1);
         IEnumerable<Polygon> resPart2 = _weilerAtherton.WeilerAtherton(polygon, line2);
-
-
-        // GeoJsonFileService.WriteGeometryToFile(new MultiPolygon(resPart1.ToArray()),
-        //      "Out/resPart1.geojson.ignore");
-        // GeoJsonFileService.WriteGeometryToFile(new MultiPolygon(resPart2.ToArray()),
-        //     "Out/resPart2.geojson.ignore");
+        
         return resPart1.Concat(resPart2);
     }
 }

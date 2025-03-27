@@ -113,7 +113,7 @@ public class WeilerAthertonForLine
                     new LinkedListNode<CoordinateSupport>(new CoordinateSupport(intersection.Item2));
                 LinkedListNode<CoordinateSupport> intersectionNodeInCut =
                     new LinkedListNode<CoordinateSupport>(new CoordinateSupport(intersection.Item2));
-                
+
 
                 if (vecProdNext < 0)
                 {
@@ -133,7 +133,7 @@ public class WeilerAthertonForLine
 
                     numberOfLeavingMarks++;
                 }
-                
+
                 clipped.AddAfter(currentPointInClipped, intersectionNodeInClip);
                 AddToCutting(intersectionNodeInCut);
 
@@ -371,7 +371,8 @@ public class WeilerAthertonForLine
             }
         }
 
-        LinkedList<CoordinateSupport>[] clippedListArray = new LinkedList<CoordinateSupport>[clippedRingsHoles.Length + 1];
+        LinkedList<CoordinateSupport>[] clippedListArray =
+            new LinkedList<CoordinateSupport>[clippedRingsHoles.Length + 1];
 
         clippedListArray[0] = CoordinateToCoordinateSupport(clippedRingShell, isRing: true);
         for (int i = 0; i < clippedRingsHoles.Length; i++)
@@ -410,7 +411,7 @@ public class WeilerAthertonForLine
 
                 var (flagWereIntersection, e, l) = MakeNotes(clippedListArray[i], cutting, i == 0);
 
-                 //PrintMarks(clippedListArray[i], cutting, "Bad" + i + ".txt.ignore");
+                //PrintMarks(clippedListArray[i], cutting, "Bad" + i + ".txt.ignore");
 
                 if (e != l)
                 {
@@ -623,8 +624,11 @@ public class WeilerAthertonForLine
                 }
             } while (startInClipped != nodeInCutting.Value.Coord);
 
-            figure.Add(nodeInCutting.Value);
-            result.Add(figure);
+            figure.Add(figure.First());
+            if (figure.Count > 3)
+            {
+                result.Add(figure);
+            }
 
             if (numberOfEnteringMarks == 0)
             {
@@ -638,6 +642,8 @@ public class WeilerAthertonForLine
         {
             Coordinate[] arrayCoordinates = result[i].ToArray();
             LinearRing ringShell = new LinearRing(arrayCoordinates);
+
+
             List<LinearRing> holes = new List<LinearRing>();
 
             foreach (var maybeInnerRing in maybeInnerRings)

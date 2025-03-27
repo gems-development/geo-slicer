@@ -1,23 +1,25 @@
-using GeoSlicer.DivideAndRuleSlicers.OppositesSlicer;
+using GeoSlicer.DivideAndRuleSlicers;
+using GeoSlicer.DivideAndRuleSlicers.OppositesIndexesGivers;
 using GeoSlicer.Utils;
 using GeoSlicer.Utils.Intersectors;
 using GeoSlicer.Utils.Intersectors.CoordinateComparators;
 using GeoSlicer.Utils.PolygonClippingAlghorithm;
-using GeoSlicer.Utils.Validators;
 using NetTopologySuite.Features;
 using NetTopologySuite.Geometries;
 
 
 const double epsilon = 1E-15;
 
-EpsilonCoordinateComparator coordinateComparator = new EpsilonCoordinateComparator(1e-8);
-LineService lineService = new LineService(1E-15, coordinateComparator);
+LineService lineService = new LineService(1E-15, new EpsilonCoordinateComparator(1E-8));
 
 WeilerAthertonForLine weilerAtherton = new WeilerAthertonForLine(
-    new LinesIntersector(new EpsilonCoordinateComparator(1E-15), new LineService(1E-10, coordinateComparator), 1E-12), lineService,
-    coordinateComparator, new ContainsChecker(lineService, epsilon), epsilon);
-Slicer slicer = new Slicer(5,
-    weilerAtherton, new OppositesSlicerUtils(new LineService(1E-10, coordinateComparator)));
+    new LinesIntersector(new EpsilonCoordinateComparator(1E-15),
+        new LineService(1E-10, new EpsilonCoordinateComparator(1E-8)), 1E-12),
+    new LineService(1E-15, new EpsilonCoordinateComparator(1E-8)),
+    new EpsilonCoordinateComparator(1E-8),
+    new ContainsChecker(new LineService(1E-15, new EpsilonCoordinateComparator(1E-8)), 1E-15), 1E-15);
+Slicer slicer = new Slicer(25,
+    weilerAtherton, new ConvexityIndexesGiver(new LineService(1E-10, new EpsilonCoordinateComparator(1E-8))));
 
 GeoJsonFileService geoJsonFileService = new GeoJsonFileService();
 
@@ -26,17 +28,20 @@ var polygon =
     (Polygon)((MultiPolygon)geoJsonFileService.ReadGeometryFromFile<FeatureCollection>("TestFiles\\kazan.geojson")[0]
         .Geometry)[0];
 
-IEnumerable<Polygon> result = slicer.Slice(polygon, out _);
+Polygon[] result = slicer.Slice(polygon, out ICollection<int> skippedGeomsIndexes).ToArray();
+
+Console.WriteLine("Skipped: " + skippedGeomsIndexes.Count);
+Console.WriteLine("Sum(Skipped.Count): " + skippedGeomsIndexes.Sum(i => result[i].Shell.Count));
 
 MultiPolygon multiPolygon = new MultiPolygon(result.ToArray());
 
-geoJsonFileService.WriteGeometryToFile(multiPolygon, "Out\\darBaikal1500New.geojson.ignore");
+geoJsonFileService.WriteGeometryToFile(multiPolygon, "Out\\nearests.geojson.ignore");
 
 
 /*
-Polygon source = geoJsonFileService.ReadGeometryFromFile<Polygon>("Out\\polygon.geojson.ignore");
+Polygon source = geoJsonFileService.ReadGeometryFromFile<Polygon>("Out\\source.geojson.ignore");
 LineString part =
-    geoJsonFileService.ReadGeometryFromFile<LineString>("Out\\line2.geojson.ignore");
+    geoJsonFileService.ReadGeometryFromFile<LineString>("Out\\cutting.geojson.ignore");
 
 
 
