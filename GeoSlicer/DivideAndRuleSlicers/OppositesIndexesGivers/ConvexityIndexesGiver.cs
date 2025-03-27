@@ -33,7 +33,7 @@ public class ConvexityIndexesGiver : OppositesIndexesGiver
 
         for (int i = 0; i < halfOfLen; i++)
         {
-            if (!IsInnerLine(coordinates, i, i + halfOfLen))
+            if (!IsInnerLine(coordinates, i, (i + halfOfLen) % coordinates.Length))
             {
                 continue;
             }

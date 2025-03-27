@@ -44,8 +44,8 @@ public class Slicer
         _debugVar = 0;
         while (queue.Count != 0)
         {
-          //  Console.WriteLine(
-                //       $"Number: {_debugVar}. Queue count: {queue.Count}. Max points count: {queue.Select(polygon => polygon.Shell.Count).Max()}");
+            Console.WriteLine(
+                       $"Number: {_debugVar}. Queue count: {queue.Count}. Max points count: {queue.Select(polygon => polygon.Shell.Count).Max()}");
 
             Polygon current = queue.Dequeue();
 

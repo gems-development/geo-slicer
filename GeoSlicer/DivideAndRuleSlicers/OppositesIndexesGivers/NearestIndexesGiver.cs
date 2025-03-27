@@ -28,7 +28,7 @@ public class NearestIndexesGiver : OppositesIndexesGiver
         first = -1;
         for (int i = 0; i < halfOfLen; i++)
         {
-            if (!IsInnerLine(coordinates, i, i + halfOfLen))
+            if (!IsInnerLine(coordinates, i, (i + halfOfLen) % coordinates.Length))
             {
                 continue;
             }

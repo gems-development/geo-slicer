@@ -25,7 +25,7 @@ GeoJsonFileService geoJsonFileService = new GeoJsonFileService();
 
 
 var polygon =
-    (Polygon)((MultiPolygon)geoJsonFileService.ReadGeometryFromFile<FeatureCollection>("TestFiles\\kazan.geojson")[0]
+    (Polygon)((MultiPolygon)geoJsonFileService.ReadGeometryFromFile<FeatureCollection>("TestFiles\\baikal.geojson")[0]
         .Geometry)[0];
 
 Polygon[] result = slicer.Slice(polygon, out ICollection<int> skippedGeomsIndexes).ToArray();

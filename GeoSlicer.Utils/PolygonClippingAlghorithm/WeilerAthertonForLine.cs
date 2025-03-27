@@ -423,7 +423,7 @@ public class WeilerAthertonForLine
 
                 if (!flagWereIntersection)
                 {
-                    maybeInnerRings.Add(clippedRingsHoles[i - 1]);
+                    maybeInnerRings.Add(i == 0 ? clippedRingShell : clippedRingsHoles[i - 1]);
                     //PrintMarks(clippedListArray[i], cutting, "Maybe" + i + ".txt.ignore");
                 }
 
