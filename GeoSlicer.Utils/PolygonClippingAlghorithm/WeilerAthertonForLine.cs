@@ -80,18 +80,8 @@ public class WeilerAthertonForLine
              currentPointInClipped != null;
              currentPointInClipped = currentPointInClipped.Next)
         {
-            LinkedListNode<CoordinateSupport> nextPointInClipped = clipped.First!;
-            LinkedListNode<CoordinateSupport> prevPointInClipped = clipped.Last!;
-
-            if (currentPointInClipped.Next != null)
-            {
-                nextPointInClipped = currentPointInClipped.Next;
-            }
-
-            if (currentPointInClipped.Previous != null)
-            {
-                prevPointInClipped = currentPointInClipped.Previous;
-            }
+            LinkedListNode<CoordinateSupport> nextPointInClipped = currentPointInClipped.Next ?? clipped.First!;
+            LinkedListNode<CoordinateSupport> prevPointInClipped = currentPointInClipped.Previous ?? clipped.Last!;
 
             (LinesIntersectionType, Coordinate?) intersection = GetIntersection(
                 currentPointInClipped.Value, nextPointInClipped!.Value,
@@ -135,6 +125,11 @@ public class WeilerAthertonForLine
                 }
 
                 clipped.AddAfter(currentPointInClipped, intersectionNodeInClip);
+                if (currentPointInClipped.Next is null)
+                {
+                    break;
+                }
+                currentPointInClipped = nextPointInClipped;
                 AddToCutting(intersectionNodeInCut);
 
                 intersectionNodeInClip.Value.Coord = intersectionNodeInCut;
@@ -386,7 +381,6 @@ public class WeilerAthertonForLine
         // потом пересечь каждую дыру по отдельнности 
 
         int numberOfEnteringMarks = 0;
-        int numberOfLeavingMarks = 0;
 
         // numberOfLeavingMarks может понадобиться для отладки: должно быть равно numberOfEnteringMarks
 
@@ -572,7 +566,7 @@ public class WeilerAthertonForLine
                 count = 0;
                 for (LinkedListNode<CoordinateSupport> nodeFromLToEInCutting = startInCutting!;
                      nodeFromLToEInCutting!.Value.Type != PointType.Entering &&
-                     nodeFromLToEInCutting!.Value.Type != PointType.SelfIntersection || count == 0;
+                     nodeFromLToEInCutting.Value.Type != PointType.SelfIntersection || count == 0;
                      nodeFromLToEInCutting = nodeFromLToEInCutting.Next)
                 {
                     figure.Add(nodeFromLToEInCutting.Value);
@@ -671,7 +665,8 @@ public class WeilerAthertonForLine
         return resultPolygons;
     }
 
-    void PrintMarks(LinkedList<CoordinateSupport> clipped, LinkedList<CoordinateSupport> cutting,
+    // ReSharper disable once UnusedMember.Local
+    private void PrintMarks(LinkedList<CoordinateSupport> clipped, LinkedList<CoordinateSupport> cutting,
         String path = "Bad.txt.ignore")
     {
         try
@@ -731,11 +726,5 @@ public class WeilerAthertonForLine
         {
             Console.WriteLine("Exception: " + e.Message);
         }
-    }
-
-    private enum RingType
-    {
-        Clipped,
-        Cutting
     }
 }
