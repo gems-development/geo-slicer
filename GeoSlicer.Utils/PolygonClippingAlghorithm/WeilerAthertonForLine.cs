@@ -413,7 +413,6 @@ public class WeilerAthertonForLine
                 }
 
                 numberOfEnteringMarks += e;
-                numberOfLeavingMarks += l;
 
                 if (!flagWereIntersection)
                 {

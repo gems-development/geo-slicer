@@ -12,36 +12,37 @@ const double epsilon = 1E-15;
 
 LineService lineService = new LineService(1E-15, new EpsilonCoordinateComparator(1E-8));
 
-WeilerAthertonForLine weilerAtherton = new WeilerAthertonForLine(
-    new LinesIntersector(new EpsilonCoordinateComparator(1E-15),
-        new LineService(1E-10, new EpsilonCoordinateComparator(1E-8)), 1E-12),
+
+WeilerAthertonAlghorithm weilerAtherton = new WeilerAthertonAlghorithm(
+    new LinesIntersector(new EpsilonCoordinateComparator(1E-8),
+        new LineService(1E-10, new EpsilonCoordinateComparator(1E-10)), 1E-15),
     new LineService(1E-15, new EpsilonCoordinateComparator(1E-8)),
     new EpsilonCoordinateComparator(1E-8),
     new ContainsChecker(new LineService(1E-15, new EpsilonCoordinateComparator(1E-8)), 1E-15), 1E-15);
-Slicer slicer = new Slicer(25,
-    weilerAtherton, new ConvexityIndexesGiver(new LineService(1E-10, new EpsilonCoordinateComparator(1E-8))));
+Slicer slicer = new Slicer(50,
+    weilerAtherton, new ConvexityIndexesGiver(new LineService(1E-5, new EpsilonCoordinateComparator(1E-8))));
 
 GeoJsonFileService geoJsonFileService = new GeoJsonFileService();
 
 
 var polygon =
-    (Polygon)((MultiPolygon)geoJsonFileService.ReadGeometryFromFile<FeatureCollection>("TestFiles\\baikal.geojson")[0]
+    (Polygon)((MultiPolygon)geoJsonFileService.ReadGeometryFromFile<FeatureCollection>("TestFiles\\kazan.geojson")[0]
         .Geometry)[0];
-
 Polygon[] result = slicer.Slice(polygon, out ICollection<int> skippedGeomsIndexes).ToArray();
 
 Console.WriteLine("Skipped: " + skippedGeomsIndexes.Count);
 Console.WriteLine("Sum(Skipped.Count): " + skippedGeomsIndexes.Sum(i => result[i].Shell.Count));
+Console.WriteLine("Max(Skipped.Count): " + skippedGeomsIndexes.Max(i => result[i].Shell.Count));
 
 MultiPolygon multiPolygon = new MultiPolygon(result.ToArray());
 
-geoJsonFileService.WriteGeometryToFile(multiPolygon, "Out\\nearests.geojson.ignore");
+geoJsonFileService.WriteGeometryToFile(multiPolygon, "Out\\res_baikal.geojson.ignore");
 
 
 /*
-Polygon source = geoJsonFileService.ReadGeometryFromFile<Polygon>("Out\\source.geojson.ignore");
-LineString part =
-    geoJsonFileService.ReadGeometryFromFile<LineString>("Out\\cutting.geojson.ignore");
+Polygon source = geoJsonFileService.ReadGeometryFromFile<Polygon>("Out\\clipped.geojson.ignore");
+LinearRing part = new LinearRing(
+        geoJsonFileService.ReadGeometryFromFile<LineString>("Out\\cutting2.geojson.ignore").Coordinates);
 
 
 
