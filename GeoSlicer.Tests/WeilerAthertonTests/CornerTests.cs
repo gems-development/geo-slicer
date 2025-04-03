@@ -153,4 +153,148 @@ public class CornerTests
         Assert.True(expected.IsEqualsRingCollection(actualA));
         Assert.True(expected.IsEqualsRingCollection(actualB));
     }
+    
+    [Fact]
+    public void SelfOnCuttingWithoutELInner()
+    {
+        //Arrange
+        Coordinate[] figureA =
+        {
+            new(-1,-1), new(-1,3), new(1,0), new(2,0), new(1,-1), new(-1,-1)
+        };
+        LinearRing ringA = new LinearRing(figureA);
+        Coordinate[] figureB =
+        {
+            new(-2,-2), new(-2,4), new(0,4), new(3,-2), new(-2,-2)
+        };
+        LinearRing ringB = new LinearRing(figureB);
+
+        List<LinearRing> expected = new()
+        {
+            new LinearRing(new Coordinate[]
+            {
+                new(-1,-1), new(-1,3), new(1,0), new(2,0), new(1,-1), new(-1,-1)
+            })
+        };
+
+        //Act
+        var actualA = SlicerHelper.WeilerAtherton(new Polygon(ringA), ringB).Select(polygon => polygon.Shell);
+        
+        //Assert
+        Assert.True(expected.IsEqualsRingCollection(actualA));
+    }    
+    [Fact]
+    public void SelfOnCuttingWithEL()
+    {
+        //Arrange
+        Coordinate[] figureA =
+        {
+            new(-1,-1), new(-1,3), new(1,3), new(1,0), new(2,0), new(1,-1), new(-1,-1)
+        };
+        LinearRing ringA = new LinearRing(figureA);
+        Coordinate[] figureB =
+        {
+            new(-2,-2), new(-2,4), new(0,4), new(3,-2), new(-2,-2)
+        };
+        LinearRing ringB = new LinearRing(figureB);
+
+        List<LinearRing> expected = new()
+        {
+            new LinearRing(new Coordinate[]
+            {
+                new(-1,-1), new(-1,3), new(0.5, 3), new(1,2), new(1,0), new(2,0), new(1,-1), new(-1,-1)
+            })
+        };
+
+        //Act
+        var actualA = SlicerHelper.WeilerAtherton(new Polygon(ringA), ringB).Select(polygon => polygon.Shell);
+        
+        //Assert
+        Assert.True(expected.IsEqualsRingCollection(actualA));
+    }
+    
+    
+    [Fact]
+    public void SelfOnCuttingWithoutELInnerMirror()
+    {
+        //Arrange
+        Coordinate[] figureA =
+        {
+            new(-1,-1), new(-1,3), new(1,0), new(2,0), new(1,-1), new(-1,-1)
+        };
+        LinearRing ringA = new LinearRing(figureA);
+        Coordinate[] figureB =
+        {
+            new(3,-2), new(0,4), new(3,4), new(3,-2)
+        };
+        LinearRing ringB = new LinearRing(figureB);
+
+        List<LinearRing> expected = new();
+
+        //Act
+        var actualA = SlicerHelper.WeilerAtherton(new Polygon(ringA), ringB).Select(polygon => polygon.Shell);
+        
+        //Assert
+        Assert.True(expected.IsEqualsRingCollection(actualA));
+    }    
+    
+    [Fact]
+    public void SelfOnCuttingWithELMirror()
+    {
+        //Arrange
+        Coordinate[] figureA =
+        {
+            new(-1,-1), new(-1,3), new(1,3), new(1,0), new(2,0), new(1,-1), new(-1,-1)
+        };
+        LinearRing ringA = new LinearRing(figureA);
+        Coordinate[] figureB =
+        {
+            new(3,-2), new(0,4), new(3,4), new(3,-2)
+        };
+        LinearRing ringB = new LinearRing(figureB);
+
+        List<LinearRing> expected = new()
+        {
+            new LinearRing(new Coordinate[]
+            {
+                new(1,2), new(0.5, 3), new(1,3), new(1,2)
+            })
+        };
+
+        //Act
+        var actualA = SlicerHelper.WeilerAtherton(new Polygon(ringA), ringB).Select(polygon => polygon.Shell);
+        
+        //Assert
+        Assert.True(expected.IsEqualsRingCollection(actualA));
+    }
+    
+    [Fact]
+    public void SelfOnCuttingWithELMirrorVecProdMOreThanZero()
+    {
+        //Arrange
+        Coordinate[] figureA =
+        {
+            new(-1,-1), new(-1,3), new(1,3), new(1,0), new(2,0), new(1,-1), new(-1,-1)
+        };
+        LinearRing ringA = new LinearRing(figureA);
+        Coordinate[] figureB =
+        {
+            new(2,-2), new(2,0), new(0,4), new(3,4), new(3,-2), new(2,-2)
+        };
+        LinearRing ringB = new LinearRing(figureB);
+
+        List<LinearRing> expected = new()
+        {
+            new LinearRing(new Coordinate[]
+            {
+                new(1,2), new(0.5, 3), new(1,3), new(1,2)
+            })
+        };
+
+        //Act
+        var actualA = SlicerHelper.WeilerAtherton(new Polygon(ringA), ringB).Select(polygon => polygon.Shell);
+        
+        //Assert
+        Assert.True(expected.IsEqualsRingCollection(actualA));
+    }
 }
