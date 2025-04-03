@@ -4,6 +4,7 @@ using BenchmarkDotNet.Loggers;
 using BenchmarkDotNet.Running;
 using BenchmarkDotNet.Validators;
 using GeoSlicer.Benchmark.Benchmarks;
+using GeoSlicer.DivideAndRuleSlicers.OppositesIndexesGivers;
 
 namespace GeoSlicer.Benchmark
 {
@@ -17,7 +18,7 @@ namespace GeoSlicer.Benchmark
                 .AddLogger(ConsoleLogger.Default)
                 .AddColumnProvider(DefaultColumnProviders.Instance)
                 .AddColumn(StatisticColumn.Max);
-            BenchmarkRunner.Run<IntersectorBench>(config);
+            BenchmarkRunner.Run<OppositeSlicerKazanBench>(config);
         }
     }
 }

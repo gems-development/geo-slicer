@@ -25,29 +25,41 @@ public class ContainsChecker
     }
 
     /// <summary>
-    /// Проверяет, находится ли точка внутри геометрии
+    /// Проверяет, находится ли точка внутри геометрии.
+    /// Если вызывается в цикле для одного и того же <paramref name="ring"/>,
+    /// рекомендуется использовать перегрузку с Coordinate[] coordinates, Envelope envelope
     /// </summary>
     public bool IsPointInLinearRing(Coordinate point, LinearRing ring)
     {
+        return IsPointInLinearRing(point, ring.Coordinates, ring.EnvelopeInternal);
+    }
+
+    /// <summary>
+    /// Проверяет, находится ли точка внутри геометрии.
+    /// <paramref name="envelope"/> принимается для ускорения
+    /// </summary>
+    public bool IsPointInLinearRing(Coordinate point, Coordinate[] coordinates, Envelope envelope)
+    {
         // Если точка за пределами оболочки кольца, выходим сразу
-        if (!IsPointInBorders(point, ring))
+        if (!IsPointInBorders(point, envelope))
         {
             return false;
         }
 
         // Метод трассировки луча
         int count = 0;
-        for (int i = 0; i < ring.Count - 1; i++)
+        int ringLen = coordinates.Length;
+        for (int i = 0; i < ringLen - 1; i++)
         {
-            if (_lineService.IsCoordinateInSegment(point, ring[(i + ring.Count) % ring.Count],
-                    ring[(i + 1 + ring.Count) % ring.Count]))
+            if (_lineService.IsCoordinateInSegment(point, coordinates[(i + ringLen) % ringLen],
+                    coordinates[(i + 1 + ringLen) % ringLen]))
             {
                 count = 1;
                 break;
             }
 
-            if (IsIntersectHorizontalRayWithSegment(point, ring[(i + ring.Count) % ring.Count],
-                    ring[(i + 1 + ring.Count) % ring.Count]))
+            if (IsIntersectHorizontalRayWithSegment(point, coordinates[(i + ringLen) % ringLen],
+                    coordinates[(i + 1 + ringLen) % ringLen]))
             {
                 count++;
             }
@@ -92,6 +104,17 @@ public class ContainsChecker
     public bool IsPointInBorders(Coordinate coordinate, Geometry geometry)
     {
         Envelope envelope = geometry.EnvelopeInternal;
+        return IsPointInBorders(
+            coordinate.X, coordinate.Y,
+            envelope.MaxX, envelope.MinX,
+            envelope.MaxY, envelope.MinY);
+    }
+
+    /// <summary>
+    /// Проверяет, находится ли точка внутри оболочки геометрии
+    /// </summary>
+    public bool IsPointInBorders(Coordinate coordinate, Envelope envelope)
+    {
         return IsPointInBorders(
             coordinate.X, coordinate.Y,
             envelope.MaxX, envelope.MinX,

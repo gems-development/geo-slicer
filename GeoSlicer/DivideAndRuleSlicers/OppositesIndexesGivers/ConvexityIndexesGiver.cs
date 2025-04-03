@@ -57,7 +57,7 @@ public class ConvexityIndexesGiver : OppositesIndexesGiver
 
         if (first == -1)
         {
-            FindAnyInnerIndex(coordinates, out first, out second);
+            FindAnyInnerIndex(coordinates, ref first, out second);
         }
         else
         {

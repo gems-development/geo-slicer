@@ -14,7 +14,7 @@ public abstract class OppositesIndexesGiver : IDivisionIndexesGiver
     
     public abstract void GetIndexes(LinearRing ring, out int first, out int second);
     
-    protected void FindAnyInnerIndex(Coordinate[] coordinates, out int first, out int second)
+    protected void FindAnyInnerIndex(Coordinate[] coordinates, ref int first, out int second)
     {
         int halfOfLen = coordinates.Length / 2;
         int shift = 1;
@@ -33,6 +33,11 @@ public abstract class OppositesIndexesGiver : IDivisionIndexesGiver
             }
 
             shift++;
+            if (shift >= coordinates.Length / 2)
+            {
+                second = -1;
+                return;
+            }
         }
     }
 

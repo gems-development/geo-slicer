@@ -19,7 +19,7 @@ WeilerAthertonAlghorithm weilerAtherton = new WeilerAthertonAlghorithm(
     new LineService(1E-15, new EpsilonCoordinateComparator(1E-8)),
     new EpsilonCoordinateComparator(1E-8),
     new ContainsChecker(new LineService(1E-15, new EpsilonCoordinateComparator(1E-8)), 1E-15), 1E-15);
-Slicer slicer = new Slicer(50,
+Slicer slicer = new Slicer(5,
     weilerAtherton, new ConvexityIndexesGiver(new LineService(1E-5, new EpsilonCoordinateComparator(1E-8))));
 
 GeoJsonFileService geoJsonFileService = new GeoJsonFileService();
@@ -35,8 +35,10 @@ Console.WriteLine("Sum(Skipped.Count): " + skippedGeomsIndexes.Sum(i => result[i
 Console.WriteLine("Max(Skipped.Count): " + skippedGeomsIndexes.Max(i => result[i].Shell.Count));
 
 MultiPolygon multiPolygon = new MultiPolygon(result.ToArray());
+MultiPolygon skipped = new MultiPolygon(result.Where((polygon1, i) => skippedGeomsIndexes.Contains(i)).ToArray());
 
-geoJsonFileService.WriteGeometryToFile(multiPolygon, "Out\\res_baikal.geojson.ignore");
+geoJsonFileService.WriteGeometryToFile(multiPolygon, "Out\\resKazan.geojson.ignore");
+geoJsonFileService.WriteGeometryToFile(skipped, "Out\\skippedKazan.geojson.ignore");
 
 
 /*

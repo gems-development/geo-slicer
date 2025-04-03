@@ -46,12 +46,18 @@ public class Slicer
         _debugVar = 0;
         while (queue.Count != 0)
         {
-            Console.WriteLine(
-                $"Number: {_debugVar}. Queue count: {queue.Count}. Max points count: {queue.Select(polygon => polygon.Shell.Count).Max()}");
+         //   Console.WriteLine(
+        //        $"Number: {_debugVar}. Queue count: {queue.Count}. Max points count: {queue.Select(polygon => polygon.Shell.Count).Max()}");
 
             Polygon current = queue.Dequeue();
 
             _indexesGiver.GetIndexes(current.Shell, out int firstIndex, out int secondIndex);
+            if (firstIndex == -1)
+            {
+                Skip(current);
+                continue;
+            }
+
             IEnumerable<Polygon> sliced;
 
             try
@@ -63,20 +69,23 @@ public class Slicer
             }
             catch (DifferentNumbersOfPointTypes)
             {
-                result.AddLast(current);
-                skippedList.AddLast(result.Count - 1);
+                Skip(current);
                 continue;
             }
 
-            foreach (Polygon ring in sliced)
+            foreach (Polygon polygon in sliced)
             {
-                if (ring.NumPoints <= _maxPointsCount)
+                if (polygon.NumPoints <= _maxPointsCount)
                 {
-                    result.AddLast(ring);
+                    result.AddLast(polygon);
+                }
+                else if (polygon.NumPoints == current.NumPoints)
+                {
+                    Skip(polygon);
                 }
                 else
                 {
-                    queue.Enqueue(ring);
+                    queue.Enqueue(polygon);
                 }
             }
 
@@ -86,6 +95,12 @@ public class Slicer
         }
 
         return result;
+
+        void Skip(Polygon skippedPolygon)
+        {
+            result.AddLast(skippedPolygon);
+            skippedList.AddLast(result.Count - 1);
+        }
     }
 
     [SuppressMessage("ReSharper", "CompareOfFloatsByEqualityOperator")]
@@ -93,10 +108,10 @@ public class Slicer
     {
         a = a.Copy();
         b = b.Copy();
-        
+
         // Если isVertical == true, создается 2 области: слева и справа от вертикального разделителя
         bool isVertical = Math.Abs(a.Y - b.Y) > Math.Abs(a.X - b.X);
-        
+
         // Сортировка к a<b
         if (isVertical && a.Y > b.Y || !isVertical && a.X > b.X)
         {
@@ -220,8 +235,8 @@ public class Slicer
             }
         }
 
-        if (_debugVar == 2054)
-      // if (b.Equals2D(new Coordinate(48.9460655482931, 55.809165282259364)))
+        if (_debugVar == 150002)
+            // if (b.Equals2D(new Coordinate(48.9460655482931, 55.809165282259364)))
         {
             new GeoJsonFileService().WriteGeometryToFile(polygon, "Out/clipped.geojson.ignore");
             new GeoJsonFileService().WriteGeometryToFile(polygon.Shell, "Out/clippedShell.geojson.ignore");

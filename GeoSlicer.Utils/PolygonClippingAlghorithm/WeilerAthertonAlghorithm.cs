@@ -730,12 +730,18 @@ public class WeilerAthertonAlghorithm
             }
         }
 
+        Coordinate[] clippedRingShellCoordinates = clippedRingShell.Coordinates;
+        Coordinate[] cuttingRingShellCoordinates = cuttingRingShell.Coordinates;
+        Envelope clippedRingEnvelope = clippedRingShell.EnvelopeInternal;
+        Envelope cuttingRingEnvelope = cuttingRingShell.EnvelopeInternal;
+
         if (result.Count == 0 && maybeInnerRings.Count == 0)
         {
             bool flagCuttingInClipped = true;
+
             foreach (CoordinateSupport coordinate in cutting)
             {
-                if (!_containsChecker.IsPointInLinearRing(coordinate, clippedRingShell))
+                if (!_containsChecker.IsPointInLinearRing(coordinate, clippedRingShellCoordinates, clippedRingEnvelope))
                 {
                     flagCuttingInClipped = false;
                     break;
@@ -743,9 +749,11 @@ public class WeilerAthertonAlghorithm
             }
 
             bool flagClippedInCutting = true;
+
+
             foreach (CoordinateSupport coordinate in clippedListArray[0])
             {
-                if (!_containsChecker.IsPointInLinearRing(coordinate, cuttingRingShell))
+                if (!_containsChecker.IsPointInLinearRing(coordinate, cuttingRingShellCoordinates, cuttingRingEnvelope))
                 {
                     flagClippedInCutting = false;
                     break;
@@ -792,13 +800,17 @@ public class WeilerAthertonAlghorithm
                 LinearRing ringShell = new LinearRing(arrayCoordinates);
                 List<LinearRing> holes = new List<LinearRing>();
 
+                Coordinate[] ringShellCoordinates = ringShell.Coordinates;
+                Envelope ringShellEnvelope = ringShell.EnvelopeInternal;
+
                 foreach (var maybeInnerRing in maybeInnerRings)
                 {
                     bool isPolygonInPolygon = true;
 
                     foreach (var arrCoordinate in maybeInnerRing.Coordinates)
                     {
-                        if (!_containsChecker.IsPointInLinearRing(arrCoordinate, ringShell))
+                        if (!_containsChecker.IsPointInLinearRing(
+                                arrCoordinate, ringShellCoordinates, ringShellEnvelope))
                         {
                             isPolygonInPolygon = false;
                             break;
@@ -822,7 +834,8 @@ public class WeilerAthertonAlghorithm
 
         for (int i = 0; i < cuttingRingShell.Coordinates.Length; i++)
         {
-            if (!_containsChecker.IsPointInLinearRing(cuttingRingShell.Coordinates[i], clippedRingShell))
+            if (!_containsChecker.IsPointInLinearRing(
+                    cuttingRingShell.Coordinates[i], clippedRingShellCoordinates, clippedRingEnvelope))
             {
                 isCuttingInClipped = false;
                 break;
@@ -838,7 +851,8 @@ public class WeilerAthertonAlghorithm
 
                 for (int i = 0; i < maybeInnerRing.Coordinates.Length; i++)
                 {
-                    if (!_containsChecker.IsPointInLinearRing(maybeInnerRing.Coordinates[i], cuttingRingShell))
+                    if (!_containsChecker.IsPointInLinearRing(
+                            maybeInnerRing.Coordinates[i], cuttingRingShellCoordinates, cuttingRingEnvelope))
                     {
                         isPolygonInCutting = false;
                     }
