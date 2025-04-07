@@ -184,12 +184,10 @@ public class WeilerAthertonAlghorithm
                                       prevOne.Value, currentInCutting.Value, prevThree.Value)
                                   && !_lineService.InsideTheAngle(currentInClipped.Value, nextInCutting.Value,
                                       prevOne.Value, currentInCutting.Value, prevThree.Value))
-                                 && (LineService.VectorProduct(
-                                         prevOne.Value, currentInClipped.Value,
-                                         currentInClipped.Value, nextInClipped.Value) > _epsilon
-                                     || LineService.VectorProduct(
-                                         prevThree.Value, currentInCutting.Value,
-                                         currentInCutting.Value, nextInCutting.Value) > _epsilon)
+                                 && _lineService.InsideTheAngleWithoutBorders(currentInClipped.Value, nextInClipped.Value,
+                                     nextInCutting.Value, currentInCutting.Value, prevThree.Value)
+                                 && _lineService.InsideTheAngleWithoutBorders(currentInClipped.Value, prevOne.Value,
+                                     nextInCutting.Value, currentInCutting.Value, prevThree.Value)
                                  && currentInClipped.Value.Type == PointType.Useless)
                         {
                             currentInClipped.Value.Type = PointType.SelfIntersection;
@@ -240,12 +238,11 @@ public class WeilerAthertonAlghorithm
                                       currentInClipped.Value, nextInClipped.Value, currentInCutting.Value)
                                   && !_lineService.InsideTheAngle(nextInClipped.Value, nextFour.Value,
                                       currentInClipped.Value, nextInClipped.Value, currentInCutting.Value))
-                                 && (LineService.VectorProduct(
-                                         currentInClipped.Value, nextInClipped.Value,
-                                         nextInClipped.Value, nextTwo.Value) > _epsilon
-                                     || LineService.VectorProduct(
-                                         currentInCutting.Value, nextInCutting.Value,
-                                         nextInCutting.Value, nextFour.Value) > _epsilon)
+                                 
+                                 && _lineService.InsideTheAngleWithoutBorders(nextInClipped.Value, nextTwo.Value,
+                                     nextFour.Value, nextInCutting.Value, currentInCutting.Value)
+                                 && _lineService.InsideTheAngleWithoutBorders(nextInClipped.Value, currentInClipped.Value,
+                                     nextInCutting.Value, currentInCutting.Value, prevThree.Value)
                                  && nextInClipped.Value.Type == PointType.Useless)
                         {
                             nextInClipped.Value.Type = PointType.SelfIntersection;
@@ -508,7 +505,7 @@ public class WeilerAthertonAlghorithm
 
                 if (i == 0)
                 {
-                   // PrintMarks(clippedListArray[i], cutting, "Bad" + i + ".txt.ignore");
+                    //PrintMarks(clippedListArray[i], cutting, "Bad" + i + ".txt.ignore");
                 }
 
 
