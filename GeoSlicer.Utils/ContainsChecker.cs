@@ -18,17 +18,18 @@ public class ContainsChecker
     /// <summary>
     /// Проверяет, находится ли точка внутри геометрии
     /// </summary>
-    public bool IsPointInPolygon(Coordinate point, Polygon polygon)
+    public bool IsPointInPolygon(Coordinate point, Polygon polygon, out bool isTangent)
     {
-        return IsPointInLinearRing(point, polygon.Shell) &&
-               polygon.Holes.All(ring => !IsPointInLinearRing(point, ring));
+        return IsPointInLinearRing(point, polygon.Shell, out isTangent) &&
+               polygon.Holes.All(ring => !IsPointInLinearRing(point, ring, out _));
     }
 
     /// <summary>
     /// Проверяет, находится ли точка внутри геометрии
     /// </summary>
-    public bool IsPointInLinearRing(Coordinate point, LinearRing ring)
+    public bool IsPointInLinearRing(Coordinate point, LinearRing ring, out bool isTangent)
     {
+        isTangent = false;
         // Если точка за пределами оболочки кольца, выходим сразу
         if (!IsPointInBorders(point, ring))
         {
@@ -44,8 +45,8 @@ public class ContainsChecker
             if (_lineService.IsCoordinateInSegment(point, coordinates[(i + ringLen) % ringLen],
                     coordinates[(i + 1 + ringLen) % ringLen]))
             {
-                count = 1;
-                break;
+                isTangent = true;
+                return true;
             }
 
             if (IsIntersectHorizontalRayWithSegment(point, coordinates[(i + ringLen) % ringLen],
@@ -73,10 +74,21 @@ public class ContainsChecker
                 minCoord = l1;
             }
 
+            if (minCoord.Y >= p.Y + _epsilon || maxCoord.Y < p.Y
+                || minCoord.X < p.X && maxCoord.X < p.X)
+            {
+                return false;
+            }
+
+            if (maxCoord.X > p.X && minCoord.X > p.X)
+            {
+                return true;
+            }
+
             double product = LineService.VectorProduct(
                 minCoord.X - p.X, minCoord.Y - p.Y, p.X - maxCoord.X, p.Y - maxCoord.Y);
 
-            return minCoord.Y < p.Y - _epsilon && maxCoord.Y >= p.Y && product < 0;
+            return product < 0;
         }
     }
 
