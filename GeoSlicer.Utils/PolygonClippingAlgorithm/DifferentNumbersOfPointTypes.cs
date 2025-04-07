@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace GeoSlicer.Utils.PolygonClippingAlghorithm;
+namespace GeoSlicer.Utils.PolygonClippingAlgorithm;
 
 public class DifferentNumbersOfPointTypes : Exception
 {

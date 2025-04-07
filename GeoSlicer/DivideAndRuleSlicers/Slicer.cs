@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using GeoSlicer.Utils;
-using GeoSlicer.Utils.PolygonClippingAlghorithm;
+using GeoSlicer.Utils.PolygonClippingAlgorithm;
 using NetTopologySuite.Geometries;
 
 namespace GeoSlicer.DivideAndRuleSlicers;
@@ -16,13 +16,13 @@ public class Slicer
 {
     private readonly int _maxPointsCount;
 
-    private readonly WeilerAthertonAlghorithm _weilerAtherton;
+    private readonly WeilerAthertonAlgorithm _weilerAtherton;
     private readonly IDivisionIndexesGiver _indexesGiver;
 
     // todo: Удалить после отладки
     private int _debugVar;
 
-    public Slicer(int maxPointsCount, WeilerAthertonAlghorithm weilerAtherton, IDivisionIndexesGiver indexesGiver)
+    public Slicer(int maxPointsCount, WeilerAthertonAlgorithm weilerAtherton, IDivisionIndexesGiver indexesGiver)
     {
         _maxPointsCount = maxPointsCount;
         _weilerAtherton = weilerAtherton;

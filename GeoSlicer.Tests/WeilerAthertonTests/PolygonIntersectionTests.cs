@@ -3,7 +3,7 @@ using System.Linq;
 using GeoSlicer.Utils;
 using GeoSlicer.Utils.Intersectors;
 using GeoSlicer.Utils.Intersectors.CoordinateComparators;
-using GeoSlicer.Utils.PolygonClippingAlghorithm;
+using GeoSlicer.Utils.PolygonClippingAlgorithm;
 using NetTopologySuite.Geometries;
 
 namespace GeoSlicer.Tests.WeilerAthertonTests;
@@ -14,9 +14,9 @@ public class PolygonIntersectionTests
 
     private static readonly LineService LineService = new(Epsilon, new EpsilonCoordinateComparator(Epsilon));
 
-    private static readonly WeilerAthertonAlghorithm SlicerHelper =
+    private static readonly WeilerAthertonAlgorithm SlicerHelper =
         new(new LinesIntersector(new EpsilonCoordinateComparator(Epsilon), LineService, Epsilon), LineService,
-            new EpsilonCoordinateComparator(), new ContainsChecker(LineService, Epsilon), Epsilon);
+            new EpsilonCoordinateComparator(), new ContainsChecker(LineService, Epsilon));
 
     [Fact]
     public void SimpleTest()

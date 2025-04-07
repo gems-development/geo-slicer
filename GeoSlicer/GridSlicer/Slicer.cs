@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using GeoSlicer.Utils.PolygonClippingAlghorithm;
+using GeoSlicer.Utils.PolygonClippingAlgorithm;
 using NetTopologySuite.Geometries;
 
 // ReSharper disable UseArrayEmptyMethod
@@ -23,9 +23,9 @@ public class Slicer
     // Если ячейка добавлена в очередь на обработку, но еще не обработана (см. CheckAndAdd)
     private readonly IEnumerable<Polygon> _inQueue = new Polygon[0];
 
-    private readonly WeilerAthertonAlghorithm _helper;
+    private readonly WeilerAthertonAlgorithm _helper;
 
-    public Slicer(WeilerAthertonAlghorithm helper)
+    public Slicer(WeilerAthertonAlgorithm helper)
     {
         _helper = helper;
     }

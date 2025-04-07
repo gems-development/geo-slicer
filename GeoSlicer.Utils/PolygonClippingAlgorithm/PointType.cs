@@ -1,4 +1,4 @@
-﻿namespace GeoSlicer.Utils.PolygonClippingAlghorithm;
+﻿namespace GeoSlicer.Utils.PolygonClippingAlgorithm;
 
 public enum PointType
 {
