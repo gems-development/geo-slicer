@@ -898,7 +898,7 @@ public class WeilerAthertonAlgorithm
             coordinateSupports = new LinkedList<CoordinateSupport>[clippedRingsHoles.Length + 1];
 
             coordinateSupports[0] = CoordinateToCoordinateSupport(clippedRingShell);
-            for (int i = 0; i < clippedRingsHoles.Length + 1; i++)
+            for (int i = 0; i < clippedRingsHoles.Length; i++)
             {
                 coordinateSupports[i + 1] = CoordinateToCoordinateSupport(clippedRingsHoles[i]);
             }
