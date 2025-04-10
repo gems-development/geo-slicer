@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace GeoSlicer.Utils.BoundRing;
 
@@ -59,6 +60,7 @@ public class LinkedNode<T>
         return obj.GetType() == GetType() && Equals((LinkedNode<T>)obj);
     }
 
+    [SuppressMessage("ReSharper", "NonReadonlyMemberInGetHashCode")]
     public override int GetHashCode()
     {
         return HashCode.Combine(Elem, Next, Previous);

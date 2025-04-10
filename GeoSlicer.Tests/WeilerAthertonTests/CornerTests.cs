@@ -229,13 +229,11 @@ public class CornerTests
         };
         LinearRing ringB = new LinearRing(figureB);
 
-        List<LinearRing> expected = new();
-
         //Act
         var actualA = SlicerHelper.WeilerAtherton(new Polygon(ringA), ringB).Select(polygon => polygon.Shell);
         
         //Assert
-        Assert.True(expected.IsEqualsRingCollection(actualA));
+        Assert.Empty(actualA);
     }    
     
     [Fact]

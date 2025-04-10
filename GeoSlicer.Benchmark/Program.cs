@@ -4,7 +4,6 @@ using BenchmarkDotNet.Loggers;
 using BenchmarkDotNet.Running;
 using BenchmarkDotNet.Validators;
 using GeoSlicer.Benchmark.Benchmarks;
-using GeoSlicer.DivideAndRuleSlicers.OppositesIndexesGivers;
 
 namespace GeoSlicer.Benchmark
 {

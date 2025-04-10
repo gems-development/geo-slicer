@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using NetTopologySuite.Geometries;
 
 namespace GeoSlicer.Utils.BoundRing;
@@ -64,6 +65,7 @@ public class BoundingRing
         return Equals((BoundingRing)obj);
     }
 
+    [SuppressMessage("ReSharper", "NonReadonlyMemberInGetHashCode")]
     public override int GetHashCode()
     {
         return HashCode.Combine(PointMin, PointMax, PointLeftNode, PointRightNode,

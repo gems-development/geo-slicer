@@ -16,6 +16,7 @@ public class WeilerAthertonAlgorithm
     private readonly ICoordinateComparator _coordinateComparator;
     private readonly ContainsChecker _containsChecker;
 
+
     public WeilerAthertonAlgorithm(LinesIntersector linesIntersector, LineService lineService,
         ICoordinateComparator coordinateComparator, ContainsChecker containsChecker)
     {
@@ -42,8 +43,7 @@ public class WeilerAthertonAlgorithm
         return result;
         // Вернёт LinkedList с координатами всех точек кольца без последней (равной первой)
     }
-
-
+    
     private (LinesIntersectionType, Coordinate?) GetIntersection(CoordinateSupport line1Point1,
         CoordinateSupport line1Point2, CoordinateSupport line2Point1, CoordinateSupport line2Point2)
     {
@@ -153,7 +153,7 @@ public class WeilerAthertonAlgorithm
                 clipped.AddAfter(currentInClipped, intersectionNode);
             }
         }
-
+        
         void ProcessCornerAndExtension(LinkedListNode<CoordinateSupport> currentInClipped,
             LinkedListNode<CoordinateSupport> currentInCutting, LinkedListNode<CoordinateSupport> nextInClipped,
             LinkedListNode<CoordinateSupport> nextInCutting)
@@ -931,11 +931,11 @@ public class WeilerAthertonAlgorithm
 
                 if (i.Value.Ref is { Next: not null })
                 {
-                    sw.WriteLine("Value.Coord.Next = " + i.Value.Ref.Next.Value);
+                    sw.WriteLine("Value.Ref.Next = " + i.Value.Ref.Next.Value);
                 }
                 else if (i.Value.Type != PointType.Useless)
                 {
-                    sw.WriteLine("Value.Coord.Next = " + cutting.First!.Value);
+                    sw.WriteLine("Value.Ref.Next = " + cutting.First!.Value);
                 }
             }
 
@@ -954,11 +954,11 @@ public class WeilerAthertonAlgorithm
 
                 if (i.Value.Ref is { Next: not null })
                 {
-                    sw.WriteLine("Value.Coord.Next = " + i.Value.Ref.Next.Value);
+                    sw.WriteLine("Value.Ref.Next = " + i.Value.Ref.Next.Value);
                 }
                 else if (i.Value.Type != PointType.Useless)
                 {
-                    sw.WriteLine("Value.Coord.Next = " + clipped.First!.Value);
+                    sw.WriteLine("Value.Ref.Next = " + clipped.First!.Value);
                 }
             }
 

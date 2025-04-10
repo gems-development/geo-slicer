@@ -8,7 +8,6 @@ namespace GeoSlicer.Tests.UtilsTests.IntersectorsTests;
 public class LineAreaIntersectionTest
 {
     private const double Epsilon = 1E-6;
-    private static readonly EpsilonCoordinateComparator EpsilonCoordinateComparator = new(Epsilon);
 
     private static readonly LineAreaIntersector LineAreaIntersector =
         new(new LineService(1E-5, new EpsilonCoordinateComparator(Epsilon)), Epsilon);
