@@ -7,6 +7,9 @@ using NetTopologySuite.Geometries;
 
 namespace GeoSlicer.Utils.Validators;
 
+/// <summary>
+/// Проверяет, есть ли в геометрии идущие подряд повторяющиеся точки
+/// </summary>
 public class RepeatingPointsValidator
 {
     private readonly ICoordinateComparator _coordinateComparator;
@@ -16,6 +19,11 @@ public class RepeatingPointsValidator
         _coordinateComparator = coordinateComparator;
     }
 
+    /// <summary>
+    /// Ищет повторяющиеся точки, собирая их в сообщение об ошибке
+    /// </summary>
+    /// <param name="lineString">Проверяемая геометрия</param>
+    /// <param name="isFull">Если true - собираем все ошибки. Иначе останавливаемся после нахождения первой</param>
     public string GetErrorsString(LineString lineString, bool isFull = false)
     {
         StringBuilder stringBuilder = new StringBuilder();
@@ -23,7 +31,7 @@ public class RepeatingPointsValidator
         {
             if (_coordinateComparator.IsEquals(lineString[i], lineString[i + 1]))
             {
-                stringBuilder.Append($"Equals points at {i} and {i + 1}\n");
+                stringBuilder.Append($"Equals points at {i} and {i + 1}\n: {lineString[i]}, {lineString[i + 1]}");
                 if (!isFull)
                 {
                     return stringBuilder.ToString();
@@ -33,7 +41,10 @@ public class RepeatingPointsValidator
 
         return stringBuilder.ToString();
     }
-    
+
+    /// <summary>
+    /// Проверяет, является ли последовательность координат корректной (не содержит она повторений)
+    /// </summary>
     public bool IsValid(LineString lineString, bool isFull = false)
     {
         if (string.IsNullOrEmpty(GetErrorsString(lineString, isFull)))
@@ -43,15 +54,23 @@ public class RepeatingPointsValidator
 
         return false;
     }
-    
-    public T Fix<T>(T linear, Func<Coordinate[], T> creator) where T : LineString, new()
+
+    /// <summary>
+    /// Удаляет повторения в геометрии
+    /// </summary>
+    public T Fix<T>(T linear, Func<Coordinate[], T> creator) where T : LineString
     {
         List<Coordinate> resultCoordinates = new List<Coordinate>(linear.Count) { linear.Coordinate };
-        foreach (Coordinate coordinate in linear.Coordinates)
+        for (int i = 0; i < linear.Coordinates.Length; i++)
         {
+            Coordinate coordinate = linear.Coordinates[i];
             if (!_coordinateComparator.IsEquals(resultCoordinates.Last(), coordinate))
             {
                 resultCoordinates.Add(coordinate);
+            }
+            else if (i == linear.Coordinates.Length - 1)
+            {
+                resultCoordinates[^1] = coordinate;
             }
         }
 

@@ -12,6 +12,9 @@ public class SegmentService
         _lineService = lineService;
     }
 
+    /// <summary>
+    /// Удаляет точки, что лежат на прямой между соседними (точки, образующие угол в 180)
+    /// </summary>
     public LinearRing IgnoreInnerPointsOfSegment(LinearRing ring)
     {
         if (ring.Count < 4)

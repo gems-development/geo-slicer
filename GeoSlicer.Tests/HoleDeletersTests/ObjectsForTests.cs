@@ -10,7 +10,9 @@ using NetTopologySuite.Geometries;
 namespace GeoSlicer.Tests.HoleDeletersTests;
 
 public static class ObjectsForTests
-{ 
+{
+    private static readonly GeoJsonFileService GeoJsonFileService = new();
+
     public static ZeroTunnelDivider GetZeroTunnelDivider()
     {
         IList<(int countOfSteps, double stepSize)> stepCharacteristic = new List<(int countOfSteps, double stepSize)>();
@@ -21,17 +23,18 @@ public static class ObjectsForTests
         stepCharacteristic.Add((countOfSteps, 0.000_000_01));
         stepCharacteristic.Add((countOfSteps, 0.000_000_005));
         stepCharacteristic.Add((countOfSteps, 0.000_000_000_3));
-        
+
         double epsilon = 1e-15;
         var zeroDivider = new ZeroTunnelDivider(
-            stepCharacteristic, 
+            stepCharacteristic,
             new LinesIntersector(
                 new EpsilonCoordinateComparator(epsilon),
                 new LineService(epsilon, new EpsilonCoordinateComparator(epsilon)), epsilon),
             epsilon);
-        
+
         return zeroDivider;
     }
+
     public static Polygon GetSample()
     {
         return GeoJsonFileService
@@ -40,7 +43,7 @@ public static class ObjectsForTests
     }
 
     public static Polygon GetKazan()
-    { 
+    {
         var featureCollection = GeoJsonFileService
             .ReadGeometryFromFile<FeatureCollection>
                 ("TestFiles\\kazan.geojson");
@@ -62,6 +65,7 @@ public static class ObjectsForTests
                 ("TestFiles\\test_final_geojson.geojson");
         return (Polygon)((MultiPolygon)featureCollection[0].Geometry)[0];
     }
+
     public static Polygon GetTest2()
     {
         var featureCollection = GeoJsonFileService
@@ -105,7 +109,7 @@ public static class ObjectsForTests
                 thirdRingSecondCoord,
                 thirdRingFirstCoord
             });
-        
+
         Coordinate fourthRingCoord = new Coordinate(0.8, 0.3 + step);
         LinearRing ring4 = new(
             new[]
@@ -125,18 +129,18 @@ public static class ObjectsForTests
                 new Coordinate(2, -2),
                 new Coordinate(-2, -2)
             });
-        
+
         Random random = new Random(1);
         LinearRing[] rings = { ring1, ring2, ring3, ring4 };
-        rings = rings.OrderBy(a => random.NextDouble()).ToArray();
-        Polygon testPolygon = new Polygon(shell,  rings);
-        
+        rings = rings.OrderBy(_ => random.NextDouble()).ToArray();
+        Polygon testPolygon = new Polygon(shell, rings);
+
         if (testPolygon.IsValid)
             return testPolygon;
-        
+
         return null;
     }
-    
+
     public static Polygon? GetTest4(double step, int permutationNumber)
     {
         Coordinate firstRingCoord = new Coordinate(5, 3 + step);
@@ -169,7 +173,7 @@ public static class ObjectsForTests
                 new Coordinate(4, 3),
                 thirdRingCoord
             });
-        
+
         LinearRing shell = new(
             new[]
             {
@@ -181,11 +185,11 @@ public static class ObjectsForTests
             });
 
         LinearRing[] rings = GetPermutationArray(ring1, ring2, ring3, permutationNumber);
-        Polygon testPolygon = new Polygon(shell,  rings);
-        
+        Polygon testPolygon = new Polygon(shell, rings);
+
         if (testPolygon.IsValid)
             return testPolygon;
-        
+
         return null;
     }
 
@@ -193,27 +197,32 @@ public static class ObjectsForTests
     {
         if (permutationNumber == 1)
         {
-            return new []{a, b, c};
+            return new[] { a, b, c };
         }
+
         if (permutationNumber == 2)
         {
-            return new []{a, c, b};
+            return new[] { a, c, b };
         }
+
         if (permutationNumber == 3)
         {
-            return new []{b, c, a};
+            return new[] { b, c, a };
         }
+
         if (permutationNumber == 4)
         {
-           return new []{b, a, c};
+            return new[] { b, a, c };
         }
+
         if (permutationNumber == 5)
         {
-            return new []{c, a, b};
+            return new[] { c, a, b };
         }
+
         if (permutationNumber == 6)
         {
-            return new []{c, b, a};
+            return new[] { c, b, a };
         }
 
         throw new ArgumentException("permutationNumber belongs to the range from 1 to 6");

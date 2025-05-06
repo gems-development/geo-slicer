@@ -6,6 +6,10 @@ namespace GeoSlicer.Utils;
 
 public static class MyIEnumerableExtensions
 {
+    
+    /// <summary>
+    /// Возвращает элементы <paramref name="source"/> попарно (01, 12, 23, 34...)
+    /// </summary>
     public static IEnumerable<(T, T)> Pairwise<T>(this IEnumerable<T> source)
     {
         using var it = source.GetEnumerator();
@@ -17,7 +21,7 @@ public static class MyIEnumerableExtensions
         while (it.MoveNext())
             yield return (previous, previous = it.Current);
     }
-
+    
     public static bool Contains<T>(this IEnumerable<T> source, IEnumerable<T> other)
     {
         T first = other.First();
@@ -37,9 +41,6 @@ public static class MyIEnumerableExtensions
 
     }
 
-    public static bool IsEqualsRing(this IEnumerable<Coordinate> source, IEnumerable<Coordinate> other)
-    {
-        return source.Skip(1).Concat(source.Skip(1)).Contains(other.Skip(1));
-    }
+
     
 }

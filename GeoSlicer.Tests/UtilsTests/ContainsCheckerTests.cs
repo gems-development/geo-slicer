@@ -29,15 +29,15 @@ public class ContainsCheckerTests
         Coordinate pointFalse2 = new Coordinate(1, 2);
         Coordinate pointFalse3 = new Coordinate(-1, 4);
 
-        Assert.True(ContainsChecker.IsPointInLinearRing(pointTrue1, polygonRing1));
-        Assert.True(ContainsChecker.IsPointInLinearRing(pointTrue2, polygonRing1));
-        Assert.True(ContainsChecker.IsPointInLinearRing(pointTrue3, polygonRing1));
-        Assert.True(ContainsChecker.IsPointInLinearRing(pointTrue4, polygonRing1));
-        Assert.True(ContainsChecker.IsPointInLinearRing(pointTrue5, polygonRing1));
+        Assert.True(ContainsChecker.IsPointInLinearRing(pointTrue1, polygonRing1, out _));
+        Assert.True(ContainsChecker.IsPointInLinearRing(pointTrue2, polygonRing1, out _));
+        Assert.True(ContainsChecker.IsPointInLinearRing(pointTrue3, polygonRing1, out _));
+        Assert.True(ContainsChecker.IsPointInLinearRing(pointTrue4, polygonRing1, out _));
+        Assert.True(ContainsChecker.IsPointInLinearRing(pointTrue5, polygonRing1, out _));
 
-        Assert.False(ContainsChecker.IsPointInLinearRing(pointFalse1, polygonRing1));
-        Assert.False(ContainsChecker.IsPointInLinearRing(pointFalse2, polygonRing1));
-        Assert.False(ContainsChecker.IsPointInLinearRing(pointFalse3, polygonRing1));
+        Assert.False(ContainsChecker.IsPointInLinearRing(pointFalse1, polygonRing1, out _));
+        Assert.False(ContainsChecker.IsPointInLinearRing(pointFalse2, polygonRing1, out _));
+        Assert.False(ContainsChecker.IsPointInLinearRing(pointFalse3, polygonRing1, out _));
     }
 
     [Fact]
@@ -63,21 +63,21 @@ public class ContainsCheckerTests
         Coordinate pointFalse7 = new Coordinate(6, 4);
         Coordinate pointFalse8 = new Coordinate(3, 1);
 
-        Assert.True(ContainsChecker.IsPointInLinearRing(pointTrue1, polygonRing1));
-        Assert.True(ContainsChecker.IsPointInLinearRing(pointTrue2, polygonRing1));
-        Assert.True(ContainsChecker.IsPointInLinearRing(pointTrue3, polygonRing1));
-        Assert.True(ContainsChecker.IsPointInLinearRing(pointTrue4, polygonRing1));
-        Assert.True(ContainsChecker.IsPointInLinearRing(pointTrue5, polygonRing1));
-        Assert.True(ContainsChecker.IsPointInLinearRing(pointTrue6, polygonRing1));
+        Assert.True(ContainsChecker.IsPointInLinearRing(pointTrue1, polygonRing1, out _));
+        Assert.True(ContainsChecker.IsPointInLinearRing(pointTrue2, polygonRing1, out _));
+        Assert.True(ContainsChecker.IsPointInLinearRing(pointTrue3, polygonRing1, out _));
+        Assert.True(ContainsChecker.IsPointInLinearRing(pointTrue4, polygonRing1, out _));
+        Assert.True(ContainsChecker.IsPointInLinearRing(pointTrue5, polygonRing1, out _));
+        Assert.True(ContainsChecker.IsPointInLinearRing(pointTrue6, polygonRing1, out _));
 
-        Assert.False(ContainsChecker .IsPointInLinearRing(pointFalse1, polygonRing1));
-        Assert.False(ContainsChecker .IsPointInLinearRing(pointFalse2, polygonRing1));
-        Assert.False(ContainsChecker .IsPointInLinearRing(pointFalse3, polygonRing1));
-        Assert.False(ContainsChecker .IsPointInLinearRing(pointFalse4, polygonRing1));
-        Assert.False(ContainsChecker .IsPointInLinearRing(pointFalse5, polygonRing1));
-        Assert.False(ContainsChecker .IsPointInLinearRing(pointFalse6, polygonRing1));
-        Assert.False(ContainsChecker .IsPointInLinearRing(pointFalse7, polygonRing1));
-        Assert.False(ContainsChecker .IsPointInLinearRing(pointFalse8, polygonRing1));
+        Assert.False(ContainsChecker .IsPointInLinearRing(pointFalse1, polygonRing1, out _));
+        Assert.False(ContainsChecker .IsPointInLinearRing(pointFalse2, polygonRing1, out _));
+        Assert.False(ContainsChecker .IsPointInLinearRing(pointFalse3, polygonRing1, out _));
+        Assert.False(ContainsChecker .IsPointInLinearRing(pointFalse4, polygonRing1, out _));
+        Assert.False(ContainsChecker .IsPointInLinearRing(pointFalse5, polygonRing1, out _));
+        Assert.False(ContainsChecker .IsPointInLinearRing(pointFalse6, polygonRing1, out _));
+        Assert.False(ContainsChecker .IsPointInLinearRing(pointFalse7, polygonRing1, out _));
+        Assert.False(ContainsChecker .IsPointInLinearRing(pointFalse8, polygonRing1, out _));
     }
 
     [Fact]
@@ -120,36 +120,36 @@ public class ContainsCheckerTests
         Coordinate pointFalse17 = new Coordinate(1, -1);
         Coordinate pointFalse18 = new Coordinate(7, -1);
 
-        Assert.True(ContainsChecker.IsPointInLinearRing(pointTrue1, polygonRing1));
-        Assert.True(ContainsChecker.IsPointInLinearRing(pointTrue2, polygonRing1));
-        Assert.True(ContainsChecker.IsPointInLinearRing(pointTrue3, polygonRing1));
-        Assert.True(ContainsChecker.IsPointInLinearRing(pointTrue4, polygonRing1));
-        Assert.True(ContainsChecker.IsPointInLinearRing(pointTrue5, polygonRing1));
-        Assert.True(ContainsChecker.IsPointInLinearRing(pointTrue6, polygonRing1));
-        Assert.True(ContainsChecker.IsPointInLinearRing(pointTrue7, polygonRing1));
-        Assert.True(ContainsChecker.IsPointInLinearRing(pointTrue8, polygonRing1));
-        Assert.True(ContainsChecker.IsPointInLinearRing(pointTrue9, polygonRing1));
-        Assert.True(ContainsChecker.IsPointInLinearRing(pointTrue10, polygonRing1));
-        Assert.True(ContainsChecker.IsPointInLinearRing(pointTrue11, polygonRing1));
-        Assert.True(ContainsChecker.IsPointInLinearRing(pointTrue12, polygonRing1));
+        Assert.True(ContainsChecker.IsPointInLinearRing(pointTrue1, polygonRing1, out _));
+        Assert.True(ContainsChecker.IsPointInLinearRing(pointTrue2, polygonRing1, out _));
+        Assert.True(ContainsChecker.IsPointInLinearRing(pointTrue3, polygonRing1, out _));
+        Assert.True(ContainsChecker.IsPointInLinearRing(pointTrue4, polygonRing1, out _));
+        Assert.True(ContainsChecker.IsPointInLinearRing(pointTrue5, polygonRing1, out _));
+        Assert.True(ContainsChecker.IsPointInLinearRing(pointTrue6, polygonRing1, out _));
+        Assert.True(ContainsChecker.IsPointInLinearRing(pointTrue7, polygonRing1, out _));
+        Assert.True(ContainsChecker.IsPointInLinearRing(pointTrue8, polygonRing1, out _));
+        Assert.True(ContainsChecker.IsPointInLinearRing(pointTrue9, polygonRing1, out _));
+        Assert.True(ContainsChecker.IsPointInLinearRing(pointTrue10, polygonRing1, out _));
+        Assert.True(ContainsChecker.IsPointInLinearRing(pointTrue11, polygonRing1, out _));
+        Assert.True(ContainsChecker.IsPointInLinearRing(pointTrue12, polygonRing1, out _));
 
-        Assert.False(ContainsChecker.IsPointInLinearRing(pointFalse1, polygonRing1));
-        Assert.False(ContainsChecker.IsPointInLinearRing(pointFalse2, polygonRing1));
-        Assert.False(ContainsChecker.IsPointInLinearRing(pointFalse3, polygonRing1));
-        Assert.False(ContainsChecker.IsPointInLinearRing(pointFalse4, polygonRing1));
-        Assert.False(ContainsChecker.IsPointInLinearRing(pointFalse5, polygonRing1));
-        Assert.False(ContainsChecker.IsPointInLinearRing(pointFalse6, polygonRing1));
-        Assert.False(ContainsChecker.IsPointInLinearRing(pointFalse7, polygonRing1));
-        Assert.False(ContainsChecker.IsPointInLinearRing(pointFalse8, polygonRing1));
-        Assert.False(ContainsChecker.IsPointInLinearRing(pointFalse9, polygonRing1));
-        Assert.False(ContainsChecker.IsPointInLinearRing(pointFalse10, polygonRing1));
-        Assert.False(ContainsChecker.IsPointInLinearRing(pointFalse11, polygonRing1));
-        Assert.False(ContainsChecker.IsPointInLinearRing(pointFalse12, polygonRing1));
-        Assert.False(ContainsChecker.IsPointInLinearRing(pointFalse13, polygonRing1));
-        Assert.False(ContainsChecker.IsPointInLinearRing(pointFalse14, polygonRing1));
-        Assert.False(ContainsChecker.IsPointInLinearRing(pointFalse15, polygonRing1));
-        Assert.False(ContainsChecker.IsPointInLinearRing(pointFalse16, polygonRing1));
-        Assert.False(ContainsChecker.IsPointInLinearRing(pointFalse17, polygonRing1));
-        Assert.False(ContainsChecker.IsPointInLinearRing(pointFalse18, polygonRing1));
+        Assert.False(ContainsChecker.IsPointInLinearRing(pointFalse1, polygonRing1, out _));
+        Assert.False(ContainsChecker.IsPointInLinearRing(pointFalse2, polygonRing1, out _));
+        Assert.False(ContainsChecker.IsPointInLinearRing(pointFalse3, polygonRing1, out _));
+        Assert.False(ContainsChecker.IsPointInLinearRing(pointFalse4, polygonRing1, out _));
+        Assert.False(ContainsChecker.IsPointInLinearRing(pointFalse5, polygonRing1, out _));
+        Assert.False(ContainsChecker.IsPointInLinearRing(pointFalse6, polygonRing1, out _));
+        Assert.False(ContainsChecker.IsPointInLinearRing(pointFalse7, polygonRing1, out _));
+        Assert.False(ContainsChecker.IsPointInLinearRing(pointFalse8, polygonRing1, out _));
+        Assert.False(ContainsChecker.IsPointInLinearRing(pointFalse9, polygonRing1, out _));
+        Assert.False(ContainsChecker.IsPointInLinearRing(pointFalse10, polygonRing1, out _));
+        Assert.False(ContainsChecker.IsPointInLinearRing(pointFalse11, polygonRing1, out _));
+        Assert.False(ContainsChecker.IsPointInLinearRing(pointFalse12, polygonRing1, out _));
+        Assert.False(ContainsChecker.IsPointInLinearRing(pointFalse13, polygonRing1, out _));
+        Assert.False(ContainsChecker.IsPointInLinearRing(pointFalse14, polygonRing1, out _));
+        Assert.False(ContainsChecker.IsPointInLinearRing(pointFalse15, polygonRing1, out _));
+        Assert.False(ContainsChecker.IsPointInLinearRing(pointFalse16, polygonRing1, out _));
+        Assert.False(ContainsChecker.IsPointInLinearRing(pointFalse17, polygonRing1, out _));
+        Assert.False(ContainsChecker.IsPointInLinearRing(pointFalse18, polygonRing1, out _));
     }
 }

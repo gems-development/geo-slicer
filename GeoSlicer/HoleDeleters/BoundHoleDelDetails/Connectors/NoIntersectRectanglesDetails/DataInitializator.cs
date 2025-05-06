@@ -21,15 +21,15 @@ internal static class DataInitializer
         IntersectsChecker intersectsChecker)
     {
         Clear(data);
-        if (!cache.NearRing.ContainsKey(Zones.Abc))
+        if (!cache.NearRing.TryGetValue(Zones.Abc, out var valueAbc))
             data.AbcCanConnect = false;
         else
         {
             data.LineConnectNearAbcFrame = new LineSegment(
                 thisRing.Value.PointUpNode.Elem,
-                cache.NearRing[Zones.Abc].BoundRing.Value.PointDownNode.Elem);
+                valueAbc.BoundRing.Value.PointDownNode.Elem);
             
-            data.AbcCanConnect = LineIntersectFrameCheck(
+            data.AbcCanConnect = CheckLineIntersectFrame(
                 data.LineConnectNearAbcFrame.P0, data.LineConnectNearAbcFrame.P1,
                 Zones.Abc,
                 Zones.A, Zones.B, Zones.C,
@@ -38,15 +38,15 @@ internal static class DataInitializer
                 intersectsChecker);
         }
         
-        if (!cache.NearRing.ContainsKey(Zones.Cde))
+        if (!cache.NearRing.TryGetValue(Zones.Cde, out var valueCde))
             data.CdeCanConnect = false;
         else
         {
             data.LineConnectNearCdeFrame = new LineSegment(
                 thisRing.Value.PointLeftNode.Elem,
-                cache.NearRing[Zones.Cde].BoundRing.Value.PointRightNode.Elem);
+                valueCde.BoundRing.Value.PointRightNode.Elem);
             
-            data.CdeCanConnect = LineIntersectFrameCheck(
+            data.CdeCanConnect = CheckLineIntersectFrame(
                 data.LineConnectNearCdeFrame.P0, data.LineConnectNearCdeFrame.P1,
                 Zones.Cde,
                 Zones.C, Zones.D, Zones.E,
@@ -55,15 +55,15 @@ internal static class DataInitializer
                 intersectsChecker);
         }
         
-        if (!cache.NearRing.ContainsKey(Zones.Efg))
+        if (!cache.NearRing.TryGetValue(Zones.Efg, out var valueEfg))
             data.EfgCanConnect = false;
         else
         {
             data.LineConnectNearEfgFrame = new LineSegment(
                 thisRing.Value.PointDownNode.Elem,
-                cache.NearRing[Zones.Efg].BoundRing.Value.PointUpNode.Elem);
+                valueEfg.BoundRing.Value.PointUpNode.Elem);
             
-            data.EfgCanConnect = LineIntersectFrameCheck(
+            data.EfgCanConnect = CheckLineIntersectFrame(
                 data.LineConnectNearEfgFrame.P0, data.LineConnectNearEfgFrame.P1,
                 Zones.Efg,
                 Zones.E, Zones.F, Zones.G,
@@ -72,15 +72,15 @@ internal static class DataInitializer
                 intersectsChecker);
         }
         
-        if (!cache.NearRing.ContainsKey(Zones.Ahg))
+        if (!cache.NearRing.TryGetValue(Zones.Ahg, out var valueAhg))
             data.AhgCanConnect = false;
         else
         {
             data.LineConnectNearAhgFrame = new LineSegment(
                 thisRing.Value.PointRightNode.Elem,
-                cache.NearRing[Zones.Ahg].BoundRing.Value.PointLeftNode.Elem);
+                valueAhg.BoundRing.Value.PointLeftNode.Elem);
             
-            data.AhgCanConnect = LineIntersectFrameCheck(
+            data.AhgCanConnect = CheckLineIntersectFrame(
                 data.LineConnectNearAhgFrame.P0, data.LineConnectNearAhgFrame.P1,
                 Zones.Ahg,
                 Zones.A, Zones.H, Zones.G,
@@ -90,15 +90,19 @@ internal static class DataInitializer
         }
     }
     
-    //Метод проверяет, не пересекает ли линия (firstCoordLineConnect, secondCoordLineConnect)
-    //какой-нибудь прямоугольник, пересекающий объединение зон - zonesUnion
-    //(например если прямоугольник лежит в зонах С и D, и zonesUnion = Abc, то
-    //этот прямоугольник пересекает zonesUnion и он проверяется на пересечение с линией.)
+
     
-    //Предполагается, что zonesUnion равно объединению firstZone, arrangeZone, secondZone.
-    //Прямоугольники, лежащие только в zonesUnion, не учитываются.
-    //true - если такого пересечения нет, false - иначе.
-    private static bool LineIntersectFrameCheck(
+    /// <summary>
+    /// Метод проверяет, не пересекает ли линия (firstCoordLineConnect, secondCoordLineConnect)
+    /// какой-нибудь прямоугольник, пересекающий объединение зон - zonesUnion
+    /// (например если прямоугольник лежит в зонах С и D, и zonesUnion = Abc, то
+    /// этот прямоугольник пересекает zonesUnion и он проверяется на пересечение с линией.)
+    ///
+    /// Предполагается, что zonesUnion равно объединению firstZone, arrangeZone, secondZone.
+    /// Прямоугольники, лежащие только в zonesUnion, не учитываются.
+    /// </summary>
+    /// <returns>True, если искомое пересечение есть, false иначе</returns>
+    private static bool CheckLineIntersectFrame(
         Coordinate firstCoordLineConnect,
         Coordinate secondCoordLineConnect,
         Zones zonesUnion,
@@ -158,11 +162,11 @@ internal static class DataInitializer
         return true;
     }
     
-    //todo разобраться с вычислениями по epsilon
-    
-    //Если рамка frame выходит за пределы объединения зон zonesUnion
-    //(то есть frame либо пересекает прямую, накладываемую на сторону рамки thisRing, либо лежит ниже ее),
-    //то функция возвращает true. False - иначе.
+    /// <summary>
+    ///  Проверяет, выходит ли рамка <paramref name="frame"/> за пределы объединения зон <paramref name="zonesUnion"/>
+    /// (то-есть <paramref name="frame"/> либо пересекает прямую, накладываемую на
+    /// сторону рамки <paramref name="thisRing"/>, либо лежит ниже ее).
+    /// </summary>
     private static bool CheckIntersectFrameWithZonesUnion
         (RingAndZones frame, LinkedListNode<BoundingRing> thisRing, Zones zonesUnion)
     {

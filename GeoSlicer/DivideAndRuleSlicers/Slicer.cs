@@ -1,32 +1,39 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using GeoSlicer.Utils;
-using GeoSlicer.Utils.PolygonClippingAlghorithm;
+using GeoSlicer.Utils.PolygonClippingAlgorithm;
 using NetTopologySuite.Geometries;
 
-namespace GeoSlicer.DivideAndRuleSlicers.OppositesSlicer;
+namespace GeoSlicer.DivideAndRuleSlicers;
 
+/// <summary>
+/// Разрезает полигон на куски, количество точек в которых не превышает переданное в конструкторе ограничение.
+/// Разрезает путем проведения линии по точкам, что противоположны по индексам (разница индексов = length / 2)
+/// </summary>
 public class Slicer
 {
-    private readonly LineService _lineService;
-
     private readonly int _maxPointsCount;
 
-    // todo После вынесения метода пересечения заменить на нужный класс
-    private readonly WeilerAthertonAlghorithm _weilerAthertonAlghorithm;
+    private readonly WeilerAthertonAlgorithm _weilerAtherton;
+    private readonly IDivisionIndexesGiver _indexesGiver;
 
-    public Slicer(LineService lineService, int maxPointsCount, WeilerAthertonAlghorithm weilerAthertonAlghorithm)
+    // todo: Удалить после отладки
+    private int _debugVar;
+
+    public Slicer(int maxPointsCount, WeilerAthertonAlgorithm weilerAtherton, IDivisionIndexesGiver indexesGiver)
     {
-        _lineService = lineService;
         _maxPointsCount = maxPointsCount;
-        _weilerAthertonAlghorithm = weilerAthertonAlghorithm;
+        _weilerAtherton = weilerAtherton;
+        _indexesGiver = indexesGiver;
     }
 
-    
-    public IEnumerable<Polygon> Slice(Polygon input)
+    public ICollection<Polygon> Slice(Polygon input, out ICollection<int> skippedGeometries)
     {
         LinkedList<Polygon> result = new LinkedList<Polygon>();
+        LinkedList<int> skippedList = new LinkedList<int>();
+        skippedGeometries = skippedList;
 
         if (input.NumPoints <= _maxPointsCount)
         {
@@ -34,54 +41,77 @@ public class Slicer
             return result;
         }
 
-        Queue<Polygon> queue = new Queue<Polygon>();
+        Queue<Polygon> queue = new();
         queue.Enqueue(input);
-        int i = 0;
+        _debugVar = 0;
         while (queue.Count != 0)
         {
-            Console.WriteLine(
-                $"Number: {i}. Queue count: {queue.Count}. Max points count: {queue.Select(polygon => polygon.Shell.Count).Max()}");
+         //   Console.WriteLine(
+        //        $"Number: {_debugVar}. Queue count: {queue.Count}. Max points count: {queue.Select(polygon => polygon.Shell.Count).Max()}");
 
-            // todo Кажется, есть лишние разрезания
             Polygon current = queue.Dequeue();
 
-            int oppositesIndex = Utils.GetOppositesIndexByTriangles(current.Shell);
-            IEnumerable<Polygon> sliced = SliceByLine(
-                current,
-                current.Shell.GetCoordinateN(oppositesIndex),
-                current.Shell.GetCoordinateN((oppositesIndex + current.Shell.Count / 2) % current.Shell.Count));
-            
-
-            foreach (Polygon ring in sliced)
+            _indexesGiver.GetIndexes(current.Shell, out int firstIndex, out int secondIndex);
+            if (firstIndex == -1)
             {
-                if (ring.NumPoints <= _maxPointsCount)
+                Skip(current);
+                continue;
+            }
+
+            IEnumerable<Polygon> sliced;
+
+            try
+            {
+                sliced = SliceByLine(
+                    current,
+                    current.Shell.GetCoordinateN(firstIndex),
+                    current.Shell.GetCoordinateN(secondIndex));
+            }
+            catch (DifferentNumbersOfPointTypes)
+            {
+                Skip(current);
+                continue;
+            }
+
+            foreach (Polygon polygon in sliced)
+            {
+                if (polygon.NumPoints <= _maxPointsCount)
                 {
-                    result.AddLast(ring);
+                    result.AddLast(polygon);
+                }
+                else if (polygon.NumPoints == current.NumPoints)
+                {
+                    Skip(polygon);
                 }
                 else
                 {
-                    queue.Enqueue(ring);
+                    queue.Enqueue(polygon);
                 }
             }
-          //  GeoJsonFileService.WriteGeometryToFile(new MultiPolygon(queue.Concat(result).ToArray())
-          //      , $"Out\\iter{i}.geojson.ignore");
-            i++;
+
+            //new GeoJsonFileService().WriteGeometryToFile(new MultiPolygon(queue.Concat(result).ToArray())
+            //    , $"Out\\iter{_debugVar}.geojson.ignore");
+            _debugVar++;
         }
 
         return result;
+
+        void Skip(Polygon skippedPolygon)
+        {
+            result.AddLast(skippedPolygon);
+            skippedList.AddLast(result.Count - 1);
+        }
     }
 
-    // todo Возможно можно исправить проблемы при повторяющихся точках
-    // todo Вынести в отдельный класс Вэйлера-Азертона с набором надстроек над основным алгоритмом)
+    [SuppressMessage("ReSharper", "CompareOfFloatsByEqualityOperator")]
     private IEnumerable<Polygon> SliceByLine(Polygon polygon, Coordinate a, Coordinate b)
     {
         a = a.Copy();
         b = b.Copy();
-        //GeoJsonFileService.WriteGeometryToFile(polygon, "Out/wrong.geojson.ignore");
+
         // Если isVertical == true, создается 2 области: слева и справа от вертикального разделителя
         bool isVertical = Math.Abs(a.Y - b.Y) > Math.Abs(a.X - b.X);
 
-        
         // Сортировка к a<b
         if (isVertical && a.Y > b.Y || !isVertical && a.X > b.X)
         {
@@ -93,13 +123,12 @@ public class Slicer
         // Создаем нахлест чтобы наверняка
         double minY = envelope.MinY - (envelope.MaxY - envelope.MinY) * 0.1;
         double maxY = envelope.MaxY + (envelope.MaxY - envelope.MinY) * 0.1;
-        double minX = envelope.MinX -(envelope.MaxY - envelope.MinY) * 0.1;
+        double minX = envelope.MinX - (envelope.MaxY - envelope.MinY) * 0.1;
         double maxX = envelope.MaxX + (envelope.MaxY - envelope.MinY) * 0.1;
         if (isVertical)
         {
             if (minY < a.Y)
             {
-
                 // Продлеваем прямую
                 a.X += (a.X - b.X) * (a.Y - minY) / (b.Y - a.Y);
                 a.Y = minY;
@@ -206,19 +235,18 @@ public class Slicer
             }
         }
 
-        /*
-        GeoJsonFileService.WriteGeometryToFile(polygon, "Out/source.geojson.ignore");
-        GeoJsonFileService.WriteGeometryToFile(part1, "Out/part1.geojson.ignore");
-        GeoJsonFileService.WriteGeometryToFile(part2, "Out/part2.geojson.ignore");
-        */
+        if (_debugVar == 150002)
+            // if (b.Equals2D(new Coordinate(48.9460655482931, 55.809165282259364)))
+        {
+            new GeoJsonFileService().WriteGeometryToFile(polygon, "Out/clipped.geojson.ignore");
+            new GeoJsonFileService().WriteGeometryToFile(polygon.Shell, "Out/clippedShell.geojson.ignore");
+            new GeoJsonFileService().WriteGeometryToFile(part1, "Out/cutting1.geojson.ignore");
+            new GeoJsonFileService().WriteGeometryToFile(part2, "Out/cutting2.geojson.ignore");
+        }
 
-        IEnumerable<LinearRing> resPart1 = _weilerAthertonAlghorithm.WeilerAtherton(polygon.Shell, part1);
-        IEnumerable<LinearRing> resPart2 = _weilerAthertonAlghorithm.WeilerAtherton(polygon.Shell, part2);
-        
-        /*
-        GeoJsonFileService.WriteGeometryToFile(new MultiLineString(resPart1.ToArray()), "Out/resPart1.geojson.ignore");
-        GeoJsonFileService.WriteGeometryToFile(new MultiLineString(resPart2.ToArray()), "Out/resPart2.geojson.ignore");
-        */
-        return resPart1.Concat(resPart2).Select(ring => new Polygon(ring));
+        IEnumerable<Polygon> resPart1 = _weilerAtherton.WeilerAtherton(polygon, part1);
+        IEnumerable<Polygon> resPart2 = _weilerAtherton.WeilerAtherton(polygon, part2);
+
+        return resPart1.Concat(resPart2);
     }
 }

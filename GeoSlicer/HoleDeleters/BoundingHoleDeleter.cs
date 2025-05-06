@@ -30,12 +30,7 @@ public class BoundingHoleDeleter
         else
             _intersectChecker = checker;
 
-        if (lineService is null)
-        {
-            _lineService = new LineService(epsilon, new EpsilonCoordinateComparator(epsilon));
-        }
-        else
-            _lineService = lineService;
+        _lineService = lineService ?? new LineService(epsilon, new EpsilonCoordinateComparator(epsilon));
         _noIntersectRectangles = new NoIntersectRectangles(epsilon, _lineService);
         _cache = new Cache(epsilon, _intersectChecker);
         _epsilon = epsilon;
@@ -55,9 +50,7 @@ public class BoundingHoleDeleter
 
         while (listOfHoles.First!.Next is not null)
         {
-            if (thisRing.Next is null)
-                thisRing = listOfHoles.First.Next;
-            else thisRing = thisRing.Next;
+            thisRing = thisRing.Next ?? listOfHoles.First.Next;
             
             bool isConnected;
             
@@ -65,11 +58,11 @@ public class BoundingHoleDeleter
             {
                 isConnected = 
                     _noIntersectRectangles.Connect(thisRing, listOfHoles, _cache, _intersectChecker) ||
-                    WithIntersectRing.BruteforceConnect(thisRing, listOfHoles, _cache, _intersectChecker);
+                    WithIntersectRing.TryBruteforceConnect(thisRing, listOfHoles, _cache, _intersectChecker);
             }
             else
             {
-                isConnected = _intersectionBoundRFrames.BruteforceConnect(thisRing, listOfHoles, _cache, _intersectChecker);
+                isConnected = _intersectionBoundRFrames.TryBruteforceConnect(thisRing, listOfHoles, _cache, _intersectChecker);
             }
 
             if (!isConnected)

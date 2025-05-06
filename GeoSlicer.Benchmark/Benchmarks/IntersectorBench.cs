@@ -25,6 +25,8 @@ public class IntersectorBench
     private const LineAreaIntersectionType SuitableLineAreaIntersectionType =
         LineAreaIntersectionType.Inside | LineAreaIntersectionType.PartlyInside | LineAreaIntersectionType.Overlay;
 
+    private static readonly GeoJsonFileService GeoJsonFileService = new ();
+    
     private readonly Coordinate[] _coordinates = GeoJsonFileService
         .ReadGeometryFromFile<LineString>("TestFiles\\maloeOzeroLinearRing.geojson").Coordinates;
 
@@ -100,13 +102,13 @@ public class IntersectorBench
         {
             for (int j = 0; j < _coordinates.Length - 1; j++)
             {
-                _areasIntersector.CheckIntersection(AreasIntersectionType.Inside, _coordinates[i], _coordinates[i + 1],
+                _areasIntersector.IsIntersects(_coordinates[i], _coordinates[i + 1],
                     _coordinates[j], _coordinates[j + 1]);
-                _areasIntersector.CheckIntersection(AreasIntersectionType.Inside, _coordinates[i], _coordinates[j + 1],
+                _areasIntersector.IsIntersects(_coordinates[i], _coordinates[j + 1],
                     _coordinates[j], _coordinates[i + 1]);
-                _areasIntersector.CheckIntersection(AreasIntersectionType.Inside, _coordinates[i], _coordinates[i + 1],
+                _areasIntersector.IsIntersects(_coordinates[i], _coordinates[i + 1],
                     _coordinates[i], _coordinates[j + 1]);
-                _areasIntersector.CheckIntersection(AreasIntersectionType.Inside, _coordinates[i], _coordinates[i + 1],
+                _areasIntersector.IsIntersects(_coordinates[i], _coordinates[i + 1],
                     _coordinates[i + 1], _coordinates[i]);
             }
         }

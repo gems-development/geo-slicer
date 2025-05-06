@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Threading;
 using GeoSlicer.HoleDeleters;
-using GeoSlicer.Utils;
 using NetTopologySuite.Geometries;
 using Assert = NetTopologySuite.Utilities.Assert;
 
@@ -20,11 +19,10 @@ public class BoundingHoleDeleterTest
         //Arrange
         Polygon sample = ObjectsForTests.GetSample();
         ZeroTunnelDivider divider = ObjectsForTests.GetZeroTunnelDivider();
-        LinkedList<Coordinate> problemCoordinates;
-        LinearRing extendedTunnelsSample;
         //Act
         Polygon newSample = Deleter.DeleteHoles(sample);
-        divider.DivideZeroTunnels(newSample.Shell, out extendedTunnelsSample, out problemCoordinates);
+        divider.DivideZeroTunnels(
+            newSample.Shell, out var extendedTunnelsSample, out var problemCoordinates);
         //Assert
         Assert.IsEquals(0, newSample.Holes.Length);
         Assert.IsEquals(0, problemCoordinates.Count);
@@ -76,11 +74,10 @@ public class BoundingHoleDeleterTest
         //Arrange
         Polygon testFinal = ObjectsForTests.GetTestFinal();
         ZeroTunnelDivider divider = ObjectsForTests.GetZeroTunnelDivider();
-        LinkedList<Coordinate> problemCoordinates;
-        LinearRing extendedTunnelsTestFinal;
         //Act
         Polygon newTestFinal = Deleter.DeleteHoles(testFinal);
-        divider.DivideZeroTunnels(newTestFinal.Shell, out extendedTunnelsTestFinal, out problemCoordinates);
+        divider.DivideZeroTunnels(
+            newTestFinal.Shell, out var extendedTunnelsTestFinal, out var problemCoordinates);
         //Assert
         Assert.IsEquals(0, newTestFinal.Holes.Length);
         Assert.IsEquals(0, problemCoordinates.Count);
@@ -93,11 +90,10 @@ public class BoundingHoleDeleterTest
         //Arrange
         Polygon test2 = ObjectsForTests.GetTest2();
         ZeroTunnelDivider divider = ObjectsForTests.GetZeroTunnelDivider();
-        LinkedList<Coordinate> problemCoordinates;
-        LinearRing extendedTunnelsTest2;
         //Act
         Polygon newTest2 = Deleter.DeleteHoles(test2);
-        divider.DivideZeroTunnels(newTest2.Shell, out extendedTunnelsTest2, out problemCoordinates);
+        divider.DivideZeroTunnels(
+            newTest2.Shell, out var extendedTunnelsTest2, out var problemCoordinates);
         //Assert
         Assert.IsEquals(0, newTest2.Holes.Length);
         Assert.IsEquals(0, problemCoordinates.Count);
@@ -109,8 +105,6 @@ public class BoundingHoleDeleterTest
     {
         //Arrange
         ZeroTunnelDivider divider = ObjectsForTests.GetZeroTunnelDivider();
-        LinkedList<Coordinate> problemCoordinates;
-        LinearRing extendedTunnelsTest3;
         double initialStep = -0.01;
         double stepSize = 1e-6;
         Polygon? test3 = ObjectsForTests.GetTest3(initialStep);
@@ -118,7 +112,8 @@ public class BoundingHoleDeleterTest
         {
             //Act
             Polygon newTest3 = Deleter.DeleteHoles(test3);
-            divider.DivideZeroTunnels(newTest3.Shell, out extendedTunnelsTest3, out problemCoordinates);
+            divider.DivideZeroTunnels(
+                newTest3.Shell, out var extendedTunnelsTest3, out var problemCoordinates);
             //Assert
             Assert.IsEquals(0, newTest3.Holes.Length);
             Assert.IsEquals(0, problemCoordinates.Count);
@@ -128,15 +123,13 @@ public class BoundingHoleDeleterTest
             test3 = ObjectsForTests.GetTest3(initialStep);
         }
     }
-    
+
     [Fact]
     public void Test4Polygon()
     {
         int iterationNumber = 0;
         //Arrange
         ZeroTunnelDivider divider = ObjectsForTests.GetZeroTunnelDivider();
-        LinkedList<Coordinate> problemCoordinates;
-        LinearRing extendedTunnelsTest4;
         for (int permutationNumber = 1; permutationNumber <= 6; permutationNumber++)
         {
             double step = -0.01;
@@ -146,7 +139,8 @@ public class BoundingHoleDeleterTest
             {
                 //Act
                 Polygon newTest4 = Deleter.DeleteHoles(test4);
-                divider.DivideZeroTunnels(newTest4.Shell, out extendedTunnelsTest4, out problemCoordinates);
+                divider.DivideZeroTunnels(
+                    newTest4.Shell, out var extendedTunnelsTest4, out var problemCoordinates);
                 if (iterationNumber != 7600 && iterationNumber != 15201 && iterationNumber != 22802
                     && iterationNumber != 30403 && iterationNumber != 38004 && iterationNumber != 45605)
                 {

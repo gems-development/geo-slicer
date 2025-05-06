@@ -2,7 +2,6 @@
 using GeoSlicer.Utils;
 using GeoSlicer.Utils.Intersectors;
 using NetTopologySuite.Geometries;
-using static GeoSlicer.Utils.SegmentService;
 
 namespace GeoSlicer.NonConvexSlicer.Helpers;
 
@@ -13,7 +12,6 @@ public class NonConvexSlicerHelper
         LinesIntersectionType.Contains | LinesIntersectionType.Part |
         LinesIntersectionType.Overlay;
 
-    private const AreasIntersectionType SuitableAreaAreaIntersectionType = AreasIntersectionType.Inside;
     private readonly LinesIntersector _linesIntersector;
     private readonly AreasIntersector _areasIntersector = new();
     private readonly LineService _lineService;
@@ -26,7 +24,7 @@ public class NonConvexSlicerHelper
         _lineService = lineService;
     }
 
-    public bool CurrentPointIsSpecial(Coordinate previousPoint, Coordinate currentPoint, Coordinate nextPoint)
+    public bool IsCurrentPointSpecial(Coordinate previousPoint, Coordinate currentPoint, Coordinate nextPoint)
     {
         return LineService.VectorProduct(
             currentPoint.X - previousPoint.X,
@@ -79,7 +77,7 @@ public class NonConvexSlicerHelper
         {
             var firstCoord = ring[index];
             var secondCoord = ring[firstCoord.Nl];
-            if (_areasIntersector.CheckIntersection(SuitableAreaAreaIntersectionType,
+            if (_areasIntersector.IsIntersects(
                     coordCurrent, coordNext, firstCoord, secondCoord))
             {
                 if (_linesIntersector.CheckIntersection(SuitableLineLineIntersectionType,
@@ -92,7 +90,7 @@ public class NonConvexSlicerHelper
             index = secondCoord.C;
         }
 
-        return _areasIntersector.CheckIntersection(SuitableAreaAreaIntersectionType,
+        return _areasIntersector.IsIntersects(
                    coordCurrent, coordNext, ring[index], coordCurrent) &&
                _linesIntersector.CheckIntersection(SuitableLineLineIntersectionType,
                    coordCurrent, coordNext, ring[index], coordCurrent);
