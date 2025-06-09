@@ -26,7 +26,6 @@ public class WeilerAthertonAlgorithm
         _containsChecker = containsChecker;
     }
 
-    // todo: Переделать на массивы
     private LinkedList<CoordinateSupport> CoordinateToCoordinateSupport(LinearRing ring)
     {
         LinkedList<CoordinateSupport> result = new LinkedList<CoordinateSupport>();
@@ -195,17 +194,21 @@ public class WeilerAthertonAlgorithm
 
                 else if ((!_lineService.InsideTheAngle(currentInClipped.Value, nextInClipped.Value,
                               prevInClipped.Value, currentInCutting.Value, prevInCutting.Value)
-                          && _lineService.InsideTheAngleWithoutBorders(currentInClipped.Value,
-                              nextInCutting.Value,
+                          
+                          && _lineService.InsideTheAngleWithoutBorders(currentInClipped.Value, nextInCutting.Value,
                               prevInClipped.Value, currentInCutting.Value, prevInCutting.Value)
-                          || _lineService.InsideTheAngleWithoutBorders(currentInClipped.Value,
-                              nextInClipped.Value,
+                          
+                          
+                          || _lineService.InsideTheAngleWithoutBorders(currentInClipped.Value, nextInClipped.Value,
                               prevInClipped.Value, currentInCutting.Value, prevInCutting.Value)
+                          
                           && !_lineService.InsideTheAngle(currentInClipped.Value, nextInCutting.Value,
                               prevInClipped.Value, currentInCutting.Value, prevInCutting.Value))
-                         && _lineService.InsideTheAngleWithoutBorders(currentInClipped.Value,
-                             nextInClipped.Value,
+                         
+                         
+                         && _lineService.InsideTheAngleWithoutBorders(currentInClipped.Value, nextInClipped.Value,
                              nextInCutting.Value, currentInCutting.Value, prevInCutting.Value)
+                         
                          && _lineService.InsideTheAngleWithoutBorders(currentInClipped.Value, prevInClipped.Value,
                              nextInCutting.Value, currentInCutting.Value, prevInCutting.Value)
                          && currentInClipped.Value.Type == PointType.Useless)
@@ -260,8 +263,7 @@ public class WeilerAthertonAlgorithm
                               currentInClipped.Value, nextInClipped.Value, currentInCutting.Value))
                          && _lineService.InsideTheAngleWithoutBorders(nextInClipped.Value, nextNextInClipped.Value,
                              nextNextInCutting.Value, nextInCutting.Value, currentInCutting.Value)
-                         && _lineService.InsideTheAngleWithoutBorders(nextInClipped.Value,
-                             currentInClipped.Value,
+                         && _lineService.InsideTheAngleWithoutBorders(nextInClipped.Value, currentInClipped.Value,
                              nextInCutting.Value, currentInCutting.Value, prevInCutting.Value)
                          && nextInClipped.Value.Type == PointType.Useless)
                 {
