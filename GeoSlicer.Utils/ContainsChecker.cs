@@ -74,21 +74,15 @@ public class ContainsChecker
                 minCoord = l1;
             }
 
-            if (minCoord.Y >= p.Y + _epsilon || maxCoord.Y < p.Y
-                || minCoord.X < p.X && maxCoord.X < p.X)
+            if (minCoord.X < p.X && maxCoord.X < p.X)
             {
                 return false;
-            }
-
-            if (maxCoord.X > p.X && minCoord.X > p.X)
-            {
-                return true;
             }
 
             double product = LineService.VectorProduct(
                 minCoord.X - p.X, minCoord.Y - p.Y, p.X - maxCoord.X, p.Y - maxCoord.Y);
 
-            return product < 0;
+            return minCoord.Y < p.Y - _epsilon && maxCoord.Y >= p.Y && product < 0;
         }
     }
 
