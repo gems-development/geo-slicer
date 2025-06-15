@@ -812,28 +812,14 @@ public class WeilerAthertonAlgorithm
         }
 
         return Array.Empty<Polygon>();
+        
 
         bool IsIntersectsWithCuttingByEnvelope(double clippedMinY, double clippedMaxY, double clippedMaxX,
             double clippedMinX)
         {
-            return clippedMinY <= cuttingMaxY && clippedMaxY >= cuttingMaxY &&
-                   clippedMaxX >= cuttingMinX && clippedMinX <= cuttingMinX ||
-                   clippedMinY <= cuttingMaxY && clippedMaxY >= cuttingMaxY &&
-                   clippedMinX <= cuttingMaxX && clippedMaxX >= cuttingMaxX ||
-                   clippedMaxY >= cuttingMinY && clippedMinY <= cuttingMinY &&
-                   clippedMinX <= cuttingMaxX && clippedMaxX >= cuttingMaxX ||
-                   clippedMaxY >= cuttingMinY && clippedMinY <= cuttingMinY &&
-                   clippedMaxX >= cuttingMinX && clippedMinX <= cuttingMinX ||
-                   clippedMinY <= cuttingMaxY && clippedMaxY >= cuttingMaxY &&
-                   clippedMinX >= cuttingMinX && clippedMaxX <= cuttingMaxX ||
-                   clippedMinY <= cuttingMinY && clippedMaxY >= cuttingMinY &&
-                   clippedMinX >= cuttingMinX && clippedMaxX <= cuttingMaxX ||
-                   clippedMinY >= cuttingMinY && clippedMaxY <= cuttingMaxY &&
-                   clippedMinX <= cuttingMaxX && clippedMaxX >= cuttingMaxX ||
-                   clippedMinY >= cuttingMinY && clippedMaxY <= cuttingMaxY &&
-                   clippedMinX <= cuttingMinX && clippedMaxX >= cuttingMinX ||
-                   clippedMaxY <= cuttingMaxY && clippedMinY >= cuttingMinY &&
-                   clippedMaxX <= cuttingMaxX && clippedMinX >= cuttingMinX;
+            return _areasIntersector.IsIntersects(
+                cuttingMinX, cuttingMinY, cuttingMaxX, cuttingMaxY,
+                clippedMinX, clippedMinY, clippedMaxX, clippedMaxY);
         }
 
         void MakeNotesInAllRings(out int numberOfEnteringMarksInner)
