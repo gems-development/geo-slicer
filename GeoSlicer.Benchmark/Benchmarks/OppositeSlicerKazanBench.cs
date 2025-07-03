@@ -15,14 +15,13 @@ namespace GeoSlicer.Benchmark.Benchmarks;
 public class OppositeSlicerKazanBench
 {
     private static readonly WeilerAthertonAlgorithm WeilerAtherton = new WeilerAthertonAlgorithm(
-        new LinesIntersector(new EpsilonCoordinateComparator(1E-8),
+        new LinesIntersector(new EpsilonCoordinateComparator(1E-9),
             new LineService(1E-10, new EpsilonCoordinateComparator(1E-10)), 1E-15),
         new LineService(1E-15, new EpsilonCoordinateComparator(1E-8)),
         new EpsilonCoordinateComparator(1E-8),
         new ContainsChecker(new LineService(1E-15, new EpsilonCoordinateComparator(1E-8)), 1E-15));
 
-    private static readonly Slicer Slicer = new Slicer(5,
-        WeilerAtherton, new ConvexityIndexesGiver(new LineService(1E-5, new EpsilonCoordinateComparator(1E-8))));
+    private static readonly Slicer Slicer = new Slicer(128, new ConvexityIndexesGiver(new LineService(1E-5, new EpsilonCoordinateComparator(1E-8))), new WeilerAthertonPolygonSlicer(WeilerAtherton));
 
     private static readonly GeoJsonFileService GeoJsonFileService = new GeoJsonFileService();
 
